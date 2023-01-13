@@ -294,7 +294,7 @@ def proceed(pair: str):
     opt = tf.keras.optimizers.Adam(learning_rate=0.001)
     model.compile(optimizer=opt, loss='mae')
     model.summary()
-    fit = model.fit(X, y, epochs=1, batch_size=32)
+    fit = model.fit(X, y, epochs=50, batch_size=32)
     # Plot loss
     plot_loss(fit.history['loss'], 0, pair)
     # Take n_steps_in from the last n_steps_in of the dataset
