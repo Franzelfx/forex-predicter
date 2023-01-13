@@ -60,7 +60,7 @@ def plot_candles(df, pair_name):
                     high=df['High'],
                     low=df['Low'],
                     close=df['Close'])])
-    fig.write_image(f"pairs/chart/{pair_name}_chart.png", width=1920, height=1080, scale=1)
+    fig.write_image(f"../pairs/chart/{pair_name}_chart.png", width=1920, height=1080, scale=1)
 
 def plot_predictions(n_steps_in, n_steps_out, train, test, y_hat, pair_name):
     # Plot the last n_steps in of the close price and the prediction/test (x of prediction starts at the last n_steps_in)
@@ -72,7 +72,7 @@ def plot_predictions(n_steps_in, n_steps_out, train, test, y_hat, pair_name):
     # Plot test
     plt.plot(np.arange(n_steps_in, n_steps_in + n_steps_out), test[:n_steps_out], label='Test')
     plt.legend()
-    plt.savefig(f'predictions/{pair_name}_test.png')
+    plt.savefig(f'../predictions/{pair_name}_test.png')
     plt.cla()
 
 def plot_loss(loss, val_loss, pair_name):
@@ -82,7 +82,7 @@ def plot_loss(loss, val_loss, pair_name):
     plt.xlabel('Epoch')
     plt.ylabel('Error [Close]')
     plt.legend()
-    plt.savefig(f'train/{pair_name}_train.png', format='png')
+    plt.savefig(f'../train/{pair_name}_train.png', format='png')
     plt.cla()
 
 def get_data(pair):
@@ -104,7 +104,7 @@ def get_data(pair):
     data_3 = requests.get(url_3).json()
     if not 'results' in (data_1 and data_2 and data_3):
         print('Data from csv')
-        df = pd.read_csv(f'pairs/{pair}.csv')
+        df = pd.read_csv(f'../pairs/{pair}.csv')
     else:
         print('Data from api')
         df_1 = pd.DataFrame(data_1['results'])
@@ -120,7 +120,7 @@ def get_data(pair):
         # Add a row with the indexes from 0 to len(df)
         df['Index'] = np.arange(0, len(df))
         # Safe to csv
-        df.to_csv(f'pairs/{pair}.csv')
+        df.to_csv(f'../pairs/{pair}.csv')
     return df
 
 def on_balance_volume(close, volume):
@@ -294,7 +294,7 @@ def proceed(pair: str):
     opt = tf.keras.optimizers.Adam(learning_rate=0.001)
     model.compile(optimizer=opt, loss='mae')
     model.summary()
-    fit = model.fit(X, y, epochs=50, batch_size=32)
+    fit = model.fit(X, y, epochs=1, batch_size=32)
     # Plot loss
     plot_loss(fit.history['loss'], 0, pair)
     # Take n_steps_in from the last n_steps_in of the dataset
