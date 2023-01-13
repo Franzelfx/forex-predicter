@@ -39,16 +39,19 @@ def main():
         print(f"Processing pair: {pair}")
         proceed(pair)
 
-def model_1(n_steps_in, n_steps_out, n_features, units=32):
+def model_1(n_steps_in, n_steps_out, n_features, units=64):
     model = Sequential()
     model.add(LSTM(units, activation='tanh', return_sequences=True, input_shape=(n_steps_in, n_features)))
-    model.add(LSTM(units - 16, activation='tanh', return_sequences=False))
+    model.add(LSTM(units - 32, activation='tanh', return_sequences=False))
     model.add(RepeatVector(n_steps_out))
-    model.add(LSTM(units - 16, activation='tanh', return_sequences=True))
+    model.add(LSTM(units - 32, activation='tanh', return_sequences=True))
     model.add(LSTM(units, activation='tanh', return_sequences=True))
     model.add(TimeDistributed(Dense(units, activation='relu')))
+    model.add(Dropout(0.2))
     model.add(TimeDistributed(Dense(units, activation='relu')))
+    model.add(Dropout(0.2))
     model.add(TimeDistributed(Dense(units, activation='relu')))
+    model.add(Dropout(0.2))
     model.add(TimeDistributed(Dense(1, activation='linear')))
     model.build(input_shape=(n_steps_in, n_features))
     return model
@@ -289,12 +292,12 @@ def proceed(pair: str):
     # The dataset knows the number of features, e.g. 2
     n_features = X.shape[2]
     # Define model
-    model = model_1(n_steps_in, n_steps_out, n_features, units=32)
+    model = model_1(n_steps_in, n_steps_out, n_features)
     #Fit model
     opt = tf.keras.optimizers.Adam(learning_rate=0.001)
     model.compile(optimizer=opt, loss='mae')
     model.summary()
-    fit = model.fit(X, y, epochs=50, batch_size=32)
+    fit = model.fit(X, y, epochs=100, batch_size=32)
     # Plot loss
     plot_loss(fit.history['loss'], 0, pair)
     # Take n_steps_in from the last n_steps_in of the dataset
