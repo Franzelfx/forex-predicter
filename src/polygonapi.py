@@ -41,11 +41,11 @@ def main():
 
 def model_1(n_steps_in, n_steps_out, n_features, units=32):
     model = Sequential()
-    model.add(LSTM(units, activation='relu', return_sequences=True, input_shape=(n_steps_in, n_features)))
-    model.add(LSTM(units - 32, activation='relu', return_sequences=False))
+    model.add(LSTM(units, activation='tanh', return_sequences=True, input_shape=(n_steps_in, n_features)))
+    model.add(LSTM(units - 32, activation='tanh', return_sequences=False))
     model.add(RepeatVector(n_steps_out))
-    model.add(LSTM(units - 32, activation='relu', return_sequences=True))
-    model.add(LSTM(units, activation='relu', return_sequences=True))
+    model.add(LSTM(units - 32, activation='tanh', return_sequences=True))
+    model.add(LSTM(units, activation='tanh', return_sequences=True))
     model.add(TimeDistributed(Dense(units, activation='relu')))
     model.add(TimeDistributed(Dense(units, activation='relu')))
     model.add(TimeDistributed(Dense(units, activation='relu')))
