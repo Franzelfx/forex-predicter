@@ -48,6 +48,8 @@ def model_1(n_steps_in, n_steps_out, n_features, units=64):
     model.add(Bidirectional(LSTM(round(units / 2), return_sequences=True)))
     model.add(Bidirectional(LSTM(units, return_sequences=True)))
     model.add(TimeDistributed(Dense(units)))
+    model.add(Dropout(0.2))
+    model.add(TimeDistributed(Dense(units)))
     model.add(TimeDistributed(Dense(1)))
     model.build(input_shape=(n_steps_in, n_features))
     return model
@@ -265,7 +267,7 @@ def get_model_dataset(df, n_steps_out):
     in_seq10 = in_seq10.reshape((len(in_seq10), 1))
     in_seq11 = in_seq11.reshape((len(in_seq11), 1))
     # Horizontal stack inputs
-    dataset = np.hstack((in_seq1, in_seq5, in_seq6, in_seq7, in_seq8, in_seq9, in_seq10, in_seq11))
+    dataset = np.hstack((in_seq1, in_seq5))
     # Print shapes
     print(dataset.shape)
     return dataset, _open, test_open, scaler_open
