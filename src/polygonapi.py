@@ -41,17 +41,19 @@ def main():
 
 def model_1(n_steps_in, n_steps_out, n_features, units=64):
     model = Sequential()
-    model.add(TimeDistributed(Dense(units), input_shape=(n_steps_in, n_features)))
-    model.add(Bidirectional(LSTM(units, return_sequences=True)))
-    model.add(Bidirectional(LSTM(round(units / 2))))
+    model.add(LSTM(units, return_sequences=True, input_shape=(n_steps_in, n_features)))
+    model.add(LSTM(round(units / 2)))
     model.add(RepeatVector(n_steps_out))
-    model.add(Bidirectional(LSTM(round(units / 2), return_sequences=True)))
-    model.add(Bidirectional(LSTM(units, return_sequences=True)))
+    model.add(LSTM(units, return_sequences=True))
+    model.add(LSTM(round(units / 2), return_sequences=True))
     model.add(TimeDistributed(Dense(units)))
     model.add(Dropout(0.2))
     model.add(TimeDistributed(Dense(units)))
+    model.add(Dropout(0.2))
+    model.add(TimeDistributed(Dense(units)))
+    model.add(Dropout(0.2))
     model.add(TimeDistributed(Dense(1)))
-    model.build(input_shape=(n_steps_in, n_features))
+    model.build()
     return model
 
 def plot_candles(df, pair_name):
