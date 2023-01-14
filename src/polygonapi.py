@@ -45,7 +45,6 @@ def model_1(n_steps_in, n_steps_out, n_features, units=64):
     model.add(MaxPooling1D(pool_size=2))
     model.add(Flatten())
     model.add(RepeatVector(n_steps_out))
-    model.add(LSTM(round(units / 2), activation='tanh', return_sequences=True))
     model.add(LSTM(units, activation='tanh', return_sequences=True))
     model.add(TimeDistributed(Dense(units, activation='tanh')))
     model.add(Dropout(0.2))
@@ -294,10 +293,10 @@ def proceed(pair: str):
     # Define model
     model = model_1(n_steps_in, n_steps_out, n_features, units=64)
     #Fit model
-    opt = tf.keras.optimizers.Adam(learning_rate=0.001)
+    opt = tf.keras.optimizers.Adam(learning_rate=0.002)
     model.compile(optimizer=opt, loss='mae')
     model.summary()
-    fit = model.fit(X, y, epochs=100, batch_size=32, validation_split=0.2)
+    fit = model.fit(X, y, epochs=100, batch_size=64, validation_split=0.2)
     # Plot loss
     plot_loss(fit.history['loss'], fit.history['val_loss'], pair)
     # Take n_steps_in from the last n_steps_in of the dataset
