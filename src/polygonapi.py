@@ -41,8 +41,9 @@ def main():
 
 def model_1(n_steps_in, n_steps_out, n_features, units=64):
     model = Sequential()
-    model.add(LSTM(units, activation='tanh', return_sequences=True, input_shape=(n_steps_in, n_features)))
-    model.add(LSTM(round(units / 2), activation='tanh', return_sequences=False))
+    model.add(Conv1D(filters=64, kernel_size=16, activation='tanh', input_shape=(n_steps_in, n_features)))
+    model.add(MaxPooling1D(pool_size=2))
+    model.add(Flatten())
     model.add(RepeatVector(n_steps_out))
     model.add(LSTM(round(units / 2), activation='tanh', return_sequences=True))
     model.add(LSTM(units, activation='tanh', return_sequences=True))
@@ -269,7 +270,7 @@ def get_model_dataset(df, n_steps_out):
     in_seq10 = in_seq10.reshape((len(in_seq10), 1))
     in_seq11 = in_seq11.reshape((len(in_seq11), 1))
     # Horizontal stack inputs
-    dataset = np.hstack((in_seq1, in_seq2, in_seq3, in_seq4, in_seq5, in_seq6, in_seq7, in_seq8, in_seq9, in_seq10, in_seq11))
+    dataset = np.hstack((in_seq1, in_seq5, in_seq7))
     # Print shapes
     print(dataset.shape)
     return dataset, _open, test_open, scaler_open
@@ -291,7 +292,7 @@ def proceed(pair: str):
     # The dataset knows the number of features, e.g. 2
     n_features = X.shape[2]
     # Define model
-    model = model_1(n_steps_in, n_steps_out, n_features, units=256)
+    model = model_1(n_steps_in, n_steps_out, n_features, units=64)
     #Fit model
     opt = tf.keras.optimizers.Adam(learning_rate=0.001)
     model.compile(optimizer=opt, loss='mae')
