@@ -7,7 +7,7 @@ from keras.models import Sequential
 from matplotlib import pyplot as plt
 from datetime import datetime, timedelta
 from sklearn.preprocessing import MinMaxScaler
-from keras.layers import Dense, LSTM, Dropout, RepeatVector, TimeDistributed, Bidirectional
+from keras.layers import Dense, LSTM, Dropout, RepeatVector, TimeDistributed, Bidirectional, Reshape
 
 # replace the "demo" apikey below with your own key from https://www.alphavantage.co/support/#api-key
 PAIR = 'GBPUSD'
@@ -41,13 +41,11 @@ def main():
 
 def model_1(n_steps_in, n_steps_out, n_features, units=64):
     model = Sequential()
-    model.add(Bidirectional(LSTM(units, activation='tanh', return_sequences=False, input_shape=(n_steps_in, n_features))))
+    model.add(TimeDistributed(Dense(units), input_shape=(n_steps_in, n_features)))
+    model.add(Bidirectional(LSTM(units)))
     model.add(RepeatVector(n_steps_out))
-    model.add(Bidirectional(LSTM(units, activation='tanh', return_sequences=True)))
-    model.add(TimeDistributed(Dense(units, activation='tanh')))
-    model.add(TimeDistributed(Dense(units, activation='tanh')))
-    model.add(TimeDistributed(Dense(units, activation='tanh')))
-    model.add(TimeDistributed(Dense(1, activation='linear')))
+    model.add(Bidirectional(LSTM(units, return_sequences=True)))
+    model.add(TimeDistributed(Dense(1)))
     model.build(input_shape=(n_steps_in, n_features))
     return model
 
@@ -288,7 +286,7 @@ def proceed(pair: str):
     # Define model
     model = model_1(n_steps_in, n_steps_out, n_features, units=64)
     #Fit model
-    opt = tf.keras.optimizers.Adam(learning_rate=0.002)
+    opt = tf.keras.optimizers.Adam(learning_rate=0.001)
     model.compile(optimizer=opt, loss='mae')
     model.summary()
     fit = model.fit(X, y, epochs=100, batch_size=64, validation_split=0.2)
