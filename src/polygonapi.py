@@ -42,15 +42,15 @@ def main():
 def model_1(n_steps_in, n_steps_out, n_features, units=64):
     model = Sequential()
     model.add(LSTM(units, activation='tanh', return_sequences=True, input_shape=(n_steps_in, n_features)))
-    model.add(LSTM(units - 50, activation='tanh', return_sequences=False))
+    model.add(LSTM(round(units / 2), activation='tanh', return_sequences=False))
     model.add(RepeatVector(n_steps_out))
-    model.add(LSTM(units - 50, activation='tanh', return_sequences=True))
+    model.add(LSTM(round(units / 2), activation='tanh', return_sequences=True))
     model.add(LSTM(units, activation='tanh', return_sequences=True))
-    model.add(TimeDistributed(Dense(units, activation='relu')))
+    model.add(TimeDistributed(Dense(units, activation='tanh')))
     model.add(Dropout(0.2))
-    model.add(TimeDistributed(Dense(units, activation='relu')))
+    model.add(TimeDistributed(Dense(units, activation='tanh')))
     model.add(Dropout(0.2))
-    model.add(TimeDistributed(Dense(32, activation='relu')))
+    model.add(TimeDistributed(Dense(units, activation='tanh')))
     model.add(Dropout(0.2))
     model.add(TimeDistributed(Dense(1, activation='linear')))
     model.build(input_shape=(n_steps_in, n_features))
@@ -218,17 +218,17 @@ def get_model_dataset(df, n_steps_out):
     stoch, test_stoch = stoch[0:train_size], stoch[train_size:len(stoch)]
 
     # Scale volume and close price
-    scaler_open = MinMaxScaler(feature_range=(0, 1))
-    scaler_high = MinMaxScaler(feature_range=(0, 1))
-    scaler_low = MinMaxScaler(feature_range=(0, 1))
-    scaler_close = MinMaxScaler(feature_range=(0, 1))
-    scaler_volume = MinMaxScaler(feature_range=(0, 1))
-    scaler_volume_weighted = MinMaxScaler(feature_range=(0, 1))
-    scaler_moving_average = MinMaxScaler(feature_range=(0, 1))
-    scaler_obv = MinMaxScaler(feature_range=(0, 1))
-    scaler_ad = MinMaxScaler(feature_range=(0, 1))
-    scaler_rsi = MinMaxScaler(feature_range=(0, 1))
-    scaler_stoch = MinMaxScaler(feature_range=(0, 1))
+    scaler_open = MinMaxScaler(feature_range=(-1, 1))
+    scaler_high = MinMaxScaler(feature_range=(-1, 1))
+    scaler_low = MinMaxScaler(feature_range=(-1, 1))
+    scaler_close = MinMaxScaler(feature_range=(-1, 1))
+    scaler_volume = MinMaxScaler(feature_range=(-1, 1))
+    scaler_volume_weighted = MinMaxScaler(feature_range=(-1, 1))
+    scaler_moving_average = MinMaxScaler(feature_range=(-1, 1))
+    scaler_obv = MinMaxScaler(feature_range=(-1, 1))
+    scaler_ad = MinMaxScaler(feature_range=(-1, 1))
+    scaler_rsi = MinMaxScaler(feature_range=(-1, 1))
+    scaler_stoch = MinMaxScaler(feature_range=(-1, 1))
 
     # Fit the scaler
     _open = scaler_open.fit_transform(_open.reshape(-1, 1))
@@ -291,7 +291,7 @@ def proceed(pair: str):
     # The dataset knows the number of features, e.g. 2
     n_features = X.shape[2]
     # Define model
-    model = model_1(n_steps_in, n_steps_out, n_features, units=100)
+    model = model_1(n_steps_in, n_steps_out, n_features, units=256)
     #Fit model
     opt = tf.keras.optimizers.Adam(learning_rate=0.001)
     model.compile(optimizer=opt, loss='mae')
