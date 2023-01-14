@@ -42,15 +42,15 @@ def main():
 def model_1(n_steps_in, n_steps_out, n_features, units=64):
     model = Sequential()
     model.add(LSTM(units, activation='tanh', return_sequences=True, input_shape=(n_steps_in, n_features)))
-    model.add(LSTM(units - 32, activation='tanh', return_sequences=False))
+    model.add(LSTM(units - 50, activation='tanh', return_sequences=False))
     model.add(RepeatVector(n_steps_out))
-    model.add(LSTM(units - 32, activation='tanh', return_sequences=True))
+    model.add(LSTM(units - 50, activation='tanh', return_sequences=True))
     model.add(LSTM(units, activation='tanh', return_sequences=True))
     model.add(TimeDistributed(Dense(units, activation='relu')))
     model.add(Dropout(0.2))
     model.add(TimeDistributed(Dense(units, activation='relu')))
     model.add(Dropout(0.2))
-    model.add(TimeDistributed(Dense(units, activation='relu')))
+    model.add(TimeDistributed(Dense(32, activation='relu')))
     model.add(Dropout(0.2))
     model.add(TimeDistributed(Dense(1, activation='linear')))
     model.build(input_shape=(n_steps_in, n_features))
@@ -245,11 +245,11 @@ def get_model_dataset(df, n_steps_out):
 
     # Convert to numpy arrays
     in_seq1 = np.array(_open)
-    #in_seq2 = np.array(high)
-    #in_seq3 = np.array(low)
-    #in_seq4 = np.array(close)
+    in_seq2 = np.array(high)
+    in_seq3 = np.array(low)
+    in_seq4 = np.array(close)
     in_seq5 = np.array(volume)
-    #in_seq6 = np.array(volume_weighted)
+    in_seq6 = np.array(volume_weighted)
     in_seq7 = np.array(moving_average)
     in_seq8 = np.array(obv)
     in_seq9 = np.array(ad)
@@ -258,19 +258,18 @@ def get_model_dataset(df, n_steps_out):
 
     # Convert to 2D array
     in_seq1 = in_seq1.reshape((len(in_seq1), 1))
-    #in_seq2 = in_seq2.reshape((len(in_seq2), 1))
-    #in_seq3 = in_seq3.reshape((len(in_seq3), 1))
-    #in_seq4 = in_seq4.reshape((len(in_seq4), 1))
+    in_seq2 = in_seq2.reshape((len(in_seq2), 1))
+    in_seq3 = in_seq3.reshape((len(in_seq3), 1))
+    in_seq4 = in_seq4.reshape((len(in_seq4), 1))
     in_seq5 = in_seq5.reshape((len(in_seq5), 1))
-    #in_seq6 = in_seq6.reshape((len(in_seq6), 1))
+    in_seq6 = in_seq6.reshape((len(in_seq6), 1))
     in_seq7 = in_seq7.reshape((len(in_seq7), 1))
     in_seq8 = in_seq8.reshape((len(in_seq8), 1))
     in_seq9 = in_seq9.reshape((len(in_seq9), 1))
     in_seq10 = in_seq10.reshape((len(in_seq10), 1))
     in_seq11 = in_seq11.reshape((len(in_seq11), 1))
     # Horizontal stack inputs
-    #dataset = np.hstack((in_seq1, in_seq2, in_seq3, in_seq4, in_seq5, in_seq6, in_seq7, in_seq8))
-    dataset = np.hstack((in_seq1, in_seq5, in_seq7, in_seq8, in_seq9, in_seq10, in_seq11))
+    dataset = np.hstack((in_seq1, in_seq2, in_seq3, in_seq4, in_seq5, in_seq6, in_seq7, in_seq8, in_seq9, in_seq10, in_seq11))
     # Print shapes
     print(dataset.shape)
     return dataset, _open, test_open, scaler_open
@@ -292,14 +291,14 @@ def proceed(pair: str):
     # The dataset knows the number of features, e.g. 2
     n_features = X.shape[2]
     # Define model
-    model = model_1(n_steps_in, n_steps_out, n_features)
+    model = model_1(n_steps_in, n_steps_out, n_features, units=100)
     #Fit model
     opt = tf.keras.optimizers.Adam(learning_rate=0.001)
     model.compile(optimizer=opt, loss='mae')
     model.summary()
-    fit = model.fit(X, y, epochs=100, batch_size=32)
+    fit = model.fit(X, y, epochs=100, batch_size=32, validation_split=0.2)
     # Plot loss
-    plot_loss(fit.history['loss'], 0, pair)
+    plot_loss(fit.history['loss'], fit.history['val_loss'], pair)
     # Take n_steps_in from the last n_steps_in of the dataset
     x_input = dataset[-n_steps_in:, :]
     # Reshape to [1, n_steps_in, n_features]
