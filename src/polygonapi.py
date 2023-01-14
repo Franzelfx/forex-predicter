@@ -7,7 +7,7 @@ from keras.models import Sequential
 from matplotlib import pyplot as plt
 from datetime import datetime, timedelta
 from sklearn.preprocessing import MinMaxScaler
-from keras.layers import Dense, LSTM, Dropout, RepeatVector, TimeDistributed, Conv1D, MaxPooling1D, Flatten
+from keras.layers import Dense, LSTM, Dropout, RepeatVector, TimeDistributed, Bidirectional
 
 # replace the "demo" apikey below with your own key from https://www.alphavantage.co/support/#api-key
 PAIR = 'GBPUSD'
@@ -41,15 +41,9 @@ def main():
 
 def model_1(n_steps_in, n_steps_out, n_features, units=64):
     model = Sequential()
-    model.add(Conv1D(filters=64, kernel_size=16, activation='tanh', input_shape=(n_steps_in, n_features)))
-    model.add(MaxPooling1D(pool_size=2))
-    model.add(Flatten())
+    model.add(Bidirectional(LSTM(units, activation='tanh', return_sequences=False, input_shape=(n_steps_in, n_features))))
     model.add(RepeatVector(n_steps_out))
-    model.add(LSTM(units, activation='tanh', return_sequences=True))
-    model.add(Dropout(0.2))
-    model.add(LSTM(units, activation='tanh', return_sequences=True))
-    model.add(Dropout(0.2))
-    model.add(LSTM(units, activation='tanh', return_sequences=True))
+    model.add(Bidirectional(LSTM(units, activation='tanh', return_sequences=True)))
     model.add(TimeDistributed(Dense(units, activation='tanh')))
     model.add(TimeDistributed(Dense(units, activation='tanh')))
     model.add(TimeDistributed(Dense(units, activation='tanh')))
