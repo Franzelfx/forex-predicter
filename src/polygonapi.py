@@ -47,6 +47,8 @@ def model_1(n_steps_in, n_steps_out, n_features, units=32):
     model.add(LSTM(units, return_sequences=True))
     model.add(LSTM(round(units / 2), return_sequences=True))
     model.add(TimeDistributed(Dense(units)))
+    model.add(Dropout(0.2))
+    model.add(TimeDistributed(Dense(units)))
     model.add(TimeDistributed(Dense(1)))
     model.build()
     return model
@@ -305,7 +307,7 @@ def proceed(pair: str):
         monitor='val_loss',
         mode='min',
         save_best_only=True)
-    fit = model.fit(X, y, epochs=100, batch_size=64, validation_split=0.2, callbacks=[model_checkpoint_callback])
+    fit = model.fit(X, y, epochs=100, batch_size=16, validation_split=0.2, callbacks=[model_checkpoint_callback])
     model.load_weights('tmp/model.h5')
     # Plot loss
     plot_loss(fit.history['loss'], fit.history['val_loss'], pair)
