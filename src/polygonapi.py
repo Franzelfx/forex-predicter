@@ -275,7 +275,7 @@ def get_model_dataset(df, n_steps_out):
     return dataset, _open, test_open, scaler_open
 
 def proceed(pair: str):
-    n_steps_in = 60
+    n_steps_in = 100
     n_steps_out = 30
     # Get the data from the API or from CSV
     df = get_data(pair)
