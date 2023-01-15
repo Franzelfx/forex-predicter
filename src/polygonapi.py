@@ -39,7 +39,7 @@ def main():
         print(f"Processing pair: {pair}")
         proceed(pair)
 
-def model_1(n_steps_in, n_steps_out, n_features, units=64):
+def model_1(n_steps_in, n_steps_out, n_features, units=32):
     model = Sequential()
     model.add(LSTM(units, return_sequences=True, input_shape=(n_steps_in, n_features)))
     model.add(LSTM(round(units / 2)))
@@ -47,11 +47,6 @@ def model_1(n_steps_in, n_steps_out, n_features, units=64):
     model.add(LSTM(units, return_sequences=True))
     model.add(LSTM(round(units / 2), return_sequences=True))
     model.add(TimeDistributed(Dense(units)))
-    model.add(Dropout(0.2))
-    model.add(TimeDistributed(Dense(units)))
-    model.add(Dropout(0.2))
-    model.add(TimeDistributed(Dense(units)))
-    model.add(Dropout(0.2))
     model.add(TimeDistributed(Dense(1)))
     model.build()
     return model
@@ -105,7 +100,13 @@ def get_data(pair):
     date_end = (datetime.now() - timedelta(days=50)).strftime("%Y-%m-%d")
     url_3 = f'https://api.polygon.io/v2/aggs/ticker/C:{pair}/range/{MINUTES}/minute/{date_start}/{date_end}?adjusted=true&sort=asc&limit=50000&apiKey={TOKEN}'
     data_3 = requests.get(url_3).json()
-    if not 'results' in (data_1 and data_2 and data_3):
+
+    date_start = (datetime.now() - timedelta(days=110)).strftime("%Y-%m-%d")
+    date_end = (datetime.now() - timedelta(days=80)).strftime("%Y-%m-%d")
+    url_4 = f'https://api.polygon.io/v2/aggs/ticker/C:{pair}/range/{MINUTES}/minute/{date_start}/{date_end}?adjusted=true&sort=asc&limit=50000&apiKey={TOKEN}'
+    data_4 = requests.get(url_4).json()
+
+    if not 'results' in (data_1 and data_2 and data_3 and data_4):
         print('Data from csv')
         df = pd.read_csv(f'../pairs/{pair}.csv')
     else:
@@ -113,7 +114,8 @@ def get_data(pair):
         df_1 = pd.DataFrame(data_1['results'])
         df_2 = pd.DataFrame(data_2['results'])
         df_3 = pd.DataFrame(data_3['results'])
-        df = pd.concat([df_1, df_2, df_3], ignore_index=True)
+        df_4 = pd.DataFrame(data_4['results'])
+        df = pd.concat([df_1, df_2, df_3, df_4], ignore_index=True)
         df = df.sort_values(by=['t'])
         # Convert to dataframe
         df['t'] = pd.to_datetime(df['t'], unit='ms')
@@ -269,13 +271,13 @@ def get_model_dataset(df, n_steps_out):
     in_seq10 = in_seq10.reshape((len(in_seq10), 1))
     in_seq11 = in_seq11.reshape((len(in_seq11), 1))
     # Horizontal stack inputs
-    dataset = np.hstack((in_seq1, in_seq5))
+    dataset = np.hstack((in_seq1,in_seq2,in_seq3,in_seq4,in_seq5,in_seq6,in_seq7,in_seq8,in_seq9,in_seq10,in_seq11))
     # Print shapes
     print(dataset.shape)
     return dataset, _open, test_open, scaler_open
 
 def proceed(pair: str):
-    n_steps_in = 100
+    n_steps_in = 60
     n_steps_out = 30
     # Get the data from the API or from CSV
     df = get_data(pair)
@@ -291,12 +293,20 @@ def proceed(pair: str):
     # The dataset knows the number of features, e.g. 2
     n_features = X.shape[2]
     # Define model
-    model = model_1(n_steps_in, n_steps_out, n_features, units=128)
+    model = model_1(n_steps_in, n_steps_out, n_features, units=64)
     #Fit model
     opt = tf.keras.optimizers.Adam(learning_rate=0.001)
     model.compile(optimizer=opt, loss='mae')
     model.summary()
-    fit = model.fit(X, y, epochs=100, batch_size=16, validation_split=0.2)
+
+    model_checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
+        filepath='tmp/model.h5',
+        save_weights_only=False,
+        monitor='val_loss',
+        mode='min',
+        save_best_only=True)
+    fit = model.fit(X, y, epochs=100, batch_size=64, validation_split=0.2, callbacks=[model_checkpoint_callback])
+    model.load_weights('tmp/model.h5')
     # Plot loss
     plot_loss(fit.history['loss'], fit.history['val_loss'], pair)
     # Take n_steps_in from the last n_steps_in of the dataset
