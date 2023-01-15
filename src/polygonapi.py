@@ -41,8 +41,8 @@ def main():
 
 def model_1(n_steps_in, n_steps_out, n_features, units=32):
     model = Sequential()
-    model.add(Conv1D(filters=64, kernel_size=2, activation='tanh', input_shape=(n_steps_in, n_features)))
-    model.add(MaxPooling1D(pool_size=2))
+    model.add(Conv1D(filters=64, kernel_size=16, activation='tanh', input_shape=(n_steps_in, n_features)))
+    model.add(MaxPooling1D(pool_size=8))
     model.add(Bidirectional(LSTM(units, return_sequences=False)))
     model.add(Dropout(0.2))
     model.add(Bidirectional(LSTM(round(units / 2), return_sequences=False)))
