@@ -7,7 +7,7 @@ from keras.models import Sequential
 from matplotlib import pyplot as plt
 from datetime import datetime, timedelta
 from sklearn.preprocessing import MinMaxScaler
-from keras.layers import Dense, LSTM, Dropout, RepeatVector, TimeDistributed, Bidirectional, Reshape
+from keras.layers import Dense, LSTM, Dropout, RepeatVector, TimeDistributed, Bidirectional, Reshape, Conv1D, MaxPooling1D, Flatten
 
 # replace the "demo" apikey below with your own key from https://www.alphavantage.co/support/#api-key
 PAIR = 'GBPUSD'
@@ -41,11 +41,11 @@ def main():
 
 def model_1(n_steps_in, n_steps_out, n_features, units=32):
     model = Sequential()
-    model.add(LSTM(units, return_sequences=True, input_shape=(n_steps_in, n_features)))
-    model.add(LSTM(round(units / 2)))
+    model.add(Conv1D(filters=64, kernel_size=2, activation='tanh', input_shape=(n_steps_in, n_features)))
+    model.add(MaxPooling1D(pool_size=2))
+    model.add(Bidirectional(LSTM(units, return_sequences=False)))
     model.add(RepeatVector(n_steps_out))
-    model.add(LSTM(units, return_sequences=True))
-    model.add(LSTM(round(units / 2), return_sequences=True))
+    model.add(Bidirectional(LSTM(units, return_sequences=True)))
     model.add(TimeDistributed(Dense(units)))
     model.add(Dropout(0.2))
     model.add(TimeDistributed(Dense(units)))
