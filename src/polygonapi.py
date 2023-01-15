@@ -41,7 +41,7 @@ def main():
 
 def model_1(n_steps_in, n_steps_out, n_features, units=32):
     model = Sequential()
-    model.add(Conv1D(filters=64, kernel_size=16, activation='tanh', input_shape=(n_steps_in, n_features)))
+    model.add(Conv1D(filters=units, kernel_size=round(units / 8), activation='tanh', input_shape=(n_steps_in, n_features)))
     model.add(MaxPooling1D(pool_size=8))
     model.add(Bidirectional(LSTM(units, return_sequences=True)))
     model.add(Dropout(0.2))
@@ -279,7 +279,7 @@ def get_model_dataset(df, n_steps_out):
     in_seq10 = in_seq10.reshape((len(in_seq10), 1))
     in_seq11 = in_seq11.reshape((len(in_seq11), 1))
     # Horizontal stack inputs
-    dataset = np.hstack((in_seq1,in_seq2,in_seq3,in_seq4,in_seq5,in_seq6,in_seq7,in_seq8,in_seq9,in_seq10,in_seq11))
+    dataset = np.hstack((in_seq1, in_seq2, in_seq3, in_seq4, in_seq5))
     # Print shapes
     print(dataset.shape)
     return dataset, _open, test_open, scaler_open
@@ -303,7 +303,7 @@ def proceed(pair: str):
     # Define model
     model = model_1(n_steps_in, n_steps_out, n_features, units=64)
     #Fit model
-    opt = tf.keras.optimizers.Adam(learning_rate=0.001)
+    opt = tf.keras.optimizers.Adam(learning_rate=0.0005)
     model.compile(optimizer=opt, loss='mae')
     model.summary()
 
