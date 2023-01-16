@@ -7,7 +7,7 @@ from keras.models import Sequential
 from matplotlib import pyplot as plt
 from datetime import datetime, timedelta
 from sklearn.preprocessing import MinMaxScaler
-from keras.layers import Dense, LSTM, Dropout, RepeatVector, TimeDistributed, Bidirectional, Reshape, Conv1D, MaxPooling1D, Flatten
+from keras.layers import Dense, LSTM, Dropout, RepeatVector, TimeDistributed, Bidirectional, Reshape, Conv1D, AveragePooling1D, Flatten, InputLayer, UpSampling1D
 
 # replace the "demo" apikey below with your own key from https://www.alphavantage.co/support/#api-key
 PAIR = 'GBPUSD'
@@ -41,13 +41,17 @@ def main():
 
 def model_1(n_steps_in, n_steps_out, n_features, units=32):
     model = Sequential()
-    model.add(Conv1D(filters=units, kernel_size=round(units / 8), activation='tanh', input_shape=(n_steps_in, n_features)))
-    model.add(MaxPooling1D(pool_size=8))
-    model.add(Bidirectional(LSTM(units, return_sequences=True)))
-    model.add(Bidirectional(LSTM(round(units / 2), return_sequences=False)))
+    model.add(Conv1D(filters=16, kernel_size=3, activation='tanh', padding='same', strides=1, input_shape=(n_steps_in, n_features)))
+    model.add(AveragePooling1D(pool_size=3))
+    model.add(Conv1D(filters=32, kernel_size=3, padding='same', strides=1, activation='tanh'))
+    model.add(AveragePooling1D(pool_size=3))
+    model.add(Bidirectional(LSTM(16, return_sequences=False)))
     model.add(RepeatVector(n_steps_out))
-    model.add(Bidirectional(LSTM(round(units / 2), return_sequences=True)))
     model.add(Bidirectional(LSTM(units, return_sequences=True)))
+    model.add(TimeDistributed(Dense(units)))
+    model.add(Dropout(0.2))
+    model.add(TimeDistributed(Dense(units)))
+    model.add(Dropout(0.2))
     model.add(TimeDistributed(Dense(units)))
     model.add(TimeDistributed(Dense(1)))
     model.build()
@@ -68,7 +72,7 @@ def plot_predictions(n_steps_in, n_steps_out, train, test, y_hat, pair_name):
     # Plot the train data
     plt.plot(np.arange(0, n_steps_in), train[-n_steps_in:], label='Close')
     # Plot test and prediction
-    plt.plot(np.arange(n_steps_in, n_steps_in + n_steps_out), y_hat, label='Prediction')
+    plt.plot(np.arange(n_steps_in, len(y_hat)), y_hat, label='Prediction')
     # Plot test
     plt.plot(np.arange(n_steps_in, n_steps_in + n_steps_out), test[:n_steps_out], label='Test')
     plt.legend()
@@ -279,8 +283,8 @@ def get_model_dataset(df, n_steps_out):
     return dataset, _open, test_open, scaler_open
 
 def proceed(pair: str):
-    n_steps_in = 90
-    n_steps_out = 30
+    n_steps_in = 100
+    n_steps_out = 50
     # Get the data from the API or from CSV
     df = get_data(pair)
     # Plot the data as candles plus the volume
@@ -297,7 +301,7 @@ def proceed(pair: str):
     # Define model
     model = model_1(n_steps_in, n_steps_out, n_features, units=64)
     #Fit model
-    opt = tf.keras.optimizers.Adam(learning_rate=0.0005)
+    opt = tf.keras.optimizers.Adam(learning_rate=0.001)
     model.compile(optimizer=opt, loss='mae')
     model.summary()
 
