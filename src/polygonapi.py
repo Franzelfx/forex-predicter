@@ -72,7 +72,7 @@ def plot_predictions(n_steps_in, n_steps_out, train, test, y_hat, pair_name):
     # Plot the train data
     plt.plot(np.arange(0, n_steps_in), train[-n_steps_in:], label='Close')
     # Plot test and prediction
-    plt.plot(np.arange(n_steps_in, len(y_hat)), y_hat, label='Prediction')
+    plt.plot(np.arange(n_steps_in, n_steps_in + n_steps_out), y_hat, label='Prediction')
     # Plot test
     plt.plot(np.arange(n_steps_in, n_steps_in + n_steps_out), test[:n_steps_out], label='Test')
     plt.legend()
