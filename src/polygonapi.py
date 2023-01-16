@@ -273,13 +273,13 @@ def get_model_dataset(df, n_steps_out):
     in_seq10 = in_seq10.reshape((len(in_seq10), 1))
     in_seq11 = in_seq11.reshape((len(in_seq11), 1))
     # Horizontal stack inputs
-    dataset = np.hstack((in_seq1, in_seq2, in_seq3, in_seq4, in_seq5))
+    dataset = np.hstack((in_seq1, in_seq5))
     # Print shapes
     print(dataset.shape)
     return dataset, _open, test_open, scaler_open
 
 def proceed(pair: str):
-    n_steps_in = 60
+    n_steps_in = 90
     n_steps_out = 30
     # Get the data from the API or from CSV
     df = get_data(pair)
