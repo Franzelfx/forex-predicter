@@ -7,7 +7,7 @@ from keras.models import Sequential
 from matplotlib import pyplot as plt
 from datetime import datetime, timedelta
 from sklearn.preprocessing import MinMaxScaler
-from keras.layers import Dense, LSTM, Dropout, RepeatVector, TimeDistributed, Bidirectional, Reshape, Conv1D, AveragePooling1D, Flatten, InputLayer, UpSampling1D
+from keras.layers import Dense, LSTM, Dropout, RepeatVector, TimeDistributed
 
 # replace the "demo" apikey below with your own key from https://www.alphavantage.co/support/#api-key
 PAIR = 'GBPUSD'
@@ -26,11 +26,11 @@ def split_sequence(sequence, n_steps, n_steps_out):
         # Check if we are beyond the sequence
         if out_end_ix > len(sequence):
             break
-        # Gather input and output parts of the pattern
+        # Gather input and output parts of the pattern  (output consist of close, high, low, open)
         seq_x, seq_y = sequence[i:end_ix, :], sequence[end_ix:out_end_ix, 0]
         X.append(seq_x)
         y.append(seq_y)
-    return np.array(X), np.array(y).reshape(-1, n_steps_out, 1)
+    return np.array(X), np.array(y)
 
 def main():
     # Loop over all pairs
@@ -41,16 +41,9 @@ def main():
 
 def model_1(n_steps_in, n_steps_out, n_features, units=32):
     model = Sequential()
-    model.add(Conv1D(filters=16, kernel_size=3, activation='tanh', padding='same', strides=1, input_shape=(n_steps_in, n_features)))
-    model.add(AveragePooling1D(pool_size=3))
-    model.add(Conv1D(filters=32, kernel_size=3, padding='same', strides=1, activation='tanh'))
-    model.add(AveragePooling1D(pool_size=3))
-    model.add(Bidirectional(LSTM(16, return_sequences=False)))
+    model.add(LSTM(units, return_sequences=False, input_shape=(n_steps_in, n_features)))
     model.add(RepeatVector(n_steps_out))
-    model.add(Bidirectional(LSTM(units, return_sequences=True)))
-    model.add(TimeDistributed(Dense(units)))
-    model.add(Dropout(0.2))
-    model.add(TimeDistributed(Dense(units)))
+    model.add(LSTM(units, return_sequences=True))
     model.add(Dropout(0.2))
     model.add(TimeDistributed(Dense(units)))
     model.add(TimeDistributed(Dense(1)))
@@ -89,39 +82,35 @@ def plot_loss(loss, val_loss, pair_name):
     plt.savefig(f'../train/{pair_name}_train.png', format='png')
     plt.cla()
 
-def get_data(pair):
+def aquire_next_data(pair, date_start, date_end):
+    # Get date in form of YYYY-MM-DD
+    date_start = (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d")
+    url = f'https://api.polygon.io/v2/aggs/ticker/C:{pair}/range/{MINUTES}/minute/{date_start}/{date_end}?adjusted=true&sort=asc&limit=50000&apiKey={TOKEN}'
+    data = requests.get(url)
+    print(data)
+    return data.json()
+
+def aquire(pair, intervals=4):
     # Get date in form of YYYY-MM-DD
     # 1221ef5bfc04446c9c581203bce63db0
-    date_end = datetime.now().strftime("%Y-%m-%d")
-    date_start = (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d")
-    url_1 = f'https://api.polygon.io/v2/aggs/ticker/C:{pair}/range/{MINUTES}/minute/{date_start}/{date_end}?adjusted=true&sort=asc&limit=50000&apiKey={TOKEN}'
-    data_1 = requests.get(url_1).json()
+    json_list = []
+    for i in range(1, intervals):
+        date_start = (datetime.now() - timedelta(days=30*i)).strftime("%Y-%m-%d")
+        date_end = (datetime.now() - timedelta(days=30*(i-1))).strftime("%Y-%m-%d")
+        try:
+            json_list.append(aquire_next_data(pair, date_start, date_end)['results'])
+        except KeyError as e:
+            print(e)
+            return None
+    df = pd.DataFrame(json_list)
+    return df
 
-    date_start = (datetime.now() - timedelta(days=50)).strftime("%Y-%m-%d")
-    date_end = (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d")
-    url_2 = f'https://api.polygon.io/v2/aggs/ticker/C:{pair}/range/{MINUTES}/minute/{date_start}/{date_end}?adjusted=true&sort=asc&limit=50000&apiKey={TOKEN}'
-    data_2 = requests.get(url_2).json()
-
-    date_start = (datetime.now() - timedelta(days=80)).strftime("%Y-%m-%d")
-    date_end = (datetime.now() - timedelta(days=50)).strftime("%Y-%m-%d")
-    url_3 = f'https://api.polygon.io/v2/aggs/ticker/C:{pair}/range/{MINUTES}/minute/{date_start}/{date_end}?adjusted=true&sort=asc&limit=50000&apiKey={TOKEN}'
-    data_3 = requests.get(url_3).json()
-
-    date_start = (datetime.now() - timedelta(days=110)).strftime("%Y-%m-%d")
-    date_end = (datetime.now() - timedelta(days=80)).strftime("%Y-%m-%d")
-    url_4 = f'https://api.polygon.io/v2/aggs/ticker/C:{pair}/range/{MINUTES}/minute/{date_start}/{date_end}?adjusted=true&sort=asc&limit=50000&apiKey={TOKEN}'
-    data_4 = requests.get(url_4).json()
-
-    if not 'results' in (data_1 and data_2 and data_3 and data_4):
+def get_data(pair):
+    data = aquire(pair)
+    if data is None:
         print('Data from csv')
         df = pd.read_csv(f'../pairs/{pair}.csv')
     else:
-        print('Data from api')
-        df_1 = pd.DataFrame(data_1['results'])
-        df_2 = pd.DataFrame(data_2['results'])
-        df_3 = pd.DataFrame(data_3['results'])
-        df_4 = pd.DataFrame(data_4['results'])
-        df = pd.concat([df_1, df_2, df_3, df_4], ignore_index=True)
         df = df.sort_values(by=['t'])
         # Convert to dataframe
         df['t'] = pd.to_datetime(df['t'], unit='ms')
@@ -277,14 +266,14 @@ def get_model_dataset(df, n_steps_out):
     in_seq10 = in_seq10.reshape((len(in_seq10), 1))
     in_seq11 = in_seq11.reshape((len(in_seq11), 1))
     # Horizontal stack inputs
-    dataset = np.hstack((in_seq1, in_seq5))
+    dataset = np.hstack((in_seq1, in_seq2, in_seq3, in_seq4, in_seq5, in_seq6, in_seq7, in_seq8, in_seq9, in_seq10, in_seq11))
     # Print shapes
     print(dataset.shape)
     return dataset, _open, test_open, scaler_open
 
 def proceed(pair: str):
-    n_steps_in = 100
-    n_steps_out = 50
+    n_steps_in = 90
+    n_steps_out = 30
     # Get the data from the API or from CSV
     df = get_data(pair)
     # Plot the data as candles plus the volume
@@ -299,7 +288,7 @@ def proceed(pair: str):
     # The dataset knows the number of features, e.g. 2
     n_features = X.shape[2]
     # Define model
-    model = model_1(n_steps_in, n_steps_out, n_features, units=64)
+    model = model_1(n_steps_in, n_steps_out, n_features)
     #Fit model
     opt = tf.keras.optimizers.Adam(learning_rate=0.001)
     model.compile(optimizer=opt, loss='mae')
@@ -311,7 +300,7 @@ def proceed(pair: str):
         monitor='val_loss',
         mode='min',
         save_best_only=True)
-    fit = model.fit(X, y, epochs=100, batch_size=16, validation_split=0.2, callbacks=[model_checkpoint_callback])
+    fit = model.fit(X, y, epochs=100, batch_size=16, validation_split=0.2, callbacks=[model_checkpoint_callback], shuffle=False)
     model.load_weights('tmp/model.h5')
     # Plot loss
     plot_loss(fit.history['loss'], fit.history['val_loss'], pair)
@@ -321,6 +310,8 @@ def proceed(pair: str):
     x_input = x_input.reshape((1, n_steps_in, n_features))
     # Predict
     yhat = model.predict(x_input)
+    print(yhat.shape)
+    print(yhat)
     # Invers transform
     y_hat = scaler_open.inverse_transform(yhat.reshape(-1, 1))
     _open = scaler_open.inverse_transform(_open.reshape(-1, 1))
