@@ -1,7 +1,7 @@
 """Module for the indicators class."""
 import pandas as pd
 import talib.abstract as talib
-from logging import warning, info
+from logging import warning
 
 
 class Indicators:
@@ -11,12 +11,12 @@ class Indicators:
              Please refer to https://mrjbq7.github.io/ta-lib/ for more information.
     """
 
-    def __init__(self, data: pd.DataFrame, indicators: list):
+    def __init__(self, data: pd.DataFrame, requested: list):
         """Set the fundamental attributes.
 
         @param data: The data as a pandas dataframe with volume, volume_weighted
                         open, close, low and high as ['v', 'vw', 'o', 'c', 'l', 'h']
-        @param indicators: The list of indicators to calculate.
+        @param requested: The list of indicators to calculate.
                            Available Indicators are:
 
                             - 'ATR' = 'Average True Range'
@@ -28,8 +28,8 @@ class Indicators:
                             - 'STOCHASTIC' = 'Stochastic Oscillator'
         """
         self._data = data
-        self._indicators = indicators
-        self._valid_indicators = [
+        self._requested = requested
+        self._available = [
             "ATR",
             "BOLLINGER",
             "MA50",
@@ -41,12 +41,12 @@ class Indicators:
         self._data_offset = 0
         # Check, if MA50 and MA200 are in the list, if so, dataframe is
         # valid from the 50 or 200 data point.
-        if "MA50" in self._indicators:
+        if "MA50" in self._requested:
             self._data_offset = 50
-        elif "MA200" in self._indicators:
+        elif "MA200" in self._requested:
             self._data_offset = 200
         # Log some warning, if the indicators are not valid by comparing the lists
-        if not set(self._indicators).issubset(self._valid_indicators):
+        if not set(self._requested).issubset(self._available):
             warning("One or more indicators are not valid. Please check the documentation.")
 
     @property
@@ -57,12 +57,12 @@ class Indicators:
     @property
     def indicators(self) -> list:
         """Get the list of indicators."""
-        return self._indicators
+        return self._requested
 
     @property
-    def valid_indicators(self) -> list:
+    def available(self) -> list:
         """Get the list of valid indicators."""
-        return self._valid_indicators
+        return self._available
 
     @property
     def data_offset(self) -> int:
@@ -72,39 +72,39 @@ class Indicators:
     def calculate_indicators(self) -> pd.DataFrame:
         """Calculate the indicators and add them to the dataframe."""
         # Calculate the indicators
-        if "ATR" in self._indicators:
+        if "ATR" in self._available:
             self._data["ATR"] = talib.ATR(
                 self._data["h"],
                 self._data["l"],
-                self._data["close"],
+                self._data["c"],
                 timeperiod=14,
             )
-        if "BOLLINGER" in self._indicators:
+        if "BOLLINGER" in self._requested:
             (
-                self._data["bollinger_upper"],
-                self._data["bollinger_middle"],
-                self._data["bollinger_lower"],
+                self._data["BOLLINGER_UPPER"],
+                self._data["BOLLINGER_MIDDLE"],
+                self._data["BOLLINGER_LOWER"],
             ) = talib.BBANDS(
-                self._data["c"], timeperiod=20, nbdevup=2, nbdevdn=2, matype=0
+                self._data["c"], timeperiod=20, nbdevup=2.0, nbdevdn=2.0, matype=0
             )
-        if "MA50" in self._indicators:
+        if "MA50" in self._requested:
             self._data["MA50"] = talib.MA(self._data["c"], timeperiod=50, matype=0)
-        if "MA200" in self._indicators:
+        if "MA200" in self._requested:
             self._data["MA200"] = talib.MA(
-                self._data["close"], timeperiod=200, matype=0
+                self._data["c"], timeperiod=200, matype=0
             )
-        if "MACD" in self._indicators:
+        if "MACD" in self._requested:
             (
-                self._data["macd"],
-                self._data["macd_signal"],
-                self._data["mcd_hist"],
+                self._data["MACD"],
+                self._data["MACD_SIGNAL"],
+                self._data["MACD_HIST"],
             ) = talib.MACD(
-                self._data["close"], fastperiod=12, slowperiod=26, signalperiod=9
+                self._data["c"], fastperiod=12, slowperiod=26, signalperiod=9
             )
-        if "RSI" in self._indicators:
+        if "RSI" in self._requested:
             self._data["RSI"] = talib.RSI(self._data["c"], timeperiod=14)
-        if "STOCHASTIC" in self._indicators:
-            self._data["stochastik_k"], self._data["stochastik_d"] = talib.STOCH(
+        if "STOCHASTIC" in self._requested:
+            self._data["STOCHASTIC_K"], self._data["STOCHASTIC_D"] = talib.STOCH(
                 self._data["h"],
                 self._data["l"],
                 self._data["c"],
