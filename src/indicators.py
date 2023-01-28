@@ -69,7 +69,7 @@ class Indicators:
         """Get the data offset."""
         return self._data_offset
 
-    def calculate_indicators(self) -> pd.DataFrame:
+    def calculate_indicators(self, save=False, path=None) -> pd.DataFrame:
         """Calculate the indicators and add them to the dataframe."""
         # Calculate the indicators
         if "ATR" in self._available:
@@ -114,6 +114,6 @@ class Indicators:
                 slowd_period=3,
                 slowd_matype=0,
             )
-        # Return the dataframe
-
+        if save and path is not None:
+            self._data.to_csv(path)
         return self._data
