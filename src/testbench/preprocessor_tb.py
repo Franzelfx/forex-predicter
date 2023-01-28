@@ -15,7 +15,7 @@ class Test_Preprocessor(unittest.TestCase):
         # the number of samples should increase when intersection_factor
         # increases.
         first_run = True
-        test_data = pd.read_csv(TEST_DATA_SOURCE)
+        test_data = pd.read_csv(PREPROCESSOR_DATA_SOURCE)
         intersection_factor = 0.1
         while intersection_factor < 0.8:
             intersection_factor += 0.01
@@ -37,7 +37,7 @@ class Test_Preprocessor(unittest.TestCase):
 
     def test_x_train(self):
         """Test the x_train attribute."""
-        test_data = pd.read_csv(TEST_DATA_SOURCE)
+        test_data = pd.read_csv(PREPROCESSOR_DATA_SOURCE)
         preprocessor = Preprocessor(
             test_data,
             "c",
@@ -47,13 +47,13 @@ class Test_Preprocessor(unittest.TestCase):
             intersection_factor=TEST_INTERSECTION_FACTOR,
             scale=TEST_SCALE,
         )
-        # Check shape of x_train, has to be (samples, time_steps_in, 7)
+        print(f"x_train shape: {preprocessor.x_train.shape}")
+        # Check shape of x_train, has to be (samples, time_steps_in, features)
         self.assertEqual(preprocessor.x_train.shape[1], TEST_TIME_STEPS_IN)
-        self.assertEqual(preprocessor.x_train.shape[2], 7)
 
     def test_y_train(self):
         """Test the y_train attribute."""
-        test_data = pd.read_csv(TEST_DATA_SOURCE)
+        test_data = pd.read_csv(PREPROCESSOR_DATA_SOURCE)
         preprocessor = Preprocessor(
             test_data,
             'c',
@@ -63,6 +63,7 @@ class Test_Preprocessor(unittest.TestCase):
             intersection_factor=TEST_INTERSECTION_FACTOR,
             scale=TEST_SCALE,
         )
+        print(f"y_train shape: {preprocessor.y_train.shape}")
         # Check shape of y_train, has to be (samples, time_steps_out, 1)
         self.assertEqual(preprocessor.y_train.shape[1], TEST_TIME_STEPS_OUT)
         self.assertEqual(preprocessor.y_train.shape[2], 1)

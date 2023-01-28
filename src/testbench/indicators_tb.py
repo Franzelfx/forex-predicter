@@ -10,9 +10,9 @@ class Test_Indicators(unittest.TestCase):
     def test_calculate_indicators(self):
         """Test the calculate_indicators method."""
         # Get some test data
-        test_data = pd.read_csv(TEST_DATA_SOURCE)
+        test_data = pd.read_csv(INDICATORS_DATA_SOURCE)
         indicators = Indicators(test_data, TEST_INDICATORS)
-        data = indicators.calculate_indicators()
+        data = indicators.calculate_indicators(save=True, path=PATH_INDICATORS)
         self.assertGreater(len(data), 0)
         # Check, if dataframe has the colums from available indicators
         available = indicators.available
@@ -42,7 +42,6 @@ class Test_Indicators(unittest.TestCase):
         for indicator in indicators:
             if len(data[indicator]) != len(data):
                 return False
-            print(f"Lenght of {indicator}: {len(data[indicator])}")
         return True
 
 if __name__ == '__main__':

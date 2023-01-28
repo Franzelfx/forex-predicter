@@ -9,7 +9,7 @@ sys.path.append(
 )
 
 # Data aquirer
-PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.curdir, "pairs"))
+PATH_PAIRS = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.curdir, "pairs"))
 PAIR = "EURUSD"
 MINUTES = 15
 API_KEY = "kvtkOoyqcuTgNrBqRGIhhLe766CLYbpo"
@@ -19,7 +19,8 @@ DATE_END = date.today().strftime(TIME_FORMAT)
 API_TYPE = "basic"
 
 # Indicators
-TEST_DATA_SOURCE = f"{PATH}/{PAIR}_{MINUTES}.csv"
+PATH_INDICATORS = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.curdir, f"indicators/{PAIR}_{MINUTES}.csv"))
+INDICATORS_DATA_SOURCE = f"{PATH_PAIRS}/{PAIR}_{MINUTES}.csv"
 TEST_INDICATORS = ["ATR", "BOLLINGER", "MA50", "MA200", "MACD", "RSI", "STOCHASTIC"]
 EXPECTED_COLUMNS = [
     "v",
@@ -44,6 +45,7 @@ EXPECTED_COLUMNS = [
 ]
 
 # Preprocessor
+PREPROCESSOR_DATA_SOURCE = f"{PATH_INDICATORS}"
 TEST_SPLIT = 0.2
 TEST_TIME_STEPS_IN = 60
 TEST_TIME_STEPS_OUT = 30
