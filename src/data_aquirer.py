@@ -113,6 +113,8 @@ class Data_Aquirer():
             data = self._request(pair, minutes, start, end)
             # Save the data to a csv file
             if save is True:
-                data.to_csv(f'{self._path}/{pair}_{minutes}.csv')
+                # Drop the 'n' column
+                data.drop(columns=['n'], inplace=True)
+                data.to_csv(f'{self._path}/{pair}_{minutes}.csv', index=True)
             # Return the data
             return data

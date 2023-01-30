@@ -13,9 +13,10 @@ class Test_Indicators(unittest.TestCase):
         test_data = pd.read_csv(INDICATORS_DATA_SOURCE)
         indicators = Indicators(test_data, TEST_INDICATORS)
         data = indicators.calculate_indicators(save=True, path=PATH_INDICATORS)
+        print(indicators.data_offset)
         self.assertGreater(len(data), 0)
         # Check, if dataframe has the colums from available indicators
-        available = indicators.available
+        self.assertTrue(self._check_nan_values(data))
         self.assertTrue(self._check_presence(data, EXPECTED_COLUMNS))
         self.assertTrue(self._chek_column_len(data, EXPECTED_COLUMNS))
     
@@ -43,6 +44,18 @@ class Test_Indicators(unittest.TestCase):
             if len(data[indicator]) != len(data):
                 return False
         return True
+
+    def _check_nan_values(self, data: pd.DataFrame) -> bool:
+        """Check, if there are some NaN values in the dataframe.
+
+        @param data: Dataframe with the data.
+        @return: True, if there are some NaN values.
+        """
+        if data.isnull().values.any():
+            print(data.isnull().sum())
+            return False
+        return True
+
 
 if __name__ == '__main__':
     unittest.main()

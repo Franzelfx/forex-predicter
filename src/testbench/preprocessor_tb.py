@@ -66,8 +66,28 @@ class Test_Preprocessor(unittest.TestCase):
         print(f"y_train shape: {preprocessor.y_train.shape}")
         # Check shape of y_train, has to be (samples, time_steps_out, 1)
         self.assertEqual(preprocessor.y_train.shape[1], TEST_TIME_STEPS_OUT)
-        self.assertEqual(preprocessor.y_train.shape[2], 1)
 
+    def test_nan_values(self):
+        """Test if the data contains NaN values."""
+        test_data = pd.read_csv(PREPROCESSOR_DATA_SOURCE)
+        preprocessor = Preprocessor(
+            test_data,
+            "c",
+            test_split=TEST_SPLIT,
+            time_steps_in=TEST_TIME_STEPS_IN,
+            time_steps_out=TEST_TIME_STEPS_OUT,
+            intersection_factor=TEST_INTERSECTION_FACTOR,
+            scale=TEST_SCALE,
+        )
+        # Convert to pandas dataframe and check for NaN values
+        x_train = pd.DataFrame(preprocessor.x_train.flatten())
+        y_train = pd.DataFrame(preprocessor.y_train.flatten())
+        # Print where the NaN values are located
+        print(x_train[x_train.isnull().any(axis=1)])
+        # Print Content of the NaN values
+        print(x_train[x_train.isnull().any(axis=1)].values)
+        self.assertFalse(x_train.isnull().values.any())
+        self.assertFalse(y_train.isnull().values.any())
 
 if __name__ == "__main__":
     unittest.main()

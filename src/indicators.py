@@ -41,10 +41,10 @@ class Indicators:
         self._data_offset = 0
         # Check, if MA50 and MA200 are in the list, if so, dataframe is
         # valid from the 50 or 200 data point.
-        if "MA50" in self._requested:
-            self._data_offset = 50
-        elif "MA200" in self._requested:
+        if "MA200" in self._requested:
             self._data_offset = 200
+        elif "MA50" in self._requested:
+            self._data_offset = 50
         # Log some warning, if the indicators are not valid by comparing the lists
         if not set(self._requested).issubset(self._available):
             warning("One or more indicators are not valid. Please check the documentation.")
@@ -52,10 +52,10 @@ class Indicators:
     @property
     def data(self) -> pd.DataFrame:
         """Get dataframe (could be with offset, if MA50 or MA200 are active)."""
-        return self._data
+        return self._data[self._data_offset :]
 
     @property
-    def indicators(self) -> list:
+    def requested(self) -> list:
         """Get the list of indicators."""
         return self._requested
 
@@ -116,4 +116,6 @@ class Indicators:
             )
         if save and path is not None:
             self._data.to_csv(path)
+        # Substract the offset, if MA50 or MA200 are active
+        self._data = self._data[self._data_offset :]
         return self._data
