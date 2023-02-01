@@ -12,7 +12,7 @@ class Test_Indicators(unittest.TestCase):
         # Get some test data
         test_data = pd.read_csv(INDICATORS_DATA_SOURCE)
         indicators = Indicators(test_data, TEST_INDICATORS)
-        data = indicators.calculate_indicators(save=True, path=PATH_INDICATORS)
+        data = indicators.calculate(save=True, path=PATH_INDICATORS)
         print(indicators.data_offset)
         self.assertGreater(len(data), 0)
         # Check, if dataframe has the colums from available indicators

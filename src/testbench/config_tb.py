@@ -14,7 +14,7 @@ PAIR = "EURUSD"
 MINUTES = 15
 API_KEY = "kvtkOoyqcuTgNrBqRGIhhLe766CLYbpo"
 TIME_FORMAT = "%Y-%m-%d"
-DATE_START = "2022-10-01"
+DATE_START = "2022-08-01"
 DATE_END = date.today().strftime(TIME_FORMAT)
 API_TYPE = "basic"
 
@@ -29,7 +29,6 @@ EXPECTED_COLUMNS = [
     "c",
     "h",
     "l",
-    "n",
     "ATR",
     "BOLLINGER_UPPER",
     "BOLLINGER_MIDDLE",
@@ -54,7 +53,7 @@ TEST_INTERSECTION_FACTOR = 0.2
 TEST_SCALE = True
 
 # Model
-MODEL_DATA_SOURCE = f"{INDICATORS_DATA_SOURCE}"
+MODEL_DATA_SOURCE = f"{PREPROCESSOR_DATA_SOURCE}"
 MODEL_PATH = os.path.abspath(os.path.dirname(__file__))
 MODEL_NAME = 'EURUSD_15'
 TEST_EPOCHS = 100

@@ -22,7 +22,6 @@ class Preprocessor:
         time_steps_out=30,
         intersection_factor=0.5,
         scale=True,
-        time_column='t',
         feature_range=(-1, 1),
     ):
         """Set the fundamental attributes.
@@ -36,7 +35,6 @@ class Preprocessor:
                                 are not overlapping. An intersection of 0.9 means
                                 that the samples are overlapping by 90%.
         @param scale: If the data should be scaled or not.
-        @param time_column: The column name of the time column.
 
         @remarks The time_steps and intersection parameter will determine, how
                     much sequences will be created from the data.
@@ -49,7 +47,6 @@ class Preprocessor:
         self._time_steps_out = time_steps_out
         self._intersection_factor = intersection_factor
         self._scale = scale
-        self._time_column = time_column
         self._feature_range = feature_range
         # The train and test data
         self._train_data = None  # Input is a pandas dataframe, output is a numpy array
@@ -167,19 +164,19 @@ class Preprocessor:
         """Drop all rows with nan values."""
         # Safe the header
         header = data.columns
-        # Get location of columns in which all values are nan
-        nan_columns = data.isna().all()
-        nan_rows = data.isna().any(axis=1)
+        # Get coulums which are not numeric
+        nan_columns = data.columns[data.dtypes == 'object']
+        # Get rows which contain nan values
+        nan_rows = data.index[data.isna().any(axis=1)]
+        print(nan_columns)
         # Drop nan columns and rows
-        data = data.drop(data.columns[nan_columns], axis=1)
-        data = data.drop(data.index[nan_rows])
-        # Drop the indedx column
-        data = data.drop(data.columns[0], axis=1)
-        # Update the header
-        header = header.drop(header[nan_columns])
-        header = header.drop(header[0])
-        # Add header to data
-        data.columns = header
+        data = data.drop(nan_columns, axis=1)
+        data = data.drop(nan_rows, axis=0)
+        # Drop the indedx column, if exists eighter named 'index' or 'Unnamed: 0'
+        if 'index' in data.columns:
+            data = data.drop('index', axis=1)
+        if 'Unnamed: 0' in data.columns:
+            data = data.drop('Unnamed: 0', axis=1)
         # Check if target column is still in data
         if self._target not in header:
             raise ValueError(f"The target column {self._target} is not in the data anymore.")

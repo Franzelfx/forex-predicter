@@ -69,7 +69,7 @@ class Indicators:
         """Get the data offset."""
         return self._data_offset
 
-    def calculate_indicators(self, save=False, path=None) -> pd.DataFrame:
+    def calculate(self, save=False, path=None) -> pd.DataFrame:
         """Calculate the indicators and add them to the dataframe."""
         # Calculate the indicators
         if "ATR" in self._available:

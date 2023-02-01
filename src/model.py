@@ -19,7 +19,6 @@ class Model:
         y_train: np.ndarray,
         dropout: float = 0.2,
         loss: str = "mean_squared_error",
-        metrics: list = ["mape"],
     ):
         """Set the fundamental attributes.
 
@@ -30,7 +29,6 @@ class Model:
         @param dropout: The dropout rate in the layer with the most neurons.
         @param loss: The loss function for the training process.
         @param optimizer: The optimizer for the training process.
-        @param metrics: The metrics to measure the performance of the model.
         """
         self._path = path
         self._name = name
@@ -38,7 +36,6 @@ class Model:
         self._y_train = y_train
         self._dropout = dropout
         self._loss = loss
-        self._metrics = metrics
         self._model = None
 
     def _create_model(self, hidden_neurons=128) -> Sequential:
@@ -83,10 +80,25 @@ class Model:
         plt.savefig(f"{self._path}/fit_history/{self._name}.png")
 
     def compile_and_fit(self, hidden_neurons=256, epochs=100, learning_rate=0.001, batch_size=32, validation_spilt=0.2, patience=20) -> dict:
-        """Compile and fit the model."""
+        """Compile and fit the model.
+    
+        @param hidden_neurons: The number of neurons in the hidden layers.
+        @param epochs: The number of epochs to train the model.
+        @param learning_rate: The learning rate for the optimizer.
+        @param batch_size: The batch size for the training process.
+        @param validation_spilt: The validation split for the training process.
+        @param patience: The patience for the early stopping callback.
+
+        @return: The fit history.
+
+        @remarks The metric for this model is fix and is the mean absolute percentage error (MAPE).
+                 The model is saved in the checkpoints folder.
+                 The validation loss is saved in the fit_history folder.
+                 The tensorboard logs are saved in the tensorboard folder.
+        """
         model = self._create_model(hidden_neurons)
         optimizer = Adam(learning_rate=learning_rate)
-        model.compile(loss=self._loss, optimizer=optimizer, metrics=self._metrics)
+        model.compile(loss=self._loss, optimizer=optimizer, metrics='mape')
         model.summary()
         # Configure callbacks (early stopping, checkpoint, tensorboard)
         model_checkpoint = ModelCheckpoint(
