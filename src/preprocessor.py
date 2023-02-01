@@ -69,14 +69,26 @@ class Preprocessor:
         if time_steps_out < 1:
             raise ValueError(f"The output time steps must be greater than 1. {time_steps_out} < 1")
         # Preprocess the data concerning nan values, split and scaling
-        data = self._drop_nan_rows(data)
+        data = self._drop_nan(data)
         if self._scale:
             data = self._scale_data(data)
+        # Data is now without time and index column
+        self._data = data
         self._train_data, self._test_data = self._split_train_test(data, self._test_split)
+        self._x_train, self._y_train = self._create_samples(self._train_data, self._time_steps_in, self._time_steps_out)
 
     def __str__(self) -> str:
         """Return the string representation of the preprocessors attributes in table format."""
 
+    @property
+    def data(self) -> pd.DataFrame:
+        """Get the original data but with removed nan values.
+
+        @return: The preprocessed data as pandas dataframe.
+        @remarks The data is without the time and index column
+                 (removed by the _drop_nan method).
+        """
+        return self._data
 
     @property
     def x_train(self) -> np.ndarray:
@@ -85,10 +97,7 @@ class Preprocessor:
         @return: The x train data as numpy array in shape of
                   (samples, time_steps, features).
         """
-        x_train = self._sliding_window(self._train_data, self._time_steps_in)
-        # Remove column where nan values appear
-        x_train = np.delete(x_train, self._data.columns.get_loc(self._target), axis=2)
-        return x_train
+        return self._x_train
 
     @property
     def y_train(self) -> np.ndarray:
@@ -99,12 +108,7 @@ class Preprocessor:
         """
         # Y train is some sliding window with length of time_steps_out
         # and offset of time_steps_in
-        y_train = self._sliding_window(self._train_data, self._time_steps_out)
-        # Extract the needed colums from location of original y_train_column
-        y_train = y_train[:, :, self._data.columns.get_loc(self._target)]
-        # Shift by offset (n_time_steps_in)
-        y_train = y_train[self._time_steps_in:, :]
-        return y_train
+        return self._y_train
 
     @property
     def x_test(self) -> np.ndarray:
@@ -112,9 +116,9 @@ class Preprocessor:
 
         @return: X test as numpy array
         """
-        x_test = self._sliding_window(self._test_data, self._time_steps_in)
-        # Drop column with nan values
-        x_test = np.delete(x_test, self._data.columns.get_loc(self._target), axis=2)
+        x_test = self._test_data.values[-self._time_steps_in:]
+        # Reshape the test data to (samples, time_steps, features)
+        x_test = np.reshape(x_test, (1, self._time_steps_in, x_test.shape[1]))
         return x_test
 
     @property
@@ -124,6 +128,11 @@ class Preprocessor:
         @return: Y test as numpy array.
         """
         y_test = np.array(self._test_data[self._target])
+        # Inverse the scaled data
+        if self._scale:
+            # Reshape the test data
+            y_test = y_test.reshape(-1, 1)
+            y_test = self._scaler[self._target].inverse_transform(y_test)
         return y_test
     
     @property
@@ -143,10 +152,37 @@ class Preprocessor:
                  e.g. scaler['c'].inverse_transform(data)
         """
         return self._scaler
+    
+    @property
+    def time_steps_in(self) -> int:
+        """Get the number of time steps for the input."""
+        return self._time_steps_in
 
-    def _drop_nan_rows(self, data: pd.DataFrame) -> pd.DataFrame:
+    @property
+    def time_steps_out(self) -> int:
+        """Get the number of time steps for the output."""
+        return self._time_steps_out
+
+    def _drop_nan(self, data: pd.DataFrame) -> pd.DataFrame:
         """Drop all rows with nan values."""
-        data = data.dropna()
+        # Safe the header
+        header = data.columns
+        # Get location of columns in which all values are nan
+        nan_columns = data.isna().all()
+        nan_rows = data.isna().any(axis=1)
+        # Drop nan columns and rows
+        data = data.drop(data.columns[nan_columns], axis=1)
+        data = data.drop(data.index[nan_rows])
+        # Drop the indedx column
+        data = data.drop(data.columns[0], axis=1)
+        # Update the header
+        header = header.drop(header[nan_columns])
+        header = header.drop(header[0])
+        # Add header to data
+        data.columns = header
+        # Check if target column is still in data
+        if self._target not in header:
+            raise ValueError(f"The target column {self._target} is not in the data anymore.")
         return data
 
     def _split_train_test(self, data: pd.DataFrame, test_split:float)-> tuple:
@@ -158,8 +194,6 @@ class Preprocessor:
 
     def _scale_data(self, data: pd.DataFrame) -> pd.DataFrame:
         """Scale the data."""
-        # Drop date column
-        data = data.drop(self._time_column, axis=1)
         # Scale the data
         scaler = []
         for column in data.columns:
@@ -168,20 +202,27 @@ class Preprocessor:
         self._scaler = dict(zip(data.columns, scaler))
         return data
 
-    def _sliding_window(self, input_sequence: pd.DataFrame, time_steps: int, offset: int = 0):
-        """Sliding window with m time steps and n features (given by the __init__ parameters).
-
-        @param input_sequence: The input sequence to be split into samples.
-        @return: The samples as numpy array.
-
-        @remarks The time_steps and intersection parameter will determine, how
-                    much sequences will be created from the data.
-                    (the higher the intersection, the more sequences)
+    def _create_samples(self, input_sequence: pd.DataFrame, steps_in: int, steps_out: int) -> tuple:
+        """Create samples of x and y.
+        
+        @param input_sequence: The input sequence.
+        @param steps_in: The number of time steps fed into the network.
+        @param steps_out: The number of time steps the network predicts.
+        
+        @return: A tuple of x and y samples.
+        
+        @remarks: The x samples are of shape (samples, time_steps, features).
+                  The y samples are of shape (samples, time_steps).
+                  After every sample of x there is a sample of y.
         """
-        intersection_length = int(time_steps * self._intersection_factor)
-        samples = []
-        for i in range(0, len(input_sequence) - time_steps + offset, time_steps - intersection_length):
-            sample = input_sequence[i : i + time_steps]
-            samples.append(sample)
-        samples = np.array(samples) # shape: (samples, time_steps, features)
-        return samples
+        x = []
+        y = []
+        iterator = 0
+        # x is simply a sliding window of length steps_in
+        # y is a sliding window of length steps_out
+        # with an offset of steps_in
+        while iterator + steps_in + steps_out <= len(input_sequence):
+            x.append(input_sequence[iterator:iterator + steps_in].values)
+            y.append(input_sequence[iterator + steps_in:iterator + steps_in + steps_out][self._target].values)
+            iterator += steps_in
+        return np.array(x), np.array(y)

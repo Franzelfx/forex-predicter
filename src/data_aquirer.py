@@ -107,7 +107,6 @@ class Data_Aquirer():
             # Set the time column as index
             data.set_index('t', inplace=True)
             # Return the data
-            return data
         else:
             # Get the data from the API
             data = self._request(pair, minutes, start, end)
@@ -117,4 +116,4 @@ class Data_Aquirer():
                 data.drop(columns=['n'], inplace=True)
                 data.to_csv(f'{self._path}/{pair}_{minutes}.csv', index=True)
             # Return the data
-            return data
+        return data

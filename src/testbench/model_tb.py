@@ -55,15 +55,17 @@ class Test_Model(unittest.TestCase):
             preprocessor.y_train,
         )
         # Run 30 epochs for testing
-        fit = model.compile_and_fit(epochs=200)
+        fit = model.compile_and_fit(epochs=TEST_EPOCHS, hidden_neurons=TEST_NEURONS, batch_size=TEST_BATCH_SIZE)
         # Predict the next values
+        print(preprocessor.x_test.shape)
         prediction = model.predict(preprocessor.x_test, scaler=preprocessor.scaler[preprocessor.target])
-        print(prediction.shape)
         # Plot test and prediction, reset plot first
         plt.cla()
-        plt.plot(preprocessor.y_test, label="Test", color="green")
+        plt.clf()
+        plt.plot(preprocessor.y_test[-TEST_TIME_STEPS_OUT:], label="Test", color="green")
         plt.plot(prediction, label="Prediction", color="blue")
         plt.legend()
+        plt.grid()
         plt.show()
 
 if __name__ == "__main__":

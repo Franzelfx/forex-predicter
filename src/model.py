@@ -1,8 +1,9 @@
 """This module contains the model class for the LSTM model."""
 import numpy as np
 import matplotlib.pyplot as plt
+from keras.optimizers import Adam
 from keras.models import Sequential
-from keras.layers import Dense, LSTM, Dropout
+from keras.layers import Dense, LSTM, Dropout, Bidirectional
 from sklearn.preprocessing import MinMaxScaler
 from keras.callbacks import ModelCheckpoint, EarlyStopping, TensorBoard
 
@@ -18,8 +19,7 @@ class Model:
         y_train: np.ndarray,
         dropout: float = 0.2,
         loss: str = "mean_squared_error",
-        optimizer: str = "adam",
-        metrics: list = ["accuracy"],
+        metrics: list = ["mape"],
     ):
         """Set the fundamental attributes.
 
@@ -38,45 +38,65 @@ class Model:
         self._y_train = y_train
         self._dropout = dropout
         self._loss = loss
-        self._optimizer = optimizer
         self._metrics = metrics
         self._model = None
 
-    def _create_model(self, hidden_neurons=50) -> Sequential:
+    def _create_model(self, hidden_neurons=128) -> Sequential:
         """Create the model."""
         model = Sequential()
-        model.add(
-            LSTM(
-                hidden_neurons,
-                input_shape=(self._x_train.shape[1], self._x_train.shape[2]),
-            )
-        )
+        model.add(Bidirectional(LSTM(hidden_neurons, return_sequences=True, input_shape=(self._x_train.shape[1], self._x_train.shape[2]))))
+        model.add(Bidirectional(LSTM(hidden_neurons, return_sequences=True)))
+        model.add(Bidirectional(LSTM(hidden_neurons, return_sequences=False)))
+        model.add(Dense(hidden_neurons))
+        model.add(Dropout(self._dropout))
+        model.add(Dense(hidden_neurons))
         model.add(Dropout(self._dropout))
         model.add(Dense(self._y_train.shape[1]))
+        model.build(input_shape=(self._x_train.shape[0], self._x_train.shape[1], self._x_train.shape[2]))
         return model
 
     def _plot_fit_history(self, fit):
         """Plot the fit history."""
-        # High resolution plot
-        plt.figure(figsize=(20, 10))
-        plt.plot(fit.history["loss"], label="train")
-        plt.plot(fit.history["val_loss"], label="test")
-        plt.legend()
+        # High resolution plot with subplots
+        plt.cla()
+        plt.clf()
+        fig, axes = plt.subplots(2, 1, figsize=(20, 10))
+        # Plot the loss
+        axes[0].plot(fit.history["loss"], label="loss")
+        axes[0].plot(fit.history["val_loss"], label="val_loss")
+        axes[0].set_ylabel("Loss")
+        axes[0].set_xlabel("Epoch")
+        axes[0].set_title("Loss")
+        axes[0].legend()
+        # Plot the metrics
+        axes[1].plot(fit.history["mape"], label="mape")
+        axes[1].plot(fit.history["val_mape"], label="val_mape")
+        axes[1].set_ylabel("MAPE")
+        axes[1].set_xlabel("Epoch")
+        axes[1].set_title("MAPE")
+        axes[1].legend()
+        # Turn on the grid
+        axes[0].grid()
+        axes[1].grid()
+        fig.tight_layout()
+        # Save the plot
         plt.savefig(f"{self._path}/fit_history/{self._name}.png")
 
-    def compile_and_fit(self, hidden_neurons=50, epochs=100, batch_size=32, validation_spilt=0.2, patience=10) -> dict:
+    def compile_and_fit(self, hidden_neurons=256, epochs=100, learning_rate=0.001, batch_size=32, validation_spilt=0.2, patience=20) -> dict:
         """Compile and fit the model."""
         model = self._create_model(hidden_neurons)
-        model.compile(loss=self._loss, optimizer=self._optimizer, metrics=self._metrics)
+        optimizer = Adam(learning_rate=learning_rate)
+        model.compile(loss=self._loss, optimizer=optimizer, metrics=self._metrics)
         model.summary()
         # Configure callbacks (early stopping, checkpoint, tensorboard)
         model_checkpoint = ModelCheckpoint(
             filepath=f"{self._path}/checkpoints/{self._name}_weights.h5",
-            monitor="val_loss",
+            monitor="val_mape",
             save_best_only=True,
             save_weights_only=False,
+            verbose=1,
         )
-        early_stopping = EarlyStopping(monitor="val_loss", patience=patience)
+        early_stopping = EarlyStopping(monitor="val_mape", patience=patience, mode="min", verbose=1)
         tensorboard = TensorBoard(log_dir=f"{self._path}/tensorboard/{self._name}")
         # Fit the model
         fit = model.fit(
@@ -88,8 +108,8 @@ class Model:
             callbacks=[model_checkpoint, early_stopping, tensorboard],
             shuffle=False,
         )
-        # Save the model
-        model.save(f"{self._path}/models/{self._name}.h5")
+        # Load the best weights
+        model.load_weights(f"{self._path}/checkpoints/{self._name}_weights.h5")
         self._model = model
         self._plot_fit_history(fit)
         return fit
