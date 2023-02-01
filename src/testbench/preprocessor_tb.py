@@ -110,6 +110,11 @@ class Test_Preprocessor(unittest.TestCase):
         y_train_target = pd.DataFrame(y_train_target.flatten())
         x_train_target.to_csv(f"{PREPROCESSOR_PATH}/x_train_target.csv")
         y_train_target.to_csv(f"{PREPROCESSOR_PATH}/y_train_target.csv")
+        # Plot the first sample of x_train and y_train
+        plt.plot(x_train_target[0:TEST_TIME_STEPS_IN])
+        # Plot y_train and shift the plot by the time_steps_in
+        plt.plot(y_train_target[0:TEST_TIME_STEPS_OUT])
+        plt.show()
     
 if __name__ == "__main__":
     unittest.main()

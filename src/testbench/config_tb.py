@@ -14,7 +14,7 @@ PAIR = "EURUSD"
 MINUTES = 15
 API_KEY = "kvtkOoyqcuTgNrBqRGIhhLe766CLYbpo"
 TIME_FORMAT = "%Y-%m-%d"
-DATE_START = "2022-08-01"
+DATE_START = "2022-07-01"
 DATE_END = date.today().strftime(TIME_FORMAT)
 API_TYPE = "basic"
 
@@ -47,9 +47,9 @@ EXPECTED_COLUMNS = [
 PREPROCESSOR_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.curdir, "preprocessor_test"))
 PREPROCESSOR_DATA_SOURCE = f"{PATH_INDICATORS}"
 TEST_SPLIT = 0.2
-TEST_TIME_STEPS_IN = 200
-TEST_TIME_STEPS_OUT = 100
-TEST_INTERSECTION_FACTOR = 0.2
+TEST_TIME_STEPS_IN = 180
+TEST_TIME_STEPS_OUT = 90
+TEST_INTERSECTION_FACTOR = 0.9
 TEST_SCALE = True
 
 # Model
@@ -58,4 +58,5 @@ MODEL_PATH = os.path.abspath(os.path.dirname(__file__))
 MODEL_NAME = 'EURUSD_15'
 TEST_EPOCHS = 100
 TEST_NEURONS = 256
-TEST_BATCH_SIZE = 16
+TEST_BATCH_SIZE = 32
+PATH_TEST_RESULTS = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.curdir, "test_results"))

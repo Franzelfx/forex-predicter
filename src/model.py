@@ -3,9 +3,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 from keras.optimizers import Adam
 from keras.models import Sequential
-from keras.layers import Dense, LSTM, Dropout, Bidirectional
 from sklearn.preprocessing import MinMaxScaler
 from keras.callbacks import ModelCheckpoint, EarlyStopping, TensorBoard
+from keras.layers import Dense, LSTM, Dropout, Bidirectional, TimeDistributed
 
 
 class Model:
@@ -42,10 +42,10 @@ class Model:
         """Create the model."""
         model = Sequential()
         model.add(Bidirectional(LSTM(hidden_neurons, return_sequences=True, input_shape=(self._x_train.shape[1], self._x_train.shape[2]))))
-        model.add(Bidirectional(LSTM(hidden_neurons, return_sequences=True)))
-        model.add(Bidirectional(LSTM(hidden_neurons, return_sequences=False)))
-        model.add(Dense(hidden_neurons))
         model.add(Dropout(self._dropout))
+        model.add(Bidirectional(LSTM(hidden_neurons, return_sequences=True)))
+        model.add(Dropout(self._dropout))
+        model.add(Bidirectional(LSTM(hidden_neurons, return_sequences=False)))
         model.add(Dense(hidden_neurons))
         model.add(Dropout(self._dropout))
         model.add(Dense(self._y_train.shape[1]))
@@ -79,7 +79,7 @@ class Model:
         # Save the plot
         plt.savefig(f"{self._path}/fit_history/{self._name}.png")
 
-    def compile_and_fit(self, hidden_neurons=256, epochs=100, learning_rate=0.001, batch_size=32, validation_spilt=0.2, patience=20) -> dict:
+    def compile_and_fit(self, hidden_neurons=256, epochs=100, learning_rate=0.0005, batch_size=32, validation_spilt=0.2, patience=20) -> dict:
         """Compile and fit the model.
     
         @param hidden_neurons: The number of neurons in the hidden layers.

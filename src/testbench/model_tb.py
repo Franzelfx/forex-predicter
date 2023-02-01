@@ -62,11 +62,13 @@ class Test_Model(unittest.TestCase):
         # Plot test and prediction, reset plot first
         plt.cla()
         plt.clf()
-        plt.plot(preprocessor.y_test[-TEST_TIME_STEPS_OUT:], label="Test", color="green")
+        plt.plot(preprocessor.y_test, label="Test", color="green")
         plt.plot(prediction, label="Prediction", color="blue")
         plt.legend()
         plt.grid()
         plt.show()
+        
+
 
 if __name__ == "__main__":
     unittest.main()
