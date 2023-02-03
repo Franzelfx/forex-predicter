@@ -19,10 +19,8 @@ class Test_Preprocessor(unittest.TestCase):
             test_split=TEST_SPLIT,
             time_steps_in=TEST_TIME_STEPS_IN,
             time_steps_out=TEST_TIME_STEPS_OUT,
-            intersection_factor=TEST_INTERSECTION_FACTOR,
             scale=TEST_SCALE,
         )
-        print(f"x_train shape: {preprocessor.x_train.shape}")
         # Check shape of x_train, has to be (samples, time_steps_in, features)
         self.assertEqual(preprocessor.x_train.shape[1], TEST_TIME_STEPS_IN)
 
@@ -35,10 +33,8 @@ class Test_Preprocessor(unittest.TestCase):
             test_split=TEST_SPLIT,
             time_steps_in=TEST_TIME_STEPS_IN,
             time_steps_out=TEST_TIME_STEPS_OUT,
-            intersection_factor=TEST_INTERSECTION_FACTOR,
             scale=TEST_SCALE,
         )
-        print(f"y_train shape: {preprocessor.y_train.shape}")
         # Check shape of y_train, has to be (samples, time_steps_out, 1)
         self.assertEqual(preprocessor.y_train.shape[1], TEST_TIME_STEPS_OUT)
     
@@ -51,12 +47,26 @@ class Test_Preprocessor(unittest.TestCase):
             test_split=TEST_SPLIT,
             time_steps_in=TEST_TIME_STEPS_IN,
             time_steps_out=TEST_TIME_STEPS_OUT,
-            intersection_factor=TEST_INTERSECTION_FACTOR,
             scale=TEST_SCALE,
         )
-        print(f"x_test shape: {preprocessor.x_test.shape}")
         # Check shape of x_test, has to be (samples, time_steps_in, features)
         self.assertEqual(preprocessor.x_test.shape[1], TEST_TIME_STEPS_IN)
+        # Check, if the feature values of x_test at a specific location are 
+        # the same as in feature() fucntion of the Preprocessor class
+        x_test = preprocessor.x_test[:, :, preprocessor.loc_of("c")]
+        x_test = x_test.flatten()
+        feature_c = preprocessor.feature_test("c")
+        # Plot x_test and feature_x
+        plt.cla()
+        plt.clf()
+        plt.figure(figsize=(20, 10))
+        plt.plot(feature_c, label="feature_c")
+        plt.plot(x_test, label="x_test")
+        plt.legend()
+        plt.savefig(f"{PREPROCESSOR_PATH}/x_test.png")
+        # Get first time_steps_in values of feature_c
+        feature_c = feature_c[:TEST_TIME_STEPS_IN]
+        self.assertTrue(np.array_equal(x_test, feature_c))
 
     def test_nan_values(self):
         """Test if the data contains NaN values."""
@@ -67,18 +77,46 @@ class Test_Preprocessor(unittest.TestCase):
             test_split=TEST_SPLIT,
             time_steps_in=TEST_TIME_STEPS_IN,
             time_steps_out=TEST_TIME_STEPS_OUT,
-            intersection_factor=TEST_INTERSECTION_FACTOR,
             scale=TEST_SCALE,
         )
         # Convert to pandas dataframe and check for NaN values
         x_train = pd.DataFrame(preprocessor.x_train.flatten())
         y_train = pd.DataFrame(preprocessor.y_train.flatten())
-        # Print where the NaN values are located
-        print(x_train[x_train.isnull().any(axis=1)])
-        # Print Content of the NaN values
-        print(x_train[x_train.isnull().any(axis=1)].values)
         self.assertFalse(x_train.isnull().values.any())
         self.assertFalse(y_train.isnull().values.any())
+
+    def test_train_test_set(self):
+        """Test if the train and test set are correct."""
+        test_data = pd.read_csv(PREPROCESSOR_DATA_SOURCE)
+        preprocessor = Preprocessor(
+            test_data,
+            "c",
+            test_split=TEST_SPLIT,
+            time_steps_in=TEST_TIME_STEPS_IN,
+            time_steps_out=TEST_TIME_STEPS_OUT,
+            scale=TEST_SCALE,
+        )
+        # Get train_data target column
+        train_data = preprocessor.train_data[preprocessor.target]
+        # Get test_data target column
+        test_data = preprocessor.test_data[preprocessor.target]
+        # Plot train_data and test_data
+        x_test = preprocessor.x_test[:, :, preprocessor.loc_of("h")]
+        x_test = x_test.flatten()
+        # High resolution plot
+        plt.figure(figsize=(20, 10))
+        plt.plot(x_test, label="x_test")
+        plt.plot(train_data, label="train_data")
+        plt.plot(test_data, label="test_data")
+        plt.legend()
+        plt.savefig(f"{PREPROCESSOR_PATH}/train_test_set.png")
+        # Plot h, l, c, o of x_test
+        plt.figure(figsize=(20, 10))
+        plt.plot(preprocessor.x_test[:, :, preprocessor.loc_of("h")].flatten(), label="h")
+        plt.plot(preprocessor.x_test[:, :, preprocessor.loc_of("l")].flatten(), label="l")
+        plt.plot(preprocessor.x_test[:, :, preprocessor.loc_of("c")].flatten(), label="c")
+        plt.plot(preprocessor.x_test[:, :, preprocessor.loc_of("o")].flatten(), label="o")
+
     
     def test_x_y_train(self):
         """Test if the x_train and y_train data is in the correct order."""
@@ -89,7 +127,6 @@ class Test_Preprocessor(unittest.TestCase):
             test_split=TEST_SPLIT,
             time_steps_in=TEST_TIME_STEPS_IN,
             time_steps_out=TEST_TIME_STEPS_OUT,
-            intersection_factor=TEST_INTERSECTION_FACTOR,
             scale=TEST_SCALE,
         )
         # Check, if the first value of the second sample in x_train is the
@@ -97,8 +134,6 @@ class Test_Preprocessor(unittest.TestCase):
         # Get x_train and y_train target values
         columns = preprocessor.data.columns
         column_loc = columns.get_loc(preprocessor.target)
-        print(columns)
-        print(column_loc)
         x_train_target = preprocessor.x_train[:, :, column_loc]
         y_train_target = preprocessor.y_train[:, :]
         # Scale back to original values
@@ -106,15 +141,49 @@ class Test_Preprocessor(unittest.TestCase):
         # Scale back to original values
         y_train_target = preprocessor.scaler[preprocessor.target].inverse_transform(y_train_target)
         # Safe x_train and y_train as csv in "prepprocessor_test" folder
-        x_train_target = pd.DataFrame(x_train_target.flatten())
-        y_train_target = pd.DataFrame(y_train_target.flatten())
-        x_train_target.to_csv(f"{PREPROCESSOR_PATH}/x_train_target.csv")
-        y_train_target.to_csv(f"{PREPROCESSOR_PATH}/y_train_target.csv")
-        # Plot the first sample of x_train and y_train
-        plt.plot(x_train_target[0:TEST_TIME_STEPS_IN])
-        # Plot y_train and shift the plot by the time_steps_in
-        plt.plot(y_train_target[0:TEST_TIME_STEPS_OUT])
-        plt.show()
+        x_train_target_cs = pd.DataFrame(x_train_target.flatten())
+        y_train_target_cs = pd.DataFrame(y_train_target.flatten())
+        x_train_target_cs.to_csv(f"{PREPROCESSOR_PATH}/x_train_target.csv")
+        y_train_target_cs.to_csv(f"{PREPROCESSOR_PATH}/y_train_target.csv")
+        # Get first n_time_steps_out values of second x_train sample
+        x_train_target_plt = x_train_target[1, :preprocessor.time_steps_out]
+        # Get last n_time_steps_out values of first y_train sample
+        y_train_target_plt = y_train_target[0, -preprocessor.time_steps_out:]
+        # Check if the values are the same
+        self.assertTrue(np.array_equal(x_train_target_plt, y_train_target_plt))
+        # Plot the values in subplots
+        fig, axs = plt.subplots(2, 1)
+        # High dpi for better quality
+        fig.set_dpi(300)
+        axs[0].plot(x_train_target_plt, color="red", label="x_train_target")
+        # Add comment to the top of the plot
+        axs[0].annotate(
+            "First n_time_steps_out values of second x_train sample",
+            xy=(0.5, 0.5),
+            xytext=(0.35, 0.15),
+            xycoords="axes fraction",
+            textcoords="axes fraction",
+            fontsize=8,
+            ha="center",
+            va="center",
+        )
+        axs[1].plot(y_train_target_plt, color="blue", label="y_train_target")
+        # Add comment to the plot
+        axs[1].annotate(
+            "Last n_time_steps_out values of first y_train sample",
+            xy=(0, 0),
+            xytext=(0.35, 0.15),
+            xycoords="axes fraction",
+            textcoords="axes fraction",
+            fontsize=8,
+            ha="center",
+            va="center",
+        )
+        axs[0].legend()
+        axs[1].legend()
+        plt.savefig(f"{PREPROCESSOR_PATH}/x_y_train.png")
+
+
     
 if __name__ == "__main__":
     unittest.main()

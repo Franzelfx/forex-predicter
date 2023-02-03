@@ -20,7 +20,6 @@ class Preprocessor:
         test_split=0.2,
         time_steps_in=60,
         time_steps_out=30,
-        intersection_factor=0.5,
         scale=True,
         feature_range=(-1, 1),
     ):
@@ -30,14 +29,7 @@ class Preprocessor:
         @param target: The column name of the y train data.
         @param test_split: The percentage of the data to be used for testing (0.0 to 0.5).
         @param time_steps: The number of time steps to be used per sample.
-        @param intersection_factor: The intersection of the single samples (0.0 to 0.9).
-                                An intersection of 0 means that the samples
-                                are not overlapping. An intersection of 0.9 means
-                                that the samples are overlapping by 90%.
         @param scale: If the data should be scaled or not.
-
-        @remarks The time_steps and intersection parameter will determine, how
-                    much sequences will be created from the data.
         """
         # Attributes
         self._data = data
@@ -45,7 +37,6 @@ class Preprocessor:
         self._test_split = test_split
         self._time_steps_in = time_steps_in
         self._time_steps_out = time_steps_out
-        self._intersection_factor = intersection_factor
         self._scale = scale
         self._feature_range = feature_range
         # The train and test data
@@ -55,8 +46,6 @@ class Preprocessor:
 
         if self._test_split < 0.0 or self._test_split > 0.5:
             raise ValueError("The test split must be between 0.0 and 0.5.")
-        if self._intersection_factor < 0.0 or self._intersection_factor > 0.9:
-            raise ValueError("The intersection must be between 0.0 and 0.9.")
         if time_steps_in > len(data):
             raise ValueError(
                 f"The input time steps must be smaller than the data length. {time_steps_in} > {len(data)}"
@@ -86,11 +75,22 @@ class Preprocessor:
             self._train_data,
             self._time_steps_in,
             self._time_steps_out,
-            self._intersection_factor,
         )
+    
+    def summary(self) -> None:
+        """Print a summary of the preprocessor."""
+        print(self.__str__())
 
     def __str__(self) -> str:
-        """Return the string representation of the preprocessors attributes in table format."""
+        """Return the string representation of the preprocessor."""
+        return f"""Preprocessor
+        Data: {self._data.shape}
+        Train: {self._train_data.shape}
+        Test: {self._test_data.shape}
+        X train: {self._x_train.shape}
+        Y train: {self._y_train.shape}
+        """
+
 
     @property
     def data(self) -> pd.DataFrame:
@@ -101,6 +101,30 @@ class Preprocessor:
                  (removed by the _drop_nan method).
         """
         return self._data
+    
+    @property
+    def test_split(self) -> float:
+        """Get the test split.
+
+        @return: The test split as float.
+        """
+        return self._test_split
+    
+    @property
+    def train_data(self) -> pd.DataFrame:
+        """Get the train data.
+
+        @return: The train data as pandas dataframe.
+        """
+        return self._train_data
+
+    @property
+    def test_data(self) -> pd.DataFrame:
+        """Get the test data.
+
+        @return: The test data as pandas dataframe.
+        """
+        return self._test_data
 
     @property
     def x_train(self) -> np.ndarray:
@@ -132,10 +156,13 @@ class Preprocessor:
                     call the x_test property, the x_test data
                     will be shifted by the time steps in.
         """
-        self._x_test_iterator = 1
-        x_test = self._test_data.values[0:self._time_steps_in * self._x_test_iterator]
+        self._x_test_iterator = 0
+        start = self._time_steps_in * self._x_test_iterator
+        end = self._time_steps_in * (self._x_test_iterator + 1)
+        x_test = self._test_data.values[start:end]
         # Reshape the test data to (samples, time_steps, features)
         x_test = np.reshape(x_test, (1, self._time_steps_in, x_test.shape[1]))
+        self._x_test_iterator += 1
         return x_test
 
     @property
@@ -150,12 +177,11 @@ class Preprocessor:
         """
         y_test = np.array(self._test_data[self._target])
         # Shift the test data by the time steps in
-        y_test = y_test[self._time_steps_out * self._x_test_iterator :]
+        start = self._time_steps_out * self._x_test_iterator
+        end = self._time_steps_out * (self._x_test_iterator + 1)
+        y_test = y_test[start:end]
         # Inverse the scaled data
-        if self._scale:
-            # Reshape the test data
-            y_test = y_test.reshape(-1, 1)
-            y_test = self._scaler[self._target].inverse_transform(y_test)
+
         return y_test
 
     @property
@@ -185,6 +211,47 @@ class Preprocessor:
     def time_steps_out(self) -> int:
         """Get the number of time steps for the output."""
         return self._time_steps_out
+    
+    def loc_of(self, feature: str) -> int:
+        """Get the location of the feature in the data.
+
+        @param feature: The feature you want to get the location for.
+        @return: The location of the feature in the data.
+        """
+        return self._data.columns.get_loc(feature)
+    
+    def feature_name(self, loc: int) -> str:
+        """Get the name of the feature at the given location.
+
+        @param loc: The location of the feature.
+        @return: The name of the feature.
+        """
+        return self._data.columns[loc]
+
+    def feature(self, feature: str) -> np.ndarray:
+        """Get the feature as numpy array.
+
+        @param feature: The feature you want to get.
+        @return: The feature as numpy array.
+        """
+        return self._data[feature].values
+    
+    def feature_train(self, feature: str) -> np.ndarray:
+        """Get the feature of the train data as numpy array.
+
+        @param feature: The feature you want to get.
+        @return: The feature as numpy array.
+        """
+        return self._train_data[feature].values
+    
+    def feature_test(self, feature: str) -> np.ndarray:
+        """Get the feature of the test data as numpy array.
+
+        @param feature: The feature you want to get.
+        @return: The feature as numpy array.
+        """
+        return self._test_data[feature].values
+    
 
     def _drop_nan(self, data: pd.DataFrame) -> pd.DataFrame:
         """Drop all rows with nan values."""
@@ -231,8 +298,7 @@ class Preprocessor:
         input_sequence: pd.DataFrame,
         steps_in: int,
         steps_out: int,
-        intersec: float,
-    ) -> tuple:
+    ) -> tuple[np.ndarray, np.ndarray]:
         """Create samples of x and y.
 
         @param input_sequence: The input sequence.
@@ -254,5 +320,6 @@ class Preprocessor:
         while iterator + steps_in + steps_out <= len(input_sequence):
             x.append(input_sequence[iterator:iterator + steps_in].values)
             y.append(input_sequence[iterator + steps_in:iterator + steps_in + steps_out][self._target].values)
-            iterator += int(steps_in * (1 - intersec))
+            iterator += steps_in
         return np.array(x), np.array(y)
+

@@ -19,7 +19,7 @@ DATE_END = date.today().strftime(TIME_FORMAT)
 API_TYPE = "basic"
 
 # Indicators
-PATH_INDICATORS = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.curdir, f"indicators/{PAIR}_{MINUTES}.csv"))
+PATH_INDICATORS = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.curdir, f"indicators"))
 INDICATORS_DATA_SOURCE = f"{PATH_PAIRS}/{PAIR}_{MINUTES}.csv"
 TEST_INDICATORS = ["ATR", "BOLLINGER", "MA50", "MA200", "MACD", "RSI", "STOCHASTIC"]
 EXPECTED_COLUMNS = [
@@ -45,18 +45,18 @@ EXPECTED_COLUMNS = [
 
 # Preprocessor
 PREPROCESSOR_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.curdir, "preprocessor_test"))
-PREPROCESSOR_DATA_SOURCE = f"{PATH_INDICATORS}"
-TEST_SPLIT = 0.2
-TEST_TIME_STEPS_IN = 180
-TEST_TIME_STEPS_OUT = 90
-TEST_INTERSECTION_FACTOR = 0.9
-TEST_SCALE = True
+PREPROCESSOR_DATA_SOURCE = f"{PATH_INDICATORS}/{PAIR}_{MINUTES}.csv"
+TEST_SPLIT = 0.1
+TEST_TIME_STEPS_IN = 300
+TEST_TIME_STEPS_OUT = 100
+TEST_INTERSECTION_FACTOR = 0.0
+TEST_SCALE = False
 
 # Model
-MODEL_DATA_SOURCE = f"{PREPROCESSOR_DATA_SOURCE}"
+MODEL_DATA_SOURCE = f"{INDICATORS_DATA_SOURCE}"
 MODEL_PATH = os.path.abspath(os.path.dirname(__file__))
 MODEL_NAME = 'EURUSD_15'
 TEST_EPOCHS = 100
-TEST_NEURONS = 256
-TEST_BATCH_SIZE = 32
+TEST_NEURONS = 64
+TEST_BATCH_SIZE = 8
 PATH_TEST_RESULTS = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.curdir, "test_results"))

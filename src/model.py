@@ -5,7 +5,7 @@ from keras.optimizers import Adam
 from keras.models import Sequential
 from sklearn.preprocessing import MinMaxScaler
 from keras.callbacks import ModelCheckpoint, EarlyStopping, TensorBoard
-from keras.layers import Dense, LSTM, Dropout, Bidirectional, TimeDistributed
+from keras.layers import Dense, LSTM, Dropout, Bidirectional, Conv1D, GlobalAveragePooling1D, Flatten, MaxPooling1D
 
 
 class Model:
@@ -41,14 +41,15 @@ class Model:
     def _create_model(self, hidden_neurons=128) -> Sequential:
         """Create the model."""
         model = Sequential()
-        model.add(Bidirectional(LSTM(hidden_neurons, return_sequences=True, input_shape=(self._x_train.shape[1], self._x_train.shape[2]))))
-        model.add(Dropout(self._dropout))
+        #model.add(Conv1D(filters=hidden_neurons, kernel_size=3, activation="relu", padding="same"))
+        #model.add(MaxPooling1D(pool_size=2))
         model.add(Bidirectional(LSTM(hidden_neurons, return_sequences=True)))
-        model.add(Dropout(self._dropout))
+        model.add(Bidirectional(LSTM(hidden_neurons, return_sequences=True)))
         model.add(Bidirectional(LSTM(hidden_neurons, return_sequences=False)))
-        model.add(Dense(hidden_neurons))
         model.add(Dropout(self._dropout))
-        model.add(Dense(self._y_train.shape[1]))
+        model.add(Dense(hidden_neurons, activation="relu"))
+        model.add(Dropout(self._dropout))
+        model.add(Dense(self._y_train.shape[1], activation="linear"))
         model.build(input_shape=(self._x_train.shape[0], self._x_train.shape[1], self._x_train.shape[2]))
         return model
 
@@ -103,12 +104,12 @@ class Model:
         # Configure callbacks (early stopping, checkpoint, tensorboard)
         model_checkpoint = ModelCheckpoint(
             filepath=f"{self._path}/checkpoints/{self._name}_weights.h5",
-            monitor="val_mape",
+            monitor="val_loss",
             save_best_only=True,
             save_weights_only=False,
             verbose=1,
         )
-        early_stopping = EarlyStopping(monitor="val_mape", patience=patience, mode="min", verbose=1)
+        early_stopping = EarlyStopping(monitor="val_loss", patience=patience, mode="min", verbose=1)
         tensorboard = TensorBoard(log_dir=f"{self._path}/tensorboard/{self._name}")
         # Fit the model
         fit = model.fit(

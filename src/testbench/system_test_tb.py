@@ -16,10 +16,10 @@ class SystemTest(unittest.TestCase):
         # Get data
         for pair in request_pairs:
             data_aquirer = Data_Aquirer(PATH_PAIRS, API_KEY, TIME_FORMAT)
-            data = data_aquirer.get(PAIR, MINUTES, DATE_START, DATE_END, save=True)
+            data = data_aquirer.get(pair, MINUTES, DATE_START, DATE_END, save=True)
             # Create indicators
             indicators = Indicators(data, TEST_INDICATORS)
-            data = indicators.calculate(save=True, path=PATH_INDICATORS)
+            data = indicators.calculate(save=True, path=f"{PATH_INDICATORS}/{pair}_{MINUTES}.csv")
             # Preprocess data
             preprocessor = Preprocessor(
                 data,
@@ -33,11 +33,11 @@ class SystemTest(unittest.TestCase):
             # Create and train model
             model = Model(
                 MODEL_PATH,
-                MODEL_NAME,
+                pair,
                 preprocessor.x_train,
                 preprocessor.y_train,
             )
-            model.compile_and_fit(epochs=1, hidden_neurons=TEST_NEURONS, batch_size=TEST_BATCH_SIZE)
+            model.compile_and_fit(epochs=TEST_EPOCHS, hidden_neurons=TEST_NEURONS, batch_size=TEST_BATCH_SIZE)
             # Test model with first sample of test data
             x_test_sample = preprocessor.x_test
             prediction = model.predict(preprocessor.x_test, scaler=preprocessor.scaler[preprocessor.target])
