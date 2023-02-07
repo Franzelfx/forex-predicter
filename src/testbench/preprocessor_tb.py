@@ -23,6 +23,11 @@ class Test_Preprocessor(unittest.TestCase):
         )
         # Check shape of x_train, has to be (samples, time_steps_in, features)
         self.assertEqual(preprocessor.x_train.shape[1], TEST_TIME_STEPS_IN)
+        # Check, if every sample has the same length
+        for sample in preprocessor.x_train:
+            # Iterate over all features
+            for i in range(preprocessor.x_train.shape[2]):
+                self.assertEqual(len(sample[:, i]), TEST_TIME_STEPS_IN)
 
     def test_y_train(self):
         """Test the y_train attribute."""
@@ -37,6 +42,9 @@ class Test_Preprocessor(unittest.TestCase):
         )
         # Check shape of y_train, has to be (samples, time_steps_out, 1)
         self.assertEqual(preprocessor.y_train.shape[1], TEST_TIME_STEPS_OUT)
+        # Check, if every sample has the same length
+        for sample in preprocessor.y_train:
+            self.assertEqual(len(sample), TEST_TIME_STEPS_OUT)
     
     def test_x_test(self):
         """Test the x_test attribute."""
@@ -135,11 +143,12 @@ class Test_Preprocessor(unittest.TestCase):
         columns = preprocessor.data.columns
         column_loc = columns.get_loc(preprocessor.target)
         x_train_target = preprocessor.x_train[:, :, column_loc]
-        y_train_target = preprocessor.y_train[:, :]
-        # Scale back to original values
-        x_train_target = preprocessor.scaler[preprocessor.target].inverse_transform(x_train_target)
-        # Scale back to original values
-        y_train_target = preprocessor.scaler[preprocessor.target].inverse_transform(y_train_target)
+        y_train_target = preprocessor.y_train[:, :, 0]
+        # Scale back to original values (if scaled)
+        if preprocessor.scale:
+            x_train_target = preprocessor.scaler[preprocessor.target].inverse_transform(x_train_target)
+            # Scale back to original values
+            y_train_target = preprocessor.scaler[preprocessor.target].inverse_transform(y_train_target)
         # Safe x_train and y_train as csv in "prepprocessor_test" folder
         x_train_target_cs = pd.DataFrame(x_train_target.flatten())
         y_train_target_cs = pd.DataFrame(y_train_target.flatten())

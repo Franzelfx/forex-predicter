@@ -91,6 +91,13 @@ class Preprocessor:
         Y train: {self._y_train.shape}
         """
 
+    @property
+    def scale(self) -> bool:
+        """Get the scale attribute.
+
+        @return: The scale attribute as boolean.
+        """
+        return self._scale
 
     @property
     def data(self) -> pd.DataFrame:
@@ -144,6 +151,8 @@ class Preprocessor:
         """
         # Y train is some sliding window with length of time_steps_out
         # and offset of time_steps_in
+        # reshape to (samples, time_steps, features)
+        self._y_train = np.reshape(self._y_train, (self._y_train.shape[0], self._time_steps_out, 1))
         return self._y_train
 
     @property
@@ -180,8 +189,6 @@ class Preprocessor:
         start = self._time_steps_out * self._x_test_iterator
         end = self._time_steps_out * (self._x_test_iterator + 1)
         y_test = y_test[start:end]
-        # Inverse the scaled data
-
         return y_test
 
     @property
@@ -278,9 +285,10 @@ class Preprocessor:
 
     def _split_train_test(self, data: pd.DataFrame, test_split: float) -> tuple:
         """Split the data into train and test set."""
-        test_size = int(len(data) * test_split)
-        train_data = data[:-test_size]
-        test_data = data[-test_size:]
+        #test_size = int(len(data) * test_split)
+        train_size = int(len(data) * (1 - test_split))
+        train_data = data[:train_size]
+        test_data = data[train_size:]
         return train_data, test_data
 
     def _scale_data(self, data: pd.DataFrame) -> pd.DataFrame:
@@ -320,6 +328,6 @@ class Preprocessor:
         while iterator + steps_in + steps_out <= len(input_sequence):
             x.append(input_sequence[iterator:iterator + steps_in].values)
             y.append(input_sequence[iterator + steps_in:iterator + steps_in + steps_out][self._target].values)
-            iterator += steps_in
+            iterator += 1
+            
         return np.array(x), np.array(y)
-

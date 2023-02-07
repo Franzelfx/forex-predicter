@@ -5,7 +5,7 @@ from keras.optimizers import Adam
 from keras.models import Sequential
 from sklearn.preprocessing import MinMaxScaler
 from keras.callbacks import ModelCheckpoint, EarlyStopping, TensorBoard
-from keras.layers import Dense, LSTM, Dropout, Bidirectional, Conv1D, GlobalAveragePooling1D, Flatten, MaxPooling1D
+from keras.layers import Dense, LSTM, Dropout, Bidirectional, Conv1D, GlobalAveragePooling1D, Flatten, MaxPooling1D, Masking, RepeatVector, TimeDistributed
 
 
 class Model:
@@ -41,11 +41,9 @@ class Model:
     def _create_model(self, hidden_neurons=128) -> Sequential:
         """Create the model."""
         model = Sequential()
-        #model.add(Conv1D(filters=hidden_neurons, kernel_size=3, activation="relu", padding="same"))
-        #model.add(MaxPooling1D(pool_size=2))
-        model.add(Bidirectional(LSTM(hidden_neurons, return_sequences=True)))
-        model.add(Bidirectional(LSTM(hidden_neurons, return_sequences=True)))
-        model.add(Bidirectional(LSTM(hidden_neurons, return_sequences=False)))
+        print(self._x_train.shape)
+        model.add(Conv1D(64, 3, activation="relu", input_shape=(self._x_train.shape[1], self._x_train.shape[2])))
+        model.add(LSTM(hidden_neurons, return_sequences=False, input_shape=(self._x_train.shape[1], self._x_train.shape[2])))
         model.add(Dropout(self._dropout))
         model.add(Dense(hidden_neurons, activation="relu"))
         model.add(Dropout(self._dropout))
@@ -99,7 +97,7 @@ class Model:
         """
         model = self._create_model(hidden_neurons)
         optimizer = Adam(learning_rate=learning_rate)
-        model.compile(loss=self._loss, optimizer=optimizer, metrics='mape')
+        model.compile(loss=self._loss, optimizer=optimizer, metrics=["mape"])
         model.summary()
         # Configure callbacks (early stopping, checkpoint, tensorboard)
         model_checkpoint = ModelCheckpoint(
@@ -148,7 +146,7 @@ class Model:
             model = self._model
         # Predict the output
         y_pred = model.predict(x_test).flatten()
-        y_pred = y_pred.reshape(-1, 1)
         if scaler is not None:
+            y_pred = y_pred.reshape(-1, 1)
             y_pred = scaler.inverse_transform(y_pred)
         return y_pred

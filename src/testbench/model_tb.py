@@ -16,10 +16,8 @@ class Test_Model(unittest.TestCase):
     def test_compile_fit_predict(self):
         """Test the compile, fit and predict method with data from the preprocessor."""
         test_data = pd.read_csv(MODEL_DATA_SOURCE)
-        # drop v and vw columns
-        test_data = test_data.drop(["v", "vw"], axis=1)
-        # Drop all colums but keep 'c' column
-        # test_data = test_data.drop(test_data.columns.difference(["c"]), axis=1)
+        # Only keep 'o', 'h', 'l', 'c' and 'vw' columns
+        test_data = test_data[['o', 'h', 'l', 'c', 'vw']]
         preprocessor = Preprocessor(
             test_data,
             "c",
@@ -28,6 +26,7 @@ class Test_Model(unittest.TestCase):
             time_steps_out=TEST_TIME_STEPS_OUT,
             scale=TEST_SCALE,
         )
+        print(preprocessor.data.head(5))
         preprocessor.summary()
         model = Model(
             MODEL_PATH,
@@ -38,17 +37,17 @@ class Test_Model(unittest.TestCase):
         # Run 30 epochs for testing
         model.compile_and_fit(epochs=TEST_EPOCHS, hidden_neurons=TEST_NEURONS, batch_size=TEST_BATCH_SIZE)
         # Predict the next values
-        prediction = model.predict(preprocessor.x_test)
-        # inverse transform the prediction
-        #prediction = preprocessor.scaler[preprocessor.target].inverse_transform(prediction)
-        #prediction = prediction.flatten()
-        # Plot test and prediction, reset plot first
+
+        # predict last sample of x_train
+        #prediction_train = model.predict(preprocessor.x_train)
+        prediction = model.predict(preprocessor.x_test, scaler=preprocessor.scaler[preprocessor.target])
         plt.cla()
         plt.clf()
         # Get last time_steps_in values from train_data
         train_data = preprocessor.train_data[preprocessor.target].values[-preprocessor.time_steps_in:]
         # Plot train data
         plt.plot(train_data, label="Train", color="red")
+        #plt.plot(prediction_train[-len(train_data):], label="Prediction_Train", color="blue")
         # Plot y_test and prediction and shift them to the right
         # Get last ""steps_in" values from x_test
         x_test = preprocessor.x_test[:, :, preprocessor.loc_of("c")]
@@ -66,6 +65,7 @@ class Test_Model(unittest.TestCase):
         plt.legend()
         plt.grid()
         plt.savefig(f"{MODEL_PATH}/model_test/{MODEL_NAME}_test.png")
+        plt.show()
         
 
 
