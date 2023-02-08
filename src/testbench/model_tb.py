@@ -40,11 +40,14 @@ class Test_Model(unittest.TestCase):
 
         # predict last sample of x_train
         #prediction_train = model.predict(preprocessor.x_train)
-        prediction = model.predict(preprocessor.x_test, scaler=preprocessor.scaler[preprocessor.target])
+        if TEST_SCALE is True:
+            prediction = model.predict(preprocessor.x_test, scaler=preprocessor.scaler[preprocessor.target])
+        else:
+            prediction = model.predict(preprocessor.x_test)
         plt.cla()
         plt.clf()
         # Get last time_steps_in values from train_data
-        train_data = preprocessor.train_data[preprocessor.target].values[-preprocessor.time_steps_in:]
+        train_data = preprocessor.train_data[preprocessor.target].values[-preprocessor.time_steps_in:]   
         # Plot train data
         plt.plot(train_data, label="Train", color="red")
         #plt.plot(prediction_train[-len(train_data):], label="Prediction_Train", color="blue")
