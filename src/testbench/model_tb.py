@@ -17,10 +17,9 @@ class Test_Model(unittest.TestCase):
         """Test the compile, fit and predict method with data from the preprocessor."""
         test_data = pd.read_csv(MODEL_DATA_SOURCE)
         # Only keep 'o', 'h', 'l', 'c' and 'vw' columns
-        test_data = test_data[['o', 'h', 'l', 'c', 'vw']]
         preprocessor = Preprocessor(
             test_data,
-            "c",
+            "MA50",
             test_split=TEST_SPLIT,
             time_steps_in=TEST_TIME_STEPS_IN,
             time_steps_out=TEST_TIME_STEPS_OUT,

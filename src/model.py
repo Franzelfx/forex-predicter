@@ -43,6 +43,7 @@ class Model:
         model = Sequential()
         print(self._x_train.shape)
         model.add(Conv1D(64, 3, activation="relu", input_shape=(self._x_train.shape[1], self._x_train.shape[2])))
+        model.add(MaxPooling1D(2))
         model.add(Bidirectional(LSTM(hidden_neurons, return_sequences=True, input_shape=(self._x_train.shape[1], self._x_train.shape[2]))))
         model.add(Bidirectional(LSTM(hidden_neurons, return_sequences=False, input_shape=(self._x_train.shape[1], self._x_train.shape[2]))))
         model.add(Dropout(self._dropout))
