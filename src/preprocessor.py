@@ -186,8 +186,10 @@ class Preprocessor:
         """
         y_test = np.array(self._test_data[self._target])
         # Shift the test data by the time steps in
-        start = self._time_steps_out * self._x_test_iterator
-        end = self._time_steps_out * (self._x_test_iterator + 1)
+        if self._x_test_iterator == 0:
+            raise ValueError("You have to call the x_test property first.")
+        start = self._time_steps_out * (self._x_test_iterator - 1)
+        end = self._time_steps_out * (self._x_test_iterator)
         y_test = y_test[start:end]
         return y_test
 
