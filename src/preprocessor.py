@@ -21,7 +21,7 @@ class Preprocessor:
         time_steps_in=60,
         time_steps_out=30,
         scale=True,
-        feature_range=(-1, 1),
+        feature_range=(0, 1),
     ):
         """Set the fundamental attributes.
 
