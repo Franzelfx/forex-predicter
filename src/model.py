@@ -79,7 +79,7 @@ class Model:
         # Save the plot
         plt.savefig(f"{self._path}/fit_history/{self._name}.png")
 
-    def compile_and_fit(self, hidden_neurons=256, epochs=100, learning_rate=0.0005, batch_size=32, validation_spilt=0.2, patience=20) -> dict:
+    def compile_and_fit(self, hidden_neurons=256, epochs=100, learning_rate=0.001, batch_size=32, validation_spilt=0.2, patience=20) -> dict:
         """Compile and fit the model.
     
         @param hidden_neurons: The number of neurons in the hidden layers.
