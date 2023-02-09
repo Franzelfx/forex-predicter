@@ -19,7 +19,7 @@ class Test_Model(unittest.TestCase):
         # Only keep 'o', 'h', 'l', 'c' and 'vw' columns
         preprocessor = Preprocessor(
             test_data,
-            "MA50",
+            TARGET,
             test_split=TEST_SPLIT,
             time_steps_in=TEST_TIME_STEPS_IN,
             time_steps_out=TEST_TIME_STEPS_OUT,
@@ -52,7 +52,7 @@ class Test_Model(unittest.TestCase):
         #plt.plot(prediction_train[-len(train_data):], label="Prediction_Train", color="blue")
         # Plot y_test and prediction and shift them to the right
         # Get last ""steps_in" values from x_test
-        x_test = preprocessor.x_test[:, :, preprocessor.loc_of("c")]
+        x_test = preprocessor.x_test[:, :, preprocessor.loc_of(TARGET)]
         x_test = x_test.flatten()
         # Arrange some x to shift the plot to the right
         x = range(len(train_data), len(train_data) + len(x_test))

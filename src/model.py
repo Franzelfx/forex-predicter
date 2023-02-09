@@ -5,7 +5,7 @@ from keras.optimizers import Adam
 from keras.models import Sequential
 from sklearn.preprocessing import MinMaxScaler
 from keras.callbacks import ModelCheckpoint, EarlyStopping, TensorBoard
-from keras.layers import Dense, LSTM, Dropout, Bidirectional, Conv1D, GlobalAveragePooling1D, Flatten, MaxPooling1D, Masking, RepeatVector, TimeDistributed
+from keras.layers import Dense, LSTM, Dropout, Bidirectional, GRU
 
 
 class Model:
@@ -41,11 +41,8 @@ class Model:
     def _create_model(self, hidden_neurons=128) -> Sequential:
         """Create the model."""
         model = Sequential()
-        print(self._x_train.shape)
-        model.add(Conv1D(64, 3, activation="relu", input_shape=(self._x_train.shape[1], self._x_train.shape[2])))
-        model.add(MaxPooling1D(2))
-        model.add(Bidirectional(LSTM(hidden_neurons, return_sequences=True, input_shape=(self._x_train.shape[1], self._x_train.shape[2]))))
-        model.add(Bidirectional(LSTM(hidden_neurons, return_sequences=False, input_shape=(self._x_train.shape[1], self._x_train.shape[2]))))
+        model.add(Bidirectional(GRU(hidden_neurons, return_sequences=True, input_shape=(self._x_train.shape[1], self._x_train.shape[2]))))
+        model.add(Bidirectional(GRU(hidden_neurons, return_sequences=False, input_shape=(self._x_train.shape[1], self._x_train.shape[2]))))
         model.add(Dropout(self._dropout))
         model.add(Dense(hidden_neurons, activation="relu"))
         model.add(Dropout(self._dropout))
