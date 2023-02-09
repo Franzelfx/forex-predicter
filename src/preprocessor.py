@@ -1,6 +1,7 @@
 """Module for the Preprocessor class."""
 import numpy as np
 import pandas as pd
+pd.options.mode.chained_assignment = None  # default='warn'
 from sklearn.preprocessing import StandardScaler
 
 
@@ -64,13 +65,13 @@ class Preprocessor:
             )
         # Preprocess the data concerning nan values, split and scaling
         data = self._drop_nan(data)
-        if self._scale:
-            data = self._scale_data(data)
         # Data is now without time and index column
         self._data = data
         self._train_data, self._test_data = self._split_train_test(
             data, self._test_split
         )
+        if self._scale:
+            data = self._scale_data(self._test_data, self._train_data)
         self._x_train, self._y_train = self._create_samples(
             self._train_data,
             self._time_steps_in,
@@ -293,15 +294,20 @@ class Preprocessor:
         test_data = data[train_size:]
         return train_data, test_data
 
-    def _scale_data(self, data: pd.DataFrame) -> pd.DataFrame:
+    def _scale_data(self, train_data: pd.DataFrame, test_data: pd.DataFrame) -> pd.DataFrame:
         """Scale the data."""
         # Scale the data
         scaler = []
-        for column in data.columns:
+        # Fit on train data and transform train and test data
+        for column in train_data.columns:
             scaler.append(StandardScaler())
-            data[column] = scaler[-1].fit_transform(data[column].values.reshape(-1, 1))
-        self._scaler = dict(zip(data.columns, scaler))
-        return data
+            train_data[column] = scaler[-1].fit_transform(train_data[column].values.reshape(-1, 1))
+        # Save the scaler
+        self._scaler = dict(zip(train_data.columns, scaler))
+        # Scale the test data
+        for column in test_data.columns:
+            test_data[column] = self._scaler[column].transform(test_data[column].values.reshape(-1, 1))
+        return train_data
 
     def _create_samples(
         self,
