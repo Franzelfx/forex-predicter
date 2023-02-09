@@ -143,13 +143,15 @@ class Test_Preprocessor(unittest.TestCase):
         columns = preprocessor.data.columns
         column_loc = columns.get_loc(preprocessor.target)
         x_train_target = preprocessor.x_train[:, :, column_loc]
-        y_train_target = preprocessor.y_train[:, :, 0]
+        y_train_target = preprocessor.y_train[:, :]
         # Scale back to original values (if scaled)
         if preprocessor.scale:
             x_train_target = preprocessor.scaler[preprocessor.target].inverse_transform(x_train_target)
             # Scale back to original values
             y_train_target = preprocessor.scaler[preprocessor.target].inverse_transform(y_train_target)
         # Safe x_train and y_train as csv in "prepprocessor_test" folder
+        print(x_train_target.shape)
+        print(y_train_target.shape)
         x_train_target_cs = pd.DataFrame(x_train_target.flatten())
         y_train_target_cs = pd.DataFrame(y_train_target.flatten())
         x_train_target_cs.to_csv(f"{PREPROCESSOR_PATH}/x_train_target.csv")

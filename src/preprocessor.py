@@ -150,10 +150,6 @@ class Preprocessor:
         @return: The y train data as numpy array in shape of
                   (samples, time).
         """
-        # Y train is some sliding window with length of time_steps_out
-        # and offset of time_steps_in
-        # reshape to (samples, time_steps, features)
-        self._y_train = np.reshape(self._y_train, (self._y_train.shape[0], self._time_steps_out, 1))
         return self._y_train
 
     @property
@@ -337,5 +333,6 @@ class Preprocessor:
             x.append(input_sequence[iterator:iterator + steps_in].values)
             y.append(input_sequence[iterator + steps_in:iterator + steps_in + steps_out][self._target].values)
             iterator += 1
-            
+        # TODO: Bug (first value of y_train starts at 2*steps_in)
+        # Dirty fix: Remove first step_in values of x
         return np.array(x), np.array(y)
