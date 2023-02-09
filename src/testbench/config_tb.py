@@ -48,8 +48,8 @@ TARGET = 'MA50'
 PREPROCESSOR_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.curdir, "preprocessor_test"))
 PREPROCESSOR_DATA_SOURCE = f"{PATH_INDICATORS}/{PAIR}_{MINUTES}.csv"
 TEST_SPLIT = 0.1
-TEST_TIME_STEPS_IN = 128
-TEST_TIME_STEPS_OUT = 64
+TEST_TIME_STEPS_IN = 256
+TEST_TIME_STEPS_OUT = 128
 TEST_INTERSECTION_FACTOR = 0.0
 TEST_SCALE = True
 
@@ -59,5 +59,5 @@ MODEL_PATH = os.path.abspath(os.path.dirname(__file__))
 MODEL_NAME = 'EURUSD_15'
 TEST_EPOCHS = 100
 TEST_NEURONS = 128
-TEST_BATCH_SIZE = 128
+TEST_BATCH_SIZE = 16
 PATH_TEST_RESULTS = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.curdir, "test_results"))
