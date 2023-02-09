@@ -1,7 +1,7 @@
 """Module for the Preprocessor class."""
 import numpy as np
 import pandas as pd
-from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import StandardScaler
 
 
 class Preprocessor:
@@ -199,7 +199,7 @@ class Preprocessor:
         return self._target
 
     @property
-    def scaler(self) -> dict[MinMaxScaler]:
+    def scaler(self) -> dict[StandardScaler]:
         """Get the list of available scalers for each feature.
 
         @return: A list of scalers.
@@ -298,7 +298,7 @@ class Preprocessor:
         # Scale the data
         scaler = []
         for column in data.columns:
-            scaler.append(MinMaxScaler(feature_range=self._feature_range))
+            scaler.append(StandardScaler())
             data[column] = scaler[-1].fit_transform(data[column].values.reshape(-1, 1))
         self._scaler = dict(zip(data.columns, scaler))
         return data

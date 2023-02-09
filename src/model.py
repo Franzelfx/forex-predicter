@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from keras.optimizers import Adam
 from keras.models import Sequential
-from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import StandardScaler
 from keras.callbacks import ModelCheckpoint, EarlyStopping, TensorBoard
 from keras.layers import Dense, LSTM, Dropout, Bidirectional, GRU
 
@@ -126,7 +126,7 @@ class Model:
         self._plot_fit_history(fit)
         return fit
 
-    def predict(self, x_test: np.ndarray, scaler:MinMaxScaler=None, from_saved_model=False) -> np.ndarray:
+    def predict(self, x_test: np.ndarray, scaler:StandardScaler=None, from_saved_model=False) -> np.ndarray:
         """Predict the output for the given input.
         
         @param x_test: The input data for the model.
