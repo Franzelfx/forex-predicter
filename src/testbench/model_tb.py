@@ -51,40 +51,15 @@ class Test_Model(unittest.TestCase):
         # Plot the results
         plt.cla()
         plt.clf()
-        # Subplots with train and test data
-        fig, axes = plt.subplots(2, 1, sharex=True)
-        # High resolution for the plot
-        fig.set_dpi(300)
-        # TODO: Visualizer Module
-        axes[0].plot(
-            preprocessor.y_train,
-            color="blue",
-            label="Train Data",
-        )
-        axes[0].plot(
-            prediction_train,
-            color="red",
-            label="Prediction",
-        )
-        axes[0].set_title("Train Data")
-        axes[0].legend()
-        axes[0].grid()
-        # Plot the test data
-        axes[1].plot(
-            preprocessor.y_test,
-            color="blue",
-            label="Test Data",
-        )
-        axes[1].plot(
-            prediction,
-            color="red",
-            label="Prediction",
-        )
-        axes[1].set_title("Test Data")
-        axes[1].legend()
-        axes[1].grid()
-        # Tight layout
-        plt.tight_layout()
+        # Plot prediction and actual values
+        plt.plot(prediction, label="prediction")
+        plt.plot(preprocessor.y_test[:TEST_TIME_STEPS_OUT], label="actual")
+        plt.plot(prediction_train, label="prediction_train")
+        plt.plot(preprocessor.y_train[:TEST_TIME_STEPS_OUT], label="actual_train")
+        plt.legend()
+        plt.title(f"Prediction for {MODEL_NAME}")
+        plt.xlabel("Time")
+        plt.ylabel("Value")
         # Save the plot
         plt.savefig(f"{MODEL_PATH}/model_test/{MODEL_NAME}_test.png")
         plt.show()
