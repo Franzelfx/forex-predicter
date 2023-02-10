@@ -4,3 +4,4 @@ tensorboard
 venv
 *.vscode
 *.csv
+!src/testbench/indicators/*.csv
