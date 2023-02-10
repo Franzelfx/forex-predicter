@@ -14,7 +14,7 @@ PAIR = "EURUSD"
 MINUTES = 15
 API_KEY = "kvtkOoyqcuTgNrBqRGIhhLe766CLYbpo"
 TIME_FORMAT = "%Y-%m-%d"
-DATE_START = "2022-07-01"
+DATE_START = "2013-01-01"
 DATE_END = date.today().strftime(TIME_FORMAT)
 API_TYPE = "basic"
 
@@ -47,17 +47,17 @@ TARGET = 'MA50'
 # Preprocessor
 PREPROCESSOR_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.curdir, "preprocessor_test"))
 PREPROCESSOR_DATA_SOURCE = f"{PATH_INDICATORS}/{PAIR}_{MINUTES}.csv"
-TEST_SPLIT = 0.1
+TEST_LENGTH = 256
 TEST_TIME_STEPS_IN = 256
 TEST_TIME_STEPS_OUT = 128
-TEST_INTERSECTION_FACTOR = 0.0
-TEST_SCALE = False
+TEST_SCALE = True
 
 # Model
 MODEL_DATA_SOURCE = f"{PREPROCESSOR_DATA_SOURCE}"
 MODEL_PATH = os.path.abspath(os.path.dirname(__file__))
 MODEL_NAME = 'EURUSD_15'
-TEST_EPOCHS = 300
-TEST_NEURONS = 128
-TEST_BATCH_SIZE = 16
+TEST_EPOCHS = 1
+TEST_NEURONS = 32
+TEST_BATCH_SIZE = 8
+TEST_LEARNING_RATE = 0.0005
 PATH_TEST_RESULTS = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.curdir, "test_results"))

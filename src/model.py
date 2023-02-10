@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from keras.optimizers import Adam
 from keras.models import Sequential
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import MinMaxScaler
 from keras.callbacks import ModelCheckpoint, EarlyStopping, TensorBoard
 from keras.layers import Dense, LSTM, Dropout, Bidirectional, GRU
 
@@ -58,6 +58,8 @@ class Model:
         plt.cla()
         plt.clf()
         fig, axes = plt.subplots(2, 1, figsize=(20, 10))
+        # High resolution plot
+        fig.set_dpi(300)
         # Plot the loss
         axes[0].plot(fit.history["loss"], label="loss")
         axes[0].plot(fit.history["val_loss"], label="val_loss")
@@ -65,6 +67,7 @@ class Model:
         axes[0].set_xlabel("Epoch")
         axes[0].set_title("Loss")
         axes[0].legend()
+        axes[0].grid()
         # Plot the metrics
         axes[1].plot(fit.history["mape"], label="mape")
         axes[1].plot(fit.history["val_mape"], label="val_mape")
@@ -72,9 +75,8 @@ class Model:
         axes[1].set_xlabel("Epoch")
         axes[1].set_title("MAPE")
         axes[1].legend()
-        # Turn on the grid
-        axes[0].grid()
         axes[1].grid()
+        # Tight layout
         fig.tight_layout()
         # Save the plot
         plt.savefig(f"{self._path}/fit_history/{self._name}.png")
@@ -126,7 +128,7 @@ class Model:
         self._plot_fit_history(fit)
         return fit
 
-    def predict(self, x_test: np.ndarray, scaler:StandardScaler=None, from_saved_model=False) -> np.ndarray:
+    def predict(self, x_test: np.ndarray, steps=1, scaler:MinMaxScaler=None, from_saved_model=False) -> np.ndarray:
         """Predict the output for the given input.
         
         @param x_test: The input data for the model.
@@ -146,7 +148,7 @@ class Model:
                 )
             model = self._model
         # Predict the output
-        y_pred = model.predict(x_test).flatten()
+        y_pred = model.predict(x_test, steps).flatten()
         if scaler is not None:
             y_pred = y_pred.reshape(-1, 1)
             y_pred = scaler.inverse_transform(y_pred)

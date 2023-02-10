@@ -1,8 +1,9 @@
 """Module for the Preprocessor class."""
+import warnings
 import numpy as np
 import pandas as pd
 pd.options.mode.chained_assignment = None  # default='warn'
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import MinMaxScaler
 
 
 class Preprocessor:
@@ -18,26 +19,33 @@ class Preprocessor:
         self,
         data: pd.DataFrame,
         target: str,
-        test_split=0.2,
         time_steps_in=60,
         time_steps_out=30,
+        test_length=30,
+        test_split=None,
         scale=True,
-        feature_range=(0, 1),
+        feature_range=(-1, 1),
     ):
         """Set the fundamental attributes.
 
         @param data: The data to be feed inside the RNN.
         @param target: The column name of the y train data.
+        @param time_steps_in: The number of time steps for the model input.
+        @param time_steps_out: The number of time steps for the model output.
+        @param test_length: The length of the test data (will be ignored if test_split is not None).
         @param test_split: The percentage of the data to be used for testing (0.0 to 0.5).
-        @param time_steps: The number of time steps to be used per sample.
         @param scale: If the data should be scaled or not.
         """
-        # Attributes
+        # Data and target
         self._data = data
         self._target = target
-        self._test_split = test_split
+        # The time steps
         self._time_steps_in = time_steps_in
         self._time_steps_out = time_steps_out
+        # The test length
+        self._test_split = test_split
+        self._test_length = test_length
+        # The scaling and feature range
         self._scale = scale
         self._feature_range = feature_range
         # The train and test data
@@ -45,35 +53,72 @@ class Preprocessor:
         self._test_data = None  # Input is a pandas dataframe, output is a numpy array
         self._scaler = dict  # A dict of scalers for each feature
 
-        if self._test_split < 0.0 or self._test_split > 0.5:
-            raise ValueError("The test split must be between 0.0 and 0.5.")
+        # Data and target
+        if self._target not in self._data.columns:
+            raise ValueError(
+                f"The target column {self._target} is not present in the data."
+            )
+        # The time steps
         if time_steps_in > len(data):
             raise ValueError(
-                f"The input time steps must be smaller than the data length. {time_steps_in} > {len(data)}"
+                f"The input time steps must be smaller than the data length. [{time_steps_in} > {len(data)}]"
             )
         if time_steps_in < 1:
             raise ValueError(
-                f"The input time steps must be greater than 1. {time_steps_in} < 1"
+                f"The input time steps must be greater than 1. [{time_steps_in} < 1]"
             )
         if time_steps_out > len(data):
             raise ValueError(
-                f"The output time steps must be smaller than the data length. {time_steps_out} > {len(data)}"
+                f"The output time steps must be smaller than the data length. [{time_steps_out} > {len(data)}]"
             )
         if time_steps_out < 1:
             raise ValueError(
-                f"The output time steps must be greater than 1. {time_steps_out} < 1"
+                f"The output time steps must be greater than 1. [{time_steps_out} < 1]"
             )
+        # The test length
+        if self._test_length > 1/2 * len(data):
+            raise ValueError(
+                f"The test length must be smaller than 1/2 of the data length. [{test_length} > {1/2 * len(data)}]"
+            )
+        if self._test_length < time_steps_in + time_steps_out:
+            self._test_length = time_steps_in + time_steps_out
+            warnings.warn(f"Test length set to {test_length}]", UserWarning)
+        # The test split
+        if test_split is not None:
+            if test_split < 0.0 or test_split > 0.5:
+                raise ValueError(
+                    f"The test split must be between 0.0 and 0.5. [{test_split} < 0.0 or {test_split} > 0.5]"
+                )
+        # The scaling and feature range
+        if scale:
+            if len(feature_range) != 2:
+                raise ValueError(
+                    f"The feature range must be a tuple with 2 elements. [{len(feature_range)} != 2]"
+                )
+            if feature_range[0] >= feature_range[1]:
+                raise ValueError(
+                    f"The first element of the feature range must be smaller than the second. [{feature_range[0]} >= {feature_range[1]}]"
+                )
+
         # Preprocess the data concerning nan values, split and scaling
         data = self._drop_nan(data)
         # Data is now without time and index column
         self._data = data
         self._train_data, self._test_data = self._split_train_test(
-            data, self._test_split
+            data, self._test_split, self._test_length
         )
+        # Scale the data
         if self._scale:
-            data = self._scale_data(self._test_data, self._train_data)
+            data = self._scale_data(self.train_data, self._test_data)
+        # Split the train data into sequences
         self._x_train, self._y_train = self._create_samples(
             self._train_data,
+            self._time_steps_in,
+            self._time_steps_out,
+        )
+        # Split the test data into sequences
+        self._x_test, self._y_test = self._create_samples(
+            self._test_data,
             self._time_steps_in,
             self._time_steps_out,
         )
@@ -81,6 +126,13 @@ class Preprocessor:
     def summary(self) -> None:
         """Print a summary of the preprocessor."""
         print(self.__str__())
+    
+    def json(self) -> dict:
+        """Return a json representation of the preprocessor properties."""
+        for key, value in self.__dict__.items():
+            if isinstance(value, np.ndarray):
+                self.__dict__[key] = value.tolist()
+        return self.__dict__
 
     def __str__(self) -> str:
         """Return the string representation of the preprocessor."""
@@ -90,6 +142,8 @@ class Preprocessor:
         Test: {self._test_data.shape}
         X train: {self._x_train.shape}
         Y train: {self._y_train.shape}
+        X test: {self._x_test.shape}
+        Y test: {self._y_test.shape}
         """
 
     @property
@@ -109,6 +163,14 @@ class Preprocessor:
                  (removed by the _drop_nan method).
         """
         return self._data
+
+    @property
+    def header(self) -> list:
+        """Get the header of the data.
+
+        @return: The header of the data as list.
+        """
+        return self._data.columns.tolist()
     
     @property
     def test_split(self) -> float:
@@ -156,39 +218,19 @@ class Preprocessor:
     def x_test(self) -> np.ndarray:
         """Get the x test data for every feature.
 
-        @return: X test as numpy array
-        @remarks The x test data is the last time_steps_in
-                    samples of the test data. Every time you
-                    call the x_test property, the x_test data
-                    will be shifted by the time steps in.
+        @return: X test as numpy array in shape of (samples, timesteps, features).
         """
-        self._x_test_iterator = 0
-        start = self._time_steps_in * self._x_test_iterator
-        end = self._time_steps_in * (self._x_test_iterator + 1)
-        x_test = self._test_data.values[start:end]
-        # Reshape the test data to (samples, time_steps, features)
-        x_test = np.reshape(x_test, (1, self._time_steps_in, x_test.shape[1]))
-        self._x_test_iterator += 1
-        return x_test
+        return self._x_test
 
     @property
     def y_test(self) -> np.ndarray:
         """Get the y test data for the selected feture.
 
-        @return: Y test as numpy array.
+        @return: Y test as numpy array in shape of (samples, timesteps).
         @remarks The y test data is the target feature 
-                    shifted by the time steps in. Every time
-                    you call the x_test property, the y_test
-                    data will be shifted by the time steps in.
+                    shifted by the time steps in.
         """
-        y_test = np.array(self._test_data[self._target])
-        # Shift the test data by the time steps in
-        if self._x_test_iterator == 0:
-            raise ValueError("You have to call the x_test property first.")
-        start = self._time_steps_out * (self._x_test_iterator - 1)
-        end = self._time_steps_out * (self._x_test_iterator)
-        y_test = y_test[start:end]
-        return y_test
+        return self._y_test 
 
     @property
     def target(self) -> str:
@@ -196,7 +238,7 @@ class Preprocessor:
         return self._target
 
     @property
-    def scaler(self) -> dict[StandardScaler]:
+    def scaler(self) -> dict[MinMaxScaler]:
         """Get the list of available scalers for each feature.
 
         @return: A list of scalers.
@@ -240,6 +282,8 @@ class Preprocessor:
         @param feature: The feature you want to get.
         @return: The feature as numpy array.
         """
+        if feature not in self._data.columns:
+            raise ValueError(f"Feature {feature} not in data.")
         return self._data[feature].values
     
     def feature_train(self, feature: str) -> np.ndarray:
@@ -248,6 +292,8 @@ class Preprocessor:
         @param feature: The feature you want to get.
         @return: The feature as numpy array.
         """
+        if feature not in self._train_data.columns:
+            raise ValueError(f"Feature {feature} not in train data.")
         return self._train_data[feature].values
     
     def feature_test(self, feature: str) -> np.ndarray:
@@ -256,6 +302,8 @@ class Preprocessor:
         @param feature: The feature you want to get.
         @return: The feature as numpy array.
         """
+        if feature not in self._test_data.columns:
+            raise ValueError(f"Feature {feature} not in test data.")
         return self._test_data[feature].values
     
 
@@ -282,10 +330,12 @@ class Preprocessor:
             )
         return data
 
-    def _split_train_test(self, data: pd.DataFrame, test_split: float) -> tuple:
+    def _split_train_test(self, data: pd.DataFrame, test_split: float, test_length: int) -> tuple:
         """Split the data into train and test set."""
-        #test_size = int(len(data) * test_split)
-        train_size = int(len(data) * (1 - test_split))
+        if test_split is not None:
+            train_size = int(len(data) * (1 - test_split))
+        else:
+            train_size = len(data) - test_length
         train_data = data[:train_size]
         test_data = data[train_size:]
         return train_data, test_data
@@ -293,16 +343,17 @@ class Preprocessor:
     def _scale_data(self, train_data: pd.DataFrame, test_data: pd.DataFrame) -> pd.DataFrame:
         """Scale the data."""
         # Scale the data
-        scaler = []
+        scaler = {}
         # Fit on train data and transform train and test data
         for column in train_data.columns:
-            scaler.append(StandardScaler())
-            train_data[column] = scaler[-1].fit_transform(train_data[column].values.reshape(-1, 1))
-        # Save the scaler
-        self._scaler = dict(zip(train_data.columns, scaler))
+            # Cop y the values to reshape them
+            values = train_data[column].values
+            scaler[column] = MinMaxScaler(copy=False, feature_range=self._feature_range)
+            train_data[column] = scaler[column].fit_transform(values.reshape(-1, 1))
         # Scale the test data
         for column in test_data.columns:
-            test_data[column] = self._scaler[column].transform(test_data[column].values.reshape(-1, 1))
+            test_data[column] = scaler[column].transform(test_data[column].values.reshape(-1, 1))
+        self._scaler = scaler
         return train_data
 
     def _create_samples(
@@ -332,7 +383,7 @@ class Preprocessor:
         while iterator + steps_in + steps_out <= len(input_sequence):
             x.append(input_sequence[iterator:iterator + steps_in].values)
             y.append(input_sequence[iterator + steps_in:iterator + steps_in + steps_out][self._target].values)
-            iterator += 1
+            iterator += steps_in
         # TODO: Bug (first value of y_train starts at 2*steps_in)
         # Dirty fix: Remove first step_in values of x
         return np.array(x), np.array(y)
