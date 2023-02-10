@@ -16,8 +16,6 @@ class Test_Model(unittest.TestCase):
     def test_compile_fit_predict(self):
         """Test the compile, fit and predict method with data from the preprocessor."""
         test_data = pd.read_csv(MODEL_DATA_SOURCE)
-        # Drop raw data columns ('o', 'h', 'l', 'c', 'v', 'vw')
-        test_data.drop(['o', 'h', 'l', 'c', 'v', 'vw'], axis=1, inplace=True)
         preprocessor = Preprocessor(
             test_data,
             TARGET,

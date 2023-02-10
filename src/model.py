@@ -5,7 +5,7 @@ from keras.optimizers import Adam
 from keras.models import Sequential
 from sklearn.preprocessing import MinMaxScaler
 from keras.callbacks import ModelCheckpoint, EarlyStopping, TensorBoard
-from keras.layers import Dense, LSTM, Dropout, Bidirectional, GRU
+from keras.layers import Dense, LSTM, Dropout, Bidirectional
 
 
 class Model:
@@ -41,14 +41,14 @@ class Model:
     def _create_model(self, hidden_neurons=128) -> Sequential:
         """Create the model."""
         model = Sequential()
-        model.add(Bidirectional(GRU(hidden_neurons, return_sequences=True, input_shape=(self._x_train.shape[1], self._x_train.shape[2]))))
-        model.add(Bidirectional(GRU(hidden_neurons, return_sequences=False, input_shape=(self._x_train.shape[1], self._x_train.shape[2]))))
+        model.add(Bidirectional(LSTM(hidden_neurons, return_sequences=True, input_shape=(self._x_train.shape[1], self._x_train.shape[2]))))
+        model.add(Bidirectional(LSTM(hidden_neurons, return_sequences=False, input_shape=(self._x_train.shape[1], self._x_train.shape[2]))))
         model.add(Dropout(self._dropout))
-        model.add(Dense(hidden_neurons, activation="relu"))
+        model.add(Dense(hidden_neurons, activation="tanh"))
         model.add(Dropout(self._dropout))
-        model.add(Dense(hidden_neurons, activation="relu"))
+        model.add(Dense(hidden_neurons, activation="tanh"))
         model.add(Dropout(self._dropout))
-        model.add(Dense(self._y_train.shape[1], activation="linear"))
+        model.add(Dense(self._y_train.shape[1]))
         model.build(input_shape=(self._x_train.shape[0], self._x_train.shape[1], self._x_train.shape[2]))
         return model
 
