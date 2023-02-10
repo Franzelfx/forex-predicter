@@ -2,4 +2,5 @@ __pycache__
 *.h5
 tensorboard
 venv
-.vscode
+*.vscode
+*.csv
