@@ -41,10 +41,8 @@ class Test_Model(unittest.TestCase):
         x_test = preprocessor.x_test
         if TEST_SCALE is True:
             prediction = model.predict((x_test), scaler=preprocessor.scaler[preprocessor.target])
-            prediction_train = model.predict((x_test), scaler=preprocessor.scaler[preprocessor.target])
         else:
             prediction = model.predict(x_test).flatten()
-            prediction_train = model.predict(x_test).flatten()
         # Reduce to time_steps_out
         prediction = prediction[:TEST_TIME_STEPS_OUT]
         prediction_train = prediction_train[:TEST_TIME_STEPS_OUT]

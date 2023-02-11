@@ -120,10 +120,10 @@ class Model:
             batch_size=batch_size,
             validation_split=validation_spilt,
             callbacks=[model_checkpoint, early_stopping, tensorboard],
-            shuffle=False,
+            shuffle=True,
         )
         # Load the best weights
-        model.load_weights(f"{self._path}/checkpoints/{self._name}_weights.h5")
+        #model.load_weights(f"{self._path}/checkpoints/{self._name}_weights.h5")
         self._model = model
         self._plot_fit_history(fit)
         return fit
