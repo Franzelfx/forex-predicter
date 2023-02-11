@@ -54,8 +54,6 @@ class Test_Model(unittest.TestCase):
         # Plot prediction and actual values
         plt.plot(prediction, label="prediction")
         plt.plot(preprocessor.y_test[:TEST_TIME_STEPS_OUT], label="actual")
-        plt.plot(prediction_train, label="prediction_train")
-        plt.plot(preprocessor.y_train[:TEST_TIME_STEPS_OUT], label="actual_train")
         plt.legend()
         plt.title(f"Prediction for {MODEL_NAME}")
         plt.xlabel("Time")
