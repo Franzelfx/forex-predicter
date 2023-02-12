@@ -47,6 +47,8 @@ class Model:
         model.add(Dense(hidden_neurons, activation="tanh"))
         model.add(Dropout(self._dropout))
         model.add(Dense(hidden_neurons, activation="tanh"))
+        model.add(Dropout(self._dropout))
+        model.add(Dense(hidden_neurons, activation="tanh"))
         model.add(Dense(self._y_train.shape[1]))
         model.build(input_shape=(self._x_train.shape[0], self._x_train.shape[1], self._x_train.shape[2]))
         return model
