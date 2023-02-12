@@ -14,7 +14,7 @@ PAIR = "EURUSD"
 MINUTES = 15
 API_KEY = "kvtkOoyqcuTgNrBqRGIhhLe766CLYbpo"
 TIME_FORMAT = "%Y-%m-%d"
-DATE_START = "2013-01-01"
+DATE_START = "2009-01-01"
 DATE_END = date.today().strftime(TIME_FORMAT)
 API_TYPE = "basic"
 
@@ -51,8 +51,8 @@ TARGET = 'MA5'
 # Preprocessor
 PREPROCESSOR_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.curdir, "preprocessor_test"))
 PREPROCESSOR_DATA_SOURCE = f"{PATH_INDICATORS}/{PAIR}_{MINUTES}.csv"
-TEST_TIME_STEPS_IN = 10800 # 1 month
-TEST_TIME_STEPS_OUT = 2520 # 1 week
+TEST_TIME_STEPS_IN = 2880 # 1 month
+TEST_TIME_STEPS_OUT = 96  # 1 day
 TEST_LENGTH = TEST_TIME_STEPS_IN + TEST_TIME_STEPS_OUT
 TEST_SCALE = True
 
