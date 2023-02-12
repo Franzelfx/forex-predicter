@@ -39,6 +39,8 @@ class Indicators:
             "MA200",
             "MACD",
             "RSI",
+            "VRSI",
+            "VPT",
             "STOCHASTIC",
         ]
         self._data_offset = 0
@@ -82,7 +84,7 @@ class Indicators:
         """Get the data offset."""
         return self._data_offset
 
-    def calculate(self, save=False, path=None, ma_target='c', keys=['o', 'h', 'l', 'c'], macd_target='c', bb_target='c', rsi_target='c') -> pd.DataFrame:
+    def calculate(self, save=False, path=None, ma_target='c', keys=['o', 'h', 'l', 'c', 'v'], macd_target='c', bb_target='c', rsi_target='c', vo_rsi_target='v') -> pd.DataFrame:
         """Calculate the indicators and add them to the dataframe."""
         # Calculate the indicators
         if "ATR" in self._available:
@@ -116,8 +118,10 @@ class Indicators:
                 self._data["MACD_SIGNAL"],
                 self._data["MACD_HIST"],
             ) = talib.MACD(
-                self._data[ma_target], fastperiod=12, slowperiod=26, signalperiod=9
+                self._data[macd_target], fastperiod=12, slowperiod=26, signalperiod=9
             )
+        if "OBV" in self._requested:
+            self._data["OBV"] = talib.OBV(self._data[keys[3]], self._data[keys[4]])
         if "RSI" in self._requested:
             self._data["RSI"] = talib.RSI(self._data[rsi_target], timeperiod=14)
         if "STOCHASTIC" in self._requested:
@@ -131,6 +135,8 @@ class Indicators:
                 slowd_period=3,
                 slowd_matype=0,
             )
+        if "VoRSI" in self._requested:
+            self._data["VoRSI"] = talib.RSI(self._data[vo_rsi_target], timeperiod=14)
         if save and path is not None:
             self._data.to_csv(path)
         # Substract the offset, if MA50 or MA200 are active

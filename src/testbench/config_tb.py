@@ -21,7 +21,7 @@ API_TYPE = "basic"
 # Indicators
 PATH_INDICATORS = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.curdir, f"indicators"))
 INDICATORS_DATA_SOURCE = f"{PATH_PAIRS}/{PAIR}_{MINUTES}.csv"
-TEST_INDICATORS = ["ATR", "BOLLINGER",'MA5' ,'MA25', "MA50", "MA200", "MACD", "RSI", "STOCHASTIC"]
+TEST_INDICATORS = ["ATR", "BOLLINGER",'MA5' ,'MA25', "MA50", "MA200", "MACD", "OBV", "RSI", "STOCHASTIC", "VoRSI"]
 EXPECTED_COLUMNS = [
     "v",
     "vw",
@@ -40,9 +40,11 @@ EXPECTED_COLUMNS = [
     "MACD",
     "MACD_SIGNAL",
     "MACD_HIST",
+    "OBV",
     "RSI",
     "STOCHASTIC_K",
     "STOCHASTIC_D",
+    "VoRSI",
 ]
 TARGET = 'MA5'
 
