@@ -33,6 +33,8 @@ class Indicators:
         self._available = [
             "ATR",
             "BOLLINGER",
+            "MA5",
+            "MA25",
             "MA50",
             "MA200",
             "MACD",
@@ -40,12 +42,18 @@ class Indicators:
             "STOCHASTIC",
         ]
         self._data_offset = 0
-        # Check, if MA50 and MA200 are in the list, if so, dataframe is
-        # valid from the 50 or 200 data point.
-        if "MA200" in self._requested:
-            self._data_offset = 200
-        elif "MA50" in self._requested:
-            self._data_offset = 50
+        # Get data offset (cut 'MA' from the string and convert to int)
+        ma = []
+        if 'MA5' or 'MA25' or 'MA50' or 'MA200' in self._requested:
+            # Get the maximum of the moving averages
+            for i in self._requested:
+                if i.startswith("MA"):
+                    # Chek, if the string is a number
+                    try:
+                        ma.append(int(i[2:]))
+                    except ValueError:
+                        pass
+            self._data_offset = max(ma)
         # Log some warning, if the indicators are not valid by comparing the lists
         if not set(self._requested).issubset(self._available):
             warning("One or more indicators are not valid. Please check the documentation.")
@@ -74,14 +82,14 @@ class Indicators:
         """Get the data offset."""
         return self._data_offset
 
-    def calculate(self, save=False, path=None) -> pd.DataFrame:
+    def calculate(self, save=False, path=None, ma_target='c', keys=['o', 'h', 'l', 'c'], macd_target='c', bb_target='c', rsi_target='c') -> pd.DataFrame:
         """Calculate the indicators and add them to the dataframe."""
         # Calculate the indicators
         if "ATR" in self._available:
             self._data["ATR"] = talib.ATR(
-                self._data["h"],
-                self._data["l"],
-                self._data["c"],
+                self._data[keys[1]],
+                self._data[keys[2]],
+                self._data[keys[3]],
                 timeperiod=14,
             )
         if "BOLLINGER" in self._requested:
@@ -90,13 +98,17 @@ class Indicators:
                 self._data["BOLLINGER_MIDDLE"],
                 self._data["BOLLINGER_LOWER"],
             ) = talib.BBANDS(
-                self._data["c"], timeperiod=20, nbdevup=2.0, nbdevdn=2.0, matype=0
+                self._data[bb_target], timeperiod=20, nbdevup=2.0, nbdevdn=2.0, matype=0
             )
+        if "MA5" in self._requested:
+            self._data["MA5"] = talib.MA(self._data[ma_target], timeperiod=5, matype=0)
+        if "MA25" in self._requested:
+            self._data["MA25"] = talib.MA(self._data[ma_target], timeperiod=25, matype=0)
         if "MA50" in self._requested:
-            self._data["MA50"] = talib.MA(self._data["c"], timeperiod=50, matype=0)
+            self._data["MA50"] = talib.MA(self._data[ma_target], timeperiod=50, matype=0)
         if "MA200" in self._requested:
             self._data["MA200"] = talib.MA(
-                self._data["c"], timeperiod=200, matype=0
+                self._data[ma_target], timeperiod=200, matype=0
             )
         if "MACD" in self._requested:
             (
@@ -104,15 +116,15 @@ class Indicators:
                 self._data["MACD_SIGNAL"],
                 self._data["MACD_HIST"],
             ) = talib.MACD(
-                self._data["c"], fastperiod=12, slowperiod=26, signalperiod=9
+                self._data[ma_target], fastperiod=12, slowperiod=26, signalperiod=9
             )
         if "RSI" in self._requested:
-            self._data["RSI"] = talib.RSI(self._data["c"], timeperiod=14)
+            self._data["RSI"] = talib.RSI(self._data[rsi_target], timeperiod=14)
         if "STOCHASTIC" in self._requested:
             self._data["STOCHASTIC_K"], self._data["STOCHASTIC_D"] = talib.STOCH(
-                self._data["h"],
-                self._data["l"],
-                self._data["c"],
+                self._data[keys[1]],
+                self._data[keys[2]],
+                self._data[keys[3]],
                 fastk_period=14,
                 slowk_period=3,
                 slowk_matype=0,
@@ -122,5 +134,5 @@ class Indicators:
         if save and path is not None:
             self._data.to_csv(path)
         # Substract the offset, if MA50 or MA200 are active
-        self._data = self._data[self._data_offset :]
+        self._data = self._data[self._data_offset:]
         return self._data

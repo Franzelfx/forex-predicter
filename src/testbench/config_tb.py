@@ -21,7 +21,7 @@ API_TYPE = "basic"
 # Indicators
 PATH_INDICATORS = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.curdir, f"indicators"))
 INDICATORS_DATA_SOURCE = f"{PATH_PAIRS}/{PAIR}_{MINUTES}.csv"
-TEST_INDICATORS = ["ATR", "BOLLINGER", "MA50", "MA200", "MACD", "RSI", "STOCHASTIC"]
+TEST_INDICATORS = ["ATR", "BOLLINGER",'MA5' ,'MA25', "MA50", "MA200", "MACD", "RSI", "STOCHASTIC"]
 EXPECTED_COLUMNS = [
     "v",
     "vw",
@@ -33,6 +33,8 @@ EXPECTED_COLUMNS = [
     "BOLLINGER_UPPER",
     "BOLLINGER_MIDDLE",
     "BOLLINGER_LOWER",
+    "MA5",
+    "MA25",
     "MA50",
     "MA200",
     "MACD",
@@ -42,7 +44,7 @@ EXPECTED_COLUMNS = [
     "STOCHASTIC_K",
     "STOCHASTIC_D",
 ]
-TARGET = 'MA50'
+TARGET = 'MA5'
 
 # Preprocessor
 PREPROCESSOR_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.curdir, "preprocessor_test"))
@@ -57,7 +59,7 @@ MODEL_DATA_SOURCE = f"{PREPROCESSOR_DATA_SOURCE}"
 MODEL_PATH = os.path.abspath(os.path.dirname(__file__))
 MODEL_NAME = 'EURUSD_15'
 TEST_EPOCHS = 200
-TEST_NEURONS = 64
+TEST_NEURONS = 256
 TEST_BATCH_SIZE = 4
 TEST_LEARNING_RATE = 0.0005
 PATH_TEST_RESULTS = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.curdir, "test_results"))
