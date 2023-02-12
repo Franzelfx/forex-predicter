@@ -42,7 +42,6 @@ class Model:
         """Create the model."""
         model = Sequential()
         model.add(Bidirectional(LSTM(hidden_neurons, return_sequences=True, input_shape=(self._x_train.shape[1], self._x_train.shape[2]))))
-        model.add(Bidirectional(LSTM(hidden_neurons, return_sequences=True)))
         model.add(Bidirectional(LSTM(hidden_neurons, return_sequences=False)))
         model.add(Dropout(self._dropout))
         model.add(Dense(hidden_neurons, activation="tanh"))
