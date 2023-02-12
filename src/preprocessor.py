@@ -2,6 +2,7 @@
 import warnings
 import numpy as np
 import pandas as pd
+from tabulate import tabulate
 pd.options.mode.chained_assignment = None  # default='warn'
 from sklearn.preprocessing import MinMaxScaler
 
@@ -82,7 +83,7 @@ class Preprocessor:
             )
         if self._test_length < time_steps_in + time_steps_out:
             self._test_length = time_steps_in + time_steps_out
-            warnings.warn(f"Test length set to {test_length}]", UserWarning)
+            warnings.warn(f"Test length set to {self._test_length}]", UserWarning)
         # The test split
         if test_split is not None:
             if test_split < 0.0 or test_split > 0.5:
@@ -136,15 +137,18 @@ class Preprocessor:
 
     def __str__(self) -> str:
         """Return the string representation of the preprocessor."""
-        return f"""Preprocessor
-        Data: {self._data.shape}
-        Train: {self._train_data.shape}
-        Test: {self._test_data.shape}
-        X train: {self._x_train.shape}
-        Y train: {self._y_train.shape}
-        X test: {self._x_test.shape}
-        Y test: {self._y_test.shape}
-        """
+        header = ['Data', 'Shape', 'Length', 'Remarks']
+        data = [
+            ['Input', self._data.shape, len(self._data), '(Timesteps, Features)'],
+            ['Train', self._train_data.shape, len(self._train_data), '(Timesteps, Features)'],
+            ['Test', self._test_data.shape, len(self._test_data), '(Timesteps, Features)'],
+            ['X Train', self._x_train.shape, len(self._x_train), '(Samples, Timesteps, Features)'],
+            ['Y Train', self._y_train.shape, len(self._y_train), '(Samples, Timesteps)'],
+            ['X Test', self._x_test.shape, len(self._x_test), '(Samples, Timesteps, Features)'],
+            ['Y Test', self._y_test.shape, len(self._y_test), '(Samples, Timesteps)'],
+        ]
+        return tabulate(data, headers=header, tablefmt='rst')
+
 
     @property
     def scale(self) -> bool:
