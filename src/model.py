@@ -42,12 +42,14 @@ class Model:
         """Create the model."""
         model = Sequential()
         model.add(Bidirectional(LSTM(hidden_neurons, return_sequences=True, input_shape=(self._x_train.shape[1], self._x_train.shape[2]))))
-        model.add(Bidirectional(LSTM(hidden_neurons, return_sequences=False, input_shape=(self._x_train.shape[1], self._x_train.shape[2]))))
+        model.add(Bidirectional(LSTM(hidden_neurons, return_sequences=True)))
+        model.add(Bidirectional(LSTM(hidden_neurons, return_sequences=False)))
         model.add(Dropout(self._dropout))
         model.add(Dense(hidden_neurons, activation="tanh"))
         model.add(Dropout(self._dropout))
         model.add(Dense(hidden_neurons, activation="tanh"))
         model.add(Dropout(self._dropout))
+        model.add(Dense(hidden_neurons, activation="tanh"))
         model.add(Dense(self._y_train.shape[1]))
         model.build(input_shape=(self._x_train.shape[0], self._x_train.shape[1], self._x_train.shape[2]))
         return model
@@ -119,11 +121,11 @@ class Model:
             epochs=epochs,
             batch_size=batch_size,
             validation_split=validation_spilt,
-            callbacks=[tensorboard],
+            callbacks=[tensorboard, model_checkpoint, early_stopping],
             shuffle=True,
         )
         # Load the best weights
-        #model.load_weights(f"{self._path}/checkpoints/{self._name}_weights.h5")
+        model.load_weights(f"{self._path}/checkpoints/{self._name}_weights.h5")
         self._model = model
         self._plot_fit_history(fit)
         return fit
