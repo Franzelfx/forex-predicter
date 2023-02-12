@@ -52,7 +52,7 @@ class Indicators:
     
     def summary(self):
         """Get a summary of the indicators."""
-        print(tabulate(self._data, headers="keys", tablefmt="rst"))
+        print(tabulate(self._data.head(5), headers="keys", tablefmt="rst"))
 
     @property
     def data(self) -> pd.DataFrame:

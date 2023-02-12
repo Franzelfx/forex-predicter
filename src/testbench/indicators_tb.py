@@ -24,7 +24,6 @@ class Test_Indicators(unittest.TestCase):
 
     def test_calculate_indicators(self):
         """Test the calculate_indicators method."""
-        print(self.indicators.data_offset)
         self.assertGreater(len(self.data), 0)
         # Check, if dataframe has the colums from available indicators
         self.assertTrue(self._check_nan_values(self.data))
@@ -41,7 +40,6 @@ class Test_Indicators(unittest.TestCase):
         for indicator in indicators:
             if indicator not in data.columns:
                 return False
-        print(f"Present columns: {data.columns.tolist()}")
         return True
     
     def _chek_column_len(self, data: pd.DataFrame, indicators: list) -> bool:
@@ -63,7 +61,6 @@ class Test_Indicators(unittest.TestCase):
         @return: True, if there are some NaN values.
         """
         if data.isnull().values.any():
-            print(data.isnull().sum())
             return False
         return True
     
