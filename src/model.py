@@ -121,7 +121,7 @@ class Model:
             epochs=epochs,
             batch_size=batch_size,
             validation_split=validation_spilt,
-            callbacks=[tensorboard, model_checkpoint, early_stopping],
+            callbacks=[tensorboard, model_checkpoint],
             shuffle=True,
         )
         # Load the best weights
