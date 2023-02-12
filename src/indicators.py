@@ -1,7 +1,8 @@
 """Module for the indicators class."""
 import pandas as pd
-import talib.abstract as talib
 from logging import warning
+from tabulate import tabulate
+import talib.abstract as talib
 
 
 class Indicators:
@@ -48,6 +49,10 @@ class Indicators:
         # Log some warning, if the indicators are not valid by comparing the lists
         if not set(self._requested).issubset(self._available):
             warning("One or more indicators are not valid. Please check the documentation.")
+    
+    def summary(self):
+        """Get a summary of the indicators."""
+        print(tabulate(self._data, headers="keys", tablefmt="rst"))
 
     @property
     def data(self) -> pd.DataFrame:

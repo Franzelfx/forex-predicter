@@ -18,6 +18,10 @@ class Test_Indicators(unittest.TestCase):
         self.indicators = Indicators(self.test_data, TEST_INDICATORS)
         self.data: DataFrame = self.indicators.calculate(save=True, path=f"{PATH_INDICATORS}/{PAIR}_{MINUTES}.csv")
 
+    def test_summary(self):
+        """Test the summary method."""
+        self.indicators.summary()
+
     def test_calculate_indicators(self):
         """Test the calculate_indicators method."""
         print(self.indicators.data_offset)

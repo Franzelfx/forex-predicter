@@ -1,7 +1,7 @@
 """Module for the Preprocessor class."""
-import warnings
 import numpy as np
 import pandas as pd
+from logging import warning
 from tabulate import tabulate
 pd.options.mode.chained_assignment = None  # default='warn'
 from sklearn.preprocessing import MinMaxScaler
@@ -83,7 +83,7 @@ class Preprocessor:
             )
         if self._test_length < time_steps_in + time_steps_out:
             self._test_length = time_steps_in + time_steps_out
-            warnings.warn(f"Test length set to {self._test_length}]", UserWarning)
+            warning(f"Test length set to {self._test_length}]")
         # The test split
         if test_split is not None:
             if test_split < 0.0 or test_split > 0.5:
@@ -127,17 +127,10 @@ class Preprocessor:
     def summary(self) -> None:
         """Print a summary of the preprocessor."""
         print(self.__str__())
-    
-    def json(self) -> dict:
-        """Return a json representation of the preprocessor properties."""
-        for key, value in self.__dict__.items():
-            if isinstance(value, np.ndarray):
-                self.__dict__[key] = value.tolist()
-        return self.__dict__
 
     def __str__(self) -> str:
         """Return the string representation of the preprocessor."""
-        header = ['Data', 'Shape', 'Length', 'Remarks']
+        header = ['Data', 'Shape', 'Size', 'Remarks']
         data = [
             ['Input', self._data.shape, len(self._data), '(Timesteps, Features)'],
             ['Train', self._train_data.shape, len(self._train_data), '(Timesteps, Features)'],
