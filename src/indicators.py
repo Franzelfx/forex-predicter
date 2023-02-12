@@ -52,7 +52,7 @@ class Indicators:
     @property
     def data(self) -> pd.DataFrame:
         """Get dataframe (could be with offset, if MA50 or MA200 are active)."""
-        return self._data[self._data_offset :]
+        return self._data[self._data_offset:]
 
     @property
     def requested(self) -> list:

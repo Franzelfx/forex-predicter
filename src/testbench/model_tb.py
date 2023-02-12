@@ -40,26 +40,30 @@ class Test_Model(unittest.TestCase):
         # x_test is only the first sample of x_test
         x_test = preprocessor.x_test
         if TEST_SCALE is True:
-            prediction = model.predict((x_test), scaler=preprocessor.scaler[preprocessor.target])
+            prediction = model.predict((x_test))
         else:
             prediction = model.predict(x_test).flatten()
         # Reduce to time_steps_out
         prediction = prediction[:TEST_TIME_STEPS_OUT]
-        prediction_train = prediction_train[:TEST_TIME_STEPS_OUT]
         # Plot the results
         plt.cla()
         plt.clf()
         # Plot prediction and actual values
+        y_test = preprocessor.y_test[:TEST_TIME_STEPS_OUT]
+        # Scale y_test back to original scale
+        if TEST_SCALE is True:
+            scaler = preprocessor.scaler[preprocessor.target]
+            y_test = scaler.inverse_transform(y_test.reshape(-1, 1)).flatten()
+            prediction = scaler.inverse_transform(prediction.reshape(-1, 1)).flatten()
+        # Plot the results
         plt.plot(prediction, label="prediction")
-        plt.plot(preprocessor.y_test[:TEST_TIME_STEPS_OUT], label="actual")
+        plt.plot(y_test, label="actual")
         plt.legend()
         plt.title(f"Prediction for {MODEL_NAME}")
         plt.xlabel("Time")
         plt.ylabel("Value")
         # Save the plot
         plt.savefig(f"{MODEL_PATH}/model_test/{MODEL_NAME}_test.png")
-        plt.show()
-        
 
 
 if __name__ == "__main__":
