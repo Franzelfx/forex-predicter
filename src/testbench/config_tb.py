@@ -13,9 +13,6 @@ PATH_PAIRS = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.cur
 PAIR = "EURUSD"
 MINUTES = 1
 API_KEY = "kvtkOoyqcuTgNrBqRGIhhLe766CLYbpo"
-TIME_FORMAT = "%Y-%m-%d"
-DATE_START = "2009-01-01"
-DATE_END = date.today().strftime(TIME_FORMAT)
 API_TYPE = "advanced"
 
 # Indicators
