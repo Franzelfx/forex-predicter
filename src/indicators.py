@@ -91,7 +91,7 @@ class Indicators:
     def calculate(self, save=False, path=None, ma_target='c', keys=['o', 'h', 'l', 'c', 'v'], macd_target='c', bb_target='c', rsi_target='c', vo_rsi_target='v') -> pd.DataFrame:
         """Calculate the indicators and add them to the dataframe."""
         # Calculate the indicators
-        print(f"calculate {len(self._requested)} Indicators for {self._data.memory_usage().sum() / 1024**2:.2f} MB of data.")
+        print(f"calculate {len(self._requested)} Indicators with {self._data.memory_usage().sum() / 1024**2:.2f} MB of data.")
         if "ATR" in self._available:
             self._data["ATR"] = talib.ATR(
                 self._data[keys[1]],
