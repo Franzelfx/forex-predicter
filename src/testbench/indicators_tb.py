@@ -18,17 +18,20 @@ class Test_Indicators(unittest.TestCase):
         self.indicators = Indicators(self.test_data, TEST_INDICATORS)
         self.data: DataFrame = self.indicators.calculate(save=True, path=f"{PATH_INDICATORS}/{PAIR}_{MINUTES}.csv")
 
-    def test_summary(self):
+    def _summary(self):
         """Test the summary method."""
         self.indicators.summary()
 
     def test_calculate_indicators(self):
         """Test the calculate_indicators method."""
+        self._summary()
         self.assertGreater(len(self.data), 0)
         # Check, if dataframe has the colums from available indicators
         self.assertTrue(self._check_nan_values(self.data))
         self.assertTrue(self._check_presence(self.data, EXPECTED_COLUMNS))
         self.assertTrue(self._chek_column_len(self.data, EXPECTED_COLUMNS))
+        self._plot_indicators_MA50()
+        self._plot_indicators_MA200()
     
     def _check_presence(self, data: pd.DataFrame, indicators: list) -> bool:
         """Check, if the indicators are in the dataframe.
@@ -64,7 +67,7 @@ class Test_Indicators(unittest.TestCase):
             return False
         return True
     
-    def test_plot_indicators_MA50(self):
+    def _plot_indicators_MA50(self):
         """Plot close and MA50."""
         # Plot the MA50 and MA200
         plt.cla()
@@ -76,7 +79,7 @@ class Test_Indicators(unittest.TestCase):
         plt.legend(loc="upper left")
         plt.savefig(f"{PATH_INDICATORS}/{PAIR}_{MINUTES}_MA50.png")
     
-    def test_plot_indicators_MA200(self):
+    def _plot_indicators_MA200(self):
         """Test the plot_indicators method."""
         # Plot closa and MA200
         plt.cla()
