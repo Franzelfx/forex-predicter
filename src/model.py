@@ -1,5 +1,6 @@
 """This module contains the model class for the LSTM model."""
 import numpy as np
+from logging import warning
 import matplotlib.pyplot as plt
 from keras.optimizers import Adam
 from keras.models import Sequential
@@ -18,7 +19,7 @@ class Model:
         x_train: np.ndarray,
         y_train: np.ndarray,
         dropout: float = 0.2,
-        loss: str = "mean_squared_error",
+        loss: str = "mean_absolute_error",
     ):
         """Set the fundamental attributes.
 
@@ -40,13 +41,13 @@ class Model:
 
     def _create_model(self, hidden_neurons=128) -> Sequential:
         """Create the model."""
+        if(hidden_neurons < 128):
+            hidden_neurons = 128
+            warning("Hidden neurons must be at least 128. Setting hidden neurons to 128.")
         model = Sequential()
         model.add(Bidirectional(LSTM(hidden_neurons, return_sequences=True, input_shape=(self._x_train.shape[1], self._x_train.shape[2]))))
-        model.add(Bidirectional(LSTM(hidden_neurons, return_sequences=False)))
-        model.add(Dropout(self._dropout))
-        model.add(Dense(hidden_neurons, activation="tanh"))
-        model.add(Dropout(self._dropout))
-        model.add(Dense(hidden_neurons, activation="tanh"))
+        model.add(Bidirectional(LSTM(hidden_neurons - 32, return_sequences=True)))
+        model.add(Bidirectional(LSTM(hidden_neurons - 64, return_sequences=False)))
         model.add(Dropout(self._dropout))
         model.add(Dense(hidden_neurons, activation="tanh"))
         model.add(Dense(self._y_train.shape[1]))

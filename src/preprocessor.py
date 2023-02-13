@@ -126,6 +126,7 @@ class Preprocessor:
     
     def summary(self) -> None:
         """Print a summary of the preprocessor."""
+        print("Preprocessor:")
         print(self.__str__())
 
     def __str__(self) -> str:

@@ -12,7 +12,7 @@ class Test_Data_Aquirer(unittest.TestCase):
     def __init__(self, methodName: str = ...) -> None:
         """Initialize the testbench."""
         super().__init__(methodName)
-        self.aquirer = Data_Aquirer(PATH_PAIRS, API_KEY, TIME_FORMAT)
+        self.aquirer = Data_Aquirer(PATH_PAIRS, API_KEY, TIME_FORMAT, api_type='full')
 
     def test_get_api(self):
         """Test the get method."""

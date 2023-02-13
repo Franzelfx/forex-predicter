@@ -1,6 +1,7 @@
 """Module for the Data_Aquirer class."""
 import requests
 import pandas as pd
+from datetime import datetime as date
 from datetime import datetime, timedelta
 
 class Data_Aquirer():
@@ -10,7 +11,7 @@ class Data_Aquirer():
              please refer to https://polygon.io/docs/getting-started for more information.
     """
 
-    def __init__(self, path:str, api_key: str, time_format:str, api_type='basic'):
+    def __init__(self, path:str, api_key: str, time_format:str='%Y-%m-%d', api_type='basic'):
         """Set the attributes, may differ depending where to use it.
 
         @param path: The path where the fetched data should be stored.
@@ -57,9 +58,10 @@ class Data_Aquirer():
         # The last request is the start date on first iteration
         last = start
         iteration_counter = 0
+        print(f"Call API (let's grab some coffee :D) ", end="", flush=True)
         while datetime.strptime(last, self._time_format) < datetime.strptime(end, self._time_format):
             # Get the data from the API
-            print(f"Iteration {iteration_counter} for pair {pair} with {minutes} minutes interval from {last} to {end}")
+            print(".", end="", flush=True)
             url = f'https://api.polygon.io/v2/aggs/ticker/C:{pair}/range/{minutes}/minute/{last}/{end}?adjusted=true&sort=asc&limit=50000&apiKey={self._api_key}'
             response = requests.get(url)
             response = response.json()
@@ -75,15 +77,17 @@ class Data_Aquirer():
             # Update the last date (from the last data point in the request)
             last = data['t'].iloc[-1]
             last = datetime.strftime(last, self._time_format)
-            # Append the data to the return dataframe
-            data_return = data_return.append(data)
+            # COncatenate the data
+            data_return = pd.concat([data_return, data])
             # Increment the iteration counter
             iteration_counter += 1
         data_return.set_index('t', inplace=True)
         # Set the time column as index
+        print(f" Done! (after {iteration_counter} requests).")
+        print(f"Got {len(data_return)} data points with {data_return.memory_usage().sum() / 1024**2:.2f} MB memory usage.")
         return data_return
 
-    def get(self, pair: str, minutes: int, start: str, end: str, save: bool=False, from_file: bool=False):
+    def get(self, pair: str, minutes: int=1, start: str='2009-01-01', end: str=date.today().strftime('%Y-%m-%d'), save: bool=False, from_file: bool=False):
         """Get the data from the API or from the csv file.
         
         @param pair: The pair to get the data for (e.g. 'EURUSD').

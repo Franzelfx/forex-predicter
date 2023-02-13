@@ -22,11 +22,15 @@ class Indicators:
 
                             - 'ATR' = 'Average True Range'
                             - 'BOLLINGER' = 'Bollinger Bands'
+                            - 'MA5' = 'Moving Average 5'
+                            - 'MA25' = 'Moving Average 25'
                             - 'MA50' = 'Moving Average 50'
                             - 'MA200' = 'Moving Average 200'
                             - 'MACD' = 'Moving Average Convergence Divergence'
+                            - 'OBV' = 'On Balance Volume'
                             - 'RSI' = 'Relative Strength Index'
                             - 'STOCHASTIC' = 'Stochastic Oscillator'
+                            - 'VoRSI' = 'Volume Relative Strength Index'
         """
         self._data = data
         self._requested = requested
@@ -38,10 +42,10 @@ class Indicators:
             "MA50",
             "MA200",
             "MACD",
+            "OBV",
             "RSI",
-            "VRSI",
-            "VPT",
             "STOCHASTIC",
+            "VoRSI",
         ]
         self._data_offset = 0
         # Get data offset (cut 'MA' from the string and convert to int)
@@ -59,10 +63,10 @@ class Indicators:
         # Log some warning, if the indicators are not valid by comparing the lists
         if not set(self._requested).issubset(self._available):
             warning("One or more indicators are not valid. Please check the documentation.")
-    
+
     def summary(self):
         """Get a summary of the indicators."""
-        print(tabulate(self._data.head(5), headers="keys", tablefmt="rst"))
+        print(self._data.head(5))
 
     @property
     def data(self) -> pd.DataFrame:
@@ -87,6 +91,7 @@ class Indicators:
     def calculate(self, save=False, path=None, ma_target='c', keys=['o', 'h', 'l', 'c', 'v'], macd_target='c', bb_target='c', rsi_target='c', vo_rsi_target='v') -> pd.DataFrame:
         """Calculate the indicators and add them to the dataframe."""
         # Calculate the indicators
+        print(f"calculate {len(self._requested)} Indicators for {self._data.memory_usage().sum() / 1024**2:.2f} MB of data.")
         if "ATR" in self._available:
             self._data["ATR"] = talib.ATR(
                 self._data[keys[1]],
