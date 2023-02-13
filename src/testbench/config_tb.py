@@ -51,8 +51,8 @@ TARGET = 'MA5'
 # Preprocessor
 PREPROCESSOR_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.curdir, "preprocessor_test"))
 PREPROCESSOR_DATA_SOURCE = f"{PATH_INDICATORS}/{PAIR}_{MINUTES}.csv"
-TEST_TIME_STEPS_IN = 2880 # 1 month
-TEST_TIME_STEPS_OUT = 96  # 1 day
+TEST_TIME_STEPS_IN = 17280 # 6 months
+TEST_TIME_STEPS_OUT = 672  # 1 week
 TEST_LENGTH = TEST_TIME_STEPS_IN + TEST_TIME_STEPS_OUT
 TEST_SCALE = True
 
