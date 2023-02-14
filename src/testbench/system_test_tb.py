@@ -25,6 +25,8 @@ class SystemTest(unittest.TestCase):
             data.columns = [f"{col}_{pair}" for col in data.columns]
             # Concat dataframes
             multiple_pairs = pd.concat([multiple_pairs, data], axis=1)
+            # drop index
+            multiple_pairs.reset_index(drop=True, inplace=True)
         
         # Preprocess data
         preprocessor = Preprocessor(multiple_pairs, f"{TARGET}_{PAIR}")
