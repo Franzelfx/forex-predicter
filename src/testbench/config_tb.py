@@ -62,3 +62,6 @@ TEST_NEURONS = 32
 TEST_BATCH_SIZE = 32
 TEST_LEARNING_RATE = 0.0005
 PATH_TEST_RESULTS = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.curdir, "test_results"))
+
+# System test
+REQUEST_PAIRS = ['EURUSD', 'GBPUSD', 'USDCAD']
