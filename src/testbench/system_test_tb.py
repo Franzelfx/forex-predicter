@@ -15,20 +15,18 @@ class SystemTest(unittest.TestCase):
         request_pairs = ['AUDUSD', 'EURUSD', 'GBPUSD', 'NZDUSD', 'USDCAD', 'USDCHF', 'USDJPY']
         # Get data
         for pair in request_pairs:
-            data_aquirer = Data_Aquirer(PATH_PAIRS, API_KEY, TIME_FORMAT)
-            data = data_aquirer.get(pair, MINUTES, DATE_START, DATE_END, save=True)
+            data_aquirer = Data_Aquirer(PATH_PAIRS, API_KEY)
+            data = data_aquirer.get(pair, MINUTES, save=True)
             # Create indicators
             indicators = Indicators(data, TEST_INDICATORS)
             data = indicators.calculate(save=True, path=f"{PATH_INDICATORS}/{pair}_{MINUTES}.csv")
             # Preprocess data
             preprocessor = Preprocessor(
                 data,
-                "c",
-                test_split=TEST_SPLIT,
+                target=TARGET,
                 time_steps_in=TEST_TIME_STEPS_IN,
                 time_steps_out=TEST_TIME_STEPS_OUT,
-                intersection_factor=0.5,
-                scale=True,
+                scale=TEST_SCALE,
             )
             # Create and train model
             model = Model(

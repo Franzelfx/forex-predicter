@@ -64,7 +64,9 @@ class Test_Model(unittest.TestCase):
         plt.ylabel("Value")
         # Save the plot
         plt.savefig(f"{MODEL_PATH}/model_test/{MODEL_NAME}_test.png")
-
+        # Save raw data as csv
+        df = pd.DataFrame({"prediction": prediction, "actual": y_test})
+        df.to_csv(f"{MODEL_PATH}/model_test/{MODEL_NAME}_test.csv", index=False)
 
 if __name__ == "__main__":
     unittest.main()

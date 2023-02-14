@@ -11,7 +11,7 @@ class Data_Aquirer():
              please refer to https://polygon.io/docs/getting-started for more information.
     """
 
-    def __init__(self, path:str, api_key: str, time_format:str='%Y-%m-%d', api_type='basic'):
+    def __init__(self, path:str, api_key: str, time_format:str='%Y-%m-%d', api_type='full'):
         """Set the attributes, may differ depending where to use it.
 
         @param path: The path where the fetched data should be stored.
