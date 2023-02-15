@@ -25,7 +25,7 @@ class SystemTest(unittest.TestCase):
                 data,
                 TARGET,
                 time_steps_in=TEST_TIME_STEPS_IN,
-                time_steps_out=TEST_TIME_STEPS_OUT
+                time_steps_out=TEST_TIME_STEPS_OUT,
                 scale=TEST_SCALE,
             )
             print(preprocessor.data.head(5))
