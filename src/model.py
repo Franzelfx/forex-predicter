@@ -6,7 +6,16 @@ from keras.optimizers import Adam
 from keras.models import Sequential
 from sklearn.preprocessing import MinMaxScaler
 from keras.callbacks import ModelCheckpoint, EarlyStopping, TensorBoard
-from keras.layers import Dense, LSTM, Dropout, Bidirectional
+from keras.layers import (
+    Dense,
+    LSTM,
+    Dropout,
+    Bidirectional,
+    Conv1D,
+    MaxPooling1D,
+    Flatten,
+    concatenate,
+)
 
 
 class Model:
@@ -18,8 +27,6 @@ class Model:
         name: str,
         x_train: np.ndarray,
         y_train: np.ndarray,
-        dropout: float = 0.2,
-        loss: str = "mean_absolute_error",
     ):
         """Set the fundamental attributes.
 
@@ -28,26 +35,59 @@ class Model:
         @param x_train: The input data for the model.
         @param y_train: The output data for the model.
         @param dropout: The dropout rate in the layer with the most neurons.
+        @param branched_model: If the model should be a multi input branched one or not.
         @param loss: The loss function for the training process.
-        @param optimizer: The optimizer for the training process.
         """
         self._path = path
         self._name = name
         self._x_train = x_train
         self._y_train = y_train
-        self._dropout = dropout
-        self._loss = loss
         self._model = None
+        self._branches = None
 
-    def _create_model(self, hidden_neurons=128) -> Sequential:
+    def _create_model(
+        self, hidden_neurons: int, dropout: int, activation: str
+    ) -> Sequential:
         """Create the model."""
         model = Sequential()
-        model.add(Bidirectional(LSTM(hidden_neurons, return_sequences=True, input_shape=(self._x_train.shape[1], self._x_train.shape[2]))))
+        model.add(
+            Bidirectional(
+                LSTM(
+                    hidden_neurons,
+                    return_sequences=True,
+                    input_shape=(self._x_train.shape[1], self._x_train.shape[2]),
+                )
+            )
+        )
         model.add(Bidirectional(LSTM(hidden_neurons, return_sequences=False)))
-        model.add(Dropout(self._dropout))
-        model.add(Dense(hidden_neurons, activation="tanh"))
+        model.add(Dropout(dropout))
+        model.add(Dense(hidden_neurons, activation=activation))
         model.add(Dense(self._y_train.shape[1]))
-        model.build(input_shape=(self._x_train.shape[0], self._x_train.shape[1], self._x_train.shape[2]))
+        model.build(
+            input_shape=(
+                self._x_train.shape[0],
+                self._x_train.shape[1],
+                self._x_train.shape[2],
+            )
+        )
+        return model
+
+    def _create_branched_model(
+        self,
+        conv=[] | None,
+        lstm=[] | None,
+        dense=[64],
+        dropout=0.2,
+        activation="tanh",
+    ) -> Sequential:
+        """Create the branched model."""
+        model = Sequential()
+        model = concatenate(self._branches)
+        # Add output layer(s)
+        output = self.add_branch(
+            conv=conv, lstm=lstm, dense=dense, dropout=dropout, activation=activation
+        )
+        model = concatenate([model, output])
         return model
 
     def _plot_fit_history(self, fit):
@@ -79,9 +119,75 @@ class Model:
         # Save the plot
         plt.savefig(f"{self._path}/fit_history/{self._name}.png")
 
-    def compile_and_fit(self, hidden_neurons=256, epochs=100, learning_rate=0.001, batch_size=32, validation_spilt=0.2, patience=20) -> dict:
+    def add_branch(
+        self,
+        conv=[] | None,
+        lstm=[] | None,
+        dense=[64],
+        dropout=0.2,
+        activation="tanh",
+        kernel_size=3,
+        pool_size=2,
+    ):
+        """Add a branch to the branched model."""
+        if not self._branched_model:
+            warning("The model is not a branched one.")
+            return
+        if self._branches is None:
+            self._branches = []
+        model = Sequential()
+        if conv is not None:
+            for i in range(len(conv)):
+                if i == 0:
+                    model.add(
+                        Conv1D(
+                            conv[i],
+                            kernel_size,
+                            activation=activation,
+                            input_shape=(
+                                self._x_train.shape[1],
+                                self._x_train.shape[2],
+                            ),
+                        )
+                    )
+                else:
+                    model.add(Conv1D(conv[i], kernel_size, activation=activation))
+                model.add(MaxPooling1D(pool_size=pool_size))
+        if lstm is not None:
+            for i in range(len(lstm)):
+                if i == 0:
+                    model.add(
+                        LSTM(
+                            lstm[i],
+                            return_sequences=True,
+                            input_shape=(
+                                self._x_train.shape[1],
+                                self._x_train.shape[2],
+                            ),
+                        )
+                    )
+                else:
+                    model.add(LSTM(lstm[i], return_sequences=True))
+                model.add(Dropout(dropout))
+        model.add(Dropout(dropout))
+        for i in range(len(dense)):
+            model.add(Dense(dense[i], activation=activation))
+        model.add(Dense(self._y_train.shape[1]))
+
+    def compile_and_fit(
+        self,
+        hidden_neurons=256,
+        dropout=0.2,
+        activation="tanh",
+        epochs=100,
+        learning_rate=0.001,
+        batch_size=32,
+        loss="mean_absolute_error",
+        validation_spilt=0.2,
+        patience=20,
+    ) -> dict:
         """Compile and fit the model.
-    
+
         @param hidden_neurons: The number of neurons in the hidden layers.
         @param epochs: The number of epochs to train the model.
         @param learning_rate: The learning rate for the optimizer.
@@ -96,9 +202,12 @@ class Model:
                  The validation loss is saved in the fit_history folder.
                  The tensorboard logs are saved in the tensorboard folder.
         """
-        model = self._create_model(hidden_neurons)
+        if self._branched_model:
+            model = self._create_branched_model()
+        else:
+            model = self._create_model(hidden_neurons, dropout, activation)
         optimizer = Adam(learning_rate=learning_rate)
-        model.compile(loss=self._loss, optimizer=optimizer, metrics=["mape"])
+        model.compile(loss=loss, optimizer=optimizer, metrics=["mape"])
         model.summary()
         # Configure callbacks (early stopping, checkpoint, tensorboard)
         model_checkpoint = ModelCheckpoint(
@@ -108,7 +217,9 @@ class Model:
             save_weights_only=False,
             verbose=1,
         )
-        early_stopping = EarlyStopping(monitor="val_loss", patience=patience, mode="min", verbose=1)
+        early_stopping = EarlyStopping(
+            monitor="val_loss", patience=patience, mode="min", verbose=1
+        )
         tensorboard = TensorBoard(log_dir=f"{self._path}/tensorboard/{self._name}")
         # Fit the model
         fit = model.fit(
@@ -126,9 +237,15 @@ class Model:
         self._plot_fit_history(fit)
         return fit
 
-    def predict(self, x_test: np.ndarray, steps=1, scaler:MinMaxScaler=None, from_saved_model=False) -> np.ndarray:
+    def predict(
+        self,
+        x_test: np.ndarray,
+        steps=1,
+        scaler: MinMaxScaler = None,
+        from_saved_model=False,
+    ) -> np.ndarray:
         """Predict the output for the given input.
-        
+
         @param x_test: The input data for the model.
         @param from_saved_model: If True, the model will be loaded from the saved model.
 
