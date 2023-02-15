@@ -61,7 +61,7 @@ class SystemTest(unittest.TestCase):
                 # Plot the results
                 # Set high dpi
                 plt.style.use('dark_background')
-                plt.rcParams["figure.dpi"] = 1200
+                plt.rcParams["figure.dpi"] = 600
                 plt.plot(prediction, label="prediction")
                 plt.plot(y_test, label="actual")
                 plt.legend()
