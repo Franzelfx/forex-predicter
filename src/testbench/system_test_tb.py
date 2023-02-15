@@ -12,9 +12,8 @@ from preprocessor import Preprocessor
 class SystemTest(unittest.TestCase):
     """Test the system."""
 
-    def _test_system(self):
+    def test_system(self):
         """Test the system."""
-
         for pair in REQUEST_PAIRS:
             try:
                 aquirer = Data_Aquirer(PATH_PAIRS, API_KEY, api_type='full')
