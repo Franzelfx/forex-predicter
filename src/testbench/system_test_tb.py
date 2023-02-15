@@ -55,6 +55,8 @@ class SystemTest(unittest.TestCase):
                 y_test = scaler.inverse_transform(y_test.reshape(-1, 1)).flatten()
                 prediction = scaler.inverse_transform(prediction.reshape(-1, 1)).flatten()
             prediction = self.moving_average(prediction, 5)
+            # Cut first 5 values from y_test
+            y_test = y_test[5:]
             # Plot the results
             # Set high dpi
             plt.style.use('dark_background')
