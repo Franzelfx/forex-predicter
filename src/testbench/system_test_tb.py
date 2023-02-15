@@ -71,7 +71,7 @@ class SystemTest(unittest.TestCase):
             df = pd.DataFrame({"prediction": prediction, "actual": y_test})
             df.to_csv(f"{MODEL_PATH}/model_test/{MODEL_NAME}_test.csv", index=False)
         
-    def moving_average(data, n):
+    def moving_average(self, data, n):
         """Calculate the moving average for the given data."""
         data = np.array(data)
         ret = np.cumsum(data, dtype=float)
