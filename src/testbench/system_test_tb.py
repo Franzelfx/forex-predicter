@@ -33,7 +33,7 @@ class SystemTest(unittest.TestCase):
                 preprocessor.summary()
                 model = Model(
                     MODEL_PATH,
-                    MODEL_NAME,
+                    pair,
                     preprocessor.x_train,
                     preprocessor.y_train,
                 )
@@ -65,14 +65,14 @@ class SystemTest(unittest.TestCase):
                 plt.plot(prediction, label="prediction")
                 plt.plot(y_test, label="actual")
                 plt.legend()
-                plt.title(f"Prediction for {MODEL_NAME}")
+                plt.title(f"Prediction for {pair}")
                 plt.xlabel("Time")
                 plt.ylabel("Value")
                 # Save the plot
-                plt.savefig(f"{MODEL_PATH}/model_test/{MODEL_NAME}_test.png")
+                plt.savefig(f"{MODEL_PATH}/model_test/{pair}_test.png")
                 # Save raw data as csv
                 df = pd.DataFrame({"prediction": prediction, "actual": y_test})
-                df.to_csv(f"{MODEL_PATH}/model_test/{MODEL_NAME}_test.csv", index=False)
+                df.to_csv(f"{MODEL_PATH}/model_test/{pair}_test.csv", index=False)
             except Exception:
                 continue
 
