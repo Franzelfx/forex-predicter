@@ -23,7 +23,6 @@ class Test_Model(unittest.TestCase):
             time_steps_out=TEST_TIME_STEPS_OUT,
             scale=TEST_SCALE,
         )
-        print(preprocessor.data.head(5))
         preprocessor.summary()
         model = Model(
             MODEL_PATH,
@@ -31,7 +30,7 @@ class Test_Model(unittest.TestCase):
             preprocessor.x_train,
             preprocessor.y_train,
         )
-        # Run 30 epochs for testing
+        # Run for testing
         model.compile_and_fit(epochs=TEST_EPOCHS, hidden_neurons=TEST_NEURONS, batch_size=TEST_BATCH_SIZE, learning_rate=TEST_LEARNING_RATE)
         # Predict the next values
 
