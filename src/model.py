@@ -27,6 +27,7 @@ class Model:
         name: str,
         x_train: np.ndarray,
         y_train: np.ndarray,
+        branched_model: bool = False,
     ):
         """Set the fundamental attributes.
 
@@ -42,6 +43,7 @@ class Model:
         self._name = name
         self._x_train = x_train
         self._y_train = y_train
+        self._branched_model = branched_model
         self._model = None
         self._branches = None
 
