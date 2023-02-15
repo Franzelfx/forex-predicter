@@ -74,8 +74,8 @@ class Model:
 
     def _create_branched_model(
         self,
-        conv=[] | None,
-        lstm=[] | None,
+        conv=[] or None,
+        lstm=[] or None,
         dense=[64],
         dropout=0.2,
         activation="tanh",
@@ -121,8 +121,8 @@ class Model:
 
     def add_branch(
         self,
-        conv=[] | None,
-        lstm=[] | None,
+        conv=[] or None,
+        lstm=[] or None,
         dense=[64],
         dropout=0.2,
         activation="tanh",
