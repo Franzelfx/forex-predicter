@@ -1,6 +1,7 @@
 """This module contains the model class for the LSTM model."""
 import numpy as np
 from logging import warning
+from pandas import DataFrame
 import matplotlib.pyplot as plt
 from keras.optimizers import Adam
 from keras.models import Sequential
@@ -102,6 +103,7 @@ class Model:
         # High resolution plot with subplots
         plt.cla()
         plt.clf()
+        plt.style.use('dark_background')
         fig, axes = plt.subplots(2, 1, figsize=(20, 10))
         # High resolution plot
         fig.set_dpi(300)
@@ -192,7 +194,7 @@ class Model:
         loss="mean_absolute_error",
         validation_spilt=0.2,
         patience=20,
-    ) -> dict:
+    ) -> DataFrame:
         """Compile and fit the model.
 
         @param hidden_neurons: The number of neurons in the hidden layers.
@@ -242,6 +244,10 @@ class Model:
         model.load_weights(f"{self._path}/checkpoints/{self._name}_weights.h5")
         self._model = model
         self._plot_fit_history(fit)
+        # Convert the fit history to dataframe
+        fit = DataFrame(fit.history)
+        # Save the fit history
+        fit.to_csv(f"{self._path}/fit_history/{self._name}.csv", index=False)
         return fit
 
     def predict(
