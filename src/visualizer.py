@@ -14,6 +14,7 @@ class Visualizer:
     def plot_prediction(self, prediction, path, y_test=None, save_csv=False):
         """Plot the prediction."""
         date = dt.now().strftime("%Y-%m-%d_%H-%M-%S")
+        path = f"{path}_{self._pair}_prediction"
         plt.cla()
         plt.clf()
         if self.dark_mode:
@@ -29,7 +30,7 @@ class Visualizer:
         # Set title (pair name and date)
         plt.title(f"{self.pair} {date}")
         # Save the plot
-        plt.savefig(path, dpi=600)
+        plt.savefig(f"{path}.png", dpi=600)
         # Save raw data as csv
         if save_csv:
             df = pd.DataFrame({"prediction": prediction, "actual": y_test})

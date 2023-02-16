@@ -40,7 +40,8 @@ class Test_Model(unittest.TestCase):
         y_test = preprocessor.y_test[:TEST_TIME_STEPS_OUT]
         # Plot the results
         visualizer = Visualizer(PAIR)
-        visualizer.plot_prediction(prediction, y_test, MODEL_NAME)
+        path = f"{MODEL_PATH}/model_test/{MODEL_NAME}"
+        visualizer.plot_prediction(prediction, y_test, path)
 
 if __name__ == "__main__":
     unittest.main()
