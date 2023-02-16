@@ -5,3 +5,4 @@ venv
 *.vscode
 *.csv
 !src/testbench/model_test/*.csv
+test/api_key.py
