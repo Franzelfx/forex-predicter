@@ -11,7 +11,7 @@ class Visualizer:
         self.pair = target
         self.dark_mode = dark_mode
 
-    def plot_prediction(self, prediction, path, y_test=None, save_csv=False):
+    def plot_prediction(self, prediction, path, y_test=None, save_csv=True):
         """Plot the prediction."""
         date = dt.now().strftime("%Y-%m-%d_%H-%M-%S")
         path = f"{path}_{self.pair}_prediction"
