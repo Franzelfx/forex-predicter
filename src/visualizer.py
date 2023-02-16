@@ -22,7 +22,8 @@ class Visualizer:
         else:
             plt.style.use('default')
         plt.plot(prediction, label="prediction")
-        plt.plot(y_test, label="actual")
+        if y_test is not None:
+            plt.plot(y_test, label="actual")
         plt.legend()
         plt.title(f"Prediction for {self.pair}")
         plt.xlabel("Time")

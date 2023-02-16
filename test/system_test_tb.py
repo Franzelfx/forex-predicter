@@ -42,7 +42,7 @@ class SystemTest(unittest.TestCase):
                 prediction = model.predict(x_test, scaler=preprocessor.target_scaler)
                 # Reduce to time_steps_out
                 prediction = prediction[:TEST_TIME_STEPS_OUT]
-                y_test = preprocessor.y_test[:TEST_TIME_STEPS_OUT]
+                y_test = preprocessor.y_test[:TEST_TIME_STEPS_OUT].flatten()
                 # Plot the results
                 visualizer = Visualizer(PAIR)
                 path = f"{MODEL_PATH}/system_test/{MODEL_NAME}"
