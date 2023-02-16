@@ -192,4 +192,5 @@ class Model:
         if scaler is not None:
             y_pred = y_pred.reshape(-1, 1)
             y_pred = scaler.inverse_transform(y_pred)
+            y_pred = y_pred.flatten()
         return y_pred
