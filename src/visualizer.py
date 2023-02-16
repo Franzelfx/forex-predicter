@@ -14,7 +14,7 @@ class Visualizer:
     def plot_prediction(self, prediction, path, y_test=None, save_csv=False):
         """Plot the prediction."""
         date = dt.now().strftime("%Y-%m-%d_%H-%M-%S")
-        path = f"{path}_{self._pair}_prediction"
+        path = f"{path}_{self.pair}_prediction"
         plt.cla()
         plt.clf()
         if self.dark_mode:
