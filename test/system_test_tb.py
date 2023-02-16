@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 from config_tb import *
 from src.model import Model
-from indicators import Indicators
+from src.indicators import Indicators
 from matplotlib import pyplot as plt
 from src.data_aquirer import Data_Aquirer
 from src.preprocessor import Preprocessor
