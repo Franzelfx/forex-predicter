@@ -17,6 +17,7 @@ class Test_Composer(unittest.TestCase):
     def test_composer(self):
         """Test the composer."""
         self.composer.summary()
+        self.composer.compose()
 
 if __name__ == '__main__':
     unittest.main()

@@ -1,14 +1,19 @@
 """This module composes data_aquirer, indicator, preprocessor and model into a single class."""
 import os
 import json
+import pandas as pd
 from tabulate import tabulate
 from dataclasses import dataclass
-from src.data_aquirer import Data_Aquirer
+from .indicators import Indicators
+from .data_aquirer import Data_Aquirer
+from .preprocessor import Preprocessor
+from .branched_model import Branched_Model
 
-PATH = os.path.abspath(os.path.dirname(__file__), os.path.curdir)
+PATH = os.path.abspath(os.path.dirname(__file__))
 PATH_PAIRS = os.path.abspath(os.path.join(PATH, "pairs"))
 PATH_INDICATORS = os.path.abspath(os.path.join(PATH, "indicators"))
-
+PATH_RECIPES = os.path.abspath(os.path.join(PATH, "recipes"))
+PATH_MODEL = os.path.abspath(os.path.dirname(__file__))
 
 @dataclass
 class Base:
@@ -67,19 +72,6 @@ class Concat:
         self.dense_nodes = concat_sec["DENSE_NODES"]
         self.dropout = concat_sec["DROPOUT"]
 
-@dataclass
-class Training:
-    """This class is used to store the training attributes."""
-
-    def __init__(self, json: dict):
-        """Set the attributes."""
-        # Top level
-        training_sec = json["TRAINING"]
-        # Training
-        self.epochs = training_sec["EPOCHS"]
-        self.batch_size = training_sec["BATCH_SIZE"]
-        self.learning_rate = training_sec["LEARNING_RATE"]
-
 
 class Composer:
     """This class takes some recipe.json file and composes the data_aquirer, indicator, preprocessor and model into a single class."""
@@ -95,8 +87,8 @@ class Composer:
         self._concat = None
         self._training = None
 
-        recipe_path = os.path.abspath(os.path.join(PATH_PAIRS, pair_name, "_recipe.json"))
-        base_recipe_path = os.path.abspath(os.path.join(PATH_PAIRS, "__BASE__recipe.json"))
+        recipe_path = os.path.abspath(os.path.join(PATH_RECIPES ,f"{pair_name}_recipe.json"))
+        base_recipe_path = os.path.abspath(os.path.join(PATH_RECIPES, "__BASE__recipe.json"))
     
         # Get json data from base recipe
         with open(base_recipe_path, "r") as file:
@@ -111,7 +103,6 @@ class Composer:
         for name, attributes in recipe["BRANCHES"].items():
             self._branches[name] = Branch(name, attributes)
         self._concat = Concat(recipe)
-        self._training = Training(recipe)
 
     def _model_branches(self) -> str:
         """Return the mode tree of the attributes."""
@@ -154,7 +145,19 @@ class Composer:
 
     def compose(self):
         """Compose the data_aquirer, indicator, preprocessor and model into a single class."""
-        for branch in self._branches:
-            # Get the data for every single branch
-            aquirer = Data_Aquirer(PATH_PAIRS, self._base.api_key, api_type=self._base.api_type)
-            data = aquirer.get(branch, )
+        # data_collection = {}
+        # for branch in self._branches:
+        #     # Get the data for every single branch
+        #     aquirer = Data_Aquirer(PATH_PAIRS, self._base.api_key, api_type=self._base.api_type)
+        #     data = aquirer.get(branch, self._processing.interval, save=True)
+        #     # Get the indicators
+        #     indicators = Indicators(data, self._branches[branch].indicators)
+        #     data = indicators.calculate(save=True, path=f"{PATH_INDICATORS}/{branch}_{self._processing.interval}.csv")
+        #     # Get the preprocessor
+        #     preprocessor = Preprocessor(data, self._processing.steps_in, self._processing.steps_out, self._processing.test_length)
+        #     preprocessor.summary()
+        #     data_collection[branch] = preprocessor
+        # Create the model
+        model = Branched_Model(PATH_MODEL, self._processing.pair, x_train=None, y_train=None)
+        model.add_branch(conv=[64, 32], lstm=[32, 16], dense=[16, 8], dropout=0.2)
+        model.compile_and_fit()

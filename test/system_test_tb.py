@@ -29,7 +29,6 @@ class SystemTest(unittest.TestCase):
                     time_steps_out=TEST_TIME_STEPS_OUT,
                     scale=TEST_SCALE,
                 )
-                print(preprocessor.data.head(5))
                 preprocessor.summary()
                 model = Model(
                     MODEL_PATH,
