@@ -90,6 +90,8 @@ class Model:
     ) -> Sequential:
         """Create the branched model."""
         model = Sequential()
+        if self._branches is None:
+            raise ValueError("Please set the model branches first.")
         model = concatenate(self._branches)
         # Add output layer(s)
         output = self.add_branch(
@@ -140,7 +142,8 @@ class Model:
     ):
         """Add a branch to the branched model."""
         if not self._branched_model:
-            warning("The model is not a branched one.")
+            warning("The model is not a branched one, didn't add branch.")
+            warning("Please set the branched_model attribute to True.")
             return
         if self._branches is None:
             self._branches = []
