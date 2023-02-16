@@ -5,7 +5,7 @@ import pandas as pd
 from config_tb import *
 from src.model import Model
 from src.indicators import Indicators
-from matplotlib import pyplot as plt
+from src.visualizer import Visualizer
 from src.data_aquirer import Data_Aquirer
 from src.preprocessor import Preprocessor
 
@@ -44,19 +44,8 @@ class SystemTest(unittest.TestCase):
                 prediction = prediction[:TEST_TIME_STEPS_OUT]
                 y_test = preprocessor.y_test[:TEST_TIME_STEPS_OUT]
                 # Plot the results
-                plt.cla()
-                plt.clf()
-                plt.plot(prediction, label="prediction")
-                plt.plot(y_test, label="actual")
-                plt.legend()
-                plt.title(f"Prediction for {pair}")
-                plt.xlabel("Time")
-                plt.ylabel("Value")
-                # Save the plot
-                plt.savefig(f"{pair}/model_test/{pair}_test.png", dpi=600)
-                # Save raw data as csv
-                df = pd.DataFrame({"prediction": prediction, "actual": y_test})
-                df.to_csv(f"{MODEL_PATH}/model_test/{pair}_test.csv", index=False)
+                visualizer = Visualizer(PAIR)
+                visualizer.plot_prediction(prediction, y_test, MODEL_NAME)
             except Exception:
                 continue
 

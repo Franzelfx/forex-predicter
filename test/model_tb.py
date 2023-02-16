@@ -3,7 +3,7 @@ import unittest
 import pandas as pd
 from config_tb import *
 from src.model import Model
-from matplotlib import pyplot as plt
+from src.visualizer import Visualizer
 from src.preprocessor import Preprocessor
 
 class Test_Model(unittest.TestCase):
@@ -39,19 +39,8 @@ class Test_Model(unittest.TestCase):
         prediction = prediction[:TEST_TIME_STEPS_OUT]
         y_test = preprocessor.y_test[:TEST_TIME_STEPS_OUT]
         # Plot the results
-        plt.cla()
-        plt.clf()
-        plt.plot(prediction, label="prediction")
-        plt.plot(y_test, label="actual")
-        plt.legend()
-        plt.title(f"Prediction for {MODEL_NAME}")
-        plt.xlabel("Time")
-        plt.ylabel("Value")
-        # Save the plot
-        plt.savefig(f"{MODEL_PATH}/model_test/{MODEL_NAME}_test.png", dpi=600)
-        # Save raw data as csv
-        df = pd.DataFrame({"prediction": prediction, "actual": y_test})
-        df.to_csv(f"{MODEL_PATH}/model_test/{MODEL_NAME}_test.csv", index=False)
+        visualizer = Visualizer(PAIR)
+        visualizer.plot_prediction(prediction, y_test, MODEL_NAME)
 
 if __name__ == "__main__":
     unittest.main()
