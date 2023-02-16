@@ -158,6 +158,7 @@ class Composer:
         #     preprocessor.summary()
         #     data_collection[branch] = preprocessor
         # Create the model
+        # TODO first compose with one branch (simpler)
         model = Branched_Model(PATH_MODEL, self._processing.pair, x_train=None, y_train=None)
         model.add_branch(conv=[64, 32], lstm=[32, 16], dense=[16, 8], dropout=0.2)
         model.compile_and_fit()
