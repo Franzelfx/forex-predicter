@@ -248,6 +248,14 @@ class Preprocessor:
                  e.g. scaler['c'].inverse_transform(data)
         """
         return self._scaler
+    
+    @property
+    def target_scaler(self) -> MinMaxScaler:
+        """Get the scaler for the target feature.
+
+        @return: The scaler for the target feature.
+        """
+        return self._scaler[self._target]
 
     @property
     def time_steps_in(self) -> int:
