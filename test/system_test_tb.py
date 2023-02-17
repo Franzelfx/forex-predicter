@@ -50,9 +50,9 @@ class SystemTest(unittest.TestCase):
                 # Plot the results
                 visualizer = Visualizer(PAIR)
                 path = f"{MODEL_PATH}/system_test/{MODEL_NAME}"
-                visualizer.plot_prediction(prediction, y_test, path)
-            except Exception:
-                continue
+                visualizer.plot_prediction(prediction, path, y_test=y_test)
+            except Exception as e:
+                print(e)
 
     def moving_average(self, data, n):
         """Calculate the moving average for the given data."""
