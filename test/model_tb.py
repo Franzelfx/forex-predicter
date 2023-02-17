@@ -44,7 +44,7 @@ class Test_Model(unittest.TestCase):
             y_test = scaler.inverse_transform(y_test.reshape(-1, 1)).flatten()
         # Plot the results
         visualizer = Visualizer(PAIR)
-        path = f"{MODEL_PATH}/model_test/{MODEL_NAME}"
+        path = f"{MODEL_PATH}/model_test"
         visualizer.plot_prediction(prediction, path, y_test=y_test)
 
 if __name__ == "__main__":

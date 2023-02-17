@@ -48,8 +48,8 @@ class SystemTest(unittest.TestCase):
                     scaler = preprocessor.target_scaler
                     y_test = scaler.inverse_transform(y_test.reshape(-1, 1)).flatten()
                 # Plot the results
-                visualizer = Visualizer(PAIR)
-                path = f"{MODEL_PATH}/system_test/{MODEL_NAME}"
+                visualizer = Visualizer(pair)
+                path = f"{MODEL_PATH}/system_test"
                 visualizer.plot_prediction(prediction, path, y_test=y_test)
             except Exception as e:
                 print(e)
