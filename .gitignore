@@ -5,3 +5,4 @@ venv
 *.vscode
 *.csv
 !src/testbench/model_test/*.csv
+!src/testbench/system_test/*.csv
