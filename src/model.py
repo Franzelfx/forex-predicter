@@ -42,16 +42,14 @@ class Model:
         """Create the model."""
         model = Sequential()
         model.add(
-            Bidirectional(
-                LSTM(
-                    hidden_neurons,
-                    return_sequences=True,
-                    input_shape=(self._x_train.shape[1], self._x_train.shape[2]),
-                )
+            LSTM(
+                hidden_neurons,
+                return_sequences=True,
+                input_shape=(self._x_train.shape[1], self._x_train.shape[2]),
             )
         )
-        model.add(Bidirectional(LSTM(int(hidden_neurons / 2), return_sequences=True)))
-        model.add(Bidirectional(LSTM(int(hidden_neurons / 3), return_sequences=False)))
+        model.add(LSTM(int(hidden_neurons / 2), return_sequences=True))
+        model.add(LSTM(int(hidden_neurons / 3), return_sequences=False))
         model.add(Dropout(dropout))
         model.add(Dense(int(hidden_neurons / 3), activation=activation))
         model.add(Dropout(dropout))
