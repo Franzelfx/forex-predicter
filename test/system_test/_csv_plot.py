@@ -20,7 +20,7 @@ def moving_average(data, n):
 def csv_plot(pair:str):
     plt.cla()
     plt.clf()
-    data = pd.read_csv(f"test/system_test/{pair}_{MINUTES}_{pair}_prediction.csv")
+    data = pd.read_csv(f"{pair}_prediction.csv")
     plt.style.use('dark_background')
     avg = moving_average(data['prediction'], 200)
     # Plot moving average prediction (shiftet by 200 to the right)
@@ -29,7 +29,7 @@ def csv_plot(pair:str):
     plt.plot(data['actual'], label="actual")
     plt.legend()
     plt.grid(color='gray', linewidth=0.5)
-    plt.savefig(f"test/sytem_test/{pair}_test_plot.png", dpi=300)
+    plt.savefig(f"{pair}_test_plot.png", dpi=300)
 
 
 for pair in REQUEST_PAIRS:
