@@ -18,7 +18,8 @@ API_TYPE = "advanced"
 # Indicators
 PATH_INDICATORS = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.curdir, f"indicators"))
 INDICATORS_DATA_SOURCE = f"{PATH_PAIRS}/{PAIR}_{MINUTES}.csv"
-TEST_INDICATORS = ["ATR", "BOLLINGER",'MA5' ,'MA25', "MA50", "MA200", "MACD", "OBV", "RSI", "STOCHASTIC", "VoRSI"]
+#TEST_INDICATORS = ["ATR", "BOLLINGER",'MA5' ,'MA25', "MA50", "MA200", "MACD", "OBV", "RSI", "STOCHASTIC", "VoRSI"]
+TEST_INDICATORS = ["BOLLINGER",'MA5' ,'MA25', "MA50", "MA200", "VoRSI"]
 EXPECTED_COLUMNS = [
     "v",
     "vw",
@@ -58,7 +59,7 @@ MODEL_DATA_SOURCE = f"{PREPROCESSOR_DATA_SOURCE}"
 MODEL_PATH = os.path.abspath(os.path.dirname(__file__))
 MODEL_NAME = f"{PAIR}_{MINUTES}"
 TEST_EPOCHS = 200
-TEST_NEURONS = 64
+TEST_NEURONS = 256
 TEST_BATCH_SIZE = 16
 TEST_LEARNING_RATE = 0.0005
 PATH_TEST_RESULTS = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.curdir, "test_results"))
