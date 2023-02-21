@@ -22,7 +22,7 @@ class Preprocessor:
         target: str,
         time_steps_in=60,
         time_steps_out=30,
-        test_length=30,
+        test_length=90,
         test_split=None,
         scale=True,
         feature_range=(-1, 1),

@@ -3,7 +3,7 @@ import unittest
 import pandas as pd
 from config_tb import *
 from src.model import Model
-from matplotlib import pyplot as plt
+from src.visualizer import Visualizer
 from src.preprocessor import Preprocessor
 
 class Test_Model(unittest.TestCase):
@@ -31,27 +31,21 @@ class Test_Model(unittest.TestCase):
             preprocessor.y_train,
         )
         # Run for testing
-        model.compile_and_fit(epochs=TEST_EPOCHS, hidden_neurons=TEST_NEURONS, batch_size=TEST_BATCH_SIZE, learning_rate=TEST_LEARNING_RATE)
+        model.compile_and_fit(epochs=TEST_EPOCHS, hidden_neurons=TEST_NEURONS, batch_size=TEST_BATCH_SIZE, learning_rate=TEST_LEARNING_RATE, branched_model=True)
         # Predict the next values
         x_test = preprocessor.x_test
         prediction = model.predict(x_test, scaler=preprocessor.target_scaler)
         # Reduce to time_steps_out
         prediction = prediction[:TEST_TIME_STEPS_OUT]
         y_test = preprocessor.y_test[:TEST_TIME_STEPS_OUT]
+        if TEST_SCALE:
+            # Inverse the scaling
+            scaler = preprocessor.target_scaler
+            y_test = scaler.inverse_transform(y_test.reshape(-1, 1)).flatten()
         # Plot the results
-        plt.cla()
-        plt.clf()
-        plt.plot(prediction, label="prediction")
-        plt.plot(y_test, label="actual")
-        plt.legend()
-        plt.title(f"Prediction for {MODEL_NAME}")
-        plt.xlabel("Time")
-        plt.ylabel("Value")
-        # Save the plot
-        plt.savefig(f"{MODEL_PATH}/model_test/{MODEL_NAME}_test.png", dpi=600)
-        # Save raw data as csv
-        df = pd.DataFrame({"prediction": prediction, "actual": y_test})
-        df.to_csv(f"{MODEL_PATH}/model_test/{MODEL_NAME}_test.csv", index=False)
+        visualizer = Visualizer(PAIR)
+        path = f"{MODEL_PATH}/model_test"
+        visualizer.plot_prediction(prediction, path, y_test=y_test)
 
 if __name__ == "__main__":
     unittest.main()

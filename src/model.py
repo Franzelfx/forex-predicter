@@ -4,19 +4,10 @@ from logging import warning
 from pandas import DataFrame
 import matplotlib.pyplot as plt
 from keras.optimizers import Adam
-from keras.models import Sequential
+from keras.models import Sequential, Model as KerasModel
 from sklearn.preprocessing import MinMaxScaler
 from keras.callbacks import ModelCheckpoint, EarlyStopping, TensorBoard
-from keras.layers import (
-    Dense,
-    LSTM,
-    Dropout,
-    Bidirectional,
-    Conv1D,
-    MaxPooling1D,
-    Flatten,
-    concatenate,
-)
+from keras.layers import Dense, LSTM, Dropout, Flatten, Conv1D, MaxPooling1D, concatenate
 
 
 class Model:
@@ -28,7 +19,6 @@ class Model:
         name: str,
         x_train: np.ndarray,
         y_train: np.ndarray,
-        branched_model: bool = False,
     ):
         """Set the fundamental attributes.
 
@@ -44,30 +34,30 @@ class Model:
         self._name = name
         self._x_train = x_train
         self._y_train = y_train
-        self._branched_model = branched_model
         self._model = None
-        self._branches = None
 
     def _create_model(
         self, hidden_neurons: int, dropout: int, activation: str
     ) -> Sequential:
         """Create the model."""
         model = Sequential()
+        model.add(Conv1D(filters=hidden_neurons, kernel_size=3, activation=activation))
+        model.add(MaxPooling1D(pool_size=2))
+        model.add(Conv1D(filters=hidden_neurons, kernel_size=3, activation=activation))
+        model.add(MaxPooling1D(pool_size=2))
         model.add(
-            Bidirectional(
-                LSTM(
-                    hidden_neurons,
-                    return_sequences=True,
-                    input_shape=(self._x_train.shape[1], self._x_train.shape[2]),
-                )
+            LSTM(
+                hidden_neurons,
+                return_sequences=True,
+                input_shape=(self._x_train.shape[1], self._x_train.shape[2]),
             )
         )
-        model.add(Bidirectional(LSTM(int(hidden_neurons / 2), return_sequences=True)))
-        model.add(Bidirectional(LSTM(int(hidden_neurons / 3), return_sequences=False)))
+        model.add(LSTM(int(hidden_neurons), return_sequences=True))
+        model.add(LSTM(int(hidden_neurons), return_sequences=False))
         model.add(Dropout(dropout))
-        model.add(Dense(int(hidden_neurons / 3), activation=activation))
+        model.add(Dense(int(hidden_neurons), activation=activation))
         model.add(Dropout(dropout))
-        model.add(Dense(int(hidden_neurons / 2), activation=activation))
+        model.add(Dense(int(hidden_neurons), activation=activation))
         model.add(Dropout(dropout))
         model.add(Dense(hidden_neurons, activation=activation))
         model.add(Dense(self._y_train.shape[1]))
@@ -79,23 +69,58 @@ class Model:
             )
         )
         return model
-
+    
     def _create_branched_model(
-        self,
-        conv=[] or None,
-        lstm=[] or None,
-        dense=[64],
-        dropout=0.2,
-        activation="tanh",
+        self, hidden_neurons: int, dropout: int, activation: str
     ) -> Sequential:
-        """Create the branched model."""
-        model = Sequential()
-        model = concatenate(self._branches)
-        # Add output layer(s)
-        output = self.add_branch(
-            conv=conv, lstm=lstm, dense=dense, dropout=dropout, activation=activation
+        # LSTM Branch
+        lstm = Sequential()
+        lstm.add(
+            LSTM(
+                hidden_neurons,
+                return_sequences=True,
+                input_shape=(self._x_train.shape[1], self._x_train.shape[2]),
+            )
         )
-        model = concatenate([model, output])
+        lstm.add(LSTM(int(hidden_neurons), return_sequences=True))
+        lstm.add(LSTM(int(hidden_neurons), return_sequences=False))
+        lstm.add(Dense(int(hidden_neurons), activation=activation))
+
+        # Conv1D Branch
+        conv1d = Sequential()
+        conv1d.add(
+            Conv1D(
+                filters=hidden_neurons,
+                kernel_size=3,
+                activation=activation,
+                input_shape=(self._x_train.shape[1], self._x_train.shape[2]),
+            )
+        )
+        conv1d.add(MaxPooling1D(pool_size=2))
+        conv1d.add(Dropout(dropout))
+        conv1d.add(
+            Conv1D(filters=hidden_neurons, kernel_size=3, activation=activation)
+        )
+        conv1d.add(MaxPooling1D(pool_size=2))
+        conv1d.add(Dropout(dropout))
+        conv1d.add(
+            Conv1D(filters=hidden_neurons, kernel_size=3, activation=activation)
+        )
+        conv1d.add(MaxPooling1D(pool_size=2))
+        conv1d.add(Dropout(dropout))
+        conv1d.add(Flatten())
+        conv1d.add(Dense(int(hidden_neurons), activation=activation))
+
+        # Concatenate Branches
+        concat = concatenate([lstm.output, conv1d.output])
+
+        # Add Dense Layers
+        dense = Dense(int(hidden_neurons), activation=activation)(concat)
+        dense = Dense(int(hidden_neurons), activation=activation)(dense)
+        output = Dense(self._y_train.shape[1])(dense)
+
+        # Model definition
+        model = KerasModel(inputs=[lstm.input, conv1d.input], outputs=output)
         return model
 
     def _plot_fit_history(self, fit):
@@ -128,61 +153,6 @@ class Model:
         # Save the plot
         plt.savefig(f"{self._path}/fit_history/{self._name}.png")
 
-    def add_branch(
-        self,
-        conv=[] or None,
-        lstm=[] or None,
-        dense=[64],
-        dropout=0.2,
-        activation="tanh",
-        kernel_size=3,
-        pool_size=2,
-    ):
-        """Add a branch to the branched model."""
-        if not self._branched_model:
-            warning("The model is not a branched one.")
-            return
-        if self._branches is None:
-            self._branches = []
-        model = Sequential()
-        if conv is not None:
-            for i in range(len(conv)):
-                if i == 0:
-                    model.add(
-                        Conv1D(
-                            conv[i],
-                            kernel_size,
-                            activation=activation,
-                            input_shape=(
-                                self._x_train.shape[1],
-                                self._x_train.shape[2],
-                            ),
-                        )
-                    )
-                else:
-                    model.add(Conv1D(conv[i], kernel_size, activation=activation))
-                model.add(MaxPooling1D(pool_size=pool_size))
-        if lstm is not None:
-            for i in range(len(lstm)):
-                if i == 0:
-                    model.add(
-                        LSTM(
-                            lstm[i],
-                            return_sequences=True,
-                            input_shape=(
-                                self._x_train.shape[1],
-                                self._x_train.shape[2],
-                            ),
-                        )
-                    )
-                else:
-                    model.add(LSTM(lstm[i], return_sequences=True))
-                model.add(Dropout(dropout))
-        model.add(Dropout(dropout))
-        for i in range(len(dense)):
-            model.add(Dense(dense[i], activation=activation))
-        model.add(Dense(self._y_train.shape[1]))
-
     def compile_and_fit(
         self,
         hidden_neurons=256,
@@ -194,6 +164,7 @@ class Model:
         loss="mean_absolute_error",
         validation_spilt=0.2,
         patience=20,
+        branched_model=False,
     ) -> DataFrame:
         """Compile and fit the model.
 
@@ -211,8 +182,8 @@ class Model:
                  The validation loss is saved in the fit_history folder.
                  The tensorboard logs are saved in the tensorboard folder.
         """
-        if self._branched_model:
-            model = self._create_branched_model()
+        if branched_model:
+            model = self._create_branched_model(hidden_neurons, dropout, activation)
         else:
             model = self._create_model(hidden_neurons, dropout, activation)
         optimizer = Adam(learning_rate=learning_rate)
@@ -280,4 +251,5 @@ class Model:
         if scaler is not None:
             y_pred = y_pred.reshape(-1, 1)
             y_pred = scaler.inverse_transform(y_pred)
+            y_pred = y_pred.flatten()
         return y_pred

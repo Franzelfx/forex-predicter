@@ -104,6 +104,9 @@ class Data_Aquirer():
                     If the start and end date are too far apart, the request will be split in multiple.
                     Please take care of the API limits. The API limits can be found here: https://polygon.io/pricing.
         """
+        # Check, if today is weekend, so the end date is friday
+        if date.today().weekday() is (6 or 7):
+            end = self.get_last_friday().strftime('%Y-%m-%d')
         # Check if we want to get the data from the API or from the csv file
         if from_file:
             # Get the data from the csv file
@@ -121,3 +124,10 @@ class Data_Aquirer():
                 data.to_csv(f'{self._path}/{pair}_{minutes}.csv', index=True)
             # Return the data
         return data
+    
+
+    def get_last_friday(self):
+        now = datetime.now()
+        closest_friday = now + timedelta(days=(4 - now.weekday()))
+        return (closest_friday if closest_friday < now
+            else closest_friday - timedelta(days=7))

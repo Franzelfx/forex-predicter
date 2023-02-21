@@ -4,5 +4,6 @@ tensorboard
 venv
 *.vscode
 *.csv
-!src/testbench/model_test/*.csv
 test/api_key.py
+!test/model_test/*.csv
+!test/system_test/*.csv

@@ -5,7 +5,7 @@ import pandas as pd
 from config_tb import *
 from src.model import Model
 from src.indicators import Indicators
-from matplotlib import pyplot as plt
+from src.visualizer import Visualizer
 from src.data_aquirer import Data_Aquirer
 from src.preprocessor import Preprocessor
 
@@ -29,7 +29,6 @@ class SystemTest(unittest.TestCase):
                     time_steps_out=TEST_TIME_STEPS_OUT,
                     scale=TEST_SCALE,
                 )
-                print(preprocessor.data.head(5))
                 preprocessor.summary()
                 model = Model(
                     MODEL_PATH,
@@ -44,22 +43,16 @@ class SystemTest(unittest.TestCase):
                 # Reduce to time_steps_out
                 prediction = prediction[:TEST_TIME_STEPS_OUT]
                 y_test = preprocessor.y_test[:TEST_TIME_STEPS_OUT]
+                if TEST_SCALE:
+                # Inverse the scaling
+                    scaler = preprocessor.target_scaler
+                    y_test = scaler.inverse_transform(y_test.reshape(-1, 1)).flatten()
                 # Plot the results
-                plt.cla()
-                plt.clf()
-                plt.plot(prediction, label="prediction")
-                plt.plot(y_test, label="actual")
-                plt.legend()
-                plt.title(f"Prediction for {pair}")
-                plt.xlabel("Time")
-                plt.ylabel("Value")
-                # Save the plot
-                plt.savefig(f"{pair}/model_test/{pair}_test.png", dpi=600)
-                # Save raw data as csv
-                df = pd.DataFrame({"prediction": prediction, "actual": y_test})
-                df.to_csv(f"{MODEL_PATH}/model_test/{pair}_test.csv", index=False)
-            except Exception:
-                continue
+                visualizer = Visualizer(pair)
+                path = f"{MODEL_PATH}/system_test"
+                visualizer.plot_prediction(prediction, path, y_test=y_test)
+            except Exception as e:
+                print(e)
 
     def moving_average(self, data, n):
         """Calculate the moving average for the given data."""

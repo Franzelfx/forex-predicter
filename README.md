@@ -53,5 +53,24 @@ can be executed by running the following command:
 ```bash
 python test/system_test_tb.py
 ```
+### Results of the System Test
+The results for some currencies can be found in the folder `system_test`. Some examples, where I might
+use the model for future prediction, based on the results of the system test, are:
+- AUD/CHF
+  ![alt text](test/system_test/AUDCHF_test_plot.png)
+- AUD/USD
+  ![alt text](test/system_test/AUDUSD_test_plot.png)
+- EUR/CHF
+  ![alt text](test/system_test/EURCHF_test_plot.png)
+- EUR/JPY
+  ![alt text](test/system_test/EURJPY_test_plot.png)
+- GBP/CHF
+  ![alt text](test/system_test/GBPCHF_test_plot.png)
+
+### Ideas for the Future
+- [ ] Filter the data concerning some anomalies.
+- [ ] Tune the hyperparameters to gain better results on currencies with bad results.
+- [ ] Implement a multi-branch model for currency cross relations.
+- [ ] Implement some reinforcement learning algorithms for automatic trading (very advanced).
 
 ![GitLab license](https://img.shields.io/badge/license-GPLv3-blue.svg)
