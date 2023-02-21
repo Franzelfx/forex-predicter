@@ -31,7 +31,7 @@ class Test_Model(unittest.TestCase):
             preprocessor.y_train,
         )
         # Run for testing
-        model.compile_and_fit(epochs=TEST_EPOCHS, hidden_neurons=TEST_NEURONS, batch_size=TEST_BATCH_SIZE, learning_rate=TEST_LEARNING_RATE)
+        model.compile_and_fit(epochs=TEST_EPOCHS, hidden_neurons=TEST_NEURONS, batch_size=TEST_BATCH_SIZE, learning_rate=TEST_LEARNING_RATE, branched_model=True)
         # Predict the next values
         x_test = preprocessor.x_test
         prediction = model.predict(x_test, scaler=preprocessor.target_scaler)

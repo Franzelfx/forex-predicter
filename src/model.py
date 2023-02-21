@@ -4,10 +4,10 @@ from logging import warning
 from pandas import DataFrame
 import matplotlib.pyplot as plt
 from keras.optimizers import Adam
-from keras.models import Sequential
+from keras.models import Sequential, Model as KerasModel
 from sklearn.preprocessing import MinMaxScaler
 from keras.callbacks import ModelCheckpoint, EarlyStopping, TensorBoard
-from keras.layers import Dense, LSTM, Dropout, Bidirectional
+from keras.layers import Dense, LSTM, Dropout, Flatten, Conv1D, MaxPooling1D, concatenate
 
 
 class Model:
@@ -41,6 +41,10 @@ class Model:
     ) -> Sequential:
         """Create the model."""
         model = Sequential()
+        model.add(Conv1D(filters=hidden_neurons, kernel_size=3, activation=activation))
+        model.add(MaxPooling1D(pool_size=2))
+        model.add(Conv1D(filters=hidden_neurons, kernel_size=3, activation=activation))
+        model.add(MaxPooling1D(pool_size=2))
         model.add(
             LSTM(
                 hidden_neurons,
@@ -48,7 +52,6 @@ class Model:
                 input_shape=(self._x_train.shape[1], self._x_train.shape[2]),
             )
         )
-        model.add(LSTM(int(hidden_neurons), return_sequences=True))
         model.add(LSTM(int(hidden_neurons), return_sequences=True))
         model.add(LSTM(int(hidden_neurons), return_sequences=False))
         model.add(Dropout(dropout))
@@ -65,6 +68,59 @@ class Model:
                 self._x_train.shape[2],
             )
         )
+        return model
+    
+    def _create_branched_model(
+        self, hidden_neurons: int, dropout: int, activation: str
+    ) -> Sequential:
+        # LSTM Branch
+        lstm = Sequential()
+        lstm.add(
+            LSTM(
+                hidden_neurons,
+                return_sequences=True,
+                input_shape=(self._x_train.shape[1], self._x_train.shape[2]),
+            )
+        )
+        lstm.add(LSTM(int(hidden_neurons), return_sequences=True))
+        lstm.add(LSTM(int(hidden_neurons), return_sequences=False))
+        lstm.add(Dense(int(hidden_neurons), activation=activation))
+
+        # Conv1D Branch
+        conv1d = Sequential()
+        conv1d.add(
+            Conv1D(
+                filters=hidden_neurons,
+                kernel_size=3,
+                activation=activation,
+                input_shape=(self._x_train.shape[1], self._x_train.shape[2]),
+            )
+        )
+        conv1d.add(MaxPooling1D(pool_size=2))
+        conv1d.add(Dropout(dropout))
+        conv1d.add(
+            Conv1D(filters=hidden_neurons, kernel_size=3, activation=activation)
+        )
+        conv1d.add(MaxPooling1D(pool_size=2))
+        conv1d.add(Dropout(dropout))
+        conv1d.add(
+            Conv1D(filters=hidden_neurons, kernel_size=3, activation=activation)
+        )
+        conv1d.add(MaxPooling1D(pool_size=2))
+        conv1d.add(Dropout(dropout))
+        conv1d.add(Flatten())
+        conv1d.add(Dense(int(hidden_neurons), activation=activation))
+
+        # Concatenate Branches
+        concat = concatenate([lstm.output, conv1d.output])
+
+        # Add Dense Layers
+        dense = Dense(int(hidden_neurons), activation=activation)(concat)
+        dense = Dense(int(hidden_neurons), activation=activation)(dense)
+        output = Dense(self._y_train.shape[1])(dense)
+
+        # Model definition
+        model = KerasModel(inputs=[lstm.input, conv1d.input], outputs=output)
         return model
 
     def _plot_fit_history(self, fit):
@@ -108,6 +164,7 @@ class Model:
         loss="mean_absolute_error",
         validation_spilt=0.2,
         patience=20,
+        branched_model=False,
     ) -> DataFrame:
         """Compile and fit the model.
 
@@ -125,7 +182,10 @@ class Model:
                  The validation loss is saved in the fit_history folder.
                  The tensorboard logs are saved in the tensorboard folder.
         """
-        model = self._create_model(hidden_neurons, dropout, activation)
+        if branched_model:
+            model = self._create_branched_model(hidden_neurons, dropout, activation)
+        else:
+            model = self._create_model(hidden_neurons, dropout, activation)
         optimizer = Adam(learning_rate=learning_rate)
         model.compile(loss=loss, optimizer=optimizer, metrics=["mape"])
         model.summary()
