@@ -67,10 +67,24 @@ use the model for future prediction, based on the results of the system test, ar
 - GBP/CHF
   ![alt text](test/system_test/GBPCHF_test_plot.png)
 
+
+## Roadmap
+### Done
+- [x] Implement data_aquirer.py
+- [x] Implement indicator.py
+- [x] Implement preprocessor.py
+- [x] Implement model.py  
+- [x] Implement visualizer.py
+
+### To Do
+- [ ] Tune the hyperparameters
+- [ ] Test branched_model.py
+- [ ] Implement composer.py
+- [ ] Implement utilizer.py
+- [ ] Implement interpreter.py
+
 ### Ideas for the Future
 - [ ] Filter the data concerning some anomalies.
-- [ ] Tune the hyperparameters to gain better results on currencies with bad results.
-- [ ] Implement a multi-branch model for currency cross relations.
 - [ ] Implement some reinforcement learning algorithms for automatic trading (very advanced).
 
 ![GitLab license](https://img.shields.io/badge/license-GPLv3-blue.svg)

@@ -1,6 +1,7 @@
 """Config file for testbench."""
 import sys
 import os.path
+from api_key import API_KEY
 from datetime import datetime as date
 
 
@@ -12,8 +13,8 @@ sys.path.append(
 PATH_PAIRS = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.curdir, "pairs"))
 PAIR = "EURUSD"
 MINUTES = 1
-API_KEY = "kvtkOoyqcuTgNrBqRGIhhLe766CLYbpo"
 API_TYPE = "advanced"
+API_KEY = API_KEY
 
 # Indicators
 PATH_INDICATORS = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.curdir, f"indicators"))
