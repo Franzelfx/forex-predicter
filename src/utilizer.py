@@ -8,7 +8,8 @@ from sklearn.preprocessing import MinMaxScaler
 class Utilizer():
     """The utilizer class, to use the trained model to predict."""
 
-    def __init__(self, model: Model | str, data: np.ndarray | str) -> None:
+    #TODO: EDIT README and add Model | str to the model parameter (python 3.10)
+    def __init__(self, model, data) -> None:
         """Initialize the utilizer.
         
         @param model The model to use for prediction or the path to the model.
@@ -32,7 +33,7 @@ class Utilizer():
         ret[n:] = ret[n:] - ret[:-n]
         return ret[n - 1:] / n
     
-    def diff(self, pred: np.ndarray, actual: np.ndarray | int) -> np.ndarray:
+    def diff(self, pred: np.ndarray, actual) -> np.ndarray:
         """Calculate the difference betwen the first actual value and the first predicted value.
         
         @param pred The predicted values.
