@@ -33,18 +33,16 @@ class Utilizer():
         ret[n:] = ret[n:] - ret[:-n]
         return ret[n - 1:] / n
     
-    def diff(self, pred: np.ndarray, actual) -> np.ndarray:
+    def diff(self, pred: np.ndarray, actual: int) -> np.ndarray:
         """Calculate the difference betwen the first actual value and the first predicted value.
         
         @param pred The predicted values.
         @param actual The actual values.
         @return The difference.
         """
-        if isinstance(actual, int):
-            return -(actual - pred[0])
-        return -(actual[0] - pred[0])
+        return -(actual - pred[0])
 
-    def predict(self, time_steps: int, scaler: MinMaxScaler, ma_period=50, last_known: np.ndarray=None) -> np.ndarray:
+    def predict(self, time_steps: int, scaler: MinMaxScaler, last_known: int=None, ma_period=50) -> np.ndarray:
         """Predict the next values.
         
         @param time_steps The number of time steps to predict.
