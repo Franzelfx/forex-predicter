@@ -118,9 +118,9 @@ class Data_Aquirer():
             # Get the data from the API
             data = self._request(pair, minutes, start, end)
             # Save the data to a csv file
+            # Drop the 'n' column
+            data.drop(columns=['n'], inplace=True)
             if save is True:
-                # Drop the 'n' column
-                data.drop(columns=['n'], inplace=True)
                 data.to_csv(f'{self._path}/{pair}_{minutes}.csv', index=True)
             # Return the data
         return data
