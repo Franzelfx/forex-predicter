@@ -230,6 +230,14 @@ class Preprocessor:
                     shifted by the time steps in.
         """
         return self._y_test 
+    
+    @property
+    def last_known_value(self) -> int:
+        """Get the last known value for each feature.
+
+        @return: The last known value of y_test as int.
+        """
+        return self._y_test[-1, -1]
 
     @property
     def target(self) -> str:

@@ -21,7 +21,6 @@ def diff(pred: pd.DataFrame, actual: pd.DataFrame):
     """Calculate the difference betwen the first actual value and the first predicted value."""
     return -(actual[0] - pred[0])
 
-
 def csv_plot(pair: str):
     plt.cla()
     plt.clf()

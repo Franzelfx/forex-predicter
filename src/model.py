@@ -1,11 +1,11 @@
 """This module contains the model class for the LSTM model."""
 import numpy as np
-from logging import warning
 from pandas import DataFrame
 import matplotlib.pyplot as plt
 from keras.optimizers import Adam
-from keras.models import Sequential, Model as KerasModel
+from keras.models import load_model
 from sklearn.preprocessing import MinMaxScaler
+from keras.models import Sequential, Model as KerasModel
 from keras.callbacks import ModelCheckpoint, EarlyStopping, TensorBoard
 from keras.layers import Dense, LSTM, Dropout, Flatten, Conv1D, MaxPooling1D, concatenate
 
@@ -26,15 +26,17 @@ class Model:
         @param name: The name of the model (e.g. EURUSD in case of finacial analysis).
         @param x_train: The input data for the model.
         @param y_train: The output data for the model.
-        @param dropout: The dropout rate in the layer with the most neurons.
-        @param branched_model: If the model should be a multi input branched one or not.
-        @param loss: The loss function for the training process.
         """
         self._path = path
         self._name = name
         self._x_train = x_train
         self._y_train = y_train
         self._model = None
+
+    @property
+    def steps_ahead(self) -> int:
+        """Return the number of steps ahead that the model is capable of predicting."""
+        return self._y_train.shape[1]
 
     def _create_model(
         self, hidden_neurons: int, dropout: int, activation: str
@@ -153,6 +155,17 @@ class Model:
         # Save the plot
         plt.savefig(f"{self._path}/fit_history/{self._name}.png")
 
+    def _compile(self, hidden_neurons, dropout, activation, learning_rate, loss, branched_model):
+        """Compile the model."""
+        if branched_model:
+            model = self._create_branched_model(hidden_neurons, dropout, activation)
+        else:
+            model = self._create_model(hidden_neurons, dropout, activation)
+        optimizer = Adam(learning_rate=learning_rate)
+        model.compile(loss=loss, optimizer=optimizer, metrics=["mape"])
+        model.summary()
+        return model
+
     def compile_and_fit(
         self,
         hidden_neurons=256,
@@ -169,11 +182,14 @@ class Model:
         """Compile and fit the model.
 
         @param hidden_neurons: The number of neurons in the hidden layers.
+        @param dropout: The dropout rate between non recurrent layers.
+        @param activation: The activation function for all internal nodes.
         @param epochs: The number of epochs to train the model.
         @param learning_rate: The learning rate for the optimizer.
         @param batch_size: The batch size for the training process.
         @param validation_spilt: The validation split for the training process.
         @param patience: The patience for the early stopping callback.
+        @param branched_model: If True, the model will be a branched model.
 
         @return: The fit history.
 
@@ -182,13 +198,8 @@ class Model:
                  The validation loss is saved in the fit_history folder.
                  The tensorboard logs are saved in the tensorboard folder.
         """
-        if branched_model:
-            model = self._create_branched_model(hidden_neurons, dropout, activation)
-        else:
-            model = self._create_model(hidden_neurons, dropout, activation)
-        optimizer = Adam(learning_rate=learning_rate)
-        model.compile(loss=loss, optimizer=optimizer, metrics=["mape"])
-        model.summary()
+        # Create the model
+        model = self._compile(hidden_neurons, dropout, activation, learning_rate, loss, branched_model)
         # Configure callbacks (early stopping, checkpoint, tensorboard)
         model_checkpoint = ModelCheckpoint(
             filepath=f"{self._path}/checkpoints/{self._name}_weights.h5",
@@ -237,8 +248,7 @@ class Model:
                  The predicted values are scaled back to the original scale.
         """
         if from_saved_model:
-            model = self._create_model()
-            model.load_weights(f"{self._path}/checkpoints/{self._name}_weights.h5")
+            model = load_model(f"{self._path}/checkpoints/{self._name}_weights.h5")
         else:
             # Check if the model has been fitted
             if self._model is None:
