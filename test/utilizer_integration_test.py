@@ -17,7 +17,7 @@ class UtilizerIntegrationTest(unittest.TestCase):
         for pair in REQUEST_PAIRS:
             try:
                 # Get data from the API
-                aquirer = Data_Aquirer(PATH_PAIRS, API_KEY, api_type='full')
+                aquirer = Data_Aquirer(PATH_PAIRS, API_KEY, api_type='full', from_file=True)
                 data = aquirer.get(pair, MINUTES, save=True)
                 # Apply indicators
                 indicators = Indicators(data, TEST_INDICATORS)

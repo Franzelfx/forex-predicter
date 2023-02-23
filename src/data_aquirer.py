@@ -87,6 +87,7 @@ class Data_Aquirer():
         print(f"Got {len(data_return)} data points with {data_return.memory_usage().sum() / 1024**2:.2f} MB memory usage.")
         return data_return
 
+    #TODO: Only request data from last known date till today
     def get(self, pair: str, minutes: int=1, start: str='2009-01-01', end: str=date.today().strftime('%Y-%m-%d'), save: bool=False, from_file: bool=False):
         """Get the data from the API or from the csv file.
         
@@ -113,7 +114,10 @@ class Data_Aquirer():
             data = pd.read_csv(f'{self._path}/{pair}_{minutes}.csv')
             # Set the time column as index
             data.set_index('t', inplace=True)
-            # Return the data
+            # Get recent date ('t' column)
+            recent_date = data.index[-1]
+            # Request from the last date till today
+            data = pd.concat([data, self._request(pair, minutes, recent_date, end)])
         else:
             # Get the data from the API
             data = self._request(pair, minutes, start, end)

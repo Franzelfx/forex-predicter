@@ -15,7 +15,7 @@ class SystemTest(unittest.TestCase):
         """Test the system."""
         for pair in REQUEST_PAIRS:
             try:
-                aquirer = Data_Aquirer(PATH_PAIRS, API_KEY, api_type='full')
+                aquirer = Data_Aquirer(PATH_PAIRS, API_KEY, api_type='full', from_file=True)
                 data = aquirer.get(pair, MINUTES, save=True)
                 # Apply indicators
                 indicators = Indicators(data, TEST_INDICATORS)
