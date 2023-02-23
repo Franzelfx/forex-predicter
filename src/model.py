@@ -234,7 +234,7 @@ class Model:
 
     def predict(
         self,
-        x_test: np.ndarray,
+        x_input: np.ndarray,
         steps=1,
         scaler: MinMaxScaler = None,
         from_saved_model=False,
@@ -257,9 +257,11 @@ class Model:
                 )
             model = self._model
         # Predict the output
-        y_pred = model.predict(x_test, steps).flatten()
+        y_pred = model.predict(x_input, steps).flatten()
         if scaler is not None:
             y_pred = y_pred.reshape(-1, 1)
             y_pred = scaler.inverse_transform(y_pred)
             y_pred = y_pred.flatten()
+            print("Scaled back to original scale.")
+            print(y_pred)
         return y_pred

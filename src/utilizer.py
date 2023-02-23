@@ -1,7 +1,6 @@
 """The utilizer module, to use the trained model to predict."""
 import numpy as np
-from src.model import Model
-from src.preprocessor import Preprocessor
+from src.model import Model as ModelPreTrained
 from sklearn.preprocessing import MinMaxScaler
 
 
@@ -15,11 +14,11 @@ class Utilizer():
         @param model The model to use for prediction or the path to the model.
         @param data The data to use for prediction or the path to the data.
         """
-        self._model = model
+        self._model: ModelPreTrained = model
         self._data = data
         # Check if model is a path
         if isinstance(model, str):
-            self._model = Model.load(model)
+            self._model = ModelPreTrained.load(model)
 
     def moving_average(self, data: np.ndarray, n: int) -> np.ndarray:
         """Calculate the moving average for the given data.
