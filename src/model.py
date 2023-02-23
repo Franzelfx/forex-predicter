@@ -1,4 +1,5 @@
 """This module contains the model class for the LSTM model."""
+import os
 import numpy as np
 from pandas import DataFrame
 import matplotlib.pyplot as plt
@@ -9,6 +10,7 @@ from keras.models import Sequential, Model as KerasModel
 from keras.callbacks import ModelCheckpoint, EarlyStopping, TensorBoard
 from keras.layers import Dense, LSTM, Dropout, Flatten, Conv1D, MaxPooling1D, concatenate
 
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 
 class Model:
     """Used to create, compile, fit and predict with the LSTM model."""
