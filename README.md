@@ -74,19 +74,23 @@ python test/system_test.py
 
 ### Run Utilizer Test
 
-Finally, there is some utilizer test, to use the model to predict the next n steps. 🥳
+Finally, there is a utilizer test, to use the model to predict the next n steps. 🥳
 After running the system test, you can run the utilizer test by executing the following command:
 
 ```bash
 python test/utilizer_test.py
 ```
 
-I suggest, using the model only for prediction, where the results of the system test are promising.
+I suggest, using the prediction model only in those cases, where the system test shows a promising result.
 
 ### Results of the System Test
 
-The results for some currencies can be found in the folder `system_test`. Some examples, where I might
-use the model for future prediction, based on the results of the system test, are:
+The results for some currencies can be found in the folder `system_test`. Some examples are listed below. Keep in mind, that those test results may change
+for every train iteration and are not guaranteed to be the same for every run.
+To gain some good results for future prediction, choose those models which
+show a good performance on the test data. It may be a good approach to save
+those models, which show a good performance on the test data and always use
+them for future predictions in the utilizer test for a certain amount of time.
 
 - AUD/CHF
   ![alt text](test/system_test/AUDCHF_test_plot.png)
