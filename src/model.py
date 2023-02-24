@@ -264,6 +264,4 @@ class Model:
             y_pred = y_pred.reshape(-1, 1)
             y_pred = scaler.inverse_transform(y_pred)
             y_pred = y_pred.flatten()
-            print("Scaled back to original scale.")
-            print(y_pred)
         return y_pred

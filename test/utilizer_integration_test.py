@@ -31,6 +31,7 @@ class UtilizerIntegrationTest(unittest.TestCase):
                     time_steps_in=TEST_TIME_STEPS_IN,
                     time_steps_out=TEST_TIME_STEPS_OUT,
                     scale=TEST_SCALE,
+                    prediction_mode=True,
                 )
                 preprocessor.summary()
                 # Load the model

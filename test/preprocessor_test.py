@@ -53,7 +53,7 @@ class Test_Preprocessor(unittest.TestCase):
         self.assertFalse(x_train.isnull().values.any())
         self.assertFalse(y_train.isnull().values.any())
 
-    def test_train_test_set(self):
+    def test__train_test_set(self):
         """Plot the train and test set."""
         train_c = self.preprocessor.feature_train('c')
         test_c = self.preprocessor.feature_test('c')
@@ -132,7 +132,6 @@ class Test_Preprocessor(unittest.TestCase):
         axs[0].legend()
         axs[1].legend()
         plt.savefig(f"{PREPROCESSOR_PATH}/x_y_train.png")
-
 
     
 if __name__ == "__main__":

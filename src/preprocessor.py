@@ -26,6 +26,7 @@ class Preprocessor:
         test_split=None,
         scale=True,
         feature_range=(-1, 1),
+        prediction_mode=False,
     ):
         """Set the fundamental attributes.
 
@@ -36,6 +37,17 @@ class Preprocessor:
         @param test_length: The length of the test data (will be ignored if test_split is not None).
         @param test_split: The percentage of the data to be used for testing (0.0 to 0.5).
         @param scale: If the data should be scaled or not.
+        @param feature_range: The range of the scaled data.
+        @param prediction_mode: If the preprocessor is used for prediction or not.
+                                In prediction mode, no y samples are generated
+                                and there are basically only samples of x.
+                                To use it for prediction, take x_test
+                                as input for the model.
+
+        @remarks The preprocessor has the following tasks:
+                    1. Scale the data.
+                    2. Split into train and test set.
+                    3. Create samples for x and y.
         """
         # Data and target
         self._data = data
@@ -49,6 +61,8 @@ class Preprocessor:
         # The scaling and feature range
         self._scale = scale
         self._feature_range = feature_range
+        # The prediction mode
+        self._prediction_mode = prediction_mode
         # The train and test data
         self._train_data = None  # Input is a pandas dataframe, output is a numpy array
         self._test_data = None  # Input is a pandas dataframe, output is a numpy array
@@ -100,17 +114,15 @@ class Preprocessor:
                 raise ValueError(
                     f"The first element of the feature range must be smaller than the second. [{feature_range[0]} >= {feature_range[1]}]"
                 )
-
-        # Preprocess the data concerning nan values, split and scaling
-        data = self._drop_nan(data)
-        # Data is now without time and index column
-        self._data = data
-        self._train_data, self._test_data = self._split_train_test(
-            data, self._test_split, self._test_length
-        )
+        # Drop nan, if necessary
+        self._data = self._drop_nan(data)
         # Scale the data
         if self._scale:
-            data = self._scale_data(self.train_data, self._test_data)
+            self._data = self._scale_data(self._data)
+        # Split the data into train and test set
+        self._train_data, self._test_data = self._split_train_test(
+            self._data, self._test_split, self._test_length
+        )
         # Split the train data into sequences
         self._x_train, self._y_train = self._create_samples(
             self._train_data,
@@ -229,7 +241,7 @@ class Preprocessor:
         @remarks The y test data is the target feature 
                     shifted by the time steps in.
         """
-        return self._y_test 
+        return self._y_test
 
     @property
     def last_known_value(self) -> int:
@@ -355,27 +367,29 @@ class Preprocessor:
         test_data = data[train_size:]
         return train_data, test_data
 
-    def _scale_data(self, train_data: pd.DataFrame, test_data: pd.DataFrame) -> pd.DataFrame:
+    def _scale_data(self, data: pd.DataFrame) -> pd.DataFrame:
         """Scale the data."""
         # Scale the data
         scaler = {}
         # Fit on train data and transform train and test data
-        for column in train_data.columns:
+        for column in data.columns:
             # Cop y the values to reshape them
-            values = train_data[column].values
+            values = data[column].values
             scaler[column] = MinMaxScaler(copy=False, feature_range=self._feature_range)
-            train_data[column] = scaler[column].fit_transform(values.reshape(-1, 1))
-        # Scale the test data
-        for column in test_data.columns:
-            test_data[column] = scaler[column].transform(test_data[column].values.reshape(-1, 1))
+            values = values.reshape(-1, 1)
+            scaler[column].fit(values)
+            values = scaler[column].transform(values)
+            data[column] = values
+        # Save the scaler
         self._scaler = scaler
-        return train_data
+        return data
 
     def _create_samples(
         self,
         input_sequence: pd.DataFrame,
         steps_in: int,
         steps_out: int,
+
     ) -> tuple[np.ndarray, np.ndarray]:
         """Create samples of x and y.
 
@@ -395,9 +409,12 @@ class Preprocessor:
         # x is simply a sliding window of length steps_in
         # y is a sliding window of length steps_out
         # with an offset of steps_in
+        if self._prediction_mode:
+            steps_out = 0
         while iterator + steps_in + steps_out <= len(input_sequence):
             x.append(input_sequence[iterator:iterator + steps_in].values)
-            y.append(input_sequence[iterator + steps_in:iterator + steps_in + steps_out][self._target].values)
+            if not self._prediction_mode:
+                y.append(input_sequence[iterator + steps_in:iterator + steps_in + steps_out][self._target].values)
             iterator += steps_in
         # TODO: Bug (first value of y_train starts at 2*steps_in)
         # Dirty fix: Remove first step_in values of x
