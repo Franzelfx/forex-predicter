@@ -48,8 +48,8 @@ class UtilizerIntegrationTest(unittest.TestCase):
                 utilizer_test = Utilizer(model, preprocessor.x_test)
                 utilizer_hat = Utilizer(model, preprocessor.x_predict)
                 # TODO: Check, why the scaling is not working
-                prediction_test = utilizer_test.predict(TEST_TIME_STEPS_OUT, scaler=preprocessor.target_scaler, ma_period=50, last_known=last_known_y)
-                prediction_hat = utilizer_hat.predict(TEST_TIME_STEPS_OUT, scaler=preprocessor.target_scaler, ma_period=50, last_known=last_known_x)
+                prediction_test = utilizer_test.predict(TEST_TIME_STEPS_OUT, scaler=preprocessor.target_scaler, ma_period=50, last_known=last_known_x)
+                prediction_hat = utilizer_hat.predict(TEST_TIME_STEPS_OUT, scaler=preprocessor.target_scaler, ma_period=50, last_known=last_known_y)
                 # Scale the prediction
                 if TEST_SCALE:
                     scaler = preprocessor.target_scaler
@@ -59,6 +59,7 @@ class UtilizerIntegrationTest(unittest.TestCase):
                 path = f"{MODEL_PATH}/utilizer_test"
                 visualizer.plot_prediction(prediction_test, path, extra_info=f"test")
                 visualizer.plot_prediction(prediction_hat, path, extra_info=f"hat")
+                self.assertNotEqual(prediction_test, prediction_hat)
             except Exception:
                 traceback.print_exc()
 

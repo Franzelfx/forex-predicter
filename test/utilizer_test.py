@@ -20,7 +20,6 @@ class UtilizerTest(unittest.TestCase):
             time_steps_in=TEST_TIME_STEPS_IN,
             time_steps_out=TEST_TIME_STEPS_OUT,
             scale=TEST_SCALE,
-            prediction_mode=True,
         )
         preprocessor.summary()
         # Load the model
@@ -31,13 +30,19 @@ class UtilizerTest(unittest.TestCase):
             preprocessor.y_train,
         )
         # Last known value
-        last_known = preprocessor.last_known_x
+        last_known_x = preprocessor.last_known_x
+        last_known_y = preprocessor.last_known_y
         # Directly predict from saved model
-        utilizer = Utilizer(model, preprocessor.x_test)
-        prediction = utilizer.predict(TEST_TIME_STEPS_OUT, preprocessor.target_scaler, ma_period=50, last_known=last_known)
+        utilizer_test = Utilizer(model, preprocessor.x_test)
+        utilizer_hat = Utilizer(model, preprocessor.x_predict)
+        prediction_test = utilizer_test.predict(TEST_TIME_STEPS_OUT, scaler=preprocessor.target_scaler, ma_period=50, last_known=last_known_x)
+        prediction_hat = utilizer_hat.predict(TEST_TIME_STEPS_OUT, scaler=preprocessor.target_scaler, ma_period=50, last_known=last_known_y)
         visualizer = Visualizer(PAIR)
         path = f"{MODEL_PATH}/utilizer_test"
-        visualizer.plot_prediction(prediction, path)
+        visualizer.plot_prediction(prediction_test, path, extra_info=f"test")
+        visualizer.plot_prediction(prediction_hat, path, extra_info=f"hat")
+        # Check, if prediction_test and prediction_hat are not the same
+        self.assertNotEqual(prediction_test, prediction_hat)
 
 if __name__ == "__main__":
     unittest.main()
