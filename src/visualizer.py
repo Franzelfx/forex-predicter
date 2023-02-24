@@ -14,10 +14,10 @@ class Visualizer:
         self.dark_mode = dark_mode
 
     # TODO: Add time information to x-axis
-    def plot_prediction(self, prediction, path, y_test=None, save_csv=True):
+    def plot_prediction(self, prediction, path, y_test=None, save_csv=True, extra_info=None):
         """Plot the prediction."""
         date = dt.now().strftime("%Y-%m-%d_%H-%M-%S")
-        path = f"{path}/{self.pair}_prediction"
+        path = f"{path}/{self.pair}_prediction_{extra_info}"
         plt.cla()
         plt.clf()
         if self.dark_mode:

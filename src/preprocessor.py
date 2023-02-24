@@ -248,9 +248,17 @@ class Preprocessor:
         # Add samples dimension
         x_predict = np.expand_dims(x_predict, axis=0)
         return x_predict
+    
+    @property
+    def last_known_x(self) -> np.ndarray:
+        """Get the last known value for each feature.
+
+        @return: The last known value of x_test as numpy array.
+        """
+        return self._x_test[-1, -1, self.loc_of(self._target)]
 
     @property
-    def last_known_value(self) -> int:
+    def last_known_y(self) -> int:
         """Get the last known value for each feature.
 
         @return: The last known value of y_test as int.
