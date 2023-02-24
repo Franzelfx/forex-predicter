@@ -17,9 +17,9 @@ class UtilizerIntegrationTest(unittest.TestCase):
         for pair in REQUEST_PAIRS:
             try:
                 # Get data from the API
-                aquirer = Data_Aquirer(PATH_PAIRS, API_KEY, api_type='full', from_file=True)
+                aquirer = Data_Aquirer(PATH_PAIRS, API_KEY, api_type='full')
                 #TODO: Fix the from_file=True
-                data = aquirer.get(pair, MINUTES, save=True)
+                data = aquirer.get(pair, MINUTES, save=True, from_file=True)
                 # Apply indicators
                 indicators = Indicators(data, TEST_INDICATORS)
                 data = indicators.calculate(save=True, path=f"{PATH_INDICATORS}/{pair}_{MINUTES}.csv")
