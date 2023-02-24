@@ -32,7 +32,6 @@ class UtilizerIntegrationTest(unittest.TestCase):
                     time_steps_in=TEST_TIME_STEPS_IN,
                     time_steps_out=TEST_TIME_STEPS_OUT,
                     scale=TEST_SCALE,
-                    prediction_mode=True,
                 )
                 preprocessor.summary()
                 # Load the model
@@ -45,7 +44,7 @@ class UtilizerIntegrationTest(unittest.TestCase):
                 # Last known value
                 last_known = preprocessor.last_known_value
                 # Directly predict from saved model
-                utilizer = Utilizer(model, preprocessor.x_test)
+                utilizer = Utilizer(model, preprocessor.x_predict)
                 # TODO: Check, why the scaling is not working
                 prediction = utilizer.predict(TEST_TIME_STEPS_OUT, scaler=preprocessor.target_scaler, ma_period=50, last_known=last_known)
                 # Scale the prediction

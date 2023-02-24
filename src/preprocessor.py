@@ -26,7 +26,6 @@ class Preprocessor:
         test_split=None,
         scale=True,
         feature_range=(-1, 1),
-        prediction_mode=False,
     ):
         """Set the fundamental attributes.
 
@@ -242,6 +241,14 @@ class Preprocessor:
                     shifted by the time steps in.
         """
         return self._y_test
+    
+    @property
+    def x_predict(self) -> np.ndarray:
+        """Get x_predict (last n_steps_in of data)"""
+        x_predict = self._data[-self._time_steps_in:].values
+        # Add samples dimension
+        x_predict = np.expand_dims(x_predict, axis=0)
+        return x_predict
 
     @property
     def last_known_value(self) -> int:
@@ -412,12 +419,9 @@ class Preprocessor:
         # x is simply a sliding window of length steps_in
         # y is a sliding window of length steps_out
         # with an offset of steps_in
-        if self._prediction_mode:
-            steps_out = 0
         while iterator + steps_in + steps_out <= len(input_sequence):
             x.append(input_sequence[iterator:iterator + steps_in].values)
-            if not self._prediction_mode:
-                y.append(input_sequence[iterator + steps_in:iterator + steps_in + steps_out][self._target].values)
+            y.append(input_sequence[iterator + steps_in:iterator + steps_in + steps_out][self._target].values)
             iterator += steps_in
         # TODO: Bug (first value of y_train starts at 2*steps_in)
         # Dirty fix: Remove first step_in values of x
