@@ -60,8 +60,6 @@ class Preprocessor:
         # The scaling and feature range
         self._scale = scale
         self._feature_range = feature_range
-        # The prediction mode
-        self._prediction_mode = prediction_mode
         # The train and test data
         self._train_data = None  # Input is a pandas dataframe, output is a numpy array
         self._test_data = None  # Input is a pandas dataframe, output is a numpy array
