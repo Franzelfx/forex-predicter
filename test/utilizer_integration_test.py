@@ -23,6 +23,7 @@ class UtilizerIntegrationTest(unittest.TestCase):
                 # Apply indicators
                 indicators = Indicators(data, TEST_INDICATORS)
                 data = indicators.calculate(save=True, path=f"{PATH_INDICATORS}/{pair}_{MINUTES}.csv")
+                indicators.summary()
                 # Preprocess data
                 preprocessor = Preprocessor(
                     data,
@@ -42,7 +43,7 @@ class UtilizerIntegrationTest(unittest.TestCase):
                 # Last known value
                 last_known = preprocessor.last_known_value
                 # Directly predict from saved model
-                utilizer = Utilizer(model, preprocessor.x_test)
+                utilizer = Utilizer(model, preprocessor.x_predict)
                 # TODO: Check, why the scaling is not working
                 prediction = utilizer.predict(TEST_TIME_STEPS_OUT, scaler=preprocessor.target_scaler, ma_period=50, last_known=last_known)
                 # Scale the prediction

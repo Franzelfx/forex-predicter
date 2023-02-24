@@ -232,6 +232,15 @@ class Preprocessor:
         return self._y_test 
     
     @property
+    def x_predict(self) -> np.ndarray:
+        """Get the x predict data for every feature.
+        
+
+        @return: X predict as numpy array in shape of (samples, timesteps, features).
+        """
+        return self._test_data[-self._time_steps_in:, :].values.reshape(1, self._time_steps_in, self._features)
+
+    @property
     def last_known_value(self) -> int:
         """Get the last known value for each feature.
 
