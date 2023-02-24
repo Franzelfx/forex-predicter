@@ -35,7 +35,8 @@ class Visualizer:
         plt.title(f"{self.pair} {date}")
         # Save the plot
         plt.savefig(f"{path}.png", dpi=600)
+        print(f"Saved plot to {path}.png")
         # Save raw data as csv
         if save_csv:
             df = pd.DataFrame({"prediction": prediction, "actual": y_test})
-            df.to_csv(f"{path}.csv", index=False)
+            df.to_csv(f"{path}.csv", index=False, )

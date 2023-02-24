@@ -150,6 +150,7 @@ class Preprocessor:
             ['Y Train', self._y_train.shape, len(self._y_train), '(Samples, Timesteps)'],
             ['X Test', self._x_test.shape, len(self._x_test), '(Samples, Timesteps, Features)'],
             ['Y Test', self._y_test.shape, len(self._y_test), '(Samples, Timesteps)'],
+            ['X Predict', self.x_predict.shape, len(self.x_predict), '(Samples, Timesteps, Features)']
         ]
         return tabulate(data, headers=header, tablefmt='rst')
 
