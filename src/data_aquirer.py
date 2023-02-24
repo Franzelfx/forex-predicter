@@ -123,6 +123,9 @@ class Data_Aquirer():
             resent_date = data['t'].iloc[-1]
             # Remove time
             recent_date = resent_date.split(' ')[0]
+            # If recent date is today, subsstract one day
+            if recent_date == date.today().strftime('%Y-%m-%d'):
+                recent_date = (date.today() - timedelta(days=1)).strftime('%Y-%m-%d')
             # Get the data from the API
             request = self._request(pair, minutes, recent_date, end)
             # Concatenate the data
