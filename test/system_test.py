@@ -16,7 +16,7 @@ class SystemTest(unittest.TestCase):
         for pair in REQUEST_PAIRS:
             try:
                 aquirer = Data_Aquirer(PATH_PAIRS, API_KEY, api_type='full')
-                data = aquirer.get(pair, MINUTES, start=START, save=True, from_file=True, from_file=True)
+                data = aquirer.get(pair, MINUTES, start=START, save=True, from_file=True)
                 # Apply indicators
                 indicators = Indicators(data, TEST_INDICATORS)
                 data = indicators.calculate(save=True, path=f"{PATH_INDICATORS}/{pair}_{MINUTES}.csv")
