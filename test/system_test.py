@@ -1,5 +1,6 @@
 """System test for all modules."""
 import unittest
+import traceback
 import numpy as np
 from config_tb import *
 from src.model import Model
@@ -51,8 +52,8 @@ class SystemTest(unittest.TestCase):
                 visualizer = Visualizer(pair)
                 path = f"{MODEL_PATH}/system_test"
                 visualizer.plot_prediction(prediction, path, y_test=y_test)
-            except Exception as e:
-                print(e)
+            except Exception:
+                traceback.print_exc()
 
     def moving_average(self, data, n):
         """Calculate the moving average for the given data."""
