@@ -26,6 +26,7 @@ class Preprocessor:
         test_split=None,
         scale=True,
         feature_range=(-1, 1),
+        shift=None
     ):
         """Set the fundamental attributes.
 
@@ -37,6 +38,7 @@ class Preprocessor:
         @param test_split: The percentage of the data to be used for testing (0.0 to 0.5).
         @param scale: If the data should be scaled or not.
         @param feature_range: The range of the scaled data.
+        @param overlap: The amount of overlap for x and y samples.
         @param prediction_mode: If the preprocessor is used for prediction or not.
                                 In prediction mode, no y samples are generated
                                 and there are basically only samples of x.
@@ -60,6 +62,7 @@ class Preprocessor:
         # The scaling and feature range
         self._scale = scale
         self._feature_range = feature_range
+        self._shift = shift
         # The train and test data
         self._train_data = None  # Input is a pandas dataframe, output is a numpy array
         self._test_data = None  # Input is a pandas dataframe, output is a numpy array
@@ -426,7 +429,10 @@ class Preprocessor:
         while iterator + steps_in + steps_out <= len(input_sequence):
             x.append(input_sequence[iterator:iterator + steps_in].values)
             y.append(input_sequence[iterator + steps_in:iterator + steps_in + steps_out][self._target].values)
-            iterator += steps_in
+            if self._shift == None:
+                iterator += steps_in
+            else:
+                iterator = self._shift
         # TODO: Bug (first value of y_train starts at 2*steps_in)
         # Dirty fix: Remove first step_in values of x
         return np.array(x), np.array(y)

@@ -222,7 +222,7 @@ class Model:
             batch_size=batch_size,
             validation_split=validation_spilt,
             callbacks=[tensorboard, model_checkpoint, early_stopping],
-            shuffle=True,
+            shuffle=False,
         )
         # Load the best weights
         model.load_weights(f"{self._path}/checkpoints/{self._name}_weights.h5")

@@ -20,7 +20,7 @@ class UtilizerIntegrationTest(unittest.TestCase):
                 # Get data from the API
                 aquirer = Data_Aquirer(PATH_PAIRS, API_KEY, api_type='full')
                 #TODO: Fix the from_file=True
-                data = aquirer.get(pair, MINUTES, save=True, from_file=True)
+                data = aquirer.get(pair, MINUTES, start=START, save=True, from_file=True)
                 # Apply indicators
                 indicators = Indicators(data, TEST_INDICATORS)
                 data = indicators.calculate(save=True, path=f"{PATH_INDICATORS}/{pair}_{MINUTES}.csv")
@@ -31,7 +31,8 @@ class UtilizerIntegrationTest(unittest.TestCase):
                     TARGET,
                     time_steps_in=TEST_TIME_STEPS_IN,
                     time_steps_out=TEST_TIME_STEPS_OUT,
-                    scale=TEST_SCALE,
+                    scale=TEST_SHIFT,
+                    shift=TEST_SHIFT
                 )
                 preprocessor.summary()
                 # Load the model
