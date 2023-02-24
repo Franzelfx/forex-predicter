@@ -21,7 +21,7 @@ class Test_Data_Aquirer(unittest.TestCase):
         # Check, if dataframe has the correct columns
         self.assertEqual(data.columns.tolist(), ['v', 'vw', 'o', 'c', 'h', 'l'])
     
-    def test_get_file(self):
+    def test__get_file(self):
         """Test the get method."""
         data = self.aquirer.get(PAIR, MINUTES, save=True, from_file=True)
         self.assertGreater(len(data), 0)

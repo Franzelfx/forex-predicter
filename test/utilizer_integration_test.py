@@ -17,7 +17,7 @@ class UtilizerIntegrationTest(unittest.TestCase):
         for pair in REQUEST_PAIRS:
             try:
                 # Get data from the API
-                aquirer = Data_Aquirer(PATH_PAIRS, API_KEY, api_type='full')
+                aquirer = Data_Aquirer(PATH_PAIRS, API_KEY, api_type='full', from_file=True)
                 #TODO: Fix the from_file=True
                 data = aquirer.get(pair, MINUTES, save=True)
                 # Apply indicators
@@ -44,7 +44,11 @@ class UtilizerIntegrationTest(unittest.TestCase):
                 # Directly predict from saved model
                 utilizer = Utilizer(model, preprocessor.x_test)
                 # TODO: Check, why the scaling is not working
-                prediction = utilizer.predict(TEST_TIME_STEPS_OUT, preprocessor.target_scaler, ma_period=50, last_known=last_known)
+                prediction = utilizer.predict(TEST_TIME_STEPS_OUT, scaler=preprocessor.target_scaler, ma_period=50, last_known=last_known)
+                # Scale the prediction
+                if TEST_SCALE:
+                    scaler = preprocessor.target_scaler
+                    prediction = scaler.inverse_transform(prediction.reshape(-1, 1)).flatten()
                 visualizer = Visualizer(pair)
                 path = f"{MODEL_PATH}/utilizer_test"
                 visualizer.plot_prediction(prediction, path)

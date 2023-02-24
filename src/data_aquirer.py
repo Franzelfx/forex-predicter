@@ -58,7 +58,7 @@ class Data_Aquirer():
         # The last request is the start date on first iteration
         last = start
         iteration_counter = 0
-        print(f"Call API (let's grab some coffee :D) ", end="", flush=True)
+        print(f"Call API ", end="", flush=True)
         while datetime.strptime(last, self._time_format) < datetime.strptime(end, self._time_format):
             # Get the data from the API
             print(".", end="", flush=True)
@@ -81,10 +81,12 @@ class Data_Aquirer():
             data_return = pd.concat([data_return, data])
             # Increment the iteration counter
             iteration_counter += 1
-        data_return.set_index('t', inplace=True)
         # Set the time column as index
-        print(f" Done! (after {iteration_counter} requests).")
-        print(f"Got {len(data_return)} data points with {data_return.memory_usage().sum() / 1024**2:.2f} MB memory usage.")
+        if(len(data_return) != 0):
+            print(f"\nDone! (after {iteration_counter} requests).")
+            print(f"Got {len(data_return)} data points with {data_return.memory_usage().sum() / 1024**2:.2f} MB memory usage.")
+        else:
+            print(f"\nEverything up to date.")
         return data_return
 
     #TODO: Only request data from last known date till today
@@ -111,21 +113,29 @@ class Data_Aquirer():
         # Check if we want to get the data from the API or from the csv file
         if from_file:
             # Get the data from the csv file
-            data = pd.read_csv(f'{self._path}/{pair}_{minutes}.csv')
+            try:
+                data = pd.read_csv(f'{self._path}/{pair}_{minutes}.csv')
+            except FileNotFoundError:
+                print(f'No data for {pair} with {minutes} minutes interval found.')
+                print(f'Getting data from API...')
+                self.get(pair, minutes, start, end, save, False)
             # Set the time column as index
-            data.set_index('t', inplace=True)
-            # Get recent date ('t' column)
-            recent_date = data.index[-1]
-            # Request from the last date till today
-            data = pd.concat([data, self._request(pair, minutes, recent_date, end)])
+            resent_date = data['t'].iloc[-1]
+            # Remove time
+            recent_date = resent_date.split(' ')[0]
+            # Get the data from the API
+            request = self._request(pair, minutes, recent_date, end)
+            # Concatenate the data
+            data = pd.concat([data, request])
+            # Drop duplicates of the time column
+            data.drop_duplicates(subset='t', inplace=True)
         else:
             # Get the data from the API
             data = self._request(pair, minutes, start, end)
-            # Save the data to a csv file
-            # Drop the 'n' column
-            data.drop(columns=['n'], inplace=True)
-            if save is True:
-                data.to_csv(f'{self._path}/{pair}_{minutes}.csv', index=True)
+        # Set the time column as index
+        data.set_index('t', inplace=True)
+        if save is True:
+            data.to_csv(f'{self._path}/{pair}_{minutes}.csv', index=True)
             # Return the data
         return data
     
