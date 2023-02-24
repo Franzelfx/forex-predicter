@@ -432,7 +432,7 @@ class Preprocessor:
             if self._shift == None:
                 iterator += steps_in
             else:
-                iterator = self._shift
+                iterator += self._shift
         # TODO: Bug (first value of y_train starts at 2*steps_in)
         # Dirty fix: Remove first step_in values of x
         return np.array(x), np.array(y)
