@@ -140,7 +140,8 @@ class Test_Preprocessor(unittest.TestCase):
         y_test = self.preprocessor.y_test[-1, :]
         # Get prediction sample
         x_predict = self.preprocessor.x_predict[-1, :, self.preprocessor.loc_of(self.preprocessor.target)]
-        # Plot the values in subplots
+        # Extract the lastn_time_steps_out values of x_test
+        x_test = x_test[-self.preprocessor.time_steps_out:]
         # Extract the last n_time_steps_out values of x_predict
         x_predict = x_predict[-self.preprocessor.time_steps_out:]
         # Plot the values in subplots

@@ -45,7 +45,7 @@ class UtilizerIntegrationTest(unittest.TestCase):
                 last_known_x = preprocessor.last_known_x
                 last_known_y = preprocessor.last_known_y
                 # Directly predict from saved model
-                utilizer_train = Utilizer(model, preprocessor.x_train)
+                #utilizer_train = Utilizer(model, preprocessor.x_train)
                 utilizer_test = Utilizer(model, preprocessor.x_test)
                 utilizer_hat = Utilizer(model, preprocessor.x_predict)
                 # TODO: Check, why the scaling is not working
