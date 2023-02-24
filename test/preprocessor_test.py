@@ -148,7 +148,7 @@ class Test_Preprocessor(unittest.TestCase):
         axs[0].plot(y_test, color="red", label="y_train")
         # Add comment to the top of the plot
         axs[0].annotate(
-            "Last y_train sample",
+            "y_train",
             xy=(0.5, 0.5),
             xytext=(0.35, 0.15),
             xycoords="axes fraction",
@@ -160,7 +160,7 @@ class Test_Preprocessor(unittest.TestCase):
         axs[1].plot(x_predict, color="blue", label="x_predict")
         # Add comment to the plot
         axs[1].annotate(
-            "Prediction of last x_train sample",
+            "Last n_time_steps_out values of x_predict",
             xy=(0, 0),
             xytext=(0.35, 0.15),
             xycoords="axes fraction",
