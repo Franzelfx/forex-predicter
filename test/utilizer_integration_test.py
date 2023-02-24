@@ -63,7 +63,7 @@ class UtilizerIntegrationTest(unittest.TestCase):
                 visualizer.plot_prediction(prediction_train, path, extra_info=f"train")
                 visualizer.plot_prediction(prediction_test, path, extra_info=f"test")
                 visualizer.plot_prediction(prediction_hat, path, extra_info=f"hat")
-                self.assertNotEqual(prediction_test, prediction_hat)
+                self.assertNotEqual(prediction_test.all(), prediction_hat.all())
             except Exception:
                 traceback.print_exc()
 
