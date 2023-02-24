@@ -254,10 +254,7 @@ class Preprocessor:
 
         @return: The last known value of y_test as int.
         """
-        if self._prediction_mode:
-            return self._x_test[-1, -1, self.loc_of(self._target)]
-        else:
-            return self._y_test[-1, -1]
+        return self._y_test[-1, -1]
 
     @property
     def target(self) -> str:
