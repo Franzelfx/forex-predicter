@@ -1,5 +1,6 @@
 """Testbench for the utilizer module."""
 import unittest
+import traceback
 from config_tb import *
 from src.model import Model
 from src.utilizer import Utilizer
@@ -54,8 +55,9 @@ class UtilizerIntegrationTest(unittest.TestCase):
                 visualizer = Visualizer(pair)
                 path = f"{MODEL_PATH}/utilizer_test"
                 visualizer.plot_prediction(prediction, path)
-            except Exception as e:
-                print(e)
+            except Exception:
+                traceback.print_exc()
+
 
 if __name__ == "__main__":
     unittest.main()
