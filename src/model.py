@@ -9,7 +9,7 @@ from keras.models import load_model
 from sklearn.preprocessing import MinMaxScaler
 from keras.models import Sequential, Model as KerasModel
 from keras.callbacks import ModelCheckpoint, EarlyStopping, TensorBoard
-from keras.layers import Dense, LSTM, Dropout, Flatten, Conv1D, MaxPooling1D, concatenate, GRU
+from keras.layers import Dense, LSTM, Dropout, Flatten, Conv1D, MaxPooling1D, concatenate, GRU, Reshape
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 
@@ -58,6 +58,7 @@ class Model:
             )
         )
         model.add(GRU(int(128), return_sequences=True))
+        model.add(Reshape((128, 128)))
         model.add(Conv1D(filters=128, kernel_size=7, activation=activation))
         model.add(MaxPooling1D(pool_size=3))
         model.add(Conv1D(filters=64, kernel_size=7, activation=activation))
