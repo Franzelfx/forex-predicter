@@ -62,6 +62,7 @@ class Model:
         model.add(MaxPooling1D(pool_size=3))
         model.add(Conv1D(filters=64, kernel_size=7, activation=activation))
         model.add(MaxPooling1D(pool_size=3))
+        model.add(Flatten())
         model.add(Dropout(dropout))
         model.add(Dense(256, activation=activation))
         model.add(Dropout(dropout))
