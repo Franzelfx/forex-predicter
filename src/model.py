@@ -199,15 +199,7 @@ class Model:
                  The tensorboard logs are saved in the tensorboard folder.
         """
         # Say how much GPU's are available
-        gpus = tf.config.list_physical_devices('GPU')
-        print(f"Number of GPUs available: {len(gpus)}")
-        # Create the model
-        strategy = tf.distribute.MirroredStrategy()
-        if len(gpus) > 1:
-            with strategy.scope():
-                model = self._compile(hidden_neurons, dropout, activation, learning_rate, loss, branched_model)
-        else:
-            model = self._compile(hidden_neurons, dropout, activation, learning_rate, loss, branched_model)
+        model = self._compile(hidden_neurons, dropout, activation, learning_rate, loss, branched_model)
         # Configure callbacks (early stopping, checkpoint, tensorboard)
         model_checkpoint = ModelCheckpoint(
             filepath=f"{self._path}/checkpoints/{self._name}_weights.h5",
