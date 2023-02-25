@@ -134,7 +134,8 @@ class Data_Aquirer():
             data.drop_duplicates(subset='t', inplace=True)
         else:
             # Get the data from the API
-            data = self._request(pair, minutes, start, end)
+            if(start != end):
+                data = self._request(pair, minutes, start, end)
         # Set the time column as index
         data.set_index('t', inplace=True)
         # Drop 'n' column
