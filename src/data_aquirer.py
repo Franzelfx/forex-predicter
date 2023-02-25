@@ -89,7 +89,6 @@ class Data_Aquirer():
             print(f"\nEverything up to date.")
         return data_return
 
-    #TODO: Only request data from last known date till today
     def get(self, pair: str, minutes: int=1, start: str='2009-01-01', end: str=date.today().strftime('%Y-%m-%d'), save: bool=False, from_file: bool=False):
         """Get the data from the API or from the csv file.
         
