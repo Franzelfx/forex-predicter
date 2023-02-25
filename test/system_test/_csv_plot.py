@@ -3,8 +3,6 @@ import sys
 import os.path
 import numpy as np
 import pandas as pd
-sys.path.append(
-    os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir)))
 from config_tb import *
 from matplotlib import pyplot as plt
 
