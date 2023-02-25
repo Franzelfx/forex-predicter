@@ -147,7 +147,7 @@ class Data_Aquirer():
     
 
     def get_last_friday(self):
-        now = datetime.now()
+        now = date.now()
         closest_friday = now + timedelta(days=(4 - now.weekday()))
         return (closest_friday if closest_friday < now
             else closest_friday - timedelta(days=7))
