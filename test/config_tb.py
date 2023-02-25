@@ -55,7 +55,7 @@ TEST_TIME_STEPS_IN = 14400 # 10 days
 TEST_TIME_STEPS_OUT = 1440 # 1 day
 TEST_LENGTH = TEST_TIME_STEPS_IN + TEST_TIME_STEPS_OUT
 TEST_SCALE = True
-TEST_SHIFT = 1440 # overlap of one means x and y wndows are shifted by one in evr sample
+TEST_SHIFT = 3000 # overlap of one means x and y wndows are shifted by one in evr sample
 
 # Model
 MODEL_DATA_SOURCE = f"{PREPROCESSOR_DATA_SOURCE}"
@@ -63,7 +63,7 @@ MODEL_PATH = os.path.abspath(os.path.dirname(__file__))
 MODEL_NAME = f"{PAIR}_{MINUTES}"
 TEST_EPOCHS = 200
 TEST_NEURONS = 256
-TEST_BATCH_SIZE = 32
+TEST_BATCH_SIZE = 16
 TEST_LEARNING_RATE = 0.0005
 PATH_TEST_RESULTS = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.curdir, "test_results"))
 
