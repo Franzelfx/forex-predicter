@@ -65,7 +65,7 @@ MODEL_NAME = f"{PAIR}_{MINUTES}"
 TEST_EPOCHS = 300
 TEST_NEURONS = 128
 TEST_BATCH_SIZE = 16
-TEST_LEARNING_RATE = 0.001
+TEST_LEARNING_RATE = 0.0004
 TEST_VALIDATION_SPLIT = 0.4
 PATH_TEST_RESULTS = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.curdir, "test_results"))
 
