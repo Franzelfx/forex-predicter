@@ -108,9 +108,9 @@ class Data_Aquirer():
                     Please take care of the API limits. The API limits can be found here: https://polygon.io/pricing.
         """
         # Check, if today is weekend, so the end date is friday
-        if date.today().weekday() is (6 or 7):
+        if date.today().weekday() is (5 or 6):
             end = self.get_last_friday().strftime('%Y-%m-%d')
-            print(end)
+            print(f"It's weekend ...")
         # Check if we want to get the data from the API or from the csv file
         if from_file:
             # Get the data from the csv file
