@@ -138,7 +138,7 @@ class Data_Aquirer():
         data.set_index('t', inplace=True)
         # Drop 'n' column
         # TODO: Check performance with and without dropping the column
-        data.drop(columns='n', inplace=True, errors='ignore')
+        #data.drop(columns='n', inplace=True, errors='ignore')
         if save is True:
             data.to_csv(f'{self._path}/{pair}_{minutes}.csv', index=True)
             # Return the data
