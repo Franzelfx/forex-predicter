@@ -118,7 +118,7 @@ class Data_Aquirer():
             except FileNotFoundError:
                 print(f'No data for {pair} with {minutes} minutes interval found.')
                 print(f'Getting data from API...')
-                self.get(pair, minutes, start, end, save, False)
+                data = self.get(pair, minutes, start, end, save, False)
             # Set the time column as index
             resent_date = data['t'].iloc[-1]
             # Remove time
