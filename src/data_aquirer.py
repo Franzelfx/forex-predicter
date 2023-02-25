@@ -110,6 +110,7 @@ class Data_Aquirer():
         # Check, if today is weekend, so the end date is friday
         if date.today().weekday() is (6 or 7):
             end = self.get_last_friday().strftime('%Y-%m-%d')
+            print(end)
         # Check if we want to get the data from the API or from the csv file
         if from_file:
             # Get the data from the csv file
