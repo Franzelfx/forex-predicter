@@ -3,10 +3,12 @@ import sys
 import os.path
 import numpy as np
 import pandas as pd
+sys.path.append(
+    os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir)))
 from config_tb import *
 from matplotlib import pyplot as plt
 
-PERIOD = 30
+PERIOD = 100
 
 def moving_average(data: pd.DataFrame, n: int):
     """Calculate the moving average for the given data."""

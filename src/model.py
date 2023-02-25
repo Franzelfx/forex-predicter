@@ -177,7 +177,7 @@ class Model:
         batch_size=32,
         loss="mean_absolute_error",
         validation_spilt=0.2,
-        patience=20,
+        patience=30,
         branched_model=False,
     ) -> DataFrame:
         """Compile and fit the model.
