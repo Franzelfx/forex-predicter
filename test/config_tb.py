@@ -63,7 +63,7 @@ MODEL_PATH = os.path.abspath(os.path.dirname(__file__))
 MODEL_NAME = f"{PAIR}_{MINUTES}"
 TEST_EPOCHS = 200
 TEST_NEURONS = 256
-TEST_BATCH_SIZE = 16
+TEST_BATCH_SIZE = 32
 TEST_LEARNING_RATE = 0.0005
 PATH_TEST_RESULTS = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.curdir, "test_results"))
 
