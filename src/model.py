@@ -161,7 +161,7 @@ class Model:
             model = self._create_branched_model(hidden_neurons, dropout, activation)
         else:
             model = self._create_model(hidden_neurons, dropout, activation)
-        optimizer = Adam(learning_rate=learning_rate, regularizers=[tf.keras.regularizers.l2(0.01), tf.keras.regularizers.l1(0.01)])
+        optimizer = Adam(learning_rate=learning_rate)
         model.compile(loss=loss, optimizer=optimizer, metrics=["mape"])
         model.summary()
         return model
