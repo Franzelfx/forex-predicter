@@ -5,7 +5,7 @@ from config_tb import *
 from src.model import Model
 from src.visualizer import Visualizer
 from src.preprocessor import Preprocessor
-
+from src.data_aquirer import Data_Aquirer
 
 class Test_Model(unittest.TestCase):
     """Integration test for the Model class.
@@ -16,13 +16,20 @@ class Test_Model(unittest.TestCase):
 
     def test_compile_fit_predict(self):
         """Test the compile, fit and predict method with data from the preprocessor."""
-        test_data = pd.read_csv(MODEL_DATA_SOURCE)
+        try:
+            test_data = pd.read_csv(MODEL_DATA_SOURCE)
+        except:
+            aquirer = Data_Aquirer(PATH_PAIRS, API_KEY, api_type="full")
+            test_data = aquirer.get(
+                PAIR, MINUTES, start=START, save=True, from_file=False
+            )
         preprocessor = Preprocessor(
             test_data,
             TARGET,
             time_steps_in=TEST_TIME_STEPS_IN,
             time_steps_out=TEST_TIME_STEPS_OUT,
             scale=TEST_SCALE,
+            shift=TEST_SHIFT,
         )
         preprocessor.summary()
         model = Model(
@@ -37,7 +44,8 @@ class Test_Model(unittest.TestCase):
             hidden_neurons=TEST_NEURONS,
             batch_size=TEST_BATCH_SIZE,
             learning_rate=TEST_LEARNING_RATE,
-            branched_model=True,
+            branched_model=TEST_BRANCHED_MODEL,
+            validation_spilt=TEST_VALIDATION_SPLIT,
         )
         # Predict the next values
         x_test = preprocessor.x_test

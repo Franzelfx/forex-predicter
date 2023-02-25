@@ -55,6 +55,7 @@ TEST_TIME_STEPS_IN = 2880 # 2 days
 TEST_TIME_STEPS_OUT = 1440 # 1 day
 TEST_LENGTH = TEST_TIME_STEPS_IN + TEST_TIME_STEPS_OUT
 TEST_SCALE = True
+TEST_BRANCHED_MODEL = False
 TEST_SHIFT = 1440 # overlap of one means x and y wndows are shifted by one in every sample
 
 # Model
