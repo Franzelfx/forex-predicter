@@ -45,10 +45,10 @@ class Model:
     ) -> Sequential:
         """Create the model."""
         model = Sequential()
-        model.add(Conv1D(filters=hidden_neurons, kernel_size=3, activation=activation))
-        model.add(MaxPooling1D(pool_size=2))
-        model.add(Conv1D(filters=hidden_neurons, kernel_size=3, activation=activation))
-        model.add(MaxPooling1D(pool_size=2))
+        model.add(Conv1D(filters=hidden_neurons, kernel_size=7, activation=activation))
+        model.add(MaxPooling1D(pool_size=3))
+        model.add(Conv1D(filters=hidden_neurons, kernel_size=7, activation=activation))
+        model.add(MaxPooling1D(pool_size=3))
         model.add(
             LSTM(
                 hidden_neurons,
