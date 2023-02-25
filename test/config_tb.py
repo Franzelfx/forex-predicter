@@ -55,7 +55,7 @@ TEST_TIME_STEPS_IN = 14400 # 10 days
 TEST_TIME_STEPS_OUT = 1440 # 1 day
 TEST_LENGTH = TEST_TIME_STEPS_IN + TEST_TIME_STEPS_OUT
 TEST_SCALE = True
-TEST_SHIFT = 9600 # overlap of one means x and y wndows are shifted by one in evr sample
+TEST_SHIFT = 1440 # overlap of one means x and y wndows are shifted by one in evr sample
 
 # Model
 MODEL_DATA_SOURCE = f"{PREPROCESSOR_DATA_SOURCE}"
