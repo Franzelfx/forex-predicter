@@ -4,14 +4,17 @@ import pandas as pd
 from datetime import datetime as date
 from datetime import datetime, timedelta
 
-class Data_Aquirer():
+
+class Data_Aquirer:
     """Used to get the data eigther from the API or from the csv file.
-    
+
     @remakrs The data aquirer is made for the Polygon API.
              please refer to https://polygon.io/docs/getting-started for more information.
     """
 
-    def __init__(self, path:str, api_key: str, time_format:str='%Y-%m-%d', api_type='full'):
+    def __init__(
+        self, path: str, api_key: str, time_format: str = "%Y-%m-%d", api_type="full"
+    ):
         """Set the attributes, may differ depending where to use it.
 
         @param path: The path where the fetched data should be stored.
@@ -47,51 +50,65 @@ class Data_Aquirer():
     def _request(self, pair: str, minutes: int, start: str, end: str) -> pd.DataFrame:
         """Do a repeated request with the given parameters."""
         # Get data as long as the last date is not the end date of the previous day
-        print(f"Aquiring data for {pair} with {minutes} minutes interval from {start} to {end}")
+        print(
+            f"Aquiring data for {pair} with {minutes} minutes interval from {start} to {end}"
+        )
         data = pd.DataFrame()
         data_return = pd.DataFrame()
         # If the api type is basic, we only have the data until yesterday
         end = datetime.strptime(end, self._time_format)
-        if self._api_type == 'basic':
+        if self._api_type == "basic":
             end = end - timedelta(days=1)
         end = datetime.strftime(end, self._time_format)
         # The last request is the start date on first iteration
         last = start
         iteration_counter = 0
         print(f"Call API ", end="", flush=True)
-        while datetime.strptime(last, self._time_format) < datetime.strptime(end, self._time_format):
+        while datetime.strptime(last, self._time_format) < datetime.strptime(
+            end, self._time_format
+        ):
             # Get the data from the API
             print(".", end="", flush=True)
-            url = f'https://api.polygon.io/v2/aggs/ticker/C:{pair}/range/{minutes}/minute/{last}/{end}?adjusted=true&sort=asc&limit=50000&apiKey={self._api_key}'
+            url = f"https://api.polygon.io/v2/aggs/ticker/C:{pair}/range/{minutes}/minute/{last}/{end}?adjusted=true&sort=asc&limit=50000&apiKey={self._api_key}"
             response = requests.get(url)
             response = response.json()
             # Check if the request was successful
-            if not 'results' in response:
+            if not "results" in response:
                 raise ConnectionError(response)
             # Convert the data to a pandas dataframe
-            
-            data = pd.DataFrame(response['results'])
+
+            data = pd.DataFrame(response["results"])
             # Convert t from ms to datetime with given format
-            data['t'] = pd.to_datetime(data['t'], unit='ms')
-            data.sort_values(by='t', inplace=True)
+            data["t"] = pd.to_datetime(data["t"], unit="ms")
+            data.sort_values(by="t", inplace=True)
             # Update the last date (from the last data point in the request)
-            last = data['t'].iloc[-1]
+            last = data["t"].iloc[-1]
             last = datetime.strftime(last, self._time_format)
             # COncatenate the data
             data_return = pd.concat([data_return, data])
             # Increment the iteration counter
             iteration_counter += 1
         # Set the time column as index
-        if(len(data_return) != 0):
+        if len(data_return) != 0:
             print(f"\nDone! (after {iteration_counter} requests).")
-            print(f"Got {len(data_return)} data points with {data_return.memory_usage().sum() / 1024**2:.2f} MB memory usage.")
+            print(
+                f"Got {len(data_return)} data points with {data_return.memory_usage().sum() / 1024**2:.2f} MB memory usage."
+            )
         else:
             print(f"\nEverything up to date.")
         return data_return
 
-    def get(self, pair: str, minutes: int=1, start: str='2009-01-01', end: str=date.today().strftime('%Y-%m-%d'), save: bool=False, from_file: bool=False):
+    def get(
+        self,
+        pair: str,
+        minutes: int = 1,
+        start: str = "2009-01-01",
+        end: str = date.today().strftime("%Y-%m-%d"),
+        save: bool = False,
+        from_file: bool = False,
+    ):
         """Get the data from the API or from the csv file.
-        
+
         @param pair: The pair to get the data for (e.g. 'EURUSD').
         @param minutes: The interval in minutes (e.g. 15min, 5min etc.).
         @param start: The start date for the data yyyy-mm-dd (e.g. 2020-01-01).
@@ -108,45 +125,47 @@ class Data_Aquirer():
         """
         # Check, if today is weekend, so the end date is friday
         if date.today().weekday() is (5 or 6):
-            end = self.get_last_friday().strftime('%Y-%m-%d')
+            end = self.get_last_friday().strftime("%Y-%m-%d")
             print(f"It's weekend ...")
         # Check if we want to get the data from the API or from the csv file
         if from_file:
             # Get the data from the csv file
             try:
-                data = pd.read_csv(f'{self._path}/{pair}_{minutes}.csv')
+                data = pd.read_csv(f"{self._path}/{pair}_{minutes}.csv")
             except FileNotFoundError:
-                print(f'No data for {pair} with {minutes} minutes interval found.')
-                print(f'Getting data from API...')
+                print(f"No data for {pair} with {minutes} minutes interval found.")
+                print(f"Getting data from API...")
                 data = self._request(pair, minutes, start, end)
-            resent_date = data['t'].iloc[-1]
+            resent_date = data["t"].iloc[-1]
             # Remove time
-            recent_date = resent_date.split(' ')[0]
+            recent_date = resent_date.split(" ")[0]
             # If recent date is today, subsstract one day
-            if recent_date == date.today().strftime('%Y-%m-%d'):
-                recent_date = (date.today() - timedelta(days=1)).strftime('%Y-%m-%d')
+            if recent_date == date.today().strftime("%Y-%m-%d"):
+                recent_date = (date.today() - timedelta(days=1)).strftime("%Y-%m-%d")
             # Get the data from the API
             request = self._request(pair, minutes, recent_date, end)
             # Concatenate the data
             data = pd.concat([data, request])
             # Drop duplicates of the time column
-            data.drop_duplicates(subset='t', inplace=True)
+            data.drop_duplicates(subset="t", inplace=True)
         else:
             # Get the data from the API
-             data = self._request(pair, minutes, start, end)
+            data = self._request(pair, minutes, start, end)
         # Set the time column as index
-        data.set_index('t', inplace=True)
+        data.set_index("t", inplace=True)
         # Drop 'n' column
         # TODO: Check performance with and without dropping the column
-        #data.drop(columns='n', inplace=True, errors='ignore')
+        # data.drop(columns='n', inplace=True, errors='ignore')
         if save is True:
-            data.to_csv(f'{self._path}/{pair}_{minutes}.csv', index=True)
+            data.to_csv(f"{self._path}/{pair}_{minutes}.csv", index=True)
             # Return the data
         return data
-    
 
     def get_last_friday(self):
         now = date.now()
         closest_friday = now + timedelta(days=(4 - now.weekday()))
-        return (closest_friday if closest_friday < now
-            else closest_friday - timedelta(days=7))
+        return (
+            closest_friday
+            if closest_friday < now
+            else closest_friday - timedelta(days=7)
+        )

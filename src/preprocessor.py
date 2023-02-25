@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 from logging import warning
 from tabulate import tabulate
+
 pd.options.mode.chained_assignment = None  # default='warn'
 from sklearn.preprocessing import MinMaxScaler
 
@@ -26,7 +27,7 @@ class Preprocessor:
         test_split=None,
         scale=True,
         feature_range=(-1, 1),
-        shift=None
+        shift=None,
     ):
         """Set the fundamental attributes.
 
@@ -91,7 +92,7 @@ class Preprocessor:
                 f"The output time steps must be greater than 1. [{time_steps_out} < 1]"
             )
         # The test length
-        if self._test_length > 1/2 * len(data):
+        if self._test_length > 1 / 2 * len(data):
             raise ValueError(
                 f"The test length must be smaller than 1/2 of the data length. [{test_length} > {1/2 * len(data)}]"
             )
@@ -135,7 +136,7 @@ class Preprocessor:
             self._time_steps_in,
             self._time_steps_out,
         )
-    
+
     def summary(self) -> None:
         """Print a summary of the preprocessor."""
         print("Preprocessor:")
@@ -144,19 +145,48 @@ class Preprocessor:
 
     def __str__(self) -> str:
         """Return the string representation of the preprocessor."""
-        header = ['Data', 'Shape', 'Size', 'Remarks']
+        header = ["Data", "Shape", "Size", "Remarks"]
         data = [
-            ['Input', self._data.shape, len(self._data), '(Timesteps, Features)'],
-            ['Train', self._train_data.shape, len(self._train_data), '(Timesteps, Features)'],
-            ['Test', self._test_data.shape, len(self._test_data), '(Timesteps, Features)'],
-            ['X Train', self._x_train.shape, len(self._x_train), '(Samples, Timesteps, Features)'],
-            ['Y Train', self._y_train.shape, len(self._y_train), '(Samples, Timesteps)'],
-            ['X Test', self._x_test.shape, len(self._x_test), '(Samples, Timesteps, Features)'],
-            ['Y Test', self._y_test.shape, len(self._y_test), '(Samples, Timesteps)'],
-            ['X Predict', self.x_predict.shape, len(self.x_predict), '(Samples, Timesteps, Features)']
+            ["Input", self._data.shape, len(self._data), "(Timesteps, Features)"],
+            [
+                "Train",
+                self._train_data.shape,
+                len(self._train_data),
+                "(Timesteps, Features)",
+            ],
+            [
+                "Test",
+                self._test_data.shape,
+                len(self._test_data),
+                "(Timesteps, Features)",
+            ],
+            [
+                "X Train",
+                self._x_train.shape,
+                len(self._x_train),
+                "(Samples, Timesteps, Features)",
+            ],
+            [
+                "Y Train",
+                self._y_train.shape,
+                len(self._y_train),
+                "(Samples, Timesteps)",
+            ],
+            [
+                "X Test",
+                self._x_test.shape,
+                len(self._x_test),
+                "(Samples, Timesteps, Features)",
+            ],
+            ["Y Test", self._y_test.shape, len(self._y_test), "(Samples, Timesteps)"],
+            [
+                "X Predict",
+                self.x_predict.shape,
+                len(self.x_predict),
+                "(Samples, Timesteps, Features)",
+            ],
         ]
-        return tabulate(data, headers=header, tablefmt='rst')
-
+        return tabulate(data, headers=header, tablefmt="rst")
 
     @property
     def scale(self) -> bool:
@@ -183,7 +213,7 @@ class Preprocessor:
         @return: The header of the data as list.
         """
         return self._data.columns.tolist()
-    
+
     @property
     def test_split(self) -> float:
         """Get the test split.
@@ -191,7 +221,7 @@ class Preprocessor:
         @return: The test split as float.
         """
         return self._test_split
-    
+
     @property
     def train_data(self) -> pd.DataFrame:
         """Get the train data.
@@ -239,19 +269,19 @@ class Preprocessor:
         """Get the y test data for the selected feture.
 
         @return: Y test as numpy array in shape of (samples, timesteps).
-        @remarks The y test data is the target feature 
+        @remarks The y test data is the target feature
                     shifted by the time steps in.
         """
         return self._y_test
-    
+
     @property
     def x_predict(self) -> np.ndarray:
         """Get x_predict (last n_steps_in of data)"""
-        x_predict = self._data[-self._time_steps_in:].values
+        x_predict = self._data[-self._time_steps_in :].values
         # Add samples dimension
         x_predict = np.expand_dims(x_predict, axis=0)
         return x_predict
-    
+
     @property
     def last_known_x(self) -> np.ndarray:
         """Get the last known value for each feature.
@@ -285,7 +315,7 @@ class Preprocessor:
                  e.g. scaler['c'].inverse_transform(data)
         """
         return self._scaler
-    
+
     @property
     def target_scaler(self) -> MinMaxScaler:
         """Get the scaler for the target feature.
@@ -303,7 +333,7 @@ class Preprocessor:
     def time_steps_out(self) -> int:
         """Get the number of time steps for the output."""
         return self._time_steps_out
-    
+
     def loc_of(self, feature: str) -> int:
         """Get the location of the feature in the data.
 
@@ -311,7 +341,7 @@ class Preprocessor:
         @return: The location of the feature in the data.
         """
         return self._data.columns.get_loc(feature)
-    
+
     def feature_name(self, loc: int) -> str:
         """Get the name of the feature at the given location.
 
@@ -329,7 +359,7 @@ class Preprocessor:
         if feature not in self._data.columns:
             raise ValueError(f"Feature {feature} not in data.")
         return self._data[feature].values
-    
+
     def feature_train(self, feature: str) -> np.ndarray:
         """Get the feature of the train data as numpy array.
 
@@ -339,7 +369,7 @@ class Preprocessor:
         if feature not in self._train_data.columns:
             raise ValueError(f"Feature {feature} not in train data.")
         return self._train_data[feature].values
-    
+
     def feature_test(self, feature: str) -> np.ndarray:
         """Get the feature of the test data as numpy array.
 
@@ -349,7 +379,6 @@ class Preprocessor:
         if feature not in self._test_data.columns:
             raise ValueError(f"Feature {feature} not in test data.")
         return self._test_data[feature].values
-    
 
     def _drop_nan(self, data: pd.DataFrame) -> pd.DataFrame:
         """Drop all rows with nan values."""
@@ -374,7 +403,9 @@ class Preprocessor:
             )
         return data
 
-    def _split_train_test(self, data: pd.DataFrame, test_split: float, test_length: int) -> tuple:
+    def _split_train_test(
+        self, data: pd.DataFrame, test_split: float, test_length: int
+    ) -> tuple:
         """Split the data into train and test set."""
         if test_split is not None:
             train_size = int(len(data) * (1 - test_split))
@@ -406,7 +437,6 @@ class Preprocessor:
         input_sequence: pd.DataFrame,
         steps_in: int,
         steps_out: int,
-
     ) -> tuple[np.ndarray, np.ndarray]:
         """Create samples of x and y.
 
@@ -427,8 +457,12 @@ class Preprocessor:
         # y is a sliding window of length steps_out
         # with an offset of steps_in
         while iterator + steps_in + steps_out <= len(input_sequence):
-            x.append(input_sequence[iterator:iterator + steps_in].values)
-            y.append(input_sequence[iterator + steps_in:iterator + steps_in + steps_out][self._target].values)
+            x.append(input_sequence[iterator : iterator + steps_in].values)
+            y.append(
+                input_sequence[iterator + steps_in : iterator + steps_in + steps_out][
+                    self._target
+                ].values
+            )
             if self._shift == None:
                 iterator += steps_in
             else:

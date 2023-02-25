@@ -6,6 +6,7 @@ from src.model import Model
 from src.visualizer import Visualizer
 from src.preprocessor import Preprocessor
 
+
 class Test_Model(unittest.TestCase):
     """Integration test for the Model class.
 
@@ -31,7 +32,13 @@ class Test_Model(unittest.TestCase):
             preprocessor.y_train,
         )
         # Run for testing
-        model.compile_and_fit(epochs=TEST_EPOCHS, hidden_neurons=TEST_NEURONS, batch_size=TEST_BATCH_SIZE, learning_rate=TEST_LEARNING_RATE, branched_model=True)
+        model.compile_and_fit(
+            epochs=TEST_EPOCHS,
+            hidden_neurons=TEST_NEURONS,
+            batch_size=TEST_BATCH_SIZE,
+            learning_rate=TEST_LEARNING_RATE,
+            branched_model=True,
+        )
         # Predict the next values
         x_test = preprocessor.x_test
         prediction = model.predict(x_test, scaler=preprocessor.target_scaler)
@@ -46,6 +53,7 @@ class Test_Model(unittest.TestCase):
         visualizer = Visualizer(PAIR)
         path = f"{MODEL_PATH}/model_test"
         visualizer.plot_prediction(prediction, path, y_test=y_test)
+
 
 if __name__ == "__main__":
     unittest.main()
