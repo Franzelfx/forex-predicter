@@ -4,6 +4,7 @@ import pandas as pd
 from config_tb import *
 from src.model import Model
 from src.visualizer import Visualizer
+from src.indicators import Indicators
 from src.preprocessor import Preprocessor
 from src.data_aquirer import Data_Aquirer
 
@@ -22,6 +23,11 @@ class Test_Model(unittest.TestCase):
             aquirer = Data_Aquirer(PATH_PAIRS, API_KEY, api_type="full")
             test_data = aquirer.get(
                 PAIR, MINUTES, start=START, save=True, from_file=False
+            )
+            # Indicators
+            indicators = Indicators(test_data, TEST_INDICATORS)
+            test_data = indicators.calculate(
+                save=True, path=f"{PATH_INDICATORS}/{PAIR}_{MINUTES}.csv"
             )
         preprocessor = Preprocessor(
             test_data,
