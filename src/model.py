@@ -57,7 +57,7 @@ class Model:
                 input_shape=(128, self._x_train.shape[2]),
             )
         )
-        model.add(GRU(int(128), return_sequences=False))
+        model.add(GRU(int(128), return_sequences=True))
         model.add(Conv1D(filters=128, kernel_size=7, activation=activation))
         model.add(MaxPooling1D(pool_size=3))
         model.add(Conv1D(filters=64, kernel_size=7, activation=activation))
