@@ -8,7 +8,7 @@ from keras.models import load_model
 from sklearn.preprocessing import MinMaxScaler
 from keras.models import Sequential, Model as KerasModel
 from keras.callbacks import ModelCheckpoint, EarlyStopping, TensorBoard
-from keras.layers import Dense, LSTM, Dropout, Flatten, Conv1D, MaxPooling1D, concatenate
+from keras.layers import Dense, LSTM, Dropout, Flatten, Conv1D, MaxPooling1D, concatenate, GRU
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 
@@ -57,9 +57,8 @@ class Model:
             )
         )
         model.add(LSTM(int(hidden_neurons), return_sequences=True))
-        model.add(LSTM(int(hidden_neurons), return_sequences=False))
-        model.add(Dropout(dropout))
-        model.add(Dense(int(hidden_neurons), activation=activation))
+        model.add(GRU(int(hidden_neurons), return_sequences=True))
+        model.add(GRU(int(hidden_neurons), return_sequences=False))
         model.add(Dropout(dropout))
         model.add(Dense(int(hidden_neurons), activation=activation))
         model.add(Dropout(dropout))
