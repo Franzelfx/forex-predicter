@@ -119,7 +119,9 @@ class Data_Aquirer():
                 print(f'No data for {pair} with {minutes} minutes interval found.')
                 print(f'Getting data from API...')
                 data = self._request(pair, minutes, start, end)
-            # Set the time column as index
+            # If timestamp is timestamp object, convert to datetime
+            if data['t'].dtype == 'int64':
+                data['t'] = pd.to_datetime(data['t'], unit='ms').strftime(self._time_format)
             resent_date = data['t'].iloc[-1]
             # Remove time
             recent_date = resent_date.split(' ')[0]
