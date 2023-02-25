@@ -46,20 +46,22 @@ class Model:
     ) -> Sequential:
         """Create the model."""
         model = Sequential()
-        model.add(Conv1D(filters=hidden_neurons, kernel_size=7, activation=activation))
+        model.add(Conv1D(filters=64, kernel_size=7, activation=activation))
         model.add(MaxPooling1D(pool_size=3))
-        model.add(Conv1D(filters=hidden_neurons, kernel_size=7, activation=activation))
+        model.add(Conv1D(filters=128, kernel_size=7, activation=activation))
         model.add(MaxPooling1D(pool_size=3))
         model.add(
             LSTM(
                 hidden_neurons,
                 return_sequences=True,
-                input_shape=(self._x_train.shape[1], self._x_train.shape[2]),
+                input_shape=(128, self._x_train.shape[2]),
             )
         )
-        model.add(GRU(int(hidden_neurons), return_sequences=False))
+        model.add(GRU(int(128), return_sequences=False))
         model.add(Dropout(dropout))
-        model.add(Dense(int(self._y_train.shape[1]), activation=activation))
+        model.add(Dense(128, activation=activation))
+        model.add(Dropout(dropout))
+        model.add(Dense(128, activation=activation))
         model.add(Dropout(dropout))
         model.add(Dense(self._y_train.shape[1], activation=activation))
         model.add(Dense(self._y_train.shape[1]))
