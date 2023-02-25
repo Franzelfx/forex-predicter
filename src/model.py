@@ -1,6 +1,7 @@
 """This module contains the model class for the LSTM model."""
 import os
 import numpy as np
+import tensorflow as tf
 from pandas import DataFrame
 import matplotlib.pyplot as plt
 from keras.optimizers import Adam
@@ -199,8 +200,16 @@ class Model:
                  The validation loss is saved in the fit_history folder.
                  The tensorboard logs are saved in the tensorboard folder.
         """
+        # Say how much GPU's are available
+        gpus = tf.config.list_physical_devices('GPU')
+        print(f"Number of GPUs available: {len(gpus)}")
         # Create the model
-        model = self._compile(hidden_neurons, dropout, activation, learning_rate, loss, branched_model)
+        strategy = tf.distribute.MirroredStrategy()
+        if len(gpus) > 1:
+            with strategy.scope():
+                model = self._compile(hidden_neurons, dropout, activation, learning_rate, loss, branched_model)
+        else:
+            model = self._compile(hidden_neurons, dropout, activation, learning_rate, loss, branched_model)
         # Configure callbacks (early stopping, checkpoint, tensorboard)
         model_checkpoint = ModelCheckpoint(
             filepath=f"{self._path}/checkpoints/{self._name}_weights.h5",
