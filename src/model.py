@@ -54,8 +54,6 @@ class Model:
             )
         )
         model.add(GRU(int(hidden_neurons), return_sequences=True))
-        model.add(LSTM(int(hidden_neurons), return_sequences=True))
-        model.add(GRU(int(hidden_neurons), return_sequences=False))
         model.add(Dropout(dropout))
         model.add(Dense(self._y_train.shape[1], activation=activation))
         model.add(Dense(self._y_train.shape[1]))
