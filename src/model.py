@@ -50,7 +50,7 @@ class Model:
             LSTM(
                 hidden_neurons,
                 return_sequences=True,
-                input_shape=(self._x_train.shape[1], self._x_train.shape[2])
+                input_shape=(self._x_train.shape[0], self._x_train.shape[1], self._x_train.shape[2])
             )
         )
         model.add(GRU(int(hidden_neurons), return_sequences=True))
