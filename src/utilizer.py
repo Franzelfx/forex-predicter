@@ -41,7 +41,7 @@ class Utilizer():
         """
         return -(actual - pred[0])
 
-    def predict(self, time_steps: int, scaler: MinMaxScaler, last_known: int=None, ma_period=50) -> np.ndarray:
+    def predict(self, time_steps: int, scaler: MinMaxScaler=None, last_known: int=None, ma_period=50) -> np.ndarray:
         """Predict the next values.
         
         @param time_steps The number of time steps to predict.

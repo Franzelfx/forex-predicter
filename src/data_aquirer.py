@@ -132,30 +132,29 @@ class Data_Aquirer:
             # Get the data from the csv file
             try:
                 data = pd.read_csv(f"{self._path}/{pair}_{minutes}.csv")
+                print(f"Got data from {self._path}/{pair}_{minutes}.csv")
+                # Extract time from date
+                resent_date = data["t"].iloc[-1]
+                recent_date = resent_date.split(" ")[0]
+                # If recent date is today, subsstract one day
+                if recent_date == date.today().strftime("%Y-%m-%d"):
+                    recent_date = (date.today() - timedelta(days=1)).strftime("%Y-%m-%d")
+                # Get the data from the API
+                request = self._request(pair, minutes, recent_date, end)
+                # Concatenate the data
+                data = pd.concat([data, request])
+                # Drop duplicates of the time column
+                data = data.drop_duplicates(subset="t", inplace=True)
             except FileNotFoundError:
                 print(f"No data for {pair} with {minutes} minutes interval found.")
                 print(f"Getting data from API...")
                 data = self._request(pair, minutes, start, end)
-            resent_date = data["t"].iloc[-1]
-            # Remove time
-            recent_date = resent_date.split(" ")[0]
-            # If recent date is today, subsstract one day
-            if recent_date == date.today().strftime("%Y-%m-%d"):
-                recent_date = (date.today() - timedelta(days=1)).strftime("%Y-%m-%d")
-            # Get the data from the API
-            request = self._request(pair, minutes, recent_date, end)
-            # Concatenate the data
-            data = pd.concat([data, request])
-            # Drop duplicates of the time column
-            data.drop_duplicates(subset="t", inplace=True)
         else:
             # Get the data from the API
             data = self._request(pair, minutes, start, end)
         # Set the time column as index
         data.set_index("t", inplace=True)
-        # Drop 'n' column
-        # TODO: Check performance with and without dropping the column
-        # data.drop(columns='n', inplace=True, errors='ignore')
+        # Save the data to a csv file
         if save is True:
             data.to_csv(f"{self._path}/{pair}_{minutes}.csv", index=True)
             # Return the data

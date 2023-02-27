@@ -15,7 +15,7 @@ class UtilizerIntegrationTest(unittest.TestCase):
 
     def test_utilizer_integration(self):
         """Test the utilizer."""
-        for pair in REQUEST_PAIRS:
+        for pair in UTIL_PAIRS:
             try:
                 # Get data from the API
                 aquirer = Data_Aquirer(PATH_PAIRS, API_KEY, api_type="full")
@@ -57,13 +57,11 @@ class UtilizerIntegrationTest(unittest.TestCase):
                 # prediction_train = utilizer_train.predict(TEST_TIME_STEPS_OUT, scaler=preprocessor.target_scaler, ma_period=50, last_known=last_known_x)
                 prediction_test = utilizer_test.predict(
                     TEST_TIME_STEPS_OUT,
-                    scaler=preprocessor.target_scaler,
                     ma_period=50,
                     last_known=last_known_x,
                 )
                 prediction_hat = utilizer_hat.predict(
                     TEST_TIME_STEPS_OUT,
-                    scaler=preprocessor.target_scaler,
                     ma_period=50,
                     last_known=last_known_y,
                 )
