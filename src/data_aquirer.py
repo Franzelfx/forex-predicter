@@ -96,6 +96,7 @@ class Data_Aquirer:
             )
         else:
             print(f"\nEverything up to date.")
+        data_return.set_index("t", inplace=True)
         return data_return
 
     def get(
@@ -144,7 +145,12 @@ class Data_Aquirer:
                 # Concatenate the data
                 data = pd.concat([data, request])
                 # Drop duplicates of the time column
-                data = data.drop_duplicates(subset="t", inplace=True)
+                data = data.drop_duplicates()
+                # Sort by time
+                data.sort_values(by="t", inplace=True)
+                if save is True:
+                    data.to_csv(f"{self._path}/{pair}_{minutes}.csv", index=True)
+                return data
             except FileNotFoundError:
                 print(f"No data for {pair} with {minutes} minutes interval found.")
                 print(f"Getting data from API...")
@@ -152,8 +158,6 @@ class Data_Aquirer:
         else:
             # Get the data from the API
             data = self._request(pair, minutes, start, end)
-        # Set the time column as index
-        data.set_index("t", inplace=True)
         # Save the data to a csv file
         if save is True:
             data.to_csv(f"{self._path}/{pair}_{minutes}.csv", index=True)
