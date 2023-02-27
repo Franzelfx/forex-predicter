@@ -49,11 +49,13 @@ class Model:
         model.add(
             LSTM(
                 hidden_neurons,
+                activation=activation,
+                recurrent_activation='sigmoid',
                 return_sequences=True,
                 input_shape=(self._x_train.shape[1], self._x_train.shape[2])
             )
         )
-        model.add(LSTM(int(hidden_neurons), return_sequences=False))
+        model.add(LSTM(int(hidden_neurons), activation=activation, recurrent_activation='sigmoid', return_sequences=False))
         model.add(Dropout(dropout))
         model.add(Dense(self._y_train.shape[1], activation=activation))
         model.add(Dense(self._y_train.shape[1], activation='linear'))
@@ -164,7 +166,7 @@ class Model:
         self,
         hidden_neurons=256,
         dropout=0.2,
-        activation="tanh",
+        activation="relu",
         epochs=100,
         learning_rate=0.001,
         batch_size=32,
@@ -242,7 +244,9 @@ class Model:
                  The predicted values are scaled back to the original scale.
         """
         if from_saved_model:
-            model = load_model(f"{self._path}/checkpoints/{self._name}_weights.h5")
+            path = f"{self._path}/checkpoints/{self._name}_weights.h5"
+            model = load_model(path)
+            print(f"Loaded model from: {path}")
         else:
             # Check if the model has been fitted
             if self._model is None:

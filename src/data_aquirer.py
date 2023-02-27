@@ -158,6 +158,9 @@ class Data_Aquirer:
         else:
             # Get the data from the API
             data = self._request(pair, minutes, start, end)
+        # Remove index column (if it exists)
+        if "Unnamed: 0" in data.columns:
+            data.drop(columns=["Unnamed: 0"], inplace=True)
         # Save the data to a csv file
         if save is True:
             data.to_csv(f"{self._path}/{pair}_{minutes}.csv", index=True)

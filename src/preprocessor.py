@@ -26,7 +26,7 @@ class Preprocessor:
         test_length=90,
         test_split=None,
         scale=True,
-        feature_range=(-1, 1),
+        feature_range=(0, 1),
         shift=None,
     ):
         """Set the fundamental attributes.
