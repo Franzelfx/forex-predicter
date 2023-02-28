@@ -148,6 +148,9 @@ class Data_Aquirer:
                 data = data.drop_duplicates()
                 # Sort by time
                 data.sort_values(by="t", inplace=True)
+                # Remove index column (if it exists)
+                if "Unnamed: 0" in data.columns:
+                    data.drop(columns=["Unnamed: 0"], inplace=True)
                 if save is True:
                     data.to_csv(f"{self._path}/{pair}_{minutes}.csv", index=True)
                 return data
