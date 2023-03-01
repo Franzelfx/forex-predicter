@@ -214,6 +214,15 @@ class Preprocessor:
         @return: The header of the data as list.
         """
         return self._data.columns.tolist()
+    
+    @property
+    def val_split(self) -> float:
+        """Get the validation split.
+
+        @return: The validation split as float.
+        @remars: val_split is (1 / samples of y_train) * time_steps_out
+        """
+        return (1 / self._y_train.shape[0]) * self._time_steps_out
 
     @property
     def test_split(self) -> float:
