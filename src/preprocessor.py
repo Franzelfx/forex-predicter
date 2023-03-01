@@ -124,6 +124,7 @@ class Preprocessor:
         self._train_data, self._test_data = self._split_train_test(
             self._data, self._test_split, self._test_length
         )
+        # TODO: Create samples function
         # Split the train data into sequences
         self._x_train, self._y_train = self._create_samples(
             self._train_data,

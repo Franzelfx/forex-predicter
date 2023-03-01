@@ -59,7 +59,7 @@ class UtilizerIntegrationTest(unittest.TestCase):
                 # TODO: Check, why the scaling is not working
                 # prediction_train = utilizer_train.predict(TEST_TIME_STEPS_OUT, scaler=preprocessor.target_scaler, ma_period=50, last_known=last_known_x)
                 prediction_hat = utilizer_hat.predict(
-                    time_steps_out=10 * TEST_TIME_STEPS_OUT,
+                    time_steps_out=TEST_TIME_STEPS_OUT,
                     ma_period=10,
                     last_known=last_known_y,
                 )
