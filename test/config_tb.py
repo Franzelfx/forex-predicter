@@ -51,7 +51,7 @@ TARGET = 'MA5'
 # Preprocessor
 PREPROCESSOR_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.curdir, "preprocessor_test"))
 PREPROCESSOR_DATA_SOURCE = f"{PATH_INDICATORS}/{PAIR}_{MINUTES}.csv"
-TEST_TIME_STEPS_IN = 256  # 18 hours
+TEST_TIME_STEPS_IN = 1024  # 18 hours
 TEST_TIME_STEPS_OUT = 96  # 12 hours
 TEST_LENGTH = TEST_TIME_STEPS_IN + TEST_TIME_STEPS_OUT
 TEST_SCALE = True
@@ -65,7 +65,7 @@ MODEL_NAME = f"{PAIR}"
 TEST_EPOCHS = 300
 TEST_NEURONS = 64
 TEST_BATCH_SIZE = 16
-TEST_LEARNING_RATE = 0.0004
+TEST_LEARNING_RATE = 0.0001
 TEST_VALIDATION_SPLIT = 0.2
 PATH_TEST_RESULTS = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.curdir, "test_results"))
 
