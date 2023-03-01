@@ -21,7 +21,7 @@ class UtilizerIntegrationTest(unittest.TestCase):
                 aquirer = Data_Aquirer(PATH_PAIRS, API_KEY, api_type="full")
                 # TODO: Fix the from_file=True
                 data = aquirer.get(
-                    pair, MINUTES, start=START, save=True, from_file=True
+                    pair, MINUTES, start=START, end=END, save=True, from_file=True
                 )
                 # Apply indicators
                 indicators = Indicators(data, TEST_INDICATORS)

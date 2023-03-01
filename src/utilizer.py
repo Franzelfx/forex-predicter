@@ -27,6 +27,9 @@ class Utilizer():
             from_saved_model=True,
         )
         import matplotlib.pyplot as plt
+        # Reduce to time 2 * steps out
+        reduction = 2 * self._preprocessor.time_steps_out
+        self._prediction = self._prediction[-reduction:]
         plt.plot(self._prediction)
         plt.show()
 

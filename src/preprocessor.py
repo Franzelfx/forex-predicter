@@ -308,9 +308,12 @@ class Preprocessor:
         """
         prediction_set = []
         # Create samples of length time_steps_in from the whole data
-        for i in range(0, len(self._data) - self._time_steps_in, self._time_steps_in):
+        for i in range(0, len(self._data) - self._time_steps_in, self._shift):
             prediction_set.append(self._data[i : i + self._time_steps_in].values)
-        return np.array(prediction_set)
+        prediction_set = np.array(prediction_set)
+        # Reduce to time_steps_out samples
+        prediction_set = prediction_set[-self._time_steps_out :, :, :]
+        return prediction_set
 
     @property
     def last_known_x(self) -> np.ndarray:
