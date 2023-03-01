@@ -56,7 +56,7 @@ TEST_TIME_STEPS_OUT = 96  # 12 hours
 TEST_LENGTH = TEST_TIME_STEPS_IN + TEST_TIME_STEPS_OUT
 TEST_SCALE = True
 TEST_BRANCHED_MODEL = False
-TEST_SHIFT = 10 # overlap of one means x and y wndows are shifted by one in every sample
+TEST_SHIFT = 5 # overlap of one means x and y wndows are shifted by one in every sample
 
 # Model
 MODEL_DATA_SOURCE = f"{PREPROCESSOR_DATA_SOURCE}"
