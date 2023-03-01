@@ -41,21 +41,25 @@ class Utilizer():
         """
         return -(actual - pred[0])
 
-    def predict(self, time_steps: int, scaler: MinMaxScaler=None, last_known: int=None, ma_period=50) -> np.ndarray:
+    def predict(self, time_steps_out: int, scaler: MinMaxScaler=None, last_known: int=None, ma_period=50) -> np.ndarray:
         """Predict the next values.
         
-        @param time_steps The number of time steps to predict.
+        @param time_steps_in The number of time steps to feed into the model.
+        @param time_steps_out The number of time steps to predict.
         @param scaler The scaler to use for the prediction.
         @param smoothen The number of values to smoothen (moving average).
         @param last_known The last known value(s) to use for prediction.
         @return The predicted values.
         """
         # Get last time_steps values of data
-        data = self._data[-time_steps:]
         # Predict the next values
+        data = self._data
         prediction = self._model.predict(data, scaler=scaler, from_saved_model=True)
         # Smoothen the prediction
         prediction = self.moving_average(prediction, ma_period)
+        # Reduce to time steps out minus ma_period + 1
+        reduction = time_steps_out - (ma_period + 1)
+        prediction = prediction[-reduction:]
         # Substract diff
         if last_known is not None:
             prediction = prediction - self.diff(prediction, last_known)

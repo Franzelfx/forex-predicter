@@ -277,10 +277,22 @@ class Preprocessor:
     @property
     def x_predict(self) -> np.ndarray:
         """Get x_predict (last n_steps_in of data)"""
-        x_predict = self._data[-self._time_steps_in :].values
+        x_predict = self._data[-self._time_steps_in:].values
         # Add samples dimension
         x_predict = np.expand_dims(x_predict, axis=0)
         return x_predict
+    
+    @property
+    def prediction_set(self) -> np.ndarray:
+        """Get the prediction set.
+
+        @return: The prediction set as numpy array.
+        """
+        prediction_set = []
+        # Create samples of length time_steps_in from the whole data
+        for i in range(0, len(self._data) - self._time_steps_in, self._time_steps_in):
+            prediction_set.append(self._data[i : i + self._time_steps_in].values)
+        return np.array(prediction_set)
 
     @property
     def last_known_x(self) -> np.ndarray:
@@ -292,11 +304,11 @@ class Preprocessor:
 
     @property
     def last_known_y(self) -> int:
-        """Get the last known value for each feature.
+        """Get the last known value for the target feature.
 
-        @return: The last known value of y_test as int.
+        @return: The last known value of y_test as integer.
         """
-        return self._y_test[-1, -1]
+        return self._data[self._target].iloc[-1]
 
     @property
     def target(self) -> str:

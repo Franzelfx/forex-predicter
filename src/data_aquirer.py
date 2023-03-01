@@ -152,7 +152,7 @@ class Data_Aquirer:
                 if "Unnamed: 0" in data.columns:
                     data.drop(columns=["Unnamed: 0"], inplace=True)
                 if save is True:
-                    data.to_csv(f"{self._path}/{pair}_{minutes}.csv", index=True)
+                    data.to_csv(f"{self._path}/{pair}_{minutes}.csv", index=False)
                 return data
             except FileNotFoundError:
                 print(f"No data for {pair} with {minutes} minutes interval found.")
@@ -166,7 +166,7 @@ class Data_Aquirer:
             data.drop(columns=["Unnamed: 0"], inplace=True)
         # Save the data to a csv file
         if save is True:
-            data.to_csv(f"{self._path}/{pair}_{minutes}.csv", index=True)
+            data.to_csv(f"{self._path}/{pair}_{minutes}.csv", index=False)
             # Return the data
         return data
 
