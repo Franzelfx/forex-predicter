@@ -63,7 +63,7 @@ class SystemTest(unittest.TestCase):
                 # Plot the results
                 visualizer = Visualizer(pair)
                 path = f"{MODEL_PATH}/system_test"
-                visualizer.plot_prediction(prediction, path, y_test=y_test)
+                visualizer.plot_prediction(prediction, path, actual=y_test)
             except Exception:
                 traceback.print_exc()
 
