@@ -1,4 +1,5 @@
 """Module for the Data_Aquirer class."""
+import os
 import requests
 import pandas as pd
 from datetime import datetime as date
@@ -76,7 +77,6 @@ class Data_Aquirer:
             if not "results" in response:
                 raise ConnectionError(response)
             # Convert the data to a pandas dataframe
-
             data = pd.DataFrame(response["results"])
             # Convert t from ms to datetime with given format
             data["t"] = pd.to_datetime(data["t"], unit="ms")
@@ -96,7 +96,6 @@ class Data_Aquirer:
             )
         else:
             print(f"\nEverything up to date.")
-        data_return.set_index("t", inplace=True)
         return data_return
 
     def get(
@@ -146,13 +145,14 @@ class Data_Aquirer:
                 data = pd.concat([data, request])
                 # Drop duplicates of the time column
                 data = data.drop_duplicates()
-                # Sort by time
-                data.sort_values(by="t", inplace=True)
-                # Remove index column (if it exists)
-                if "Unnamed: 0" in data.columns:
-                    data.drop(columns=["Unnamed: 0"], inplace=True)
+                # Save the data to a csv file
                 if save is True:
-                    data.to_csv(f"{self._path}/{pair}_{minutes}.csv", index=False)
+                    # Reset the index
+                    data.reset_index(drop=True, inplace=True)
+                    # Remove unnamed column (if exists)
+                    if "Unnamed: 0" in data.columns:
+                        data.drop(columns=["Unnamed: 0"], inplace=True)
+                    data.to_csv(f"{self._path}/{pair}_{minutes}.csv")
                 return data
             except FileNotFoundError:
                 print(f"No data for {pair} with {minutes} minutes interval found.")
@@ -161,12 +161,9 @@ class Data_Aquirer:
         else:
             # Get the data from the API
             data = self._request(pair, minutes, start, end)
-        # Remove index column (if it exists)
-        if "Unnamed: 0" in data.columns:
-            data.drop(columns=["Unnamed: 0"], inplace=True)
         # Save the data to a csv file
         if save is True:
-            data.to_csv(f"{self._path}/{pair}_{minutes}.csv", index=False)
+            data.to_csv(f"{self._path}/{pair}_{minutes}.csv")
             # Return the data
         return data
 
