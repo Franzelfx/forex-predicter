@@ -46,7 +46,7 @@ class SystemTest(unittest.TestCase):
                 model.compile_and_fit(
                     epochs=TEST_EPOCHS,
                     hidden_neurons=TEST_NEURONS,
-                    batch_size=TEST_BATCH_SIZE,
+                    batch_size=TEST_TIME_STEPS_IN,
                     learning_rate=TEST_LEARNING_RATE,
                     validation_spilt=TEST_VALIDATION_SPLIT,
                 )
