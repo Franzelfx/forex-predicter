@@ -3,6 +3,7 @@ import sys
 import os.path
 from api_key import API_KEY
 from datetime import datetime as date
+from datetime import datetime, timedelta
 
 
 sys.path.append(
@@ -14,6 +15,8 @@ PATH_PAIRS = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.cur
 PAIR = "CADJPY"
 MINUTES = 15
 START = "2022-01-01"
+# Substract 1 hour to get the last full hour
+END = (date.today()- timedelta(hours=1)).strftime("%Y-%m-%d")
 API_TYPE = "advanced"
 API_KEY = API_KEY
 
