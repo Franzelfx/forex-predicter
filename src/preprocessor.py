@@ -285,6 +285,14 @@ class Preprocessor:
         return self._y_test
 
     @property
+    def y_test_inverse(self) -> np.ndarray:
+        """Get the inverse scaled y test data.
+
+        @return: The inverse scaled y test data as numpy array.
+        """
+        return self.target_scaler.inverse_transform(self._y_test).flatten()
+
+    @property
     def x_predict(self) -> np.ndarray:
         """Get x_predict (last n_steps_in of data)"""
         x_predict = self._data[-self._time_steps_in:].values

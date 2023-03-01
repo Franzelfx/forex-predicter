@@ -51,28 +51,20 @@ class UtilizerIntegrationTest(unittest.TestCase):
                     preprocessor.x_train,
                     preprocessor.y_train,
                 )
-                # Last known value
-                last_known_y = preprocessor.last_known_y
                 # Directly predict from saved model
-                # utilizer_train = Utilizer(model, preprocessor.x_train)
-                utilizer_hat = Utilizer(model, preprocessor.prediction_set)
-                # TODO: Check, why the scaling is not working
-                # prediction_train = utilizer_train.predict(TEST_TIME_STEPS_OUT, scaler=preprocessor.target_scaler, ma_period=50, last_known=last_known_x)
-                prediction_hat = utilizer_hat.predict(
-                    time_steps_out=TEST_TIME_STEPS_OUT,
-                    ma_period=10,
-                    last_known=last_known_y,
-                )
-                # Scale the prediction
+                utilizer = Utilizer(model, preprocessor)
+                y_test, y_hat = utilizer.test_ahead_predict()
+                # Scale back
                 if TEST_SCALE:
+                    # Inverse the scaling
                     scaler = preprocessor.target_scaler
-                    prediction_hat = scaler.inverse_transform(
-                        prediction_hat.reshape(-1, 1)
-                    ).flatten()
+                    y_test = scaler.inverse_transform(y_test.reshape(-1, 1)).flatten()
+                    y_hat = scaler.inverse_transform(y_hat.reshape(-1, 1)).flatten()
+                actual = preprocessor.y_test_inverse
                 visualizer = Visualizer(pair)
                 path = f"{MODEL_PATH}/utilizer_test"
                 # visualizer.plot_prediction(prediction_train, path, extra_info=f"train")
-                visualizer.plot_prediction(prediction_hat, path, extra_info=f"hat")
+                visualizer.plot_prediction(y_test, y_hat, path, actual=actual)
             except Exception:
                 traceback.print_exc()
 
