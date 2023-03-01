@@ -13,7 +13,7 @@ sys.path.append(
 PATH_PAIRS = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.curdir, "pairs"))
 PAIR = "CADJPY"
 MINUTES = 15
-START = "2015-01-01"
+START = "2022-01-01"
 API_TYPE = "advanced"
 API_KEY = API_KEY
 
