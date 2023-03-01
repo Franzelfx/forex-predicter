@@ -9,9 +9,20 @@ from keras.models import load_model
 from sklearn.preprocessing import MinMaxScaler
 from keras.models import Sequential, Model as KerasModel
 from keras.callbacks import ModelCheckpoint, EarlyStopping, TensorBoard
-from keras.layers import Dense, LSTM, Dropout, Flatten, Conv1D, MaxPooling1D, concatenate, GRU, Reshape
+from keras.layers import (
+    Dense,
+    LSTM,
+    Dropout,
+    Flatten,
+    Conv1D,
+    MaxPooling1D,
+    concatenate,
+    GRU,
+    Bidirectional,
+)
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
+
 
 class Model:
     """Used to create, compile, fit and predict with the LSTM model."""
@@ -47,17 +58,19 @@ class Model:
         """Create the model."""
         model = Sequential()
         model.add(
-            LSTM(
-                hidden_neurons,
-                return_sequences=True,
-                input_shape=(self._x_train.shape[1], self._x_train.shape[2])
+            Bidirectional(
+                LSTM(
+                    hidden_neurons,
+                    return_sequences=True,
+                    input_shape=(self._x_train.shape[1], self._x_train.shape[2]),
+                )
             )
         )
-        model.add(LSTM(int(hidden_neurons), return_sequences=True))
-        model.add(LSTM(int(hidden_neurons), return_sequences=False))
+        model.add(GRU(int(hidden_neurons), return_sequences=False))
         model.add(Dropout(dropout))
         model.add(Dense(self._y_train.shape[1], activation=activation))
-        model.add(Dense(self._y_train.shape[1], activation='linear'))
+        model.add(Dropout(dropout))
+        model.add(Dense(self._y_train.shape[1], activation="linear"))
         model.build(
             input_shape=(
                 self._x_train.shape[0],
@@ -66,7 +79,7 @@ class Model:
             )
         )
         return model
-    
+
     def _create_branched_model(
         self, hidden_neurons: int, dropout: int, activation: str
     ) -> Sequential:
@@ -95,14 +108,10 @@ class Model:
         )
         conv1d.add(MaxPooling1D(pool_size=2))
         conv1d.add(Dropout(dropout))
-        conv1d.add(
-            Conv1D(filters=hidden_neurons, kernel_size=3, activation=activation)
-        )
+        conv1d.add(Conv1D(filters=hidden_neurons, kernel_size=3, activation=activation))
         conv1d.add(MaxPooling1D(pool_size=2))
         conv1d.add(Dropout(dropout))
-        conv1d.add(
-            Conv1D(filters=hidden_neurons, kernel_size=3, activation=activation)
-        )
+        conv1d.add(Conv1D(filters=hidden_neurons, kernel_size=3, activation=activation))
         conv1d.add(MaxPooling1D(pool_size=2))
         conv1d.add(Dropout(dropout))
         conv1d.add(Flatten())
@@ -125,7 +134,7 @@ class Model:
         # High resolution plot with subplots
         plt.cla()
         plt.clf()
-        plt.style.use('dark_background')
+        plt.style.use("dark_background")
         fig, axes = plt.subplots(2, 1, figsize=(20, 10))
         # High resolution plot
         fig.set_dpi(300)
@@ -150,7 +159,9 @@ class Model:
         # Save the plot
         plt.savefig(f"{self._path}/fit_history/{self._name}.png")
 
-    def _compile(self, hidden_neurons, dropout, activation, learning_rate, loss, branched_model):
+    def _compile(
+        self, hidden_neurons, dropout, activation, learning_rate, loss, branched_model
+    ):
         """Compile the model."""
         if branched_model:
             model = self._create_branched_model(hidden_neurons, dropout, activation)
@@ -194,7 +205,9 @@ class Model:
                  The tensorboard logs are saved in the tensorboard folder.
         """
         # Say how much GPU's are available
-        model = self._compile(hidden_neurons, dropout, activation, learning_rate, loss, branched_model)
+        model = self._compile(
+            hidden_neurons, dropout, activation, learning_rate, loss, branched_model
+        )
         # Configure callbacks (early stopping, checkpoint, tensorboard)
         model_checkpoint = ModelCheckpoint(
             filepath=f"{self._path}/checkpoints/{self._name}_weights.h5",
