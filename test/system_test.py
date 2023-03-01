@@ -48,7 +48,7 @@ class SystemTest(unittest.TestCase):
                     hidden_neurons=TEST_NEURONS,
                     batch_size=TEST_TIME_STEPS_IN,
                     learning_rate=TEST_LEARNING_RATE,
-                    validation_spilt=preprocessor.validation_split,
+                    validation_spilt=preprocessor.val_split,
                 )
                 # Predict the next values
                 x_test = preprocessor.x_test
