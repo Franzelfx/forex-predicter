@@ -8,7 +8,7 @@ from sklearn.preprocessing import MinMaxScaler
 class Utilizer():
     """The utilizer class, to use the trained model to predict."""
 
-    def __init__(self, model: ModelPreTrained, preprocessor: Preprocessor, ma_period=10) -> None:
+    def __init__(self, model: ModelPreTrained, preprocessor: Preprocessor, ma_period=10, lookback=3) -> None:
         """Initialize the utilizer.
         
         @param model The model to use for prediction or the path to the model.
@@ -17,23 +17,33 @@ class Utilizer():
         self._model = model
         self._preprocessor = preprocessor
         self._ma_period = ma_period
+        self._lookback = lookback
         # Check if model is a path
         if isinstance(model, str):
             self._model = ModelPreTrained.load(model)
+    
+    @property
+    def test_actual(self) -> np.ndarray:
+        """Get the actual test values.
+        
+        @return The actual test values.
+        """
+        return self._preprocessor.y_test_inverse
+    
+    @property
+    def predict(self) -> tuple[np.ndarray, np.ndarray]:
+        """Get test and hat prediction.
+        
+        @return Tuple of test and hat prediction.
+        """
 
-    def predict(self) -> np.ndarray:
-        prediction = self._model.predict(
-            self._preprocessor.prediction_set,
-            scaler=self._preprocessor.target_scaler,
-            from_saved_model=True,
-        )
+        # Predict the values
+        test = self._model.predict(self._preprocessor.x_test, scaler=self._preprocessor.target_scaler, from_saved_model=True)
+        y_hat = self._model.predict(self._preprocessor.x_hat, scaler=self._preprocessor.target_scaler, from_saved_model=True)
         # Calculate moving average
-        prediction = self._moving_average(prediction, self._ma_period)
-        # Substract difference between last known value and first predicted value
-        prediction = prediction - self._diff(prediction, self._preprocessor.last_known_y)
-        # Calculate mean of for time_steps_out values
-        prediction = self._mean_of(prediction, self._preprocessor.time_steps_out)
-        return prediction
+        test = self._moving_average(test, self._ma_period)
+        y_hat = self._moving_average(y_hat, self._ma_period)
+        return test, y_hat
     
     def _mean_of(self, data: np.ndarray, period: int) -> np.ndarray:
         """Calculate the mean of the given data.

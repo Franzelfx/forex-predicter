@@ -14,7 +14,7 @@ class Visualizer:
         self.dark_mode = dark_mode
 
     # TODO: Add time information to x-axis
-    def plot_prediction(self, prediction, path, _input=None, actual=None, save_csv=True, extra_info=""):
+    def plot_prediction(self, hat, path, test_actual=None, test_predict=None, save_csv=True, extra_info=""):
         """Plot the prediction."""
         date = dt.now().strftime("%Y-%m-%d_%H-%M-%S")
         if extra_info != "":
@@ -22,31 +22,24 @@ class Visualizer:
         path = f"{path}/{self.pair}_prediction{extra_info}"
         plt.cla()
         plt.clf()
+        shift_len = 0
         if self.dark_mode:
             plt.style.use('dark_background')
         else:
             plt.style.use('default')
-        if _input is not None:
-            plt.plot(_input, label="Input")
+        if (test_actual.all() or test_predict.all()) is not None:
+            if(test_actual.all() is not None):
+                plt.plot(test_actual, label="Actual")
+                shift_len = len(test_actual)
+            if(test_predict.all() is not None):
+                plt.plot(test_predict, label="Prediction")
+                shift_len = len(test_predict)
             # Then we have to shift the prediction
             # by the length of the input to the right
             # to get the correct time
-            # TODO: Refactor this
-            plt.plot(
-                range(len(_input), len(_input) + len(prediction)),
-                prediction,
-                label="Prediction",
-            )
-            if actual is not None:
-                plt.plot(
-                    range(len(_input), len(_input) + len(prediction)),
-                    actual,
-                    label="Actual",
-                )
+            plt.plot(range(shift_len, shift_len + len(hat)), hat, label="Prediction")
         else:
-            plt.plot(prediction, label="Prediction")
-            if actual is not None:
-                plt.plot(actual, label="Actual")
+            plt.plot(hat, label="Prediction")
         plt.legend()
         plt.title(f"Prediction for {self.pair}")
         plt.xlabel("Time")
@@ -58,5 +51,5 @@ class Visualizer:
         print(f"Saved plot to {path}.png")
         # Save raw data as csv
         if save_csv:
-            df = pd.DataFrame({"input": _input, "prediction": prediction, "actual": actual})
+            df = pd.DataFrame({"prediction": hat})
             df.to_csv(f"{path}.csv", index=False, )

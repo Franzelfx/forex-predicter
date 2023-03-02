@@ -188,7 +188,7 @@ class Model:
         epochs=100,
         learning_rate=0.001,
         batch_size=32,
-        loss="mean_absolute_error",
+        loss="mse",
         validation_spilt=0.2,
         patience=10,
         branched_model=False,

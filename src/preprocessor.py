@@ -5,7 +5,7 @@ from logging import warning
 from tabulate import tabulate
 
 pd.options.mode.chained_assignment = None  # default='warn'
-from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import StandardScaler
 
 
 class Preprocessor:
@@ -26,7 +26,6 @@ class Preprocessor:
         test_length=90,
         test_split=None,
         scale=True,
-        feature_range=(-1, 1),
         shift=None,
     ):
         """Set the fundamental attributes.
@@ -38,7 +37,6 @@ class Preprocessor:
         @param test_length: The length of the test data (will be ignored if test_split is not None).
         @param test_split: The percentage of the data to be used for testing (0.0 to 0.5).
         @param scale: If the data should be scaled or not.
-        @param feature_range: The range of the scaled data.
         @param overlap: The amount of overlap for x and y samples.
         @param prediction_mode: If the preprocessor is used for prediction or not.
                                 In prediction mode, no y samples are generated
@@ -62,7 +60,6 @@ class Preprocessor:
         self._test_length = test_length
         # The scaling and feature range
         self._scale = scale
-        self._feature_range = feature_range
         self._shift = shift
         # The train and test data
         self._train_data = None  # Input is a pandas dataframe, output is a numpy array
@@ -104,16 +101,6 @@ class Preprocessor:
             if test_split < 0.0 or test_split > 0.5:
                 raise ValueError(
                     f"The test split must be between 0.0 and 0.5. [{test_split} < 0.0 or {test_split} > 0.5]"
-                )
-        # The scaling and feature range
-        if scale:
-            if len(feature_range) != 2:
-                raise ValueError(
-                    f"The feature range must be a tuple with 2 elements. [{len(feature_range)} != 2]"
-                )
-            if feature_range[0] >= feature_range[1]:
-                raise ValueError(
-                    f"The first element of the feature range must be smaller than the second. [{feature_range[0]} >= {feature_range[1]}]"
                 )
         # The shift
         if shift is not None:
@@ -191,9 +178,9 @@ class Preprocessor:
             ],
             ["Y Test", self._y_test.shape, len(self._y_test), "(Samples, Timesteps)"],
             [
-                "X Predict",
-                self.x_predict.shape,
-                len(self.x_predict),
+                "X Hat",
+                self.x_hat.shape,
+                len(self.x_hat),
                 "(Samples, Timesteps, Features)",
             ],
         ]
@@ -303,37 +290,12 @@ class Preprocessor:
         return self.target_scaler.inverse_transform(self._y_test).flatten()
 
     @property
-    def x_predict(self) -> np.ndarray:
+    def x_hat(self) -> np.ndarray:
         """Get x_predict (last n_steps_in of data)"""
         x_predict = self._data[-self._time_steps_in:].values
         # Add samples dimension
         x_predict = np.expand_dims(x_predict, axis=0)
         return x_predict
-    
-    @property
-    def sampled_dataset(self) -> np.ndarray:
-        """Get the sampled dataset (samples of length time_steps_in shifted by "shift" parameter)
-
-        @return: The sampled dataset as pandas dataframe.
-        """
-        data_set = []
-        # Create samples of length time_steps_in from the whole data
-        for i in range(0, len(self._data) - self._time_steps_in, 1):
-            data_set.append(self._data[i : i + self._time_steps_in].values)
-        data_set = np.array(data_set)
-        return data_set
-
-    @property
-    def prediction_set(self) -> np.ndarray:
-        """Get the prediction set.
-
-        @return: The prediction set as numpy array.
-        """
-        data_set = self.sampled_dataset
-        # Reduce prediction set to time_steps_out / shift samples
-        reduction = self._time_steps_out // 1
-        prediction_set = data_set[-reduction:]
-        return prediction_set
 
     @property
     def last_known_x(self) -> np.ndarray:
@@ -357,7 +319,7 @@ class Preprocessor:
         return self._target
 
     @property
-    def scaler(self) -> dict[MinMaxScaler]:
+    def scaler(self) -> dict[StandardScaler]:
         """Get the list of available scalers for each feature.
 
         @return: A list of scalers.
@@ -370,7 +332,7 @@ class Preprocessor:
         return self._scaler
 
     @property
-    def target_scaler(self) -> MinMaxScaler:
+    def target_scaler(self) -> StandardScaler:
         """Get the scaler for the target feature.
 
         @return: The scaler for the target feature.
@@ -476,7 +438,7 @@ class Preprocessor:
         for column in data.columns:
             # Cop y the values to reshape them
             values = data[column].values
-            scaler[column] = MinMaxScaler(copy=False, feature_range=self._feature_range)
+            scaler[column] = StandardScaler()
             values = values.reshape(-1, 1)
             scaler[column].fit(values)
             values = scaler[column].transform(values)
