@@ -59,12 +59,17 @@ class Model:
         model = Sequential()
         model.add(
             Conv1D(
-                filters=hidden_neurons,
+                filters=64,
                 kernel_size=3,
                 activation=activation,
                 input_shape=(self._x_train.shape[1], self._x_train.shape[2]),
             )
         )
+        model.add(MaxPooling1D(pool_size=2))
+        model.add(Conv1D(filters=128, kernel_size=3, activation=activation))
+        model.add(MaxPooling1D(pool_size=2))
+        model.add(Conv1D(filters=256, kernel_size=3, activation=activation))
+        model.add(MaxPooling1D(pool_size=2))
         model.add(
             Bidirectional(
                 LSTM(
@@ -74,6 +79,7 @@ class Model:
                 )
             )
         )
+        model.add(GRU(int(hidden_neurons), return_sequences=True))
         model.add(GRU(int(hidden_neurons), return_sequences=False))
         model.add(Dropout(dropout))
         model.add(Dense(self._y_train.shape[1], activation=activation))
