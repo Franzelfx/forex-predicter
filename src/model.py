@@ -58,16 +58,6 @@ class Model:
         """Create the model."""
         model = Sequential()
         model.add(
-            Conv1D(
-                filters=64,
-                kernel_size=3,
-                activation=activation,
-                input_shape=(self._x_train.shape[1], self._x_train.shape[2]),
-            )
-        )
-        model.add(Conv1D(filters=128, kernel_size=3, activation=activation))
-        model.add(Conv1D(filters=256, kernel_size=3, activation=activation))
-        model.add(
             Bidirectional(
                 LSTM(
                     hidden_neurons,
