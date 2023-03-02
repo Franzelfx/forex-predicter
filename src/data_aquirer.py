@@ -148,8 +148,6 @@ class Data_Aquirer:
                 # Save the data to a csv file
                 if save is True:
                     # Reset the index
-                    data.reset_index(drop=True, inplace=True)
-                    # Remove unnamed column (if exists)
                     if "Unnamed: 0" in data.columns:
                         data.drop(columns=["Unnamed: 0"], inplace=True)
                     data.to_csv(f"{self._path}/{pair}_{minutes}.csv")
