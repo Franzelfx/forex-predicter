@@ -8,7 +8,7 @@ sys.path.append(
 from config_tb import *
 from matplotlib import pyplot as plt
 
-PERIOD = 50
+PERIOD = 100
 
 def moving_average(data: pd.DataFrame, n: int):
     """Calculate the moving average for the given data."""

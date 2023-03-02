@@ -53,7 +53,7 @@ class Test_Preprocessor(unittest.TestCase):
         self.assertFalse(x_train.isnull().values.any())
         self.assertFalse(y_train.isnull().values.any())
 
-    def test_train_test_set(self):
+    def test__train_test_set(self):
         """Plot the train and test set."""
         train_c = self.preprocessor.feature_train('c')
         test_c = self.preprocessor.feature_test('c')
@@ -132,7 +132,62 @@ class Test_Preprocessor(unittest.TestCase):
         axs[0].legend()
         axs[1].legend()
         plt.savefig(f"{PREPROCESSOR_PATH}/x_y_train.png")
-
+    
+    def test___y_train_prediction(self):
+        """Test if the y_train prediction is correct."""
+        # Get last ample of y_train
+        x_test = self.preprocessor.x_test[-1, :, self.preprocessor.loc_of(self.preprocessor.target)]
+        y_test = self.preprocessor.y_test[-1, :]
+        # Get prediction sample
+        x_predict = self.preprocessor.x_predict[-1, :, self.preprocessor.loc_of(self.preprocessor.target)]
+        # Extract the lastn_time_steps_out values of x_test
+        x_test = x_test[-self.preprocessor.time_steps_out:]
+        # Extract the last n_time_steps_out values of x_predict
+        x_predict = x_predict[-self.preprocessor.time_steps_out:]
+        # Plot the values in subplots
+        fig, axs = plt.subplots(3, 1)
+        # High dpi for better quality
+        fig.set_dpi(300)
+        axs[0].plot(x_test, color="red", label="x_test")
+        # Add comment to the top of the plot
+        axs[0].annotate(
+            "Last x_test sample",
+            xy=(0.5, 0.5),
+            xytext=(0.35, 0.15),
+            xycoords="axes fraction",
+            textcoords="axes fraction",
+            fontsize=8,
+            ha="center",
+            va="center",
+        )
+        axs[1].plot(y_test, color="blue", label="y_test")
+        # Add comment to the plot
+        axs[1].annotate(
+            "Last y_test sample",
+            xy=(0, 0),
+            xytext=(0.35, 0.15),
+            xycoords="axes fraction",
+            textcoords="axes fraction",
+            fontsize=8,
+            ha="center",
+            va="center",
+        )
+        axs[2].plot(x_predict, color="green", label="x_predict")
+        # Add comment to the plot
+        axs[2].annotate(
+            "Last x_predict sample",
+            xy=(0, 0),
+            xytext=(0.35, 0.15),
+            xycoords="axes fraction",
+            textcoords="axes fraction",
+            fontsize=8,
+            ha="center",
+            va="center",
+        )
+        axs[0].legend()
+        axs[1].legend()
+        axs[2].legend()
+        plt.savefig(f"{PREPROCESSOR_PATH}/y_train_prediction.png")
 
     
 if __name__ == "__main__":

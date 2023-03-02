@@ -3,6 +3,7 @@ import sys
 import os.path
 from api_key import API_KEY
 from datetime import datetime as date
+from datetime import datetime, timedelta
 
 
 sys.path.append(
@@ -11,8 +12,11 @@ sys.path.append(
 
 # Data aquirer
 PATH_PAIRS = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.curdir, "pairs"))
-PAIR = "EURUSD"
-MINUTES = 1
+PAIR = "CADJPY"
+MINUTES = 15
+START = "2010-01-01"
+# Substract 1 hour to get the last full hour
+END = (date.today()- timedelta(hours=1)).strftime("%Y-%m-%d")
 API_TYPE = "advanced"
 API_KEY = API_KEY
 
@@ -50,20 +54,26 @@ TARGET = 'MA5'
 # Preprocessor
 PREPROCESSOR_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.curdir, "preprocessor_test"))
 PREPROCESSOR_DATA_SOURCE = f"{PATH_INDICATORS}/{PAIR}_{MINUTES}.csv"
-TEST_TIME_STEPS_IN = 6720  # 10 weeks
-TEST_TIME_STEPS_OUT = 672  # 1 day
+TEST_TIME_STEPS_IN = 1024  # 18 hours
+TEST_TIME_STEPS_OUT = 128  # 12 hours
 TEST_LENGTH = TEST_TIME_STEPS_IN + TEST_TIME_STEPS_OUT
 TEST_SCALE = True
+TEST_BRANCHED_MODEL = False
+TEST_SHIFT = 64 # overlap of one means x and y wndows are shifted by one in every sample
 
 # Model
 MODEL_DATA_SOURCE = f"{PREPROCESSOR_DATA_SOURCE}"
 MODEL_PATH = os.path.abspath(os.path.dirname(__file__))
-MODEL_NAME = f"{PAIR}_{MINUTES}"
-TEST_EPOCHS = 200
-TEST_NEURONS = 256
-TEST_BATCH_SIZE = 16
+MODEL_NAME = f"{PAIR}"
+TEST_EPOCHS = 300
+TEST_NEURONS = 64
+TEST_BATCH_SIZE = 64
 TEST_LEARNING_RATE = 0.0005
+TEST_VALIDATION_SPLIT = 0.2
 PATH_TEST_RESULTS = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.curdir, "test_results"))
 
 # System test
 REQUEST_PAIRS = ['AUDCHF', 'AUDJPY', 'AUDNZD', 'AUDUSD', 'CADCHF', 'CADJPY', 'CHFJPY', 'EURAUD', 'EURCAD', 'EURCHF', 'EURGBP', 'EURJPY', 'EURNZD', 'EURUSD', 'GBPAUD', 'GBPCAD', 'GBPCHF', 'GBPJPY', 'GBPNZD', 'GBPUSD', 'NZDCAD', 'NZDCHF', 'NZDJPY', 'NZDUSD', 'USDCAD', 'USDCHF', 'USDJPY']
+# Utilizer test
+UTIL_PAIRS = REQUEST_PAIRS
+#UTIL_PAIRS = ['GBPJPY', 'EURUSD']

@@ -4,7 +4,9 @@ import pandas as pd
 from config_tb import *
 from src.model import Model
 from src.visualizer import Visualizer
+from src.indicators import Indicators
 from src.preprocessor import Preprocessor
+from src.data_aquirer import Data_Aquirer
 
 class Test_Model(unittest.TestCase):
     """Integration test for the Model class.
@@ -15,13 +17,25 @@ class Test_Model(unittest.TestCase):
 
     def test_compile_fit_predict(self):
         """Test the compile, fit and predict method with data from the preprocessor."""
-        test_data = pd.read_csv(MODEL_DATA_SOURCE)
+        try:
+            test_data = pd.read_csv(MODEL_DATA_SOURCE)
+        except:
+            aquirer = Data_Aquirer(PATH_PAIRS, API_KEY, api_type="full")
+            test_data = aquirer.get(
+                PAIR, MINUTES, start=START, save=True, from_file=False
+            )
+            # Indicators
+            indicators = Indicators(test_data, TEST_INDICATORS)
+            test_data = indicators.calculate(
+                save=True, path=f"{PATH_INDICATORS}/{PAIR}_{MINUTES}.csv"
+            )
         preprocessor = Preprocessor(
             test_data,
             TARGET,
             time_steps_in=TEST_TIME_STEPS_IN,
             time_steps_out=TEST_TIME_STEPS_OUT,
             scale=TEST_SCALE,
+            shift=TEST_SHIFT,
         )
         preprocessor.summary()
         model = Model(
@@ -31,7 +45,14 @@ class Test_Model(unittest.TestCase):
             preprocessor.y_train,
         )
         # Run for testing
-        model.compile_and_fit(epochs=TEST_EPOCHS, hidden_neurons=TEST_NEURONS, batch_size=TEST_BATCH_SIZE, learning_rate=TEST_LEARNING_RATE, branched_model=True)
+        model.compile_and_fit(
+            epochs=TEST_EPOCHS,
+            hidden_neurons=TEST_NEURONS,
+            batch_size=TEST_BATCH_SIZE,
+            learning_rate=TEST_LEARNING_RATE,
+            branched_model=TEST_BRANCHED_MODEL,
+            validation_spilt=TEST_VALIDATION_SPLIT,
+        )
         # Predict the next values
         x_test = preprocessor.x_test
         prediction = model.predict(x_test, scaler=preprocessor.target_scaler)
@@ -46,6 +67,7 @@ class Test_Model(unittest.TestCase):
         visualizer = Visualizer(PAIR)
         path = f"{MODEL_PATH}/model_test"
         visualizer.plot_prediction(prediction, path, y_test=y_test)
+
 
 if __name__ == "__main__":
     unittest.main()

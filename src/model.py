@@ -1,6 +1,7 @@
 """This module contains the model class for the LSTM model."""
 import os
 import numpy as np
+import tensorflow as tf
 from pandas import DataFrame
 import matplotlib.pyplot as plt
 from keras.optimizers import Adam
@@ -8,9 +9,20 @@ from keras.models import load_model
 from sklearn.preprocessing import MinMaxScaler
 from keras.models import Sequential, Model as KerasModel
 from keras.callbacks import ModelCheckpoint, EarlyStopping, TensorBoard
-from keras.layers import Dense, LSTM, Dropout, Flatten, Conv1D, MaxPooling1D, concatenate
+from keras.layers import (
+    Dense,
+    LSTM,
+    Dropout,
+    Flatten,
+    Conv1D,
+    MaxPooling1D,
+    concatenate,
+    GRU,
+    Bidirectional,
+)
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
+
 
 class Model:
     """Used to create, compile, fit and predict with the LSTM model."""
@@ -45,26 +57,28 @@ class Model:
     ) -> Sequential:
         """Create the model."""
         model = Sequential()
-        model.add(Conv1D(filters=hidden_neurons, kernel_size=3, activation=activation))
-        model.add(MaxPooling1D(pool_size=2))
-        model.add(Conv1D(filters=hidden_neurons, kernel_size=3, activation=activation))
-        model.add(MaxPooling1D(pool_size=2))
         model.add(
-            LSTM(
-                hidden_neurons,
-                return_sequences=True,
+            Conv1D(
+                filters=hidden_neurons,
+                kernel_size=3,
+                activation=activation,
                 input_shape=(self._x_train.shape[1], self._x_train.shape[2]),
             )
         )
-        model.add(LSTM(int(hidden_neurons), return_sequences=True))
-        model.add(LSTM(int(hidden_neurons), return_sequences=False))
+        model.add(
+            Bidirectional(
+                LSTM(
+                    hidden_neurons,
+                    return_sequences=True,
+                    input_shape=(self._x_train.shape[1], self._x_train.shape[2]),
+                )
+            )
+        )
+        model.add(GRU(int(hidden_neurons), return_sequences=False))
         model.add(Dropout(dropout))
-        model.add(Dense(int(hidden_neurons), activation=activation))
+        model.add(Dense(self._y_train.shape[1], activation=activation))
         model.add(Dropout(dropout))
-        model.add(Dense(int(hidden_neurons), activation=activation))
-        model.add(Dropout(dropout))
-        model.add(Dense(hidden_neurons, activation=activation))
-        model.add(Dense(self._y_train.shape[1]))
+        model.add(Dense(self._y_train.shape[1], activation="linear"))
         model.build(
             input_shape=(
                 self._x_train.shape[0],
@@ -73,7 +87,7 @@ class Model:
             )
         )
         return model
-    
+
     def _create_branched_model(
         self, hidden_neurons: int, dropout: int, activation: str
     ) -> Sequential:
@@ -102,14 +116,10 @@ class Model:
         )
         conv1d.add(MaxPooling1D(pool_size=2))
         conv1d.add(Dropout(dropout))
-        conv1d.add(
-            Conv1D(filters=hidden_neurons, kernel_size=3, activation=activation)
-        )
+        conv1d.add(Conv1D(filters=hidden_neurons, kernel_size=3, activation=activation))
         conv1d.add(MaxPooling1D(pool_size=2))
         conv1d.add(Dropout(dropout))
-        conv1d.add(
-            Conv1D(filters=hidden_neurons, kernel_size=3, activation=activation)
-        )
+        conv1d.add(Conv1D(filters=hidden_neurons, kernel_size=3, activation=activation))
         conv1d.add(MaxPooling1D(pool_size=2))
         conv1d.add(Dropout(dropout))
         conv1d.add(Flatten())
@@ -132,7 +142,7 @@ class Model:
         # High resolution plot with subplots
         plt.cla()
         plt.clf()
-        plt.style.use('dark_background')
+        plt.style.use("dark_background")
         fig, axes = plt.subplots(2, 1, figsize=(20, 10))
         # High resolution plot
         fig.set_dpi(300)
@@ -157,7 +167,9 @@ class Model:
         # Save the plot
         plt.savefig(f"{self._path}/fit_history/{self._name}.png")
 
-    def _compile(self, hidden_neurons, dropout, activation, learning_rate, loss, branched_model):
+    def _compile(
+        self, hidden_neurons, dropout, activation, learning_rate, loss, branched_model
+    ):
         """Compile the model."""
         if branched_model:
             model = self._create_branched_model(hidden_neurons, dropout, activation)
@@ -178,7 +190,7 @@ class Model:
         batch_size=32,
         loss="mean_absolute_error",
         validation_spilt=0.2,
-        patience=20,
+        patience=10,
         branched_model=False,
     ) -> DataFrame:
         """Compile and fit the model.
@@ -200,8 +212,10 @@ class Model:
                  The validation loss is saved in the fit_history folder.
                  The tensorboard logs are saved in the tensorboard folder.
         """
-        # Create the model
-        model = self._compile(hidden_neurons, dropout, activation, learning_rate, loss, branched_model)
+        # Say how much GPU's are available
+        model = self._compile(
+            hidden_neurons, dropout, activation, learning_rate, loss, branched_model
+        )
         # Configure callbacks (early stopping, checkpoint, tensorboard)
         model_checkpoint = ModelCheckpoint(
             filepath=f"{self._path}/checkpoints/{self._name}_weights.h5",
@@ -222,7 +236,7 @@ class Model:
             batch_size=batch_size,
             validation_split=validation_spilt,
             callbacks=[tensorboard, model_checkpoint, early_stopping],
-            shuffle=True,
+            shuffle=False,
         )
         # Load the best weights
         model.load_weights(f"{self._path}/checkpoints/{self._name}_weights.h5")
@@ -250,7 +264,9 @@ class Model:
                  The predicted values are scaled back to the original scale.
         """
         if from_saved_model:
-            model = load_model(f"{self._path}/checkpoints/{self._name}_weights.h5")
+            path = f"{self._path}/checkpoints/{self._name}_weights.h5"
+            model = load_model(path)
+            print(f"Loaded model from: {path}")
         else:
             # Check if the model has been fitted
             if self._model is None:
@@ -264,6 +280,4 @@ class Model:
             y_pred = y_pred.reshape(-1, 1)
             y_pred = scaler.inverse_transform(y_pred)
             y_pred = y_pred.flatten()
-            print("Scaled back to original scale.")
-            print(y_pred)
         return y_pred

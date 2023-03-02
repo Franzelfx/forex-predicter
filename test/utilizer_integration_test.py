@@ -1,5 +1,6 @@
 """Testbench for the utilizer module."""
 import unittest
+import traceback
 from config_tb import *
 from src.model import Model
 from src.utilizer import Utilizer
@@ -14,23 +15,34 @@ class UtilizerIntegrationTest(unittest.TestCase):
 
     def test_utilizer_integration(self):
         """Test the utilizer."""
-        for pair in REQUEST_PAIRS:
+        for pair in UTIL_PAIRS:
             try:
                 # Get data from the API
-                aquirer = Data_Aquirer(PATH_PAIRS, API_KEY, api_type='full')
-                data = aquirer.get(pair, MINUTES, save=True)
+                aquirer = Data_Aquirer(PATH_PAIRS, API_KEY, api_type="full")
+                # Start is today - 1 month
+                start = (date.today() - timedelta(days=30)).strftime("%Y-%m-%d")
+                data = aquirer.get(pair, MINUTES, start=start, end=END, save=True)
                 # Apply indicators
                 indicators = Indicators(data, TEST_INDICATORS)
-                data = indicators.calculate(save=True, path=f"{PATH_INDICATORS}/{pair}_{MINUTES}.csv")
+                data = indicators.calculate(
+                    save=True, path=f"{PATH_INDICATORS}/{pair}_{MINUTES}.csv"
+                )
+                indicators.summary()
                 # Preprocess data
                 preprocessor = Preprocessor(
                     data,
                     TARGET,
                     time_steps_in=TEST_TIME_STEPS_IN,
                     time_steps_out=TEST_TIME_STEPS_OUT,
-                    scale=TEST_SCALE,
+                    scale=TEST_SHIFT,
+                    shift=TEST_SHIFT,
                 )
                 preprocessor.summary()
+                # Load the model (when server is mounted)
+                path = "/Volumes/lstm-server/ftp/forex-predicter/test/checkpoints"
+                # Check, if path exists
+                if not os.path.exists(path):
+                    path = MODEL_PATH
                 # Load the model
                 model = Model(
                     MODEL_PATH,
@@ -38,17 +50,17 @@ class UtilizerIntegrationTest(unittest.TestCase):
                     preprocessor.x_train,
                     preprocessor.y_train,
                 )
-                # Last known value
-                last_known = preprocessor.last_known_value
                 # Directly predict from saved model
-                utilizer = Utilizer(model, preprocessor.x_test)
-                # TODO: Check, why the scaling is not working
-                prediction = utilizer.predict(TEST_TIME_STEPS_OUT, preprocessor.target_scaler, ma_period=50, last_known=last_known)
+                utilizer = Utilizer(model, preprocessor)
+                prediction = utilizer.predict()
+                actual = preprocessor.y_test_inverse
                 visualizer = Visualizer(pair)
                 path = f"{MODEL_PATH}/utilizer_test"
+                # visualizer.plot_prediction(prediction_train, path, extra_info=f"train")
                 visualizer.plot_prediction(prediction, path)
-            except Exception as e:
-                print(e)
+            except Exception:
+                traceback.print_exc()
+
 
 if __name__ == "__main__":
     unittest.main()
