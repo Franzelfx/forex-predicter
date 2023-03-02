@@ -65,11 +65,8 @@ class Model:
                 input_shape=(self._x_train.shape[1], self._x_train.shape[2]),
             )
         )
-        model.add(MaxPooling1D(pool_size=2))
         model.add(Conv1D(filters=128, kernel_size=3, activation=activation))
-        model.add(MaxPooling1D(pool_size=2))
         model.add(Conv1D(filters=256, kernel_size=3, activation=activation))
-        model.add(MaxPooling1D(pool_size=2))
         model.add(
             Bidirectional(
                 LSTM(
