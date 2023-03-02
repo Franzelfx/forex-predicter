@@ -14,10 +14,10 @@ class Visualizer:
         self.dark_mode = dark_mode
 
     # TODO: Add time information to x-axis
-    def plot_prediction(self, x_test, prediction, path, actual=None, save_csv=True, extra_info=""):
+    def plot_prediction(self, prediction, path, _input=None, actual=None, save_csv=True, extra_info=""):
         """Plot the prediction."""
         date = dt.now().strftime("%Y-%m-%d_%H-%M-%S")
-        if extra_info is not "":
+        if extra_info != "":
             extra_info = f"_{extra_info}"
         path = f"{path}/{self.pair}_prediction{extra_info}"
         plt.cla()
@@ -26,20 +26,20 @@ class Visualizer:
             plt.style.use('dark_background')
         else:
             plt.style.use('default')
-        if x_test is not None:
-            plt.plot(x_test, label="Input")
+        if _input is not None:
+            plt.plot(_input, label="Input")
             # Then we have to shift the prediction
             # by the length of the input to the right
             # to get the correct time
             # TODO: Refactor this
             plt.plot(
-                range(len(x_test), len(x_test) + len(prediction)),
+                range(len(_input), len(_input) + len(prediction)),
                 prediction,
                 label="Prediction",
             )
             if actual is not None:
                 plt.plot(
-                    range(len(x_test), len(x_test) + len(prediction)),
+                    range(len(_input), len(_input) + len(prediction)),
                     actual,
                     label="Actual",
                 )
@@ -58,5 +58,5 @@ class Visualizer:
         print(f"Saved plot to {path}.png")
         # Save raw data as csv
         if save_csv:
-            df = pd.DataFrame({"input": x_test, "prediction": prediction, "actual": actual})
+            df = pd.DataFrame({"input": _input, "prediction": prediction, "actual": actual})
             df.to_csv(f"{path}.csv", index=False, )

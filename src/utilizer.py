@@ -20,31 +20,32 @@ class Utilizer():
         # Check if model is a path
         if isinstance(model, str):
             self._model = ModelPreTrained.load(model)
-        # Get the whole data set prediction
-        self._prediction = self._model.predict(
+
+    def predict(self) -> np.ndarray:
+        prediction = self._model.predict(
             self._preprocessor.prediction_set,
             scaler=self._preprocessor.target_scaler,
             from_saved_model=True,
         )
-        import matplotlib.pyplot as plt
-        # Reduce to time 2 * steps out
-        reduction = 2 * self._preprocessor.time_steps_out
-        self._prediction = self._prediction[-reduction:]
-        plt.plot(self._prediction)
-        plt.show()
-
-    def test_ahead_predict(self) -> tuple[np.ndarray, np.ndarray]:
         # Calculate moving average
-        prediction = self._moving_average(self._prediction, self._ma_period)
+        prediction = self._moving_average(prediction, self._ma_period)
         # Substract difference between last known value and first predicted value
         prediction = prediction - self._diff(prediction, self._preprocessor.last_known_y)
-        # Reduce to time 2 * steps out
-        reduction = 2 * self._preprocessor.time_steps_out
-        prediction = prediction[-reduction:]
-        # Split into validation and test, return
-        first_prediction = prediction[: self._preprocessor.time_steps_out]
-        second_prediction = prediction[self._preprocessor.time_steps_out :]
-        return first_prediction, second_prediction
+        # Calculate mean of for time_steps_out values
+        prediction = self._mean_of(prediction, self._preprocessor.time_steps_out)
+        return prediction
+    
+    def _mean_of(self, data: np.ndarray, period: int) -> np.ndarray:
+        """Calculate the mean of the given data.
+        
+        @param data The data to calculate the mean for.
+        @param period The period to calculate the mean for.
+        @return Array of new values.
+        """
+        mean = []
+        for i in range(0, len(data), period):
+            mean.append(np.mean(data[i:i+period]))
+        return np.array(mean)
 
     def _moving_average(self, data: np.ndarray, n: int) -> np.ndarray:
         """Calculate the moving average for the given data.

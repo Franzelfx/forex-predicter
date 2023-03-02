@@ -19,10 +19,9 @@ class UtilizerIntegrationTest(unittest.TestCase):
             try:
                 # Get data from the API
                 aquirer = Data_Aquirer(PATH_PAIRS, API_KEY, api_type="full")
-                # TODO: Fix the from_file=True
-                data = aquirer.get(
-                    pair, MINUTES, start=START, end=END, save=True, from_file=True
-                )
+                # Start is today - 1 month
+                start = (date.today() - timedelta(days=30)).strftime("%Y-%m-%d")
+                data = aquirer.get(pair, MINUTES, start=start, end=END, save=True)
                 # Apply indicators
                 indicators = Indicators(data, TEST_INDICATORS)
                 data = indicators.calculate(
@@ -53,18 +52,12 @@ class UtilizerIntegrationTest(unittest.TestCase):
                 )
                 # Directly predict from saved model
                 utilizer = Utilizer(model, preprocessor)
-                y_test, y_hat = utilizer.test_ahead_predict()
-                # Scale back
-                if TEST_SCALE:
-                    # Inverse the scaling
-                    scaler = preprocessor.target_scaler
-                    y_test = scaler.inverse_transform(y_test.reshape(-1, 1)).flatten()
-                    y_hat = scaler.inverse_transform(y_hat.reshape(-1, 1)).flatten()
+                prediction = utilizer.predict()
                 actual = preprocessor.y_test_inverse
                 visualizer = Visualizer(pair)
                 path = f"{MODEL_PATH}/utilizer_test"
                 # visualizer.plot_prediction(prediction_train, path, extra_info=f"train")
-                visualizer.plot_prediction(y_test, y_hat, path, actual=actual)
+                visualizer.plot_prediction(prediction, path)
             except Exception:
                 traceback.print_exc()
 

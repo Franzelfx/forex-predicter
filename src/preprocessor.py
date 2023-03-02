@@ -115,8 +115,18 @@ class Preprocessor:
                 raise ValueError(
                     f"The first element of the feature range must be smaller than the second. [{feature_range[0]} >= {feature_range[1]}]"
                 )
+        # The shift
+        if shift is not None:
+            if shift < 0:
+                raise ValueError(
+                    f"The shift must be greater than 0. [{shift} < 0]"
+                )
+            if time_steps_out % shift != 0:
+                warning("Shift does not divide time_steps_out. (May lead to unexpected results)")
         # Drop nan, if necessary
         self._data = self._drop_nan(data)
+        # Get last known y value
+        self._last_known_y = self._data[self._target].iloc[-1]
         # Scale the data
         if self._scale:
             self._data = self._scale_data(self._data)
@@ -301,18 +311,28 @@ class Preprocessor:
         return x_predict
     
     @property
+    def sampled_dataset(self) -> np.ndarray:
+        """Get the sampled dataset (samples of length time_steps_in shifted by "shift" parameter)
+
+        @return: The sampled dataset as pandas dataframe.
+        """
+        data_set = []
+        # Create samples of length time_steps_in from the whole data
+        for i in range(0, len(self._data) - self._time_steps_in, 1):
+            data_set.append(self._data[i : i + self._time_steps_in].values)
+        data_set = np.array(data_set)
+        return data_set
+
+    @property
     def prediction_set(self) -> np.ndarray:
         """Get the prediction set.
 
         @return: The prediction set as numpy array.
         """
-        prediction_set = []
-        # Create samples of length time_steps_in from the whole data
-        for i in range(0, len(self._data) - self._time_steps_in, self._shift):
-            prediction_set.append(self._data[i : i + self._time_steps_in].values)
-        prediction_set = np.array(prediction_set)
-        # Reduce to time_steps_out samples
-        prediction_set = prediction_set[-self._time_steps_out :, :, :]
+        data_set = self.sampled_dataset
+        # Reduce prediction set to time_steps_out / shift samples
+        reduction = self._time_steps_out // 1
+        prediction_set = data_set[-reduction:]
         return prediction_set
 
     @property
@@ -329,7 +349,7 @@ class Preprocessor:
 
         @return: The last known value of y_test as integer.
         """
-        return self._data[self._target].iloc[-1]
+        return self._last_known_y
 
     @property
     def target(self) -> str:
