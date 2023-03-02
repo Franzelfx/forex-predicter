@@ -4,6 +4,7 @@ import traceback
 import numpy as np
 from config_tb import *
 from src.model import Model
+from src.utilizer import Utilizer
 from src.indicators import Indicators
 from src.visualizer import Visualizer
 from src.data_aquirer import Data_Aquirer
@@ -51,15 +52,14 @@ class SystemTest(unittest.TestCase):
                     validation_spilt=preprocessor.val_split,
                 )
                 # Predict the next values
-                x_test = preprocessor.x_test
-                prediction = model.predict(x_test, scaler=preprocessor.target_scaler)
-                # Reduce to time_steps_out
-                prediction = prediction
-                y_test = preprocessor.y_test_inverse
+                utilizer = Utilizer(model, preprocessor)
+                test_predict, y_hat = utilizer.predict
                 # Plot the results
                 visualizer = Visualizer(pair)
                 path = f"{MODEL_PATH}/system_test"
-                visualizer.plot_prediction(path, test_actual=y_test, test_predict=prediction)
+                visualizer.plot_prediction(
+                    path, hat=y_hat, test_actual=utilizer.test_actual, test_predict=test_predict
+                )
             except Exception:
                 traceback.print_exc()
 
