@@ -14,7 +14,7 @@ class Visualizer:
         self.dark_mode = dark_mode
 
     # TODO: Add time information to x-axis
-    def plot_prediction(self, hat, path, test_actual=None, test_predict=None, save_csv=True, extra_info=""):
+    def plot_prediction(self, path, hat=None, test_actual=None, test_predict=None, save_csv=True, extra_info=""):
         """Plot the prediction."""
         date = dt.now().strftime("%Y-%m-%d_%H-%M-%S")
         if extra_info != "":
@@ -39,7 +39,8 @@ class Visualizer:
             # to get the correct time
             plt.plot(range(shift_len, shift_len + len(hat)), hat, label="Prediction")
         else:
-            plt.plot(hat, label="Prediction")
+            if hat.all() is not None:
+                plt.plot(hat, label="Prediction")
         plt.legend()
         plt.title(f"Prediction for {self.pair}")
         plt.xlabel("Time")

@@ -54,16 +54,12 @@ class SystemTest(unittest.TestCase):
                 x_test = preprocessor.x_test
                 prediction = model.predict(x_test, scaler=preprocessor.target_scaler)
                 # Reduce to time_steps_out
-                prediction = prediction[:TEST_TIME_STEPS_OUT]
-                y_test = preprocessor.y_test[:TEST_TIME_STEPS_OUT]
-                if TEST_SCALE:
-                    # Inverse the scaling
-                    scaler = preprocessor.target_scaler
-                    y_test = scaler.inverse_transform(y_test.reshape(-1, 1)).flatten()
+                prediction = prediction
+                y_test = preprocessor.y_test_inverse
                 # Plot the results
                 visualizer = Visualizer(pair)
                 path = f"{MODEL_PATH}/system_test"
-                visualizer.plot_prediction(prediction, path, actual=y_test)
+                visualizer.plot_prediction(path, test_actual=y_test, test_predict=prediction)
             except Exception:
                 traceback.print_exc()
 

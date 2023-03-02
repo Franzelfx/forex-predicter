@@ -287,7 +287,7 @@ class Preprocessor:
 
         @return: The inverse scaled y test data as numpy array.
         """
-        return self.target_scaler.inverse_transform(self._y_test).flatten()
+        return self.target_scaler.inverse_transform(self._y_test.reshape(-1, 1)).flatten()
 
     @property
     def x_hat(self) -> np.ndarray:
