@@ -135,15 +135,15 @@ class Test_Preprocessor(unittest.TestCase):
     
     def test___y_train_prediction(self):
         """Test if the y_train prediction is correct."""
-        # Get last ample of y_train
+        # Get last sample of y_train
         x_test = self.preprocessor.x_test[-1, :, self.preprocessor.loc_of(self.preprocessor.target)]
         y_test = self.preprocessor.y_test[-1, :]
         # Get prediction sample
-        x_predict = self.preprocessor.x_predict[-1, :, self.preprocessor.loc_of(self.preprocessor.target)]
+        x_hat = self.preprocessor.x_hat[-1, :, self.preprocessor.loc_of(self.preprocessor.target)]
         # Extract the lastn_time_steps_out values of x_test
         x_test = x_test[-self.preprocessor.time_steps_out:]
         # Extract the last n_time_steps_out values of x_predict
-        x_predict = x_predict[-self.preprocessor.time_steps_out:]
+        x_hat = x_hat[-self.preprocessor.time_steps_out:]
         # Plot the values in subplots
         fig, axs = plt.subplots(3, 1)
         # High dpi for better quality
@@ -172,7 +172,7 @@ class Test_Preprocessor(unittest.TestCase):
             ha="center",
             va="center",
         )
-        axs[2].plot(x_predict, color="green", label="x_predict")
+        axs[2].plot(x_hat, color="green", label="x_hat")
         # Add comment to the plot
         axs[2].annotate(
             "Last x_predict sample",

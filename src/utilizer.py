@@ -42,6 +42,7 @@ class Utilizer():
         y_hat = self._model.predict(self._preprocessor.x_hat, scaler=self._preprocessor.target_scaler, from_saved_model=True)
         # Calculate moving average
         test = self._moving_average(test, self._ma_period)
+        # Reduce test to the same length as y_hat
         y_hat = self._moving_average(y_hat, self._ma_period)
         return test, y_hat
     

@@ -267,7 +267,7 @@ class Preprocessor:
     def x_test(self) -> np.ndarray:
         """Get the x test data for every feature.
 
-        @return: X test as numpy array in shape of (samples, timesteps, features).
+        @return: Last sample of x_train as numpy array in shape of (timesteps, features).
         """
         return self._x_test
 

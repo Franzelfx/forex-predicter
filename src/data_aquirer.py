@@ -144,7 +144,7 @@ class Data_Aquirer:
                 # Concatenate the data
                 data = pd.concat([data, request])
                 # Drop duplicates of the time column
-                data = data.drop_duplicates()
+                data = data.drop_duplicates(subset=["t"])
                 # Save the data to a csv file
                 if save is True:
                     # Reset the index

@@ -20,8 +20,7 @@ class UtilizerIntegrationTest(unittest.TestCase):
                 # Get data from the API
                 aquirer = Data_Aquirer(PATH_PAIRS, API_KEY, api_type="full")
                 # Start is today - 1 month
-                start = (date.today() - timedelta(days=30)).strftime("%Y-%m-%d")
-                data = aquirer.get(pair, MINUTES, start=start, end=END, save=True, from_file=True)
+                data = aquirer.get(pair, MINUTES, end=END, save=True, from_file=True)
                 # Apply indicators
                 indicators = Indicators(data, TEST_INDICATORS)
                 data = indicators.calculate(
