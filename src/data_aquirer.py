@@ -147,9 +147,6 @@ class Data_Aquirer:
                 data = data.drop_duplicates(subset=["t"])
                 # Save the data to a csv file
                 if save is True:
-                    # Reset the index
-                    if "Unnamed: 0" in data.columns:
-                        data.drop(columns=["Unnamed: 0"], inplace=True)
                     data.to_csv(f"{self._path}/{pair}_{minutes}.csv")
                 return data
             except FileNotFoundError:
