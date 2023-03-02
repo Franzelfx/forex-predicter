@@ -112,8 +112,9 @@ class Preprocessor:
                 warning("Shift does not divide time_steps_out. (May lead to unexpected results)")
         # Drop nan, if necessary
         self._data = self._drop_nan(data)
-        # Get last known y value
+        # Get last known x and y value
         self._last_known_y = self._data[self._target].iloc[-1]
+        self._last_known_x = self._data[self._target].iloc[-self._time_steps_out -1:-self._time_steps_out].values
         # Scale the data
         if self._scale:
             self._data = self._scale_data(self._data)
@@ -303,7 +304,7 @@ class Preprocessor:
 
         @return: The last known value of x_test as numpy array.
         """
-        return self._x_test[-1, -1, self.loc_of(self._target)]
+        return self._last_known_x
 
     @property
     def last_known_y(self) -> int:

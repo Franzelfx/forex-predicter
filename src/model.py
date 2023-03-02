@@ -185,7 +185,7 @@ class Model:
         batch_size=32,
         loss="mse",
         validation_spilt=0.2,
-        patience=10,
+        patience=30,
         branched_model=False,
     ) -> DataFrame:
         """Compile and fit the model.
@@ -275,4 +275,5 @@ class Model:
             y_pred = y_pred.reshape(-1, 1)
             y_pred = scaler.inverse_transform(y_pred)
             y_pred = y_pred.flatten()
+            print("Scaled back")
         return y_pred

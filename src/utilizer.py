@@ -8,7 +8,7 @@ from sklearn.preprocessing import MinMaxScaler
 class Utilizer():
     """The utilizer class, to use the trained model to predict."""
 
-    def __init__(self, model: ModelPreTrained, preprocessor: Preprocessor, ma_period=10, lookback=3) -> None:
+    def __init__(self, model: ModelPreTrained, preprocessor: Preprocessor, ma_period=20, lookback=3) -> None:
         """Initialize the utilizer.
         
         @param model The model to use for prediction or the path to the model.
@@ -28,7 +28,8 @@ class Utilizer():
         
         @return The actual test values.
         """
-        return self._preprocessor.y_test_inverse
+        # Return actual, wuth ma_period values removed at beginning
+        return self._preprocessor.y_test_inverse[self._ma_period:]
     
     @property
     def predict(self) -> tuple[np.ndarray, np.ndarray]:
@@ -36,14 +37,15 @@ class Utilizer():
         
         @return Tuple of test and hat prediction.
         """
-
         # Predict the values
         test = self._model.predict(self._preprocessor.x_test, scaler=self._preprocessor.target_scaler, from_saved_model=True)
         y_hat = self._model.predict(self._preprocessor.x_hat, scaler=self._preprocessor.target_scaler, from_saved_model=True)
         # Calculate moving average
         test = self._moving_average(test, self._ma_period)
-        # Reduce test to the same length as y_hat
         y_hat = self._moving_average(y_hat, self._ma_period)
+        # Substract the difference
+        test = test - self._diff(test, self._preprocessor.last_known_x)
+        y_hat = y_hat - self._diff(y_hat, self._preprocessor.last_known_y)
         return test, y_hat
     
     def _mean_of(self, data: np.ndarray, period: int) -> np.ndarray:

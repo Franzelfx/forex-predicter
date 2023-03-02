@@ -32,7 +32,7 @@ class Visualizer:
                 plt.plot(test_actual, label="Actual")
                 shift_len = len(test_actual)
             if(test_predict.all() is not None):
-                plt.plot(test_predict, label="Prediction")
+                plt.plot(test_predict, label="Test Prediction")
                 shift_len = len(test_predict)
             # Then we have to shift the prediction
             # by the length of the input to the right
@@ -40,7 +40,7 @@ class Visualizer:
             plt.plot(range(shift_len, shift_len + len(hat)), hat, label="Prediction")
         else:
             if hat.all() is not None:
-                plt.plot(hat, label="Prediction")
+                plt.plot(hat, label="Ahead Prediction")
         plt.legend()
         plt.title(f"Prediction for {self.pair}")
         plt.xlabel("Time")
