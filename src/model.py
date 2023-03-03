@@ -56,7 +56,6 @@ class Model:
     def _create_model(
         self, hidden_neurons: int, dropout_factor: float, activation: str
     ) -> Sequential:
-        """Create the model."""
         model = Sequential()
         model.add(
             Bidirectional(
@@ -67,12 +66,14 @@ class Model:
                 )
             )
         )
-        model.add(Bidirectional(LSTM(int(hidden_neurons), return_sequences=False)))
-        model.add(Dense(int(hidden_neurons), activation=activation))
+        model.add(Bidirectional(LSTM(hidden_neurons, return_sequences=False)))
+        model.add(Dense(hidden_neurons, activation=activation))
         model.add(Dropout(dropout_factor))
-        model.add(Dense(int(hidden_neurons), activation=activation))
+        model.add(Dense(hidden_neurons, activation=activation))
         model.add(Dropout(dropout_factor))
-        model.add(Dense(int(hidden_neurons), activation=activation))
+        model.add(Dense(hidden_neurons, activation=activation))
+        model.add(Dense(hidden_neurons, activation=activation))
+        model.add(Dense(hidden_neurons, activation=activation))
         model.add(Dense(self._y_train.shape[1], activation="linear"))
         model.build(
             input_shape=(
