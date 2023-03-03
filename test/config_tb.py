@@ -14,7 +14,7 @@ sys.path.append(
 PATH_PAIRS = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.curdir, "pairs"))
 PAIR = "CADJPY"
 MINUTES = 15
-START = "2015-01-01"
+START = "2022-09-01"
 # Substract 1 hour to get the last full hour
 END = (date.today()- timedelta(hours=1)).strftime("%Y-%m-%d")
 API_TYPE = "advanced"
@@ -59,7 +59,7 @@ TEST_TIME_STEPS_OUT = 128  # 12 hours
 TEST_LENGTH = TEST_TIME_STEPS_IN + TEST_TIME_STEPS_OUT
 TEST_SCALE = True
 TEST_BRANCHED_MODEL = False
-TEST_SHIFT = TEST_TIME_STEPS_OUT # overlap of one means x and y windows are shifted by one in every sample
+TEST_SHIFT = 1 # overlap of one means x and y windows are shifted by one in every sample
 
 # Model
 MODEL_DATA_SOURCE = f"{PREPROCESSOR_DATA_SOURCE}"
