@@ -214,7 +214,7 @@ class Preprocessor:
         return self._data.columns.tolist()
     
     @property
-    def val_split(self) -> float:
+    def validation_split(self) -> float:
         """Get the validation split.
 
         @return: The validation split as float.

@@ -49,7 +49,7 @@ class SystemTest(unittest.TestCase):
                     hidden_neurons=TEST_NEURONS,
                     batch_size=TEST_BATCH_SIZE,
                     learning_rate=TEST_LEARNING_RATE,
-                    validation_spilt=TEST_VALIDATION_SPLIT,
+                    validation_spilt=preprocessor.validation_split,
                 )
                 # Predict the next values
                 utilizer = Utilizer(model, preprocessor)
