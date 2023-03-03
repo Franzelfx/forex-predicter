@@ -57,7 +57,6 @@ class Model:
     ) -> Sequential:
         """Create the model."""
         model = Sequential()
-        model.add(Conv1D(self._x_train.shape[0], 3, activation=activation))
         model.add(
             Bidirectional(
                 LSTM(
@@ -68,12 +67,12 @@ class Model:
             )
         )
         model.add(Bidirectional(LSTM(hidden_neurons, return_sequences=True)))
-        model.add(Conv1D(self._x_train.shape[0], 3, activation=activation))
-        model.add(Flatten())
+        model.add(GRU(hidden_neurons, return_sequences=False))
         model.add(Dense(hidden_neurons, activation=activation))
         model.add(Dropout(dropout))
         model.add(Dense(hidden_neurons, activation=activation))
         model.add(Dropout(dropout))
+        model.add(Dense(hidden_neurons, activation=activation))
         model.add(Dense(hidden_neurons, activation=activation))
         model.add(Dense(hidden_neurons, activation=activation))
         model.add(Dense(self._y_train.shape[1], activation="linear"))
