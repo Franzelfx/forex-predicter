@@ -29,6 +29,8 @@ class SystemTest(unittest.TestCase):
                 )
                 # Drop 'o', 'c', 'h', 'l', 'n', 'v', 'vw' 't' columns
                 data = data.drop(columns=["o", "c", "h", "l", "n", "v", "vw", "t"])
+                # Only keep MA5 column
+                data = data[["MA5"]]
                 # Preprocess data
                 preprocessor = Preprocessor(
                     data,
