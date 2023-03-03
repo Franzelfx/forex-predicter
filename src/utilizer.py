@@ -44,7 +44,7 @@ class Utilizer():
         test = self._moving_average(test, self._ma_period)
         y_hat = self._moving_average(y_hat, self._ma_period)
         # Substract the difference
-        test = test - self._diff(test, self._preprocessor.last_known_x)
+        test = test - self._diff(test, self._preprocessor._first_known_y)
         y_hat = y_hat - self._diff(y_hat, self._preprocessor.last_known_y)
         return test, y_hat
     

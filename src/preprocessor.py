@@ -114,7 +114,7 @@ class Preprocessor:
         self._data = self._drop_nan(data)
         # Get last known x and y value
         self._last_known_y = self._data[self._target].iloc[-1]
-        self._last_known_x = self._data[self._target].iloc[-self._time_steps_out -1:-self._time_steps_out].values
+        self._first_known_y = self._data[self._target].iloc[0]
         # Scale the data
         if self._scale:
             self._data = self._scale_data(self._data)
@@ -299,7 +299,7 @@ class Preprocessor:
         return x_predict
 
     @property
-    def last_known_x(self) -> np.ndarray:
+    def first_known_y(self) -> np.ndarray:
         """Get the last known value for each feature.
 
         @return: The last known value of x_test as numpy array.
