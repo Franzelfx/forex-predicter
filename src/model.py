@@ -19,6 +19,7 @@ from keras.layers import (
     concatenate,
     GRU,
     Bidirectional,
+    TimeDistributed
 )
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
@@ -57,6 +58,8 @@ class Model:
     ) -> Sequential:
         """Create the model."""
         model = Sequential()
+        model.add(TimeDistributed(Dense(self._x_train.shape[1], activation=activation, input_shape=(self._x_train.shape[1], self._x_train.shape[2]))))
+        model.add(TimeDistributed(Dense(self._x_train.shape[1], activation=activation)))
         model.add(
             Bidirectional(
                 LSTM(
