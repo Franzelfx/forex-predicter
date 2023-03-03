@@ -71,8 +71,6 @@ class Model:
         model.add(Dense(hidden_neurons, activation=activation))
         model.add(Dropout(dropout_factor))
         model.add(Dense(hidden_neurons, activation=activation))
-        model.add(Dense(hidden_neurons, activation=activation))
-        model.add(Dense(hidden_neurons, activation=activation))
         model.add(Dense(self._y_train.shape[1], activation="linear"))
         model.build(
             input_shape=(
