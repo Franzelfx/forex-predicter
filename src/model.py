@@ -67,7 +67,7 @@ class Model:
                 )
             )
         )
-        model.add(Bidirectional(LSTM(int(hidden_neurons), return_sequences=True)))
+        model.add(Bidirectional(LSTM(int(hidden_neurons), return_sequences=False)))
         model.add(Dense(int(hidden_neurons), activation=activation))
         model.add(Dropout(dropout_factor))
         model.add(Dense(int(hidden_neurons), activation=activation))
