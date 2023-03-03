@@ -62,11 +62,17 @@ class Model:
             Bidirectional(
                 LSTM(
                     hidden_neurons,
-                    return_sequences=False,
+                    return_sequences=True,
                     input_shape=(self._x_train.shape[1], self._x_train.shape[2]),
                 )
             )
         )
+        model.add(Bidirectional(LSTM(int(hidden_neurons), return_sequences=True)))
+        model.add(Dense(int(hidden_neurons), activation=activation))
+        model.add(Dropout(dropout_factor))
+        model.add(Dense(int(hidden_neurons), activation=activation))
+        model.add(Dropout(dropout_factor))
+        model.add(Dense(int(hidden_neurons), activation=activation))
         model.add(Dense(self._y_train.shape[1], activation="linear"))
         model.build(
             input_shape=(
