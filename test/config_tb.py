@@ -14,7 +14,7 @@ sys.path.append(
 PATH_PAIRS = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.curdir, "pairs"))
 PAIR = "CADJPY"
 MINUTES = 15
-START = "2020-01-01"
+START = "2018-01-01"
 # Substract 1 hour to get the last full hour
 END = (date.today()- timedelta(hours=1)).strftime("%Y-%m-%d")
 API_TYPE = "advanced"
