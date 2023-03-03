@@ -45,6 +45,11 @@ class Test_Preprocessor(unittest.TestCase):
         """Test the y_test attribute."""
         self.assertEqual(self.preprocessor.y_test.shape[1], TEST_TIME_STEPS_OUT)
 
+    def test_x_test_x_hat(self):
+        """Test the x_test_x_hat attribute."""
+        # x_test and x_hat has to be different
+        self.assertFalse(np.array_equal(self.preprocessor.x_test, self.preprocessor.x_hat))
+
     def test_nan_values(self):
         """Test if the data contains NaN values."""
         # Convert to pandas dataframe and check for NaN values
