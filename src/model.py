@@ -58,9 +58,6 @@ class Model:
     ) -> Sequential:
         """Create the model."""
         model = Sequential()
-        model.add(TimeDistributed(Dense(self._x_train.shape[1], activation=activation, input_shape=(self._x_train.shape[1], self._x_train.shape[2]))))
-        model.add(Dropout(dropout_factor))
-        model.add(TimeDistributed(Dense(self._x_train.shape[1], activation=activation)))
         model.add(
             Bidirectional(
                 LSTM(
