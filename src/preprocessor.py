@@ -304,7 +304,7 @@ class Preprocessor:
 
         @return: The last known value of x_test as numpy array.
         """
-        return self._last_known_x
+        return self._first_known_y
 
     @property
     def last_known_y(self) -> int:
