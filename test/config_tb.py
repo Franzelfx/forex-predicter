@@ -49,7 +49,7 @@ EXPECTED_COLUMNS = [
     "STOCHASTIC_D",
     "VoRSI",
 ]
-TARGET = 'MA5'
+TARGET = 'MA20'
 
 # Preprocessor
 PREPROCESSOR_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.curdir, "preprocessor_test"))
