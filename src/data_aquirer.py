@@ -145,6 +145,9 @@ class Data_Aquirer:
                 data = pd.concat([data, request])
                 # Drop duplicates of the time column
                 data = data.drop_duplicates(subset=["t"])
+                # Remove unnamed column, if it exists
+                if "Unnamed: 0" in data.columns:
+                    data = data.drop(columns=["Unnamed: 0"])
                 # Save the data to a csv file
                 if save is True:
                     data.to_csv(f"{self._path}/{pair}_{minutes}.csv")
@@ -158,6 +161,9 @@ class Data_Aquirer:
             data = self._request(pair, minutes, start, end)
         # Save the data to a csv file
         if save is True:
+            # Remove unnamed column, if it exists
+            if "Unnamed: 0" in data.columns:
+                data = data.drop(columns=["Unnamed: 0"])
             data.to_csv(f"{self._path}/{pair}_{minutes}.csv")
             # Return the data
         return data
