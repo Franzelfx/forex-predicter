@@ -45,7 +45,7 @@ class Utilizer():
         y_hat = self._moving_average(y_hat, self._ma_period)
         # Substract the difference
         test = test + self._diff(test, self._preprocessor.first_known_y)
-        y_hat = y_hat - self._diff(y_hat, self._preprocessor.last_known_y)
+        y_hat = y_hat + self._diff(y_hat, self._preprocessor.last_known_y)
         return test, y_hat
     
     def _mean_of(self, data: np.ndarray, period: int) -> np.ndarray:

@@ -114,7 +114,7 @@ class Preprocessor:
         self._data = self._drop_nan(data)
         # Get last known x and y value
         self._last_known_y = self._data[self._target].iloc[-1]
-        self._first_known_y = self._data[self._target].iloc[0]
+        self._first_known_y = self._data[self._target].iloc[-self._time_steps_out]
         # Scale the data
         if self._scale:
             self._data = self._scale_data(self._data)
