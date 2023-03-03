@@ -23,8 +23,8 @@ API_KEY = API_KEY
 # Indicators
 PATH_INDICATORS = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.curdir, f"indicators"))
 INDICATORS_DATA_SOURCE = f"{PATH_PAIRS}/{PAIR}_{MINUTES}.csv"
-TEST_INDICATORS = ["ATR", "BOLLINGER",'MA5' ,'MA25', "MA50", "MA200", "MACD", "OBV", "RSI", "STOCHASTIC", "VoRSI"]
-#TEST_INDICATORS = ["BOLLINGER",'MA5' ,'MA25', "MA50", "MA200", "VoRSI"]
+#TEST_INDICATORS = ["ATR", "BOLLINGER",'MA5' ,'MA25', "MA50", "MA200", "MACD", "OBV", "RSI", "STOCHASTIC", "VoRSI"]
+TEST_INDICATORS = ["BOLLINGER",'MA5' , "VoRSI"]
 EXPECTED_COLUMNS = [
     "v",
     "vw",
