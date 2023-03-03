@@ -144,7 +144,7 @@ class Data_Aquirer:
                 # Concatenate the data
                 data = pd.concat([data, request])
                 # Drop duplicates of the time column
-                data = data.drop_duplicates(subset=["t"], ignore_index=False)
+                data = data.drop_duplicates(subset=["t"], keep='last', inplace=True)
                 # Remove unnamed column, if it exists
                 if "Unnamed: 0" in data.columns:
                     data = data.drop(columns=["Unnamed: 0"])

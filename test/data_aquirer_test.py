@@ -19,14 +19,14 @@ class Test_Data_Aquirer(unittest.TestCase):
         data = self.aquirer.get(PAIR, MINUTES, start=START,save=True)
         self.assertGreater(len(data), 0)
         # Check, if dataframe has the correct columns
-        self.assertEqual(data.columns.tolist(), ['v', 'vw', 'o', 'c', 'h', 'l', 'n'])
+        self.assertEqual(data.columns.tolist(), ['v', 'vw', 'o', 'c', 'h', 'l', 't', 'n'])
     
-    def test_get_file(self):
+    def test__get_file(self):
         """Test the get method."""
         data = self.aquirer.get(PAIR, MINUTES, start=START, save=True, from_file=True)
         self.assertGreater(len(data), 0)
         # Check, if dataframe has the correct columns
-        self.assertEqual(data.columns.tolist(), ['v', 'vw', 'o', 'c', 'h', 'l', 'n'])
+        self.assertEqual(data.columns.tolist(), ['v', 'vw', 'o', 'c', 'h', 'l', 't', 'n'])
 
 if __name__ == '__main__':
     unittest.main()
