@@ -57,6 +57,9 @@ class Model:
     ) -> Sequential:
         """Create the model."""
         model = Sequential()
+        model.add(Conv1D(128, kernel_size=5, activation=activation))
+        model.add(Conv1D(256, kernel_size=3, activation=activation))
+        model.add(Conv1D(self._x_train.shape[0], 3, activation=activation))
         model.add(
             Bidirectional(
                 LSTM(
