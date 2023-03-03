@@ -27,8 +27,6 @@ class SystemTest(unittest.TestCase):
                 data = indicators.calculate(
                     save=True, path=f"{PATH_INDICATORS}/{pair}_{MINUTES}.csv"
                 )
-                # Drop 'o', 'c', 'h', 'l', 'n', 'v', 'vw' 't' columns
-                data = data.drop(columns=["o", "c", "h", "l", "n", "v", "vw", "t"])
                 # Preprocess data
                 preprocessor = Preprocessor(
                     data,
