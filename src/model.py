@@ -187,7 +187,8 @@ class Model:
         loss="mse",
         validation_spilt=0.2,
         patience=10,
-        branched_model=False,
+        x_val=None,
+        y_val=None,
     ) -> DataFrame:
         """Compile and fit the model.
 
@@ -230,7 +231,7 @@ class Model:
             self._y_train,
             epochs=epochs,
             batch_size=batch_size,
-            validation_split=validation_spilt,
+            validation_data=(x_val, y_val),
             callbacks=[tensorboard, model_checkpoint, early_stopping],
             shuffle=False,
         )
