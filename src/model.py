@@ -185,7 +185,7 @@ class Model:
         learning_rate=0.001,
         batch_size=32,
         loss="mse",
-        validation_spilt=0.2,
+        branched_model=False,
         patience=10,
         x_val=None,
         y_val=None,
