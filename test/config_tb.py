@@ -14,7 +14,7 @@ sys.path.append(
 PATH_PAIRS = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.curdir, "pairs"))
 PAIR = "CADJPY"
 MINUTES = 15
-START = "2020-12-01"
+START = "2010-01-01"
 # Substract 1 hour to get the last full hour
 END = (date.today()- timedelta(hours=1)).strftime("%Y-%m-%d")
 API_TYPE = "advanced"
@@ -59,7 +59,7 @@ TEST_TIME_STEPS_OUT = 128  # 12 hours
 TEST_LENGTH = TEST_TIME_STEPS_IN + TEST_TIME_STEPS_OUT
 TEST_SCALE = True
 TEST_BRANCHED_MODEL = False
-TEST_SHIFT = 8 # overlap of one means x and y windows are shifted by one in every sample
+TEST_SHIFT = TEST_TIME_STEPS_IN # overlap of one means x and y windows are shifted by one in every sample
 
 # Model
 MODEL_DATA_SOURCE = f"{PREPROCESSOR_DATA_SOURCE}"
@@ -67,13 +67,13 @@ MODEL_PATH = os.path.abspath(os.path.dirname(__file__))
 MODEL_NAME = f"{PAIR}"
 TEST_EPOCHS = 300
 TEST_NEURONS = 128
-TEST_BATCH_SIZE = 128
+TEST_BATCH_SIZE = 16
 TEST_LEARNING_RATE = 0.0005
 TEST_VALIDATION_SPLIT = 0.2
 PATH_TEST_RESULTS = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.curdir, "test_results"))
 
 # System test
-REQUEST_PAIRS = ['AUDCAD', 'AUDCHF', 'AUDJPY', 'AUDNZD', 'AUDUSD', 'CADCHF', 'CADJPY', 'CHFJPY', 'EURAUD', 'EURCAD', 'EURCHF', 'EURGBP', 'EURJPY', 'EURNZD', 'EURUSD', 'GBPAUD', 'GBPCAD', 'GBPCHF', 'GBPJPY', 'GBPNZD', 'GBPUSD', 'NZDCAD', 'NZDCHF', 'NZDJPY', 'NZDUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'XAGUSD', 'GER40', 'SPX500']
+REQUEST_PAIRS = ['AUDCAD', 'AUDCHF', 'AUDJPY', 'AUDNZD', 'AUDUSD', 'CADCHF', 'CADJPY', 'CHFJPY', 'EURAUD', 'EURCAD', 'EURCHF', 'EURGBP', 'EURJPY', 'EURNZD', 'EURUSD', 'GBPAUD', 'GBPCAD', 'GBPCHF', 'GBPJPY', 'GBPNZD', 'GBPUSD', 'NZDCAD', 'NZDCHF', 'NZDJPY', 'NZDUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'XAGUSD']
 # Utilizer test
 UTIL_PAIRS = REQUEST_PAIRS
 #UTIL_PAIRS = ['GBPJPY', 'EURUSD']
