@@ -33,13 +33,13 @@ class Visualizer:
         # Set line width
         plt.rcParams['lines.linewidth'] = 1
         # Check if we have test data
-        if (test_actual or test_predict is not None):
+        if (isinstance(test_actual, np.ndarray) or isinstance(test_predict, np.ndarray)):
             # Plot the test data
-            if(test_actual is not None):
+            if(isinstance(test_actual, np.ndarray)):
                 plt.plot(test_actual, label="Actual")
                 shift_len = len(test_actual)
             # Plot the test prediction
-            if(test_predict is not None):
+            if(isinstance(test_predict, np.ndarray)):
                 plt.plot(test_predict, label="Test Prediction")
                 shift_len = len(test_predict)
             # Then we have to shift the prediction
