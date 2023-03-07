@@ -20,13 +20,17 @@ class Visualizer:
         if extra_info != "":
             extra_info = f"_{extra_info}"
         path = f"{path}/{self.pair}_prediction{extra_info}"
+        # Clear the plot
         plt.cla()
         plt.clf()
         shift_len = 0
+        # Set style
         if self.dark_mode:
             plt.style.use('dark_background')
         else:
             plt.style.use('default')
+        # Set line width
+        plt.rcParams['lines.linewidth'] = 1
         if (test_actual.all() or test_predict.all()) is not None:
             if(test_actual.all() is not None):
                 plt.plot(test_actual, label="Actual")
@@ -47,6 +51,7 @@ class Visualizer:
         plt.ylabel("Value")
         # Set title (pair name and date)
         plt.title(f"{self.pair} {date}")
+        plt.grid()
         # Save the plot
         plt.savefig(f"{path}.png", dpi=600)
         print(f"Saved plot to {path}.png")
