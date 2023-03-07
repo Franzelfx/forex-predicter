@@ -1,4 +1,5 @@
 """Visualize the results of the model."""
+import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from datetime import datetime as dt
@@ -14,7 +15,7 @@ class Visualizer:
         self.dark_mode = dark_mode
 
     # TODO: Add time information to x-axis
-    def plot_prediction(self, path, hat=[], test_actual=[], test_predict=[], save_csv=True, extra_info=""):
+    def plot_prediction(self, path, hat:np.ndarray, test_actual:np.ndarray=None, test_predict:np.ndarray=None, save_csv=True, extra_info=""):
         """Plot the prediction."""
         date = dt.now().strftime("%Y-%m-%d_%H-%M-%S")
         if extra_info != "":
@@ -31,11 +32,14 @@ class Visualizer:
             plt.style.use('default')
         # Set line width
         plt.rcParams['lines.linewidth'] = 1
-        if (not test_actual.all() or not test_predict.all()):
-            if(test_actual.all()):
+        # Check if we have test data
+        if (test_actual or test_predict is not None):
+            # Plot the test data
+            if(test_actual is not None):
                 plt.plot(test_actual, label="Actual")
                 shift_len = len(test_actual)
-            if(test_predict.all()):
+            # Plot the test prediction
+            if(test_predict is not None):
                 plt.plot(test_predict, label="Test Prediction")
                 shift_len = len(test_predict)
             # Then we have to shift the prediction
