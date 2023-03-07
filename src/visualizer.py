@@ -31,11 +31,11 @@ class Visualizer:
             plt.style.use('default')
         # Set line width
         plt.rcParams['lines.linewidth'] = 1
-        if (test_actual.all() or test_predict.all()) is not None:
-            if(test_actual.all() is not None):
+        if (test_actual or test_predict) is not None:
+            if(test_actual is not None):
                 plt.plot(test_actual, label="Actual")
                 shift_len = len(test_actual)
-            if(test_predict.all() is not None):
+            if(test_predict is not None):
                 plt.plot(test_predict, label="Test Prediction")
                 shift_len = len(test_predict)
             # Then we have to shift the prediction
@@ -43,7 +43,7 @@ class Visualizer:
             # to get the correct time
             plt.plot(range(shift_len, shift_len + len(hat)), hat, label="Prediction")
         else:
-            if hat.all() is not None:
+            if hat is not None:
                 plt.plot(hat, label="Ahead Prediction")
         plt.legend()
         plt.title(f"Prediction for {self.pair}")
