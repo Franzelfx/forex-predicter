@@ -20,7 +20,7 @@ class UtilizerIntegrationTest(unittest.TestCase):
                 # Get data from the API
                 aquirer = Data_Aquirer(PATH_PAIRS, API_KEY, api_type="full")
                 # Start is today - 1 month
-                data = aquirer.get(pair, MINUTES, end=END, save=True, from_file=True)
+                data = aquirer.get(pair, MINUTES, end=END, save=True)
                 # Apply indicators
                 indicators = Indicators(data, TEST_INDICATORS)
                 data = indicators.calculate(
@@ -55,8 +55,7 @@ class UtilizerIntegrationTest(unittest.TestCase):
                 test_predict, y_hat = utilizer.predict
                 visualizer = Visualizer(pair)
                 path = f"{MODEL_PATH}/utilizer_test"
-                # visualizer.plot_prediction(prediction_train, path, extra_info=f"train")
-                visualizer.plot_prediction(path, hat=y_hat, test_actual=test_actual, test_predict=test_predict)
+                visualizer.plot_prediction(path, y_hat, test_actual=test_actual)
             except Exception:
                 traceback.print_exc()
 
