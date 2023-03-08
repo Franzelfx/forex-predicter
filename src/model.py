@@ -186,7 +186,7 @@ class Model:
         batch_size=32,
         loss="mse",
         branched_model=False,
-        patience=20,
+        patience=40,
         x_val=None,
         y_val=None,
     ) -> DataFrame:

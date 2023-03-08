@@ -49,6 +49,7 @@ class SystemTest(unittest.TestCase):
                     hidden_neurons=TEST_NEURONS,
                     batch_size=TEST_BATCH_SIZE,
                     learning_rate=TEST_LEARNING_RATE,
+                    patience=TEST_PATIENCE,
                     x_val=preprocessor.x_test,
                     y_val=preprocessor.y_test,
                 )
