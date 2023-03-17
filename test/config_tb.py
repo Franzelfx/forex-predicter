@@ -2,8 +2,8 @@
 import sys
 import os.path
 from api_key import API_KEY
+from datetime import timedelta
 from datetime import datetime as date
-from datetime import datetime, timedelta
 
 
 sys.path.append(
@@ -59,7 +59,7 @@ TEST_TIME_STEPS_OUT = 128  # 12 hours
 TEST_LENGTH = TEST_TIME_STEPS_IN + TEST_TIME_STEPS_OUT
 TEST_SCALE = True
 TEST_BRANCHED_MODEL = False
-TEST_SHIFT = TEST_TIME_STEPS_IN # overlap of one means x and y windows are shifted by one in every sample
+TEST_SHIFT = TEST_TIME_STEPS_OUT # overlap of one means x and y windows are shifted by one in every sample
 
 # Model
 MODEL_DATA_SOURCE = f"{PREPROCESSOR_DATA_SOURCE}"
@@ -68,8 +68,8 @@ MODEL_NAME = f"{PAIR}"
 TEST_EPOCHS = 300
 TEST_NEURONS = 128
 TEST_BATCH_SIZE = 16
-TEST_LEARNING_RATE = 0.000025
-TEST_PATIENCE = 50
+TEST_LEARNING_RATE = 0.00001
+TEST_PATIENCE = 100
 TEST_VALIDATION_SPLIT = 0.2
 PATH_TEST_RESULTS = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.curdir, "test_results"))
 
@@ -78,3 +78,5 @@ REQUEST_PAIRS = ['AUDCAD', 'AUDCHF', 'AUDJPY', 'AUDNZD', 'AUDUSD', 'CADCHF', 'CA
 # Utilizer test
 UTIL_PAIRS = REQUEST_PAIRS
 #UTIL_PAIRS = ['GBPJPY', 'EURUSD']
+TEST_BOX_PTS = 5
+UTILIZER_START_DATE = START

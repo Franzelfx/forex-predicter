@@ -271,6 +271,15 @@ class Preprocessor:
         @return: Last sample of x_train as numpy array in shape of (timesteps, features).
         """
         return self._x_test
+    
+    @property
+    def x_test_target_inverse(self) -> np.ndarray:
+        """Get the x test data for the selected feture.
+
+        @return: Last sample of x_train as numpy array in shape of (timesteps, features).
+        """
+        x_test = self._x_test[:, :, self.loc_of(self._target)].flatten()
+        return self.target_scaler.inverse_transform(x_test.reshape(-1, 1)).flatten()
 
     @property
     def y_test(self) -> np.ndarray:
@@ -297,6 +306,12 @@ class Preprocessor:
         # Add samples dimension
         x_predict = np.expand_dims(x_predict, axis=0)
         return x_predict
+    
+    @property
+    def x_hat_target_inverse(self) -> np.ndarray:
+        """Get x_predict (last n_steps_in of data)"""
+        x_predict = self._data[-self._time_steps_in:][self._target].values
+        return self.target_scaler.inverse_transform(x_predict.reshape(-1, 1)).flatten()
 
     @property
     def first_known_y(self) -> np.ndarray:

@@ -20,7 +20,7 @@ class UtilizerIntegrationTest(unittest.TestCase):
                 # Get data from the API
                 aquirer = Data_Aquirer(PATH_PAIRS, API_KEY, api_type="full")
                 # Start is today - 1 month
-                data = aquirer.get(pair, MINUTES, end=END, save=True)
+                data = aquirer.get(pair, MINUTES, start=UTILIZER_START_DATE, end=END, save=True)
                 # Apply indicators
                 indicators = Indicators(data, TEST_INDICATORS)
                 data = indicators.calculate(
@@ -52,7 +52,7 @@ class UtilizerIntegrationTest(unittest.TestCase):
                 # Directly predict from saved model
                 utilizer = Utilizer(model, preprocessor)
                 test_actual = utilizer.test_actual
-                test_predict, y_hat = utilizer.predict
+                test_predict, y_hat = utilizer.predict(box_pts=TEST_BOX_PTS)
                 visualizer = Visualizer(pair)
                 path = f"{MODEL_PATH}/utilizer_test"
                 visualizer.plot_prediction(path, y_hat, test_actual=test_actual)
