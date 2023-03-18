@@ -70,7 +70,7 @@ class Data_Aquirer:
         ):
             # Get the data from the API
             print(".", end="", flush=True)
-            url = f"https://api.polygon.io/v2/aggs/ticker/C:{pair}/range/{minutes}/minute/{last}/{end}?adjusted=true&sort=asc&limit=50000&apiKey={self._api_key}"
+            url = f"https://api.polygon.io/v2/aggs/ticker/{pair}/range/{minutes}/minute/{last}/{end}?adjusted=true&sort=asc&limit=50000&apiKey={self._api_key}"
             response = requests.get(url)
             response = response.json()
             # Check if the request was successful
