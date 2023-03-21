@@ -42,7 +42,8 @@ class UtilizerIntegrationTest(unittest.TestCase):
                 # Check, if path exists
                 if not os.path.exists(path):
                     path = MODEL_PATH
-                # Load the model
+                # Load the model (remove 'C:' from pair name)
+                pair = pair[2:]
                 model = Model(
                     MODEL_PATH,
                     pair,

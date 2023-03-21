@@ -40,7 +40,7 @@ class SystemTest(unittest.TestCase):
                 preprocessor.summary()
                 model = Model(
                     MODEL_PATH,
-                    pair,
+                    pair[2:],
                     preprocessor.x_train,
                     preprocessor.y_train,
                 )
