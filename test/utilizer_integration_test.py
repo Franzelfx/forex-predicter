@@ -38,14 +38,15 @@ class UtilizerIntegrationTest(unittest.TestCase):
                 )
                 preprocessor.summary()
                 # Load the model (when server is mounted)
-                path = "/Volumes/lstm-server/ftp/forex-predicter/test/checkpoints"
+                path = "/Volumes/lstm-server/ftp/forex-predicter/test"
                 # Check, if path exists
                 if not os.path.exists(path):
+                    print("Path to server does not exist. Using local path.")
                     path = MODEL_PATH
                 # Load the model (remove 'C:' from pair name)
                 pair = pair[2:]
                 model = Model(
-                    MODEL_PATH,
+                    path,
                     pair,
                     preprocessor.x_train,
                     preprocessor.y_train,

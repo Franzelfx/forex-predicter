@@ -67,7 +67,7 @@ class Test_Model(unittest.TestCase):
         visualizer = Visualizer(PAIR)
         path = f"{MODEL_PATH}/model_test"
         visualizer.plot_prediction(prediction, path, y_test=y_test)
-
+        
 
 if __name__ == "__main__":
     unittest.main()
