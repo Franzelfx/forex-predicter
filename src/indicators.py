@@ -46,6 +46,16 @@ class Indicators:
             "RSI",
             "STOCHASTIC",
             "VoRSI",
+            "HT_TRENDLINE",
+            "HT_TRENDMODE",
+            "HT_DCPERIOD",
+            "HT_DCPHASE",
+            "HT_PHASOR",
+            "HT_SINE",
+            "MFI",
+            "MOM",
+            "PLUS_DI",
+            "PLUS_DM",
         ]
         self._data_offset = 0
         # Get data offset (cut 'MA' from the string and convert to int)
@@ -99,13 +109,14 @@ class Indicators:
                 self._data[keys[3]],
                 timeperiod=14,
             )
+        # Bollinger Bands for 15 min chart
         if "BOLLINGER" in self._requested:
             (
                 self._data["BOLLINGER_UPPER"],
                 self._data["BOLLINGER_MIDDLE"],
                 self._data["BOLLINGER_LOWER"],
             ) = talib.BBANDS(
-                self._data[bb_target], timeperiod=20, nbdevup=2.0, nbdevdn=2.0, matype=0
+                self._data[bb_target], timeperiod=20, nbdevup=2.5, nbdevdn=2.5, matype=0
             )
         if "MA5" in self._requested:
             self._data["MA5"] = talib.MA(self._data[ma_target], timeperiod=5, matype=0)
@@ -117,6 +128,7 @@ class Indicators:
             self._data["MA200"] = talib.MA(
                 self._data[ma_target], timeperiod=200, matype=0
             )
+        # Moving Average Convergence Divergence (MACD) for 15 min chart
         if "MACD" in self._requested:
             (
                 self._data["MACD"],
@@ -125,10 +137,13 @@ class Indicators:
             ) = talib.MACD(
                 self._data[macd_target], fastperiod=12, slowperiod=26, signalperiod=9
             )
+        # On Balance Volume
         if "OBV" in self._requested:
             self._data["OBV"] = talib.OBV(self._data[keys[3]], self._data[keys[4]])
+        # Relative Strength Index
         if "RSI" in self._requested:
             self._data["RSI"] = talib.RSI(self._data[rsi_target], timeperiod=14)
+        # Stochastic Oscillator
         if "STOCHASTIC" in self._requested:
             self._data["STOCHASTIC_K"], self._data["STOCHASTIC_D"] = talib.STOCH(
                 self._data[keys[1]],
@@ -140,8 +155,54 @@ class Indicators:
                 slowd_period=3,
                 slowd_matype=0,
             )
+        # Volume Rate of Change
         if "VoRSI" in self._requested:
             self._data["VoRSI"] = talib.RSI(self._data[vo_rsi_target], timeperiod=14)
+        # Hilbert Transform - Instantaneous Trendline
+        if "HT_TRENDLINE" in self._requested:
+            self._data["HT_TRENDLINE"] = talib.HT_TRENDLINE(self._data[keys[3]])
+        # Hilbert Transform - Trend vs Cycle Mode
+        if "HT_TRENDMODE" in self._requested:
+            self._data["HT_TRENDMODE"] = talib.HT_TRENDMODE(self._data[keys[3]])
+        # Hilbert Transform - Dominant Cycle Period
+        if "HT_DCPERIOD" in self._requested:
+            self._data["HT_DCPERIOD"] = talib.HT_DCPERIOD(self._data[keys[3]])
+        # Hilbert Transform - Dominant Cycle Phase
+        if "HT_DCPHASE" in self._requested:
+            self._data["HT_DCPHASE"] = talib.HT_DCPHASE(self._data[keys[3]])
+        # Hilbert Transform - Phasor Components
+        if "HT_PHASOR" in self._requested:
+            self._data["HT_PHASOR_INPHASE"], self._data["HT_PHASOR_QUADRATURE"] = talib.HT_PHASOR(
+                self._data[keys[3]]
+            )
+        # Hilbert Transform - SineWave
+        if "HT_SINE" in self._requested:
+            self._data["HT_SINE_SINE"], self._data["HT_SINE_LEADSINE"] = talib.HT_SINE(
+                self._data[keys[3]]
+            )
+        if "MFI" in self._requested:
+            self._data["MFI"] = talib.MFI(
+                self._data[keys[1]],
+                self._data[keys[2]],
+                self._data[keys[3]],
+                self._data[keys[4]],
+                timeperiod=14,
+            )
+        if "MOM" in self._requested:
+            self._data["MOM"] = talib.MOM(self._data[keys[3]], timeperiod=10)
+        if "PLUS_DI" in self._requested:
+            self._data["PLUS_DI"] = talib.PLUS_DI(
+                self._data[keys[1]],
+                self._data[keys[2]],
+                self._data[keys[3]],
+                timeperiod=14,
+            )
+        if "PLUS_DM" in self._requested:
+            self._data["PLUS_DM"] = talib.PLUS_DM(
+                self._data[keys[1]],
+                self._data[keys[2]],
+                timeperiod=14,
+            )
         if save and path is not None:
             self._data.to_csv(path)
         # Substract the offset, if MA50 or MA200 are active
