@@ -16,7 +16,7 @@ PATH_PAIRS = os.path.abspath(
 )
 PAIR = "CADJPY"
 MINUTES = 15
-START = "2010-01-01"
+START = "2021-01-01"
 # Substract 1 hour to get the last full hour
 END = (date.today() - timedelta(hours=1)).strftime("%Y-%m-%d")
 API_TYPE = "advanced"
@@ -92,8 +92,8 @@ PREPROCESSOR_PATH = os.path.abspath(
     os.path.join(os.path.dirname(__file__), os.path.curdir, "preprocessor_test")
 )
 PREPROCESSOR_DATA_SOURCE = f"{PATH_INDICATORS}/{PAIR}_{MINUTES}.csv"
-TEST_TIME_STEPS_IN = 512  # 18 hours
-TEST_TIME_STEPS_OUT = 128  # 12 hours
+TEST_TIME_STEPS_IN = 96 * 5  # 5 days
+TEST_TIME_STEPS_OUT = 96  # 24 hours
 TEST_LENGTH = TEST_TIME_STEPS_IN + TEST_TIME_STEPS_OUT
 TEST_SCALE = True
 TEST_BRANCHED_MODEL = False
@@ -157,7 +157,7 @@ CRYPTO_PAIRS = [
 ]
 # Utilizer testC:
 REQUEST_PAIRS = RAW_MATERIALS + CRYPTO_PAIRS + FOREX_PAIRS
-UTIL_PAIRS = RAW_MATERIALS + CRYPTO_PAIRS + FOREX_PAIRS
+UTIL_PAIRS = CRYPTO_PAIRS + FOREX_PAIRS + RAW_MATERIALS
 # UTIL_PAIRS = CRYPTO_PAIRS
 TEST_BOX_PTS = 5
 UTILIZER_START_DATE = START
