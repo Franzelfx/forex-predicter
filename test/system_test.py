@@ -1,4 +1,5 @@
 """System test for all modules."""
+import argparse
 import unittest
 import traceback
 import numpy as np
@@ -75,3 +76,9 @@ class SystemTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+    # parse key from command line
+    parser = argparse.ArgumentParser()
+    parser.add_argument("key", help="API key")
+    args = parser.parse_args()
+    # set key
+    API_KEY = args.key
