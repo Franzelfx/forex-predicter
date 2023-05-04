@@ -1,0 +1,59 @@
+{
+  "PROCESSING": {
+    "PAIR": "EURUSD",
+    "INTERVAL": 1,
+    "STEPS_IN": 6720,
+    "STEPS_OUT": 672,
+    "TEST_LENGTH": 7392,
+    "EPOCHS": 150,
+    "BATCH_SIZE": 32,
+    "LEARNING_RATE": 0.0005,
+    "TARGET_FEATURE": "MA5"
+  },
+  "BRANCHES": {
+    "EURUSD": {
+      "INDICATORS": [
+        "ATR",
+        "BOLLINGER",
+        "MA5",
+        "MA25",
+        "MA50",
+        "MA200",
+        "MACD",
+        "OBV",
+        "RSI",
+        "STOCHASTIC",
+        "VoRSI"
+      ],
+      "CONV_NODES": [64],
+      "LSTM_NODES": [64],
+      "DENSE_NODES": [64],
+      "DROPOUT": 0.2
+    },
+    "GBPUSD": {
+      "INDICATORS": [
+        "ATR",
+        "BOLLINGER",
+        "MA5",
+        "MA25",
+        "MA50",
+        "MA200",
+        "MACD",
+        "OBV",
+        "RSI",
+        "STOCHASTIC",
+        "VoRSI"
+      ],
+      "CONV_NODES": [64],
+      "LSTM_NODES": [64],
+      "DENSE_NODES": [64],
+      "DROPOUT": 0.2
+    }
+  },
+  "CONCAT": {
+    "CONV_NODES": [64],
+    "LSTM_NODES": [256, 128],
+    "DENSE_NODES": [64],
+    "DROPOUT": 0.2
+  }
+}

@@ -1,0 +1,10 @@
+__pycache__
+*.h5
+*.png
+tensorboard
+venv
+*.vscode
+*.csv
+test/api_key.py
+!test/model_test/*.csv
+!test/system_test/*.csv
