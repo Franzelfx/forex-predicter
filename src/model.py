@@ -228,7 +228,7 @@ class Model:
         tensorboard = TensorBoard(log_dir=f"{self._path}/tensorboard/{self._name}")
         # Set the validation split
         if (x_val and y_val) is not None:
-            validtion_split = 0
+            validation_split = 0
         # Fit the model
         fit = model.fit(
             self._x_train,
@@ -236,7 +236,7 @@ class Model:
             epochs=epochs,
             batch_size=batch_size,
             validation_data=(x_val, y_val) if (x_val and y_val) is not None else None,
-            validation_split=validtion_split,
+            validation_split=validation_split,
             callbacks=[tensorboard, model_checkpoint, early_stopping],
             shuffle=False,
         )
