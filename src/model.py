@@ -236,7 +236,7 @@ class Model:
             self._y_train,
             epochs=epochs,
             batch_size=batch_size,
-            validation_data=(x_val, y_val),
+            validation_data=(x_val, y_val) if (x_val and y_val) is not None else None,
             validation_split=validtion_split,
             callbacks=[tensorboard, model_checkpoint, early_stopping],
             shuffle=False,
