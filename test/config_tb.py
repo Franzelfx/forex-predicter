@@ -1,7 +1,6 @@
 """Config file for testbench."""
 import sys
 import os.path
-from api_key import API_KEY
 from datetime import timedelta
 from datetime import datetime as date
 
@@ -20,7 +19,6 @@ START = "2021-01-01"
 # Substract 1 hour to get the last full hour
 END = (date.today() - timedelta(hours=1)).strftime("%Y-%m-%d")
 API_TYPE = "advanced"
-API_KEY = API_KEY
 
 # Indicators
 PATH_INDICATORS = os.path.abspath(

@@ -1,5 +1,6 @@
-"""System test for all modules."""
-import argparse
+"""System test for machine learning training."""
+
+import os
 import unittest
 import traceback
 import numpy as np
@@ -10,7 +11,6 @@ from src.indicators import Indicators
 from src.visualizer import Visualizer
 from src.data_aquirer import Data_Aquirer
 from src.preprocessor import Preprocessor
-
 
 class SystemTest(unittest.TestCase):
     """Test the system."""
@@ -72,13 +72,8 @@ class SystemTest(unittest.TestCase):
         ret = np.cumsum(data, dtype=float)
         ret[n:] = ret[n:] - ret[:-n]
         return ret[n - 1 :] / n
-
-
+    
 if __name__ == "__main__":
+    # get API_KEY from environment variable
+    API_KEY = os.environ.get("API_KEY")
     unittest.main()
-    # parse key from command line
-    parser = argparse.ArgumentParser()
-    parser.add_argument("key", help="API key")
-    args = parser.parse_args()
-    # set key
-    API_KEY = args.key

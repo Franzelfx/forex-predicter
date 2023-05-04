@@ -63,4 +63,5 @@ class UtilizerIntegrationTest(unittest.TestCase):
 
 
 if __name__ == "__main__":
+    API_KEY = os.environ.get("API_KEY")
     unittest.main()
