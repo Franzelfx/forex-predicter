@@ -225,6 +225,11 @@ class Model:
             monitor="val_loss", patience=patience, mode="min", verbose=1
         )
         tensorboard = TensorBoard(log_dir=f"{self._path}/tensorboard/{self._name}")
+        # Set the validation split
+        if x_val is None or y_val is None:
+            validtion_split = 0.2
+        else:
+            validtion_split = 0
         # Fit the model
         fit = model.fit(
             self._x_train,
@@ -232,6 +237,7 @@ class Model:
             epochs=epochs,
             batch_size=batch_size,
             validation_data=(x_val, y_val),
+            validation_split=validtion_split,
             callbacks=[tensorboard, model_checkpoint, early_stopping],
             shuffle=False,
         )
