@@ -51,6 +51,7 @@ class SystemTest(unittest.TestCase):
                     batch_size=TEST_BATCH_SIZE,
                     learning_rate=TEST_LEARNING_RATE,
                     patience=TEST_PATIENCE,
+                    validation_split=TEST_VALIDATION_SPLIT,
                 )
                 # Predict the next values
                 utilizer = Utilizer(model, preprocessor)

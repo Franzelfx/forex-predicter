@@ -15,7 +15,7 @@ PATH_PAIRS = os.path.abspath(
 )
 PAIR = "CADJPY"
 MINUTES = 15
-START = "2021-01-01"
+START = "2010-01-01"
 # Substract 1 hour to get the last full hour
 END = (date.today() - timedelta(hours=1)).strftime("%Y-%m-%d")
 API_TYPE = "advanced"
@@ -106,7 +106,7 @@ TEST_NEURONS = 128
 TEST_BATCH_SIZE = 16
 TEST_LEARNING_RATE = 0.0001
 TEST_PATIENCE = 300
-TEST_VALIDATION_SPLIT = 0.2
+TEST_VALIDATION_SPLIT = 0.1
 PATH_TEST_RESULTS = os.path.abspath(
     os.path.join(os.path.dirname(__file__), os.path.curdir, "test_results")
 )

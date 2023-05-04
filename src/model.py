@@ -189,6 +189,7 @@ class Model:
         patience=40,
         x_val=None,
         y_val=None,
+        validation_split=0.2,
     ) -> DataFrame:
         """Compile and fit the model.
 
@@ -226,9 +227,7 @@ class Model:
         )
         tensorboard = TensorBoard(log_dir=f"{self._path}/tensorboard/{self._name}")
         # Set the validation split
-        if x_val is None or y_val is None:
-            validtion_split = 0.2
-        else:
+        if (x_val and y_val) is not None:
             validtion_split = 0
         # Fit the model
         fit = model.fit(
