@@ -90,12 +90,12 @@ PREPROCESSOR_PATH = os.path.abspath(
     os.path.join(os.path.dirname(__file__), os.path.curdir, "preprocessor_test")
 )
 PREPROCESSOR_DATA_SOURCE = f"{PATH_INDICATORS}/{PAIR}_{MINUTES}.csv"
-TEST_TIME_STEPS_IN = 192   # 24 hours
+TEST_TIME_STEPS_IN = 480   # 24 hours
 TEST_TIME_STEPS_OUT = 94  # 24 hours
 TEST_LENGTH = TEST_TIME_STEPS_IN + TEST_TIME_STEPS_OUT
 TEST_SCALE = True
 TEST_BRANCHED_MODEL = False
-TEST_SHIFT = TEST_TIME_STEPS_OUT  # overlap of one means x and y windows are shifted by one in every sample
+TEST_SHIFT = TEST_TIME_STEPS_IN  # overlap of one means x and y windows are shifted by one in every sample
 
 # Model
 MODEL_DATA_SOURCE = f"{PREPROCESSOR_DATA_SOURCE}"
