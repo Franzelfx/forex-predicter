@@ -15,8 +15,16 @@ class UtilizerIntegrationTest(unittest.TestCase):
 
     def test_utilizer_integration(self):
         """Test the utilizer."""
+        _found_start = False
         for pair in UTIL_PAIRS:
             try:
+                # If START_PAIR is set, skip all previous pairs
+                if os.environ.get("START_PAIR") and _found_start is False:
+                    if pair == os.environ.get("START_PAIR"):
+                        _found_start = True
+                        print(f"Starting with pair: {pair}")
+                    else:
+                        continue
                 # Get data from the API
                 aquirer = Data_Aquirer(PATH_PAIRS, API_KEY, api_type="full")
                 # Start is today - 1 month
