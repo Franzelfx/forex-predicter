@@ -17,6 +17,7 @@ class SystemTest(unittest.TestCase):
 
     def test_system(self):
         """Test the system."""
+        _found_start = False
         for pair in REQUEST_PAIRS:
             try:
                 # If START_PAIR is set, skip all previous pairs
