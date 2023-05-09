@@ -61,5 +61,7 @@ class Visualizer:
         print(f"Saved plot to {path}.png")
         # Save raw data as csv
         if save_csv:
+            path = f"{path}"
             df = pd.DataFrame({"prediction": hat})
             df.to_csv(f"{path}.csv", index=False, )
+            print(f"Saved data to {path}.csv")
