@@ -1,3 +1,3 @@
 source venv/bin/activate
 export API_KEY=kvtkOoyqcuTgNrBqRGIhhLe766CLYbpo
-python test/system_test.py
+screen python test/system_test.py
