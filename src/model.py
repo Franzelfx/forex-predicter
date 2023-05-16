@@ -65,13 +65,12 @@ class Model:
                     hidden_neurons,
                     return_sequences=True,
                     input_shape=(self._x_train.shape[1], self._x_train.shape[2]),
+                    stateful=True,
                 )
             )
         )
-        model.add(Bidirectional(LSTM(round(0.5 * hidden_neurons), return_sequences=False)))
-        model.add(RepeatVector(self._y_train.shape[1]))
-        model.add(Bidirectional(LSTM(round(0.5 * hidden_neurons), return_sequences=True)))
-        model.add(Bidirectional(LSTM(hidden_neurons, return_sequences=True)))
+        model.add(Bidirectional(LSTM(round(0.5 * hidden_neurons), return_sequences=True, stateful=True)))
+        model.add(Bidirectional(LSTM(round(0.5 * hidden_neurons), return_sequences=True, stateful=True)))
         model.add(TimeDistributed(Dense(round(0.75 * hidden_neurons), activation='relu')))
         model.add(Dropout(dropout_factor))
         model.add(TimeDistributed(Dense(round(0.75 * hidden_neurons), activation='relu')))
@@ -80,7 +79,7 @@ class Model:
         model.add(TimeDistributed(Dense(round(0.5 * hidden_neurons), activation='relu')))
         model.add(TimeDistributed(Dense(self._y_train.shape[1], activation='relu')))
         model.add(GlobalMaxPooling1D())
-        model.add(Dense(1, activation="linear"))
+        model.add(Dense(self._y_train.shape[1], activation="linear"))
         model.build(
             input_shape=(
                 self._x_train.shape[0],
