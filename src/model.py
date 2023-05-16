@@ -175,7 +175,7 @@ class Model:
         else:
             model = self._create_model(hidden_neurons, dropout, activation)
         optimizer = Adam(learning_rate=learning_rate)
-        model.compile(loss=loss, optimizer=optimizer)
+        model.compile(loss=loss, optimizer=optimizer, metrics=["mape"])
         model.summary()
         return model
 
@@ -188,7 +188,6 @@ class Model:
         learning_rate=0.001,
         batch_size=32,
         loss="mae",
-        metrics=["mape"],
         branched_model=False,
         patience=40,
         x_val=None,
