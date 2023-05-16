@@ -16,6 +16,7 @@ from keras.layers import (
     Flatten,
     Conv1D,
     MaxPooling1D,
+    GlobalMaxPooling1D,
     concatenate,
     GRU,
     Bidirectional,
@@ -75,7 +76,7 @@ class Model:
         model.add(TimeDistributed(Dense(round(0.5 * hidden_neurons), activation='relu')))
         model.add(TimeDistributed(Dense(round(0.5 * hidden_neurons), activation='relu')))
         model.add(TimeDistributed(Dense(round(0.25 * hidden_neurons), activation='relu')))
-
+        model.add(GlobalMaxPooling1D(self._y_train.shape[1]))
         model.add(Dense(1, activation="linear"))
         model.build(
             input_shape=(
