@@ -76,7 +76,7 @@ class Model:
                 )
             )
         )
-        model.add(Bidirectional(LSTM(round(0.5 * hidden_neurons), return_sequences=True, stateful=stateful)))
+        model.add(Bidirectional(LSTM(hidden_neurons, return_sequences=True, stateful=stateful)))
         model.add(Bidirectional(LSTM(round(0.5 * hidden_neurons), return_sequences=True, stateful=stateful)))
         model.add(TimeDistributed(Dense(round(0.75 * hidden_neurons), activation=activation)))
         model.add(Dropout(dropout_factor))
@@ -285,7 +285,6 @@ class Model:
                  The predicted values are scaled back to the original scale.
         """
         if from_saved_model:
-            prediction_model = self._compile()
             path = f"{self._path}/models/{self._name}_pred.h5"
             model = load_model(path)
             print(f"Loaded model from: {path}")
