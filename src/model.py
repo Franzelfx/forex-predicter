@@ -20,7 +20,8 @@ from keras.layers import (
     concatenate,
     GRU,
     Bidirectional,
-    TimeDistributed
+    TimeDistributed,
+    RepeatVector
 )
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
@@ -68,7 +69,9 @@ class Model:
             )
         )
         model.add(Bidirectional(LSTM(round(0.5 * hidden_neurons), return_sequences=True)))
-        model.add(Dropout(dropout_factor))
+        model.add(RepeatVector(self._y_train.shape[1]))
+        model.add(Bidirectional(LSTM(round(0.5 * hidden_neurons), return_sequences=True)))
+        model.add(Bidirectional(LSTM(hidden_neurons, return_sequences=True)))
         model.add(TimeDistributed(Dense(round(0.75 * hidden_neurons), activation='relu')))
         model.add(Dropout(dropout_factor))
         model.add(TimeDistributed(Dense(round(0.75 * hidden_neurons), activation='relu')))
