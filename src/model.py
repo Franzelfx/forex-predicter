@@ -63,7 +63,7 @@ class Model:
         return desired_batch_size - (self._x_train.shape[0] % desired_batch_size)
 
     def _create_model(
-        self, hidden_neurons: int, dropout_factor: float, activation: str
+        self, hidden_neurons: int, dropout_factor: float, activation: str, stateful: bool = False
     ) -> Sequential:
         model = Sequential()
         model.add(
@@ -72,19 +72,19 @@ class Model:
                     hidden_neurons,
                     return_sequences=True,
                     input_shape=(self._x_train.shape[1], self._x_train.shape[2]),
-                    stateful=True,
+                    stateful=stateful,
                 )
             )
         )
-        model.add(Bidirectional(LSTM(round(0.5 * hidden_neurons), return_sequences=True, stateful=True)))
-        model.add(Bidirectional(LSTM(round(0.5 * hidden_neurons), return_sequences=True, stateful=True)))
-        model.add(TimeDistributed(Dense(round(0.75 * hidden_neurons), activation='relu')))
+        model.add(Bidirectional(LSTM(round(0.5 * hidden_neurons), return_sequences=True, stateful=stateful)))
+        model.add(Bidirectional(LSTM(round(0.5 * hidden_neurons), return_sequences=True, stateful=stateful)))
+        model.add(TimeDistributed(Dense(round(0.75 * hidden_neurons), activation=activation)))
         model.add(Dropout(dropout_factor))
-        model.add(TimeDistributed(Dense(round(0.75 * hidden_neurons), activation='relu')))
+        model.add(TimeDistributed(Dense(round(0.75 * hidden_neurons), activation=activation)))
         model.add(Dropout(dropout_factor))
-        model.add(TimeDistributed(Dense(round(0.5 * hidden_neurons), activation='relu')))
-        model.add(TimeDistributed(Dense(round(0.5 * hidden_neurons), activation='relu')))
-        model.add(TimeDistributed(Dense(self._y_train.shape[1], activation='relu')))
+        model.add(TimeDistributed(Dense(round(0.5 * hidden_neurons), activation=activation)))
+        model.add(TimeDistributed(Dense(round(0.5 * hidden_neurons), activation=activation)))
+        model.add(TimeDistributed(Dense(self._y_train.shape[1], activation=activation)))
         model.add(GlobalMaxPooling1D())
         model.add(Dense(self._y_train.shape[1], activation="linear"))
         model.build(
@@ -176,13 +176,13 @@ class Model:
         plt.savefig(f"{self._path}/fit_history/{self._name}.png")
 
     def _compile(
-        self, hidden_neurons, dropout, activation, learning_rate, loss, branched_model
+        self, hidden_neurons, dropout, activation, learning_rate, loss, branched_model, stateful=False
     ):
         """Compile the model."""
         if branched_model:
             model = self._create_branched_model(hidden_neurons, dropout, activation)
         else:
-            model = self._create_model(hidden_neurons, dropout, activation)
+            model = self._create_model(hidden_neurons, dropout, activation, stateful=stateful)
         optimizer = Adam(learning_rate=learning_rate)
         model.compile(loss=loss, optimizer=optimizer, metrics=["mape"])
         model.summary()
@@ -223,8 +223,11 @@ class Model:
                  The tensorboard logs are saved in the tensorboard folder.
         """
         # Say how much GPU's are available
-        model = self._compile(
+        training_model = self._compile(
             hidden_neurons, dropout, activation, learning_rate, loss, branched_model
+        )
+        prediction_model = self._compile(
+            hidden_neurons, dropout, activation, learning_rate, loss, branched_model, stateful=True
         )
         # Configure callbacks (early stopping, checkpoint, tensorboard)
         model_checkpoint = ModelCheckpoint(
@@ -243,7 +246,7 @@ class Model:
             validation_split = 0
         # Fit the model
         adjusted_batch_size = self._adjusted_batch_size(batch_size)
-        fit = model.fit(
+        fit = training_model.fit(
             self._x_train,
             self._y_train,
             epochs=epochs,
@@ -254,8 +257,12 @@ class Model:
             shuffle=False,
         )
         # Load the best weights
-        model.load_weights(f"{self._path}/checkpoints/{self._name}_weights.h5")
-        self._model = model
+        training_model.load_weights(f"{self._path}/checkpoints/{self._name}_train.h5")
+        # Transfer weights to prediction model
+        prediction_model.set_weights(training_model.get_weights())
+        # Save the prediction model
+        prediction_model.save(f"{self._path}/models/{self._name}_pred.h5")
+        self._model = prediction_model
         self._plot_fit_history(fit)
         # Convert the fit history to dataframe
         fit = DataFrame(fit.history)
@@ -279,7 +286,8 @@ class Model:
                  The predicted values are scaled back to the original scale.
         """
         if from_saved_model:
-            path = f"{self._path}/checkpoints/{self._name}_weights.h5"
+            prediction_model = self._compile()
+            path = f"{self._path}/checkpoints/{self._name}_pred.h5"
             model = load_model(path)
             print(f"Loaded model from: {path}")
         else:
@@ -290,7 +298,10 @@ class Model:
                 )
             model = self._model
         # Predict the output
-        y_pred = model.predict(x_input, steps).flatten()
+        #y_pred = model.predict(x_input, steps).flatten()
+        y_pred = model.predict(x_input).flatten()
+        # Reduce to only the output length
+        y_pred = y_pred[: self._y_train.shape[1]]
         if scaler is not None:
             y_pred = y_pred.reshape(-1, 1)
             y_pred = scaler.inverse_transform(y_pred)
