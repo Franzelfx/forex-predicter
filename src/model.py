@@ -98,6 +98,7 @@ class Model:
         model.add(TimeDistributed(Dense(self._y_train.shape[1], activation=activation)))
         model.add(GlobalMaxPooling1D())
         model.add(Dense(self._y_train.shape[1], activation="linear"))
+        model.build()
         model.compile(loss="mse", optimizer="adam")
         return model
 
