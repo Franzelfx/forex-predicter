@@ -68,7 +68,7 @@ class Model:
             )
         )
         model.add(Bidirectional(LSTM(round(0.5 * hidden_neurons), return_sequences=True)))
-        model.add(Bidirectional(LSTM(self._y_train.shape[1], return_sequences=True)))
+        model.add(Dropout(dropout_factor))
         model.add(TimeDistributed(Dense(round(0.75 * hidden_neurons), activation='relu')))
         model.add(Dropout(dropout_factor))
         model.add(TimeDistributed(Dense(round(0.75 * hidden_neurons), activation='relu')))
