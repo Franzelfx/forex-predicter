@@ -66,16 +66,27 @@ class Model:
         self, hidden_neurons: int, dropout_factor: float, activation: str, stateful: bool = False, batch_size: int = 32
     ) -> Sequential:
         model = Sequential()
-        model.add(
-            Bidirectional(
-                LSTM(
-                    hidden_neurons,
-                    return_sequences=True,
-                    input_shape=(self._x_train.shape[1], self._x_train.shape[2]),
-                    stateful=stateful,
+        if(stateful):
+            model.add(
+                Bidirectional(
+                    LSTM(
+                        hidden_neurons,
+                        return_sequences=True,
+                        input_shape=(batch_size, self._x_train.shape[1], self._x_train.shape[2]),
+                        stateful=stateful,
+                    )
                 )
             )
-        )
+            model.add(
+                Bidirectional(
+                    LSTM(
+                        hidden_neurons,
+                        return_sequences=True,
+                        input_shape=(self._x_train.shape[1], self._x_train.shape[2]),
+                        stateful=stateful,
+                    )
+                )
+            )
         model.add(Bidirectional(LSTM(hidden_neurons, return_sequences=True, stateful=stateful)))
         model.add(Bidirectional(LSTM(round(0.5 * hidden_neurons), return_sequences=True, stateful=stateful)))
         model.add(TimeDistributed(Dense(round(0.75 * hidden_neurons), activation=activation)))
@@ -87,13 +98,7 @@ class Model:
         model.add(TimeDistributed(Dense(self._y_train.shape[1], activation=activation)))
         model.add(GlobalMaxPooling1D())
         model.add(Dense(self._y_train.shape[1], activation="linear"))
-        model.build(
-            input_shape=(
-                self._x_train.shape[0],
-                self._x_train.shape[1],
-                self._x_train.shape[2],
-            )
-        )
+        model.build()
         return model
 
     def _create_branched_model(
@@ -297,7 +302,7 @@ class Model:
             prediction_model = self._model
         # Predict the output
         #y_pred = model.predict(x_input, steps).flatten()
-        y_pred = prediction_model.predict(x_input, steps=steps).flatten()
+        y_pred = prediction_model.predict(x_input, steps=steps, batch_size=32).flatten()
         # Reduce to only the output length
         y_pred = y_pred[: self._y_train.shape[1]]
         if scaler is not None:
