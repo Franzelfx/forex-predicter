@@ -187,7 +187,7 @@ class Model:
         if branched_model:
             model = self._create_branched_model(hidden_neurons, dropout, activation)
         else:
-            model = self._create_model(hidden_neurons, dropout, activation, stateful=stateful, batch_size=self.batch_size)
+            model = self._create_model(hidden_neurons, dropout, activation, stateful=stateful, batch_size=batch_size)
         optimizer = Adam(learning_rate=learning_rate)
         model.compile(loss=loss, optimizer=optimizer, metrics=["mape"])
         model.summary()
