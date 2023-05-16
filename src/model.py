@@ -231,7 +231,7 @@ class Model:
         )
         # Configure callbacks (early stopping, checkpoint, tensorboard)
         model_checkpoint = ModelCheckpoint(
-            filepath=f"{self._path}/checkpoints/{self._name}_weights.h5",
+            filepath=f"{self._path}/checkpoints/{self._name}_train.h5",
             monitor="val_loss",
             save_best_only=True,
             save_weights_only=False,
@@ -287,7 +287,7 @@ class Model:
         """
         if from_saved_model:
             prediction_model = self._compile()
-            path = f"{self._path}/checkpoints/{self._name}_pred.h5"
+            path = f"{self._path}/models/{self._name}_pred.h5"
             model = load_model(path)
             print(f"Loaded model from: {path}")
         else:
