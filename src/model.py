@@ -152,13 +152,13 @@ class Model:
         axes[0].legend()
         axes[0].grid()
         # Plot the metrics
-        axes[1].plot(fit.history["mape"], label="mape")
-        axes[1].plot(fit.history["val_mape"], label="val_mape")
-        axes[1].set_ylabel("MAPE")
-        axes[1].set_xlabel("Epoch")
-        axes[1].set_title("MAPE")
-        axes[1].legend()
-        axes[1].grid()
+        #axes[1].plot(fit.history["mape"], label="mape")
+        #axes[1].plot(fit.history["val_mape"], label="val_mape")
+        #axes[1].set_ylabel("MAPE")
+        #axes[1].set_xlabel("Epoch")
+        #axes[1].set_title("MAPE")
+        #axes[1].legend()
+        #axes[1].grid()
         # Tight layout
         fig.tight_layout()
         # Save the plot
@@ -173,7 +173,7 @@ class Model:
         else:
             model = self._create_model(hidden_neurons, dropout, activation)
         optimizer = Adam(learning_rate=learning_rate)
-        model.compile(loss=loss, optimizer=optimizer, metrics=["mape"])
+        model.compile(loss=loss, optimizer=optimizer)
         model.summary()
         return model
 
