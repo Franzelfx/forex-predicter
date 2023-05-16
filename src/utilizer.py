@@ -34,6 +34,7 @@ class Utilizer():
         @return Tuple of test and hat prediction.
         """
         # Predict the values
+        y_train = self._model.predict(self._preprocessor.x_train, scaler=self._preprocessor.target_scaler, from_saved_model=True)
         test = self._model.predict(self._preprocessor.x_test, scaler=self._preprocessor.target_scaler, from_saved_model=True)
         y_hat = self._model.predict(self._preprocessor.x_hat, scaler=self._preprocessor.target_scaler, from_saved_model=True)
         # Substract the difference
