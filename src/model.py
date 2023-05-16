@@ -55,6 +55,13 @@ class Model:
         """Return the number of steps ahead that the model is capable of predicting."""
         return self._y_train.shape[1]
 
+    def _adjusted_batch_size(self, desired_batch_size: int) -> int:
+        """Return the adjusted batch size.
+
+        The batch size must be divisible by the number of samples in the training set.
+        """
+        return desired_batch_size - (self._x_train.shape[0] % desired_batch_size)
+
     def _create_model(
         self, hidden_neurons: int, dropout_factor: float, activation: str
     ) -> Sequential:
@@ -235,11 +242,12 @@ class Model:
         if (x_val and y_val) is not None:
             validation_split = 0
         # Fit the model
+        adjusted_batch_size = self._get_adjusted_batch_size(batch_size)
         fit = model.fit(
             self._x_train,
             self._y_train,
             epochs=epochs,
-            batch_size=batch_size,
+            batch_size=adjusted_batch_size,
             validation_data=(x_val, y_val) if (x_val and y_val) is not None else None,
             validation_split=validation_split,
             callbacks=[tensorboard, model_checkpoint, early_stopping],
