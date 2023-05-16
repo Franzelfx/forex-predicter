@@ -181,13 +181,13 @@ class Model:
         plt.savefig(f"{self._path}/fit_history/{self._name}.png")
 
     def _compile(
-        self, hidden_neurons, dropout, activation, learning_rate, loss, branched_model, stateful=False
+        self, hidden_neurons, dropout, activation, learning_rate, loss, branched_model, stateful=False, batch_size=32
     ):
         """Compile the model."""
         if branched_model:
             model = self._create_branched_model(hidden_neurons, dropout, activation)
         else:
-            model = self._create_model(hidden_neurons, dropout, activation, stateful=stateful, batch_size=self._batch_size)
+            model = self._create_model(hidden_neurons, dropout, activation, stateful=stateful, batch_size=self.batch_size)
         optimizer = Adam(learning_rate=learning_rate)
         model.compile(loss=loss, optimizer=optimizer, metrics=["mape"])
         model.summary()
