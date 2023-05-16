@@ -63,7 +63,7 @@ class Model:
         return desired_batch_size - (self._x_train.shape[0] % desired_batch_size)
 
     def _create_model(
-        self, hidden_neurons: int, dropout_factor: float, activation: str, stateful: bool = False
+        self, hidden_neurons: int, dropout_factor: float, activation: str, stateful: bool = False, batch_size: int = 32
     ) -> Sequential:
         model = Sequential()
         model.add(
@@ -87,13 +87,22 @@ class Model:
         model.add(TimeDistributed(Dense(self._y_train.shape[1], activation=activation)))
         model.add(GlobalMaxPooling1D())
         model.add(Dense(self._y_train.shape[1], activation="linear"))
-        model.build(
-            input_shape=(
-                self._x_train.shape[0],
-                self._x_train.shape[1],
-                self._x_train.shape[2],
+        if stateful:
+            model.build(
+                input_shape=(
+                    batch_size,
+                    self._x_train.shape[1],
+                    self._x_train.shape[2],
+                )
             )
-        )
+        else:
+            model.build(
+                input_shape=(
+                    self._x_train.shape[0],
+                    self._x_train.shape[1],
+                    self._x_train.shape[2],
+                )
+            )
         return model
 
     def _create_branched_model(
@@ -182,7 +191,7 @@ class Model:
         if branched_model:
             model = self._create_branched_model(hidden_neurons, dropout, activation)
         else:
-            model = self._create_model(hidden_neurons, dropout, activation, stateful=stateful)
+            model = self._create_model(hidden_neurons, dropout, activation, stateful=stateful, batch_size=self._batch_size)
         optimizer = Adam(learning_rate=learning_rate)
         model.compile(loss=loss, optimizer=optimizer, metrics=["mape"])
         model.summary()
@@ -227,7 +236,7 @@ class Model:
             hidden_neurons, dropout, activation, learning_rate, loss, branched_model
         )
         prediction_model = self._compile(
-            hidden_neurons, dropout, activation, learning_rate, loss, branched_model, stateful=True
+            hidden_neurons, dropout, activation, learning_rate, loss, branched_model, stateful=True, batch_size=batch_size
         )
         # Configure callbacks (early stopping, checkpoint, tensorboard)
         model_checkpoint = ModelCheckpoint(
@@ -286,7 +295,7 @@ class Model:
         """
         if from_saved_model:
             path = f"{self._path}/models/{self._name}_pred.h5"
-            model = load_model(path)
+            prediction_model = load_model(path)
             print(f"Loaded model from: {path}")
         else:
             # Check if the model has been fitted
@@ -294,10 +303,10 @@ class Model:
                 raise Exception(
                     "The model has not been fitted yet, plase call compile_and_fit() first."
                 )
-            model = self._model
+            prediction_model = self._model
         # Predict the output
         #y_pred = model.predict(x_input, steps).flatten()
-        y_pred = model.predict(x_input).flatten()
+        y_pred = prediction_model.predict(x_input, batch_size=32).flatten()
         # Reduce to only the output length
         y_pred = y_pred[: self._y_train.shape[1]]
         if scaler is not None:
