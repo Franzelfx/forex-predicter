@@ -68,7 +68,7 @@ class Model:
                 )
             )
         )
-        model.add(Bidirectional(LSTM(round(0.5 * hidden_neurons), return_sequences=True)))
+        model.add(Bidirectional(LSTM(round(0.5 * hidden_neurons), return_sequences=False)))
         model.add(RepeatVector(self._y_train.shape[1]))
         model.add(Bidirectional(LSTM(round(0.5 * hidden_neurons), return_sequences=True)))
         model.add(Bidirectional(LSTM(hidden_neurons, return_sequences=True)))
