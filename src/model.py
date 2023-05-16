@@ -154,13 +154,13 @@ class Model:
         axes[0].legend()
         axes[0].grid()
         # Plot the metrics
-        #axes[1].plot(fit.history["mape"], label="mape")
-        #axes[1].plot(fit.history["val_mape"], label="val_mape")
-        #axes[1].set_ylabel("MAPE")
-        #axes[1].set_xlabel("Epoch")
-        #axes[1].set_title("MAPE")
-        #axes[1].legend()
-        #axes[1].grid()
+        axes[1].plot(fit.history["mape"], label="mape")
+        axes[1].plot(fit.history["val_mape"], label="val_mape")
+        axes[1].set_ylabel("MAPE")
+        axes[1].set_xlabel("Epoch")
+        axes[1].set_title("MAPE")
+        axes[1].legend()
+        axes[1].grid()
         # Tight layout
         fig.tight_layout()
         # Save the plot
@@ -188,6 +188,7 @@ class Model:
         learning_rate=0.001,
         batch_size=32,
         loss="mae",
+        metrics=["mape"],
         branched_model=False,
         patience=40,
         x_val=None,
