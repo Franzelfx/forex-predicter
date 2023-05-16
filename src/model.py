@@ -75,8 +75,8 @@ class Model:
         model.add(Dropout(dropout_factor))
         model.add(TimeDistributed(Dense(round(0.5 * hidden_neurons), activation='relu')))
         model.add(TimeDistributed(Dense(round(0.5 * hidden_neurons), activation='relu')))
-        model.add(TimeDistributed(Dense(round(0.25 * hidden_neurons), activation='relu')))
-        model.add(GlobalMaxPooling1D(self._y_train.shape[1]))
+        model.add(TimeDistributed(Dense(self._y_train.shape[1]), activation='relu'))
+        model.add(GlobalMaxPooling1D())
         model.add(Dense(1, activation="linear"))
         model.build(
             input_shape=(
