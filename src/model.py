@@ -245,12 +245,11 @@ class Model:
         if (x_val and y_val) is not None:
             validation_split = 0
         # Fit the model
-        adjusted_batch_size = self._adjusted_batch_size(batch_size)
         fit = training_model.fit(
             self._x_train,
             self._y_train,
             epochs=epochs,
-            batch_size=adjusted_batch_size,
+            batch_size=batch_size,
             validation_data=(x_val, y_val) if (x_val and y_val) is not None else None,
             validation_split=validation_split,
             callbacks=[tensorboard, model_checkpoint, early_stopping],
