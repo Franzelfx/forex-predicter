@@ -103,7 +103,6 @@ class Model:
             model.build(input_shape=(batch_size, self._x_train.shape[1], self._x_train.shape[2]))
         else:
             model.build(input_shape=(self._x_train.shape[0], self._x_train.shape[1], self._x_train.shape[2]))
-        model.compile(loss="mse", optimizer="adam")
         return model
 
     def _create_branched_model(
@@ -194,7 +193,7 @@ class Model:
         else:
             model = self._create_model(hidden_neurons, dropout, activation, stateful=stateful, batch_size=batch_size)
         optimizer = Adam(learning_rate=learning_rate)
-        #model.compile(loss=loss, optimizer=optimizer, metrics=["mape"])
+        model.compile(loss=loss, optimizer=optimizer, metrics=["mape"])
         model.summary()
         return model
 
