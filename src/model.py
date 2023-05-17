@@ -44,6 +44,7 @@ class Model:
         @param x_train: The input data for the model.
         @param y_train: The output data for the model.
         """
+        os.environ['LD_LIBRARY_PATH'] = '/usr/local/cuda/lib64' 
         self._path = path
         self._name = name
         self._x_train = x_train
