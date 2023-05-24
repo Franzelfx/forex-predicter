@@ -284,6 +284,7 @@ class Model:
         steps=1,
         scaler: MinMaxScaler = None,
         from_saved_model=False,
+        stateful=False,
     ) -> np.ndarray:
         """Predict the output for the given input.
 
@@ -293,8 +294,13 @@ class Model:
         @remarks If from_saved_model is False, the model has to be fitted first.
                  The predicted values are scaled back to the original scale.
         """
-        if from_saved_model:
+        # TODO: Use stateles and stateful models instead of pred and train models as names
+        if(stateful):
             path = f"{self._path}/models/{self._name}_pred.h5"
+        else:
+            path = f"{self._path}/checkpoints/{self._name}_train.h5"
+        # Get the model
+        if from_saved_model:
             prediction_model = load_model(path)
             print(f"Loaded model from: {path}")
         else:
