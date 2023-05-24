@@ -232,12 +232,7 @@ class Model:
                  The tensorboard logs are saved in the tensorboard folder.
         """
         # Say how much GPU's are available
-        training_model = self._compile(
-            hidden_neurons, dropout, activation, learning_rate, loss, branched_model
-        )
-        prediction_model = self._compile(
-            hidden_neurons, dropout, activation, learning_rate, loss, branched_model, stateful=True, batch_size=batch_size
-        )
+        model = self._compile(hidden_neurons, dropout, activation, learning_rate, loss, branched_model)
         # Configure callbacks (early stopping, checkpoint, tensorboard)
         model_checkpoint = ModelCheckpoint(
             filepath=f"{self._path}/checkpoints/{self._name}_train.h5",
@@ -254,7 +249,7 @@ class Model:
         if (x_val and y_val) is not None:
             validation_split = 0
         # Fit the model
-        fit = training_model.fit(
+        fit = modelfit(
             self._x_train,
             self._y_train,
             epochs=epochs,
@@ -265,12 +260,8 @@ class Model:
             shuffle=False,
         )
         # Load the best weights
-        training_model.load_weights(f"{self._path}/checkpoints/{self._name}_train.h5")
-        # Transfer weights to prediction model
-        prediction_model.set_weights(training_model.get_weights())
-        # Save the prediction model
-        prediction_model.save(f"{self._path}/models/{self._name}_pred.h5")
-        self._model = prediction_model
+        model.load_weights(f"{self._path}/checkpoints/{self._name}_weights.h5")
+        self._model = model
         self._plot_fit_history(fit)
         # Convert the fit history to dataframe
         fit = DataFrame(fit.history)
@@ -284,7 +275,6 @@ class Model:
         steps=1,
         scaler: MinMaxScaler = None,
         from_saved_model=False,
-        stateful=False,
     ) -> np.ndarray:
         """Predict the output for the given input.
 
@@ -294,11 +284,7 @@ class Model:
         @remarks If from_saved_model is False, the model has to be fitted first.
                  The predicted values are scaled back to the original scale.
         """
-        # TODO: Use stateles and stateful models instead of pred and train models as names
-        if(stateful):
-            path = f"{self._path}/models/{self._name}_pred.h5"
-        else:
-            path = f"{self._path}/checkpoints/{self._name}_train.h5"
+        path = f"{self._path}/checkpoints/{self._name}_weights.h5"
         # Get the model
         if from_saved_model:
             prediction_model = load_model(path)
@@ -312,6 +298,7 @@ class Model:
             prediction_model = self._model
         # Predict the output
         #y_pred = model.predict(x_input, steps).flatten()
+        print(f"Predict the output for {self._name}.")
         y_pred = prediction_model.predict(x_input, steps=steps, batch_size=32).flatten()
         # Reduce to only the output length
         y_pred = y_pred[: self._y_train.shape[1]]
@@ -319,5 +306,5 @@ class Model:
             y_pred = y_pred.reshape(-1, 1)
             y_pred = scaler.inverse_transform(y_pred)
             y_pred = y_pred.flatten()
-            print("Scaled back")
+            print("Scaled back the prediction to original scale.")
         return y_pred
