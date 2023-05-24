@@ -249,7 +249,7 @@ class Model:
         if (x_val and y_val) is not None:
             validation_split = 0
         # Fit the model
-        fit = modelfit(
+        fit = model.fit(
             self._x_train,
             self._y_train,
             epochs=epochs,
