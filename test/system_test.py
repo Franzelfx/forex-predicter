@@ -64,13 +64,12 @@ class SystemTest(unittest.TestCase):
                 )
                 # Predict the next values
                 utilizer = Utilizer(model, preprocessor)
-                test_predict, y_hat = utilizer.predict
+                test_actual = utilizer.test_actual
+                test_predict, y_hat = utilizer.predict(box_pts=TEST_BOX_PTS)
                 # Plot the results
                 visualizer = Visualizer(pair)
                 path = f"{MODEL_PATH}/system_test"
-                visualizer.plot_prediction(
-                    path, hat=y_hat, test_actual=utilizer.test_actual
-                )
+                visualizer.plot_prediction(path, y_hat,test_predict=test_predict, test_actual=test_actual)
             except Exception:
                 traceback.print_exc()
 
