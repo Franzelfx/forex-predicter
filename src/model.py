@@ -284,7 +284,7 @@ class Model:
         @remarks If from_saved_model is False, the model has to be fitted first.
                  The predicted values are scaled back to the original scale.
         """
-        path = f"{self._path}/checkpoints/{self._name}_weights.h5"
+        path = f"{self._path}/checkpoints/{self._name}_train.h5"
         # Get the model
         if from_saved_model:
             prediction_model = load_model(path)
