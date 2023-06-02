@@ -8,12 +8,11 @@ from datetime import datetime as date
 # ---------------------------------- #
 # Add parent directory to path
 currentdir = os.path.dirname(__file__)
-complete_path = os.path.join(currentdir, os.path.pardir)
-sys.path.append(complete_path)
+sys.path.append(currentdir)
 
 # ---------------------------------- #
 # Configure logging
-file_path = complete_path + "/test/_log_/error.log"
+file_path = currentdir + "/test/_log_/error.log"
 logging.basicConfig(
     filename=file_path,
     filemode="a",
@@ -23,7 +22,7 @@ logging.basicConfig(
 
 # ---------------------------------- #
 # Data aquirer
-PATH_PAIRS = os.path.join(complete_path, "pairs")
+PATH_PAIRS = os.path.join(currentdir, "pairs")
 PAIR = "CADJPY"
 MINUTES = 15
 START = "2008-01-01"
@@ -33,7 +32,7 @@ API_TYPE = "advanced"
 
 # ---------------------------------- #
 # Indicators
-PATH_INDICATORS = os.path.join(complete_path, "indicators")
+PATH_INDICATORS = os.path.join(currentdir, "indicators")
 INDICATORS_DATA_SOURCE = f"{PATH_PAIRS}/{PAIR}_{MINUTES}.csv"
 TEST_INDICATORS = [
     "ATR",
@@ -97,7 +96,7 @@ TARGET = "c"
 
 # ---------------------------------- #
 # Preprocessor
-PREPROCESSOR_PATH = os.path.join(complete_path, "preprocessor")
+PREPROCESSOR_PATH = os.path.join(currentdir, "preprocessor")
 PREPROCESSOR_DATA_SOURCE = f"{PATH_INDICATORS}/{PAIR}_{MINUTES}.csv"
 TEST_TIME_STEPS_IN = 1920  # 1 Month
 TEST_TIME_STEPS_OUT = 48   # 12 hours
@@ -116,7 +115,7 @@ TEST_BATCH_SIZE = 32
 TEST_LEARNING_RATE = 0.0001
 TEST_PATIENCE = 300
 TEST_VALIDATION_SPLIT = 0.1
-PATH_TEST_RESULTS = os.path.join(complete_path, "test_results")
+PATH_TEST_RESULTS = os.path.join(currentdir, "test_results")
 
 # ---------------------------------- #
 # System test
