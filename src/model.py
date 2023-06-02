@@ -189,7 +189,7 @@ class Model:
         # Check, if multiple GPUs are available
         gpu_devices = tf.config.list_physical_devices('GPU')
         device_count = len(gpu_devices)
-        if device_count > 1:
+        if device_count > 1 and os.environ.get("USE_MULTIPLE_GPUS") == "True":
             print("Using multiple GPUs.")
             strategy = tf.distribute.MirroredStrategy()
             with strategy.scope():
