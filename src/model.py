@@ -192,11 +192,14 @@ class Model:
             model = self._create_model(hidden_neurons, dropout, activation, stateful=stateful, batch_size=batch_size)
         optimizer = Adam(learning_rate=learning_rate)
         # Check, if multiple GPUs are available
-        if len(os.environ["CUDA_VISIBLE_DEVICES"].split(",")) > 1:
+        if os.environ.get('CUDA_VISIBLE_DEVICES') > 1:
             print("Using multiple GPUs.")
             strategy = tf.distribute.MirroredStrategy()
             with strategy.scope():
                 model.compile(loss=loss, optimizer=optimizer, metrics=["mape"])
+        else:
+            print("Using single GPU.")
+            model.compile(loss=loss, optimizer=optimizer, metrics=["mape"])
         model.summary()
         return model
 
