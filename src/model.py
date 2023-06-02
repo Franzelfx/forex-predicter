@@ -81,7 +81,6 @@ class Model:
         model.build(input_shape=(self._x_train.shape[0], self._x_train.shape[1], self._x_train.shape[2]))
         return model
 
-
     def _plot_fit_history(self, fit):
         """Plot the fit history."""
         # High resolution plot with subplots
