@@ -1,5 +1,7 @@
 """This module contains the model class for the LSTM model."""
 import os
+import logging
+import traceback
 import numpy as np
 import tensorflow as tf
 from pandas import DataFrame
@@ -160,15 +162,21 @@ class Model:
         model.summary()
         # Plot the model
         name = self._name[2:]
-        tf.keras.utils.plot_model(
-            model,
-            to_file=f"{self._path}/models/{name}.png",
-            show_shapes=True,
-            show_layer_names=True,
-            rankdir="TB",
-            expand_nested=False,
-            dpi=300,
-        )
+        try:
+            tf.keras.utils.plot_model(
+                model,
+                to_file=f"{self._path}/models/{name}.png",
+                show_shapes=True,
+                show_layer_names=True,
+                rankdir="TB",
+                expand_nested=False,
+                dpi=300,
+            )
+        except Exception as e:
+            # Print exception with traceback
+            print(e)
+            logging.error(e)
+
         return model
 
     def compile_and_fit(
