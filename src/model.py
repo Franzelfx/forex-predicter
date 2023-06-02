@@ -1,6 +1,7 @@
 """This module contains the model class for the LSTM model."""
 import os
 import numpy as np
+import tensorflow as tf
 from pandas import DataFrame
 import matplotlib.pyplot as plt
 from keras.optimizers import Adam
@@ -190,7 +191,12 @@ class Model:
         else:
             model = self._create_model(hidden_neurons, dropout, activation, stateful=stateful, batch_size=batch_size)
         optimizer = Adam(learning_rate=learning_rate)
-        model.compile(loss=loss, optimizer=optimizer, metrics=["mape"])
+        # Check, if multiple GPUs are available
+        if len(os.environ["CUDA_VISIBLE_DEVICES"].split(",")) > 1:
+            print("Using multiple GPUs.")
+            strategy = tf.distribute.MirroredStrategy()
+            with strategy.scope():
+                model.compile(loss=loss, optimizer=optimizer, metrics=["mape"])
         model.summary()
         return model
 
