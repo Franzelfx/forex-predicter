@@ -161,7 +161,6 @@ class Model:
             model.compile(loss=loss, optimizer=optimizer, metrics=["mape"])
         model.summary()
         # Plot the model
-        name = self._name[2:]
         try:
             tf.keras.utils.plot_model(
                 model,
