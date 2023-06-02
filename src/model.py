@@ -192,7 +192,9 @@ class Model:
             model = self._create_model(hidden_neurons, dropout, activation, stateful=stateful, batch_size=batch_size)
         optimizer = Adam(learning_rate=learning_rate)
         # Check, if multiple GPUs are available
-        if os.environ.get('CUDA_VISIBLE_DEVICES') > 1:
+        gpu_devices = tf.config.list_physical_devices('GPU')
+        device_count = len(gpu_devices)
+        if device_count > 1:
             print("Using multiple GPUs.")
             strategy = tf.distribute.MirroredStrategy()
             with strategy.scope():
