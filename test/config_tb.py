@@ -8,11 +8,12 @@ from datetime import datetime as date
 # ---------------------------------- #
 # Add parent directory to path
 currentdir = os.path.dirname(__file__)
-sys.path.append(currentdir)
+pardir = os.path.join(currentdir, os.pardir)
+sys.path.append(pardir)
 
 # ---------------------------------- #
 # Configure logging
-file_path = currentdir + "/test/_log_/error.log"
+file_path = currentdir + "/_log_/error.log"
 logging.basicConfig(
     filename=file_path,
     filemode="a",
