@@ -10,7 +10,7 @@ echo "START_PAIR="$1
 
 # ------------------------------
 # Ask User, if multiple GPUs should be used
-read -p "Do you want to use multiple GPUs? (y/n)" answer
+read -p "Do you want to use multiple GPUs? (y/n): " answer
 if [ "$answer" != "${answer#[Yy]}" ] ;then
     echo "Multiple GPUs will be used"
     export USE_MULTIPLE_GPUS="True"
