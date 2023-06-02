@@ -93,9 +93,10 @@ class Model:
         model.add(TimeDistributed(Dense(round(0.75 * hidden_neurons), activation=activation)))
         model.add(Dropout(dropout_factor))
         model.add(TimeDistributed(Dense(round(0.5 * hidden_neurons), activation=activation)))
-        model.add(TimeDistributed(Dense(round(0.5 * hidden_neurons), activation=activation)))
         model.add(TimeDistributed(Dense(self._y_train.shape[1], activation=activation)))
         model.add(GlobalMaxPooling1D())
+        model.add(Dense(round(0.5 * hidden_neurons), activation=activation))
+        model.add(Dense(round(0.5 * hidden_neurons), activation=activation))
         model.add(Dense(self._y_train.shape[1], activation="linear"))
         if(stateful):
             model.build(input_shape=(batch_size, self._x_train.shape[1], self._x_train.shape[2]))
@@ -103,54 +104,6 @@ class Model:
             model.build(input_shape=(self._x_train.shape[0], self._x_train.shape[1], self._x_train.shape[2]))
         return model
 
-    def _create_branched_model(
-        self, hidden_neurons: int, dropout: int, activation: str
-    ) -> Sequential:
-        # LSTM Branch
-        lstm = Sequential()
-        lstm.add(
-            LSTM(
-                hidden_neurons,
-                return_sequences=True,
-                input_shape=(self._x_train.shape[1], self._x_train.shape[2]),
-            )
-        )
-        lstm.add(LSTM(int(hidden_neurons), return_sequences=True))
-        lstm.add(LSTM(int(hidden_neurons), return_sequences=False))
-        lstm.add(Dense(int(hidden_neurons), activation=activation))
-
-        # Conv1D Branch
-        conv1d = Sequential()
-        conv1d.add(
-            Conv1D(
-                filters=hidden_neurons,
-                kernel_size=3,
-                activation=activation,
-                input_shape=(self._x_train.shape[1], self._x_train.shape[2]),
-            )
-        )
-        conv1d.add(MaxPooling1D(pool_size=2))
-        conv1d.add(Dropout(dropout))
-        conv1d.add(Conv1D(filters=hidden_neurons, kernel_size=3, activation=activation))
-        conv1d.add(MaxPooling1D(pool_size=2))
-        conv1d.add(Dropout(dropout))
-        conv1d.add(Conv1D(filters=hidden_neurons, kernel_size=3, activation=activation))
-        conv1d.add(MaxPooling1D(pool_size=2))
-        conv1d.add(Dropout(dropout))
-        conv1d.add(Flatten())
-        conv1d.add(Dense(int(hidden_neurons), activation=activation))
-
-        # Concatenate Branches
-        concat = concatenate([lstm.output, conv1d.output])
-
-        # Add Dense Layers
-        dense = Dense(int(hidden_neurons), activation=activation)(concat)
-        dense = Dense(int(hidden_neurons), activation=activation)(dense)
-        output = Dense(self._y_train.shape[1])(dense)
-
-        # Model definition
-        model = KerasModel(inputs=[lstm.input, conv1d.input], outputs=output)
-        return model
 
     def _plot_fit_history(self, fit):
         """Plot the fit history."""
@@ -205,6 +158,17 @@ class Model:
             model = self._create_model(hidden_neurons, dropout, activation, stateful=stateful, batch_size=batch_size)
             model.compile(loss=loss, optimizer=optimizer, metrics=["mape"])
         model.summary()
+        # Plot the model
+        name = self._name[2:]
+        tf.keras.utils.plot_model(
+            model,
+            to_file=f"{self._path}/models/{name}.png",
+            show_shapes=True,
+            show_layer_names=True,
+            rankdir="TB",
+            expand_nested=False,
+            dpi=300,
+        )
         return model
 
     def compile_and_fit(
