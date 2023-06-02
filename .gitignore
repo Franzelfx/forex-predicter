@@ -5,6 +5,7 @@ tensorboard
 venv
 *.vscode
 *.csv
+*.log
 
 !test/model_test/*.csv
 !test/system_test/*.csv

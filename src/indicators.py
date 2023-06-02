@@ -1,7 +1,6 @@
 """Module for the indicators class."""
 import pandas as pd
 from logging import warning
-from tabulate import tabulate
 import talib.abstract as talib
 
 

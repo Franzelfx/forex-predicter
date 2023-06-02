@@ -9,7 +9,6 @@ from src.indicators import Indicators
 from src.preprocessor import Preprocessor
 from src.data_aquirer import Data_Aquirer
 
-
 class UtilizerIntegrationTest(unittest.TestCase):
     """Test the utilizer."""
 

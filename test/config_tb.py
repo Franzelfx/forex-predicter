@@ -13,7 +13,7 @@ sys.path.append(complete_path)
 
 # ---------------------------------- #
 # Configure logging
-file_path = complete_path + "/_log_/error.log"
+file_path = complete_path + "/test/_log_/error.log"
 logging.basicConfig(
     filename=file_path,
     filemode="a",

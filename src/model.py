@@ -1,7 +1,6 @@
 """This module contains the model class for the LSTM model."""
 import os
 import numpy as np
-import tensorflow as tf
 from pandas import DataFrame
 import matplotlib.pyplot as plt
 from keras.optimizers import Adam
@@ -18,10 +17,8 @@ from keras.layers import (
     MaxPooling1D,
     GlobalMaxPooling1D,
     concatenate,
-    GRU,
     Bidirectional,
     TimeDistributed,
-    RepeatVector
 )
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
