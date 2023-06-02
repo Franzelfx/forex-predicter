@@ -198,7 +198,7 @@ class Model:
                 model.compile(loss=loss, optimizer=optimizer, metrics=["mape"])
         else:
             print("Using single GPU.")
-            if(os.environment.get("USE_MULTIPLE_GPUS") == "True"):
+            if(os.environ.get("USE_MULTIPLE_GPUS") == "True"):
                 print("Multiple GPUs are not available.")
             else:
                 print("Multiple GPUs are not enabled by environment variable.")
