@@ -186,18 +186,23 @@ class Model:
         self, hidden_neurons, dropout, activation, learning_rate, loss, branched_model, stateful=False, batch_size=32
     ):
         """Compile the model."""
-        # Check, if multiple GPUs are available
+        optimizer = Adam(learning_rate=learning_rate)
+        # Check if multiple GPUs are available
         gpu_devices = tf.config.list_physical_devices('GPU')
         device_count = len(gpu_devices)
         if device_count > 1 and os.environ.get("USE_MULTIPLE_GPUS") == "True":
             print("Using multiple GPUs.")
             strategy = tf.distribute.MirroredStrategy()
             with strategy.scope():
-                optimizer = Adam(learning_rate=learning_rate)
                 model = self._create_model(hidden_neurons, dropout, activation, stateful=stateful, batch_size=batch_size)
                 model.compile(loss=loss, optimizer=optimizer, metrics=["mape"])
         else:
             print("Using single GPU.")
+            if(os.environment.get("USE_MULTIPLE_GPUS") == "True"):
+                print("Multiple GPUs are not available.")
+            else:
+                print("Multiple GPUs are not enabled by environment variable.")
+            model = self._create_model(hidden_neurons, dropout, activation, stateful=stateful, batch_size=batch_size)
             model.compile(loss=loss, optimizer=optimizer, metrics=["mape"])
         model.summary()
         return model
