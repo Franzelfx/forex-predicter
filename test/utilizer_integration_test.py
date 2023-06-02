@@ -68,7 +68,7 @@ class UtilizerIntegrationTest(unittest.TestCase):
                 visualizer.plot_prediction(path, y_hat,test_predict=test_predict, test_actual=test_actual)
             except Exception:
                 traceback.print_exc()
-
+                logging.error(traceback.format_exc())
 
 if __name__ == "__main__":
     API_KEY = os.environ.get("API_KEY")

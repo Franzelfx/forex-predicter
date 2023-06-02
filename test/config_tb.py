@@ -1,18 +1,29 @@
 """Config file for testbench."""
 import sys
 import os.path
+import logging
 from datetime import timedelta
 from datetime import datetime as date
 
+# ---------------------------------- #
+# Add parent directory to path
+currentdir = os.path.dirname(__file__)
+complete_path = os.path.join(currentdir, os.path.pardir)
+sys.path.append(complete_path)
 
-sys.path.append(
-    os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir))
+# ---------------------------------- #
+# Configure logging
+file_path = complete_path + "/_log_/error.log"
+logging.basicConfig(
+    filename=file_path,
+    filemode="a",
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    level=logging.ERROR,
 )
 
+# ---------------------------------- #
 # Data aquirer
-PATH_PAIRS = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), os.path.curdir, "pairs")
-)
+PATH_PAIRS = os.path.join(complete_path, "pairs")
 PAIR = "CADJPY"
 MINUTES = 15
 START = "2008-01-01"
@@ -20,10 +31,9 @@ START = "2008-01-01"
 END = (date.today() - timedelta(hours=1)).strftime("%Y-%m-%d")
 API_TYPE = "advanced"
 
+# ---------------------------------- #
 # Indicators
-PATH_INDICATORS = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), os.path.curdir, f"indicators")
-)
+PATH_INDICATORS = os.path.join(complete_path, "indicators")
 INDICATORS_DATA_SOURCE = f"{PATH_PAIRS}/{PAIR}_{MINUTES}.csv"
 TEST_INDICATORS = [
     "ATR",
@@ -85,10 +95,9 @@ EXPECTED_COLUMNS = [
 ]
 TARGET = "c"
 
+# ---------------------------------- #
 # Preprocessor
-PREPROCESSOR_PATH = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), os.path.curdir, "preprocessor_test")
-)
+PREPROCESSOR_PATH = os.path.join(complete_path, "preprocessor")
 PREPROCESSOR_DATA_SOURCE = f"{PATH_INDICATORS}/{PAIR}_{MINUTES}.csv"
 TEST_TIME_STEPS_IN = 1920  # 1 Month
 TEST_TIME_STEPS_OUT = 48   # 12 hours
@@ -107,10 +116,9 @@ TEST_BATCH_SIZE = 32
 TEST_LEARNING_RATE = 0.0001
 TEST_PATIENCE = 300
 TEST_VALIDATION_SPLIT = 0.1
-PATH_TEST_RESULTS = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), os.path.curdir, "test_results")
-)
+PATH_TEST_RESULTS = os.path.join(complete_path, "test_results")
 
+# ---------------------------------- #
 # System test
 FOREX_PAIRS = [
     "C:AUDCAD",
@@ -153,7 +161,9 @@ CRYPTO_PAIRS = [
     "X:DASHUSD",
     "X:XRPUSD",
 ]
-# Utilizer testC:
+
+# ---------------------------------- #
+# Utilizer test:
 REQUEST_PAIRS = CRYPTO_PAIRS + FOREX_PAIRS + RAW_MATERIALS
 UTIL_PAIRS = CRYPTO_PAIRS + FOREX_PAIRS + RAW_MATERIALS
 # UTIL_PAIRS = CRYPTO_PAIRS

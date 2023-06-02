@@ -3,7 +3,6 @@
 import os
 import unittest
 import traceback
-import numpy as np
 from config_tb import *
 from src.model import Model
 from src.utilizer import Utilizer
@@ -72,13 +71,7 @@ class SystemTest(unittest.TestCase):
                 visualizer.plot_prediction(path, y_hat,test_predict=test_predict, test_actual=test_actual)
             except Exception:
                 traceback.print_exc()
-
-    def moving_average(self, data, n):
-        """Calculate the moving average for the given data."""
-        data = np.array(data)
-        ret = np.cumsum(data, dtype=float)
-        ret[n:] = ret[n:] - ret[:-n]
-        return ret[n - 1 :] / n
+                logging.error(traceback.format_exc())
     
 if __name__ == "__main__":
     # get API_KEY from environment variable
