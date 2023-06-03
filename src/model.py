@@ -1,7 +1,6 @@
 """This module contains the model class for the LSTM model."""
 import os
 import logging
-import traceback
 import numpy as np
 import tensorflow as tf
 from pandas import DataFrame
@@ -9,17 +8,15 @@ import matplotlib.pyplot as plt
 from keras.optimizers import Adam
 from keras.models import load_model
 from sklearn.preprocessing import MinMaxScaler
-from keras.models import Sequential, Model as KerasModel
+from keras.models import Sequential, Model
 from keras.callbacks import ModelCheckpoint, EarlyStopping, TensorBoard
 from keras.layers import (
     Dense,
     LSTM,
     Dropout,
-    Flatten,
-    Conv1D,
-    MaxPooling1D,
+    Permute,
+    Multiply,
     GlobalMaxPooling1D,
-    concatenate,
     Bidirectional,
     TimeDistributed,
 )
@@ -37,12 +34,14 @@ class Model:
         x_train: np.ndarray,
         y_train: np.ndarray,
     ):
-        """Set the fundamental attributes.
+        """
+        
+        Model for Time Series Prediction.
+        ---------------------------------
 
-        @param path: The top level path to the checkpoint, fit, model and tensorboard folder.
-        @param name: The name of the model (e.g. EURUSD in case of finacial analysis).
-        @param x_train: The input data for the model.
-        @param y_train: The output data for the model.
+        Parameters
+        ----------
+        :param arg1: Description of the first argument.
         """
         os.environ['LD_LIBRARY_PATH'] = '/usr/local/cuda/lib64' 
         self._path = path
@@ -55,19 +54,25 @@ class Model:
     def steps_ahead(self) -> int:
         """Return the number of steps ahead that the model is capable of predicting."""
         return self._y_train.shape[1]
+    
+    def _attention_layer(self, inputs, neurons):
+        hidden_state = inputs[:, -1, :]
+        # Calculate attention weights
+        attention_weights = Dense(1, activation='tanh')(inputs)
+        attention_weights = Permute([2, 1])(attention_weights)
+        attention_weights = Dense(neurons, activation='softmax')(attention_weights)
+        attention_weights = Permute([2, 1])(attention_weights)
+        # Apply attention weights to hidden state
+        attention_output = Multiply()([hidden_state, attention_weights])
+        return attention_output
 
-    def _adjusted_batch_size(self, desired_batch_size: int) -> int:
-        """Return the adjusted batch size.
-
-        The batch size must be divisible by the number of samples in the training set.
-        """
-        return desired_batch_size - (self._x_train.shape[0] % desired_batch_size)
 
     def _create_model(
         self, hidden_neurons: int, dropout_factor: float, activation: str, stateful: bool = False, batch_size: int = 32
     ) -> Sequential:
         model = Sequential()
         model.add(Bidirectional(LSTM(hidden_neurons, return_sequences=True)))
+        model.add(self._attention_layer(model.output, hidden_neurons)) 
         model.add(Bidirectional(LSTM(round(0.5 * hidden_neurons), return_sequences=True)))
         model.add(TimeDistributed(Dense(round(0.75 * hidden_neurons), activation=activation)))
         model.add(Dropout(dropout_factor))

@@ -4,7 +4,7 @@ import json
 import pandas as pd
 from tabulate import tabulate
 from dataclasses import dataclass
-from .indicators import Indicators
+from indicators import Indicators
 from .data_aquirer import Data_Aquirer
 from .preprocessor import Preprocessor
 from .branched_model import Branched_Model
