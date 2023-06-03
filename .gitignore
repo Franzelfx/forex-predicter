@@ -6,6 +6,8 @@ venv
 *.vscode
 *.csv
 *.log
+*_build*
+*_modules*
 
 !test/model_test/*.csv
 !test/system_test/*.csv
