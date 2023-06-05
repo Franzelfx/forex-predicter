@@ -49,6 +49,9 @@ class Model:
         self._x_train = x_train
         self._y_train = y_train
         self._model = None
+        # Check if name has ":" in it, if so get characters after it
+        if ":" in name:
+            self._name = name.split(":")[1]
 
     @property
     def steps_ahead(self) -> int:

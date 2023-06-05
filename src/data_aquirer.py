@@ -164,6 +164,9 @@ class Data_Aquirer:
             # Remove unnamed column, if it exists
             if "Unnamed: 0" in data.columns:
                 data = data.drop(columns=["Unnamed: 0"])
+        # Check, if there is ":" in the pair name, if so remove and delete all chars before
+            if ":" in pair:
+                pair = pair.split(":")[1]
             data.to_csv(f"{self._path}/{pair}_{minutes}.csv")
             # Return the data
         return data

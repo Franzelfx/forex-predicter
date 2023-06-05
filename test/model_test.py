@@ -26,9 +26,7 @@ class Test_Model(unittest.TestCase):
             )
             # Indicators
             indicators = Indicators(test_data, TEST_INDICATORS)
-            test_data = indicators.calculate(
-                save=True, path=f"{PATH_INDICATORS}/{PAIR}_{MINUTES}.csv"
-            )
+            test_data = indicators.calculate(save=True)
         preprocessor = Preprocessor(
             test_data,
             TARGET,

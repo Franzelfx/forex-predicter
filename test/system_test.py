@@ -33,9 +33,7 @@ class SystemTest(unittest.TestCase):
                 )
                 # Apply indicators
                 indicators = Indicators(data, TEST_INDICATORS)
-                data = indicators.calculate(
-                    save=True, path=f"{PATH_INDICATORS}/{pair}_{MINUTES}.csv"
-                )
+                data = indicators.calculate(save=True)
                 # Preprocess data
                 preprocessor = Preprocessor(
                     data,
@@ -49,7 +47,6 @@ class SystemTest(unittest.TestCase):
                 preprocessor.summary()
                 model = Model(
                     MODEL_PATH,
-                    pair[2:],
                     preprocessor.x_train,
                     preprocessor.y_train,
                 )
