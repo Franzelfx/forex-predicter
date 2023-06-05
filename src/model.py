@@ -83,8 +83,7 @@ class Model:
         dense_3 = Dense(hidden_neurons, activation=activation)(dropout_2)
         droput_3 = Dropout(dropout_factor)(dense_3)
         dense_4 = Dense(hidden_neurons, activation=activation)(droput_3)
-        repeat_vector = RepeatVector(self._y_train.shape[1])(dense_4)
-        output = Dense(1, activation='linear')(repeat_vector)
+        output = Dense(self._y_train.shape[1], activation=activation)(dense_4)
 
         model = KerasModel(inputs=inputs, outputs=output)
         return model
