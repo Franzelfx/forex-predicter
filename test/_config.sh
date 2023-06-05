@@ -1,4 +1,5 @@
 #!/bin/bash
+source ../venv/bin/activate
 # ------------------------------
 # Ask User, if multiple GPUs should be used
 read -p "Do you want to use multiple GPUs? (y/n): " answer

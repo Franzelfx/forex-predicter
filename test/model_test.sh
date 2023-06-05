@@ -1,5 +1,4 @@
 #!/bin/bash
-source venv/bin/activate
 # Set API_KEY and START_PAIR
 export API_KEY=kvtkOoyqcuTgNrBqRGIhhLe766CLYbpo
 export START_PAIR=$1
