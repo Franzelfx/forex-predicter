@@ -26,7 +26,7 @@ logging.basicConfig(
 PATH_PAIRS = os.path.join(currentdir, "pairs")
 PAIR = "CADJPY"
 MINUTES = 15
-START = "2008-01-01"
+START = "2021-01-01"
 # Substract 1 hour to get the last full hour
 END = (date.today() - timedelta(hours=1)).strftime("%Y-%m-%d")
 API_TYPE = "advanced"
