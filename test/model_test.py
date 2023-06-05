@@ -20,7 +20,7 @@ class Test_Model(unittest.TestCase):
         try:
             test_data = pd.read_csv(MODEL_DATA_SOURCE)
         except:
-            aquirer = Data_Aquirer(PATH_PAIRS, API_KEY, api_type="full")
+            aquirer = Data_Aquirer(PATH_PAIRS, api_type="full")
             test_data = aquirer.get(
                 PAIR, MINUTES, start=START, save=True, from_file=False
             )
