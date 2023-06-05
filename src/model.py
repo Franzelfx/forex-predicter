@@ -29,12 +29,7 @@ class AttentionLayer(tf.keras.layers.Layer):
         self.neurons = neurons
 
     def build(self, input_shape):
-        super(AttentionLayer, self).build(input_shape)
-
-    def call(self, inputs):
-        hidden_state = inputs[0]
-        context = inputs[1]
-        self.hidden_state = hidden_state.shape[-1]
+        self.hidden_state = input_shape[0][-1]
         self.W = self.add_weight(
             name="att_weight",
             shape=(self.hidden_state, self.neurons),
@@ -53,7 +48,13 @@ class AttentionLayer(tf.keras.layers.Layer):
             initializer="uniform",
             trainable=True,
         )
+        super(AttentionLayer, self).build(input_shape)
 
+    def call(self, inputs):
+        hidden_state = inputs[0]
+        context = inputs[1]
+        if self.W is None:
+            self.build(hidden_state.shape)
         # Calculate attention weights
         u_it = tf.tanh(tf.matmul(hidden_state, self.W) + self.b)
         att_weights = tf.matmul(u_it, self.u)
@@ -62,6 +63,7 @@ class AttentionLayer(tf.keras.layers.Layer):
         # Apply attention weights to context
         context = context * tf.expand_dims(att_weights, axis=-1)
         return tf.reduce_sum(context, axis=1)
+
 
 
     def call(self, inputs):
