@@ -171,6 +171,7 @@ class Data_Aquirer:
         # Check, if there is ":" in the pair name, if so remove and delete all chars before
             if ":" in pair:
                 pair = pair.split(":")[1]
+            print(f"Safe data to {self._path}/{pair}_{minutes}.csv")
             data.to_csv(f"{self._path}/{pair}_{minutes}.csv")
             # Return the data
         return data
