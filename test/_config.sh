@@ -9,11 +9,12 @@ else
     echo "Only one GPU will be used"
     export USE_MULTIPLE_GPUS="False"
 fi
+
 read -p "Want to use pair data from saved file? (y/n): " answer
 if [ "$answer" != "${answer#[Yy]}" ] ;then
     echo "Loading from saved file"
     export LOAD_FROM_SAVED_FILE=true
 else
     echo "Not loading from saved file"
-    export LOAD_FROM_SAVED_FILE="false
+    export LOAD_FROM_SAVED_FILE=false
 fi
