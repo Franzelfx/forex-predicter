@@ -54,11 +54,7 @@ class Model:
         return self._y_train.shape[1]
 
     def _create_model(
-        self,
-        hidden_neurons: int,
-        dropout_factor: float,
-        activation: str,
-        attention_neurons: int = 64,
+        self, hidden_neurons: int, dropout_factor: float, activation: str, attention_neurons: int = 64
     ) -> Sequential:
         model = Sequential()
 
@@ -73,18 +69,13 @@ class Model:
             )
         )
         model.add(lstm_layer)
-        query = Bidirectional(LSTM(attention_neurons, return_sequences=True))(
-            lstm_layer.output
-        )
-        value = Bidirectional(LSTM(attention_neurons, return_sequences=True))(
-            lstm_layer.output
-        )
+        query = Bidirectional(LSTM(attention_neurons, return_sequences=True))(lstm_layer.output)
+        value = Bidirectional(LSTM(attention_neurons, return_sequences=True))(lstm_layer.output)
 
         # Apply Attention layer
         attention = Attention()([query, value])
         model.add(Reshape((1, attention_neurons * 2)))
         model.add(attention)
-
         model.add(Bidirectional(LSTM(hidden_neurons, return_sequences=True)))
         model.add(TimeDistributed(Dense(hidden_neurons, activation=activation)))
         model.add(Dropout(dropout_factor))
@@ -103,6 +94,7 @@ class Model:
             )
         )
         return model
+
 
     def _plot_fit_history(self, fit):
         """Plot the fit history."""
