@@ -14,7 +14,6 @@ from keras.layers import (
     LSTM,
     Input,
     Dense,
-    Reshape,
     Dropout,
     Attention,
     Bidirectional,
