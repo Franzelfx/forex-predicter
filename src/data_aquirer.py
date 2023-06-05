@@ -128,7 +128,7 @@ class Data_Aquirer:
             end = self.get_last_friday().strftime("%Y-%m-%d")
             print(f"It's weekend ...")
         # Check if we want to get the data from the API or from the csv file
-        if from_file:
+        if from_file is True:
             # Get the data from the csv file
             try:
                 csv_pair_name = ""
