@@ -72,7 +72,8 @@ class Model:
 
         # Apply Attention layer
         attention = Attention()([query, value])
-        lstm_2 = Bidirectional(LSTM(hidden_neurons, return_sequences=True))(attention)
+        repeat_vector = RepeatVector(self._y_train.shape[1])(attention)
+        lstm_2 = Bidirectional(LSTM(hidden_neurons, return_sequences=True))(repeat_vector)
         time_distributed_1 = TimeDistributed(Dense(hidden_neurons, activation=activation))(lstm_2)
         dropout_1 = Dropout(dropout_factor)(time_distributed_1)
         time_distributed_2 = TimeDistributed(Dense(self._y_train.shape[1], activation=activation))(dropout_1)
@@ -83,9 +84,7 @@ class Model:
         dense_3 = Dense(hidden_neurons, activation=activation)(dropout_2)
         droput_3 = Dropout(dropout_factor)(dense_3)
         dense_4 = Dense(hidden_neurons, activation=activation)(droput_3)
-        repeat_vector = RepeatVector(self._y_train.shape[1])(dense_4)
-        output = Dense(1, activation='linear')(repeat_vector)
-
+        output = Dense(1, activation='linear')(dense_4)
         model = KerasModel(inputs=inputs, outputs=output)
         return model
 
