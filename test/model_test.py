@@ -51,7 +51,7 @@ class Test_Model(unittest.TestCase):
             batch_size=TEST_BATCH_SIZE,
             learning_rate=TEST_LEARNING_RATE,
             branched_model=TEST_BRANCHED_MODEL,
-            validation_spilt=TEST_VALIDATION_SPLIT,
+            validation_split=TEST_VALIDATION_SPLIT,
         )
         # Predict the next values
         x_test = preprocessor.x_test
