@@ -11,3 +11,4 @@ venv
 
 !test/model_test/*.csv
 !test/system_test/*.csv
+!doc/*.png
