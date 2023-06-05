@@ -58,7 +58,7 @@ class Model:
     def _create_model(
         self, hidden_neurons: int, dropout_factor: float, activation: str
     ) -> KerasModel:
-        input_shape = (self._x_train.shape[0], self._x_train.shape[1], self._x_train.shape[2])
+        input_shape = (self._x_train.shape[1], self._x_train.shape[2])
         inputs = Input(shape=input_shape)
 
         lstm = Bidirectional(LSTM(hidden_neurons, return_sequences=True))(inputs)
