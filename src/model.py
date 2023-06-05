@@ -28,7 +28,7 @@ class AttentionLayer(tf.keras.layers.Layer):
         self.neurons = neurons
 
     def build(self, input_shape):
-        self.hidden_state = input_shape[0][-1]
+        self.hidden_state = input_shape[-1]
         self.W = self.add_weight(
             name="att_weight",
             shape=(self.hidden_state, self.neurons),
@@ -115,7 +115,7 @@ class Model:
                 )
             )
         )
-        model.add(AttentionLayer(hidden_neurons))
+        model.add(AttentionLayer(hidden_neurons, input_shape=(self._x_train.shape[1], hidden_neurons)))
         model.add(Bidirectional(LSTM(hidden_neurons, return_sequences=True)))
         model.add(TimeDistributed(Dense(hidden_neurons, activation=activation)))
         model.add(Dropout(dropout_factor))
