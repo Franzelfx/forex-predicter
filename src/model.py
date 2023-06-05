@@ -77,7 +77,7 @@ class Model:
                     self._x_train.shape[2],
                 ),
             )
-        )(model.input)
+        )(self._x_train)
         attention_output = self._attention_layer(lstm_output, hidden_neurons)
         lstm2_output = Bidirectional(
             LSTM(round(0.5 * hidden_neurons), return_sequences=True)
