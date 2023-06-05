@@ -15,57 +15,13 @@ from keras.layers import (
     Dense,
     Reshape,
     Dropout,
-    GlobalMaxPooling1D,
+    Attention,
     Bidirectional,
     TimeDistributed,
+    GlobalMaxPooling1D,
 )
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
-
-class AttentionLayer(tf.keras.layers.Layer):
-    def __init__(self, neurons, **kwargs):
-        super(AttentionLayer, self).__init__(**kwargs)
-        self.neurons = neurons
-
-    def build(self, input_shape):
-        self.hidden_state = input_shape[-1]
-        self.W = self.add_weight(
-            name="att_weight",
-            shape=(self.hidden_state, self.neurons),
-            initializer="uniform",
-            trainable=True,
-        )
-        self.b = self.add_weight(
-            name="att_bias",
-            shape=(self.neurons,),
-            initializer="uniform",
-            trainable=True,
-        )
-        self.u = self.add_weight(
-            name="att_context",
-            shape=(self.neurons, 1),
-            initializer="uniform",
-            trainable=True,
-        )
-        super(AttentionLayer, self).build(input_shape)
-
-    @tf.function
-    def call(self, inputs):
-        hidden_state, context = inputs
-    
-        hidden_state = tf.expand_dims(hidden_state, axis=1)
-        hidden_state = tf.tile(hidden_state, [1, tf.shape(context)[1], 1])
-    
-        u_it = tf.tanh(tf.einsum('bik,kl->bil', hidden_state, self.W) + self.b)
-        att_weights = tf.einsum('bik,k->bi', u_it, self.u)
-        att_weights = tf.nn.softmax(att_weights)
-    
-        context = tf.expand_dims(context, axis=1)
-        context = tf.tile(context, [1, tf.shape(hidden_state)[1], 1])
-        context = context * tf.expand_dims(att_weights, axis=-1)
-        context = tf.reduce_sum(context, axis=1)
-    
-        return context
 
 class Model:
     """
@@ -118,7 +74,7 @@ class Model:
                 )
             )
         )
-        model.add(AttentionLayer(hidden_neurons, input_shape=(self._x_train.shape[1], hidden_neurons)))
+        model.add(Attention())
         model.add(Bidirectional(LSTM(hidden_neurons, return_sequences=True)))
         model.add(TimeDistributed(Dense(hidden_neurons, activation=activation)))
         model.add(Dropout(dropout_factor))
