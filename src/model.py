@@ -69,6 +69,8 @@ class Model:
             )
         )
         model.add(lstm_layer)
+
+        # Separate query and value branches for Attention layer
         query = Bidirectional(LSTM(attention_neurons, return_sequences=True))(lstm_layer.output)
         value = Bidirectional(LSTM(attention_neurons, return_sequences=True))(lstm_layer.output)
 
@@ -86,13 +88,7 @@ class Model:
         model.add(Dense(hidden_neurons, activation=activation))
         model.add(Dense(hidden_neurons, activation=activation))
         model.add(Dense(self._y_train.shape[1], activation="linear"))
-        model.build(
-            input_shape=(
-                self._x_train.shape[0],
-                self._x_train.shape[1],
-                self._x_train.shape[2],
-            )
-        )
+
         return model
 
 
