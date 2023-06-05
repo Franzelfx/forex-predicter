@@ -6,6 +6,7 @@ import tensorflow as tf
 from pandas import DataFrame
 import matplotlib.pyplot as plt
 from keras.optimizers import Adam
+from datetime import datetime as dt
 from keras.models import load_model
 from keras.models import Model as KerasModel
 from sklearn.preprocessing import MinMaxScaler
@@ -81,11 +82,10 @@ class Model:
         model = KerasModel(inputs=inputs, outputs=output)
         return model
 
-
-
     def _plot_fit_history(self, fit):
         """Plot the fit history."""
         # High resolution plot with subplots
+        date = dt.now().strftime("%Y-%m-%d_%H-%M-%S")
         plt.cla()
         plt.clf()
         plt.style.use("dark_background")
@@ -110,6 +110,8 @@ class Model:
         axes[1].grid()
         # Tight layout
         fig.tight_layout()
+        # Set plot title
+        plt.suptitle(f"Fit History {self._name} {date}")
         # Save the plot
         plt.savefig(f"{self._path}/fit_history/{self._name}.png")
 
