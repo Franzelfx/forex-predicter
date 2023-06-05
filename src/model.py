@@ -71,10 +71,11 @@ class Model:
                         self._x_train.shape[1],  # Update the input shape here
                         self._x_train.shape[2],
                     ),
+                    return_sequences=True,
                 )
             )
         )
-        model.add(Attention())
+        model.add(Attention())  # Add Attention layer after LSTM
         model.add(Bidirectional(LSTM(hidden_neurons, return_sequences=True)))
         model.add(TimeDistributed(Dense(hidden_neurons, activation=activation)))
         model.add(Dropout(dropout_factor))
