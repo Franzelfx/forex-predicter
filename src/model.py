@@ -7,7 +7,7 @@ from pandas import DataFrame
 import matplotlib.pyplot as plt
 from keras.optimizers import Adam
 from keras.models import load_model
-from keras.models import Sequential
+from keras.models import Sequential, Model
 from sklearn.preprocessing import MinMaxScaler
 from keras.callbacks import ModelCheckpoint, EarlyStopping, TensorBoard
 from keras.layers import (
@@ -55,7 +55,7 @@ class Model:
 
     def _create_model(
         self, hidden_neurons: int, dropout_factor: float, activation: str, attention_neurons: int = 64
-    ) -> Model:
+        ) -> Model:
         input_shape = (self._x_train.shape[1], self._x_train.shape[2])
         inputs = Input(shape=input_shape)
 
