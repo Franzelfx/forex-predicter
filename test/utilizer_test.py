@@ -9,6 +9,7 @@ from src.indicators import Indicators
 from src.preprocessor import Preprocessor
 from src.data_aquirer import Data_Aquirer
 
+
 class UtilizerIntegrationTest(unittest.TestCase):
     """Test the utilizer."""
 
@@ -16,6 +17,7 @@ class UtilizerIntegrationTest(unittest.TestCase):
         """Test the utilizer."""
         _found_start = False
         for pair in UTIL_PAIRS:
+            # Try to get environment variables
             try:
                 # If START_PAIR is set, skip all previous pairs
                 if os.environ.get("START_PAIR") and _found_start is False:
@@ -24,10 +26,18 @@ class UtilizerIntegrationTest(unittest.TestCase):
                         print(f"Starting with pair: {pair}")
                     else:
                         continue
-                # Get data from the API
+                # Check, if data should be loaded from provided file
+                from_file = os.environ.get("FROM_FILE")
+                # Get data
                 aquirer = Data_Aquirer(PATH_PAIRS, API_KEY, api_type="full")
-                # Start is today - 1 month
-                data = aquirer.get(pair, MINUTES, start=UTILIZER_START_DATE, end=END, save=True)
+                data = aquirer.get(
+                    pair,
+                    MINUTES,
+                    start=UTILIZER_START_DATE,
+                    end=END,
+                    save=True,
+                    from_file=from_file,
+                )
                 # Apply indicators
                 indicators = Indicators(data, TEST_INDICATORS)
                 data = indicators.calculate(
@@ -44,16 +54,9 @@ class UtilizerIntegrationTest(unittest.TestCase):
                     shift=TEST_SHIFT,
                 )
                 preprocessor.summary()
-                # Load the model (when server is mounted)
-                path = "/Volumes/lstm-server/ftp/forex-predicter/test"
-                # Check, if path exists
-                if not os.path.exists(path):
-                    print("Path to server does not exist. Using local path.")
-                    path = MODEL_PATH
-                # Load the model (remove 'C:' from pair name)
-                pair = pair[2:]
+                # Load model
                 model = Model(
-                    path,
+                    MODEL_PATH,
                     pair,
                     preprocessor.x_train,
                     preprocessor.y_train,
@@ -62,12 +65,16 @@ class UtilizerIntegrationTest(unittest.TestCase):
                 utilizer = Utilizer(model, preprocessor)
                 test_actual = utilizer.test_actual
                 test_predict, y_hat = utilizer.predict(box_pts=TEST_BOX_PTS)
+                # Visualize prediction
                 visualizer = Visualizer(pair)
                 path = f"{MODEL_PATH}/utilizer_test"
-                visualizer.plot_prediction(path, y_hat,test_predict=test_predict, test_actual=test_actual)
+                visualizer.plot_prediction(
+                    path, y_hat, test_predict=test_predict, test_actual=test_actual
+                )
             except Exception:
                 traceback.print_exc()
                 logging.error(traceback.format_exc())
+
 
 if __name__ == "__main__":
     API_KEY = os.environ.get("API_KEY")
