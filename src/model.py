@@ -49,6 +49,7 @@ class AttentionLayer(tf.keras.layers.Layer):
         )
         super(AttentionLayer, self).build(input_shape)
 
+    @tf.function
     def call(self, inputs):
         hidden_state, context = inputs
         hidden_state = tf.expand_dims(hidden_state, axis=1)
