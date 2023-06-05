@@ -56,7 +56,7 @@ class Model:
         return self._y_train.shape[1]
 
     def _create_model(
-        self, hidden_neurons: int, dropout_factor: float, activation: str, attention_neurons: int = 64
+        self, hidden_neurons: int, dropout_factor: float, activation: str
     ) -> KerasModel:
         input_shape = (self._x_train.shape[1], self._x_train.shape[2])
         inputs = Input(shape=input_shape)
@@ -64,8 +64,8 @@ class Model:
         lstm = Bidirectional(LSTM(hidden_neurons, return_sequences=True))(inputs)
 
         # Separate query and value branches for Attention layer
-        query = Bidirectional(LSTM(attention_neurons, return_sequences=True))(lstm)
-        value = Bidirectional(LSTM(attention_neurons, return_sequences=True))(lstm)
+        query = Bidirectional(LSTM(hidden_neurons, return_sequences=True))(lstm)
+        value = Bidirectional(LSTM(hidden_neurons, return_sequences=True))(lstm)
 
         # Apply Attention layer
         attention = Attention()([query, value])
@@ -76,7 +76,11 @@ class Model:
         global_max_pooling = GlobalMaxPooling1D()(time_distributed_2)
         dense_1 = Dense(hidden_neurons, activation=activation)(global_max_pooling)
         dense_2 = Dense(hidden_neurons, activation=activation)(dense_1)
-        repeat_vector = RepeatVector(self._y_train.shape[1])(dense_2)
+        dropout_2 = Dropout(dropout_factor)(dense_2)
+        dense_3 = Dense(hidden_neurons, activation=activation)(dropout_2)
+        droput_3 = Dropout(dropout_factor)(dense_3)
+        dense_4 = Dense(hidden_neurons, activation=activation)(droput_3)
+        repeat_vector = RepeatVector(self._y_train.shape[1])(dense_4)
         output = Dense(1, activation='linear')(repeat_vector)
 
         model = KerasModel(inputs=inputs, outputs=output)
