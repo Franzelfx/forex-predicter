@@ -24,7 +24,7 @@ logging.basicConfig(
 # ---------------------------------- #
 # Data aquirer
 PATH_PAIRS = os.path.join(currentdir, "pairs")
-PAIR = "CADJPY"
+PAIR = "C:CADJPY"
 MINUTES = 15
 START = "2008-01-01"
 # Substract 1 hour to get the last full hour
