@@ -154,7 +154,7 @@ class Data_Aquirer:
                     data = data.drop(columns=["Unnamed: 0"], inplace=True)
                 # Save the data to a csv file
                 if save is True:
-                    data.to_csv(f"{self._path}/{pair}_{minutes}.csv")
+                    data.to_csv(f"{self._path}/{csv_pair_name}_{minutes}.csv")
                 return data
             except FileNotFoundError:
                 print(f"No data for {pair} with {minutes} minutes interval found.")
