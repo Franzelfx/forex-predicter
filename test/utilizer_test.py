@@ -3,10 +3,10 @@ import unittest
 import pandas as pd
 import numpy as np
 from config_tb import *
-from src.model import Model
 from src.utilizer import Utilizer
 from src.visualizer import Visualizer
 from src.preprocessor import Preprocessor
+from src.time_series_model import TimeSeriesModel as Model
 
 class UtilizerTest(unittest.TestCase):
     """Test the utilizer."""

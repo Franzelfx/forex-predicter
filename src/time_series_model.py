@@ -7,8 +7,8 @@ from pandas import DataFrame
 import matplotlib.pyplot as plt
 from keras.optimizers import Adam
 from keras.models import load_model
+from keras.models import Sequential
 from sklearn.preprocessing import MinMaxScaler
-from keras.models import Sequential, Model
 from keras.callbacks import ModelCheckpoint, EarlyStopping, TensorBoard
 from keras.layers import (
     Dense,
@@ -24,7 +24,7 @@ from keras.layers import (
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 
 
-class Model:
+class TimeSeriesModel:
     """
     Model for Time Series Prediction.
 
@@ -63,23 +63,22 @@ class Model:
         attention_output = Multiply()([hidden_state, attention_weights])
         return attention_output
 
-    def _create_model(
-        self, hidden_neurons: int, dropout_factor: float, activation: str
-    ) -> Sequential:
+    def _create_model(self, input_shape, hidden_neurons: int, dropout_factor: float, activation: str) -> Sequential:
         model = Sequential()
-        model.add(Bidirectional(LSTM(hidden_neurons, return_sequences=True)))
-        model.add(self._attention_layer(model.output, hidden_neurons)) 
-        model.add(Bidirectional(LSTM(round(0.5 * hidden_neurons), return_sequences=True)))
-        model.add(TimeDistributed(Dense(round(0.75 * hidden_neurons), activation=activation)))
-        model.add(Dropout(dropout_factor))
-        model.add(TimeDistributed(Dense(round(0.75 * hidden_neurons), activation=activation)))
-        model.add(Dropout(dropout_factor))
-        model.add(TimeDistributed(Dense(self._y_train.shape[1], activation=activation)))
-        model.add(GlobalMaxPooling1D())
-        model.add(Dense(round(0.5 * hidden_neurons), activation=activation))
-        model.add(Dense(round(0.5 * hidden_neurons), activation=activation))
-        model.add(Dense(self._y_train.shape[1], activation="linear"))
-        model.build(input_shape=(self._x_train.shape[0], self._x_train.shape[1], self._x_train.shape[2]))
+        lstm_output = Bidirectional(LSTM(hidden_neurons, return_sequences=True))(model.input)
+        attention_output = self._attention_layer(lstm_output, hidden_neurons)
+        lstm2_output = Bidirectional(LSTM(round(0.5 * hidden_neurons), return_sequences=True))(attention_output)
+        time_distributed_output = TimeDistributed(Dense(round(0.75 * hidden_neurons), activation=activation))(lstm2_output)
+        dropout_output1 = Dropout(dropout_factor)(time_distributed_output)
+        time_distributed2_output = TimeDistributed(Dense(round(0.75 * hidden_neurons), activation=activation))(dropout_output1)
+        dropout_output2 = Dropout(dropout_factor)(time_distributed2_output)
+        time_distributed3_output = TimeDistributed(Dense(self._y_train.shape[1], activation=activation))(dropout_output2)
+        global_pooling_output = GlobalMaxPooling1D()(time_distributed3_output)
+        dense_output1 = Dense(round(0.5 * hidden_neurons), activation=activation)(global_pooling_output)
+        dense_output2 = Dense(round(0.5 * hidden_neurons), activation=activation)(dense_output1)
+        final_output = Dense(self._y_train.shape[1], activation="linear")(dense_output2)
+        model = Model(inputs=model.input, outputs=final_output)
+        model.build(input_shape=input_shape)
         return model
 
     def _plot_fit_history(self, fit):

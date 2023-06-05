@@ -2,11 +2,11 @@
 import unittest
 import pandas as pd
 from config_tb import *
-from src.model import Model
 from src.visualizer import Visualizer
 from src.indicators import Indicators
 from src.preprocessor import Preprocessor
 from src.data_aquirer import Data_Aquirer
+from src.time_series_model import TimeSeriesModel as Model
 
 class Test_Model(unittest.TestCase):
     """Integration test for the Model class.

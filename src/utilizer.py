@@ -1,9 +1,7 @@
 """The utilizer module, to use the trained model to predict."""
 import numpy as np
 from src.preprocessor import Preprocessor
-from src.model import Model as ModelPreTrained
-from sklearn.preprocessing import MinMaxScaler
-
+from src.time_series_model import Model as ModelPreTrained
 
 class Utilizer():
     """The utilizer class, to use the trained model to predict."""

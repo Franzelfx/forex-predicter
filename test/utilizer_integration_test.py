@@ -2,12 +2,12 @@
 import unittest
 import traceback
 from config_tb import *
-from src.model import Model
 from src.utilizer import Utilizer
 from src.visualizer import Visualizer
 from src.indicators import Indicators
 from src.preprocessor import Preprocessor
 from src.data_aquirer import Data_Aquirer
+from src.time_series_model import TimeSeriesModel as Model
 
 class UtilizerIntegrationTest(unittest.TestCase):
     """Test the utilizer."""
