@@ -53,22 +53,16 @@ class Model:
         return self._y_train.shape[1]
 
     def _create_model(
-        self, hidden_neurons: int, dropout_factor: float, activation: str
+        self, hidden_neurons: int, dropout_factor: float, activation: str, attention_neurons: int = 64
     ) -> Sequential:
         model = Sequential()
 
-        model.add(
-            Reshape(
-                (self._x_train.shape[1], self._x_train.shape[2]),
-                input_shape=(self._x_train.shape[1], self._x_train.shape[2]),
-            )
-        )
         model.add(
             Bidirectional(
                 LSTM(
                     hidden_neurons,
                     input_shape=(
-                        self._x_train.shape[1],  # Update the input shape here
+                        self._x_train.shape[1],
                         self._x_train.shape[2],
                     ),
                     return_sequences=True,
@@ -76,11 +70,13 @@ class Model:
             )
         )
         # Separate query and value branches for Attention layer
-        query = Bidirectional(LSTM(hidden_neurons, return_sequences=True))(model.layers[-1].output)
-        value = Bidirectional(LSTM(hidden_neurons, return_sequences=True))(model.layers[-1].output)
+        query = Bidirectional(LSTM(attention_neurons, return_sequences=True))(model.layers[-1].output)
+        value = Bidirectional(LSTM(attention_neurons, return_sequences=True))(model.layers[-1].output)
 
         # Apply Attention layer
         attention = Attention()([query, value])
+        model.add(Reshape((1, attention_neurons * 2)))
+        model.add(attention)
         model.add(Bidirectional(LSTM(hidden_neurons, return_sequences=True)))
         model.add(TimeDistributed(Dense(hidden_neurons, activation=activation)))
         model.add(Dropout(dropout_factor))
