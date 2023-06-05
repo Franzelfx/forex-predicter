@@ -93,17 +93,6 @@ class Model:
         """Return the number of steps ahead that the model is capable of predicting."""
         return self._y_train.shape[1]
 
-    def _attention_layer(self, inputs, neurons):
-        hidden_state = inputs[:, -1, :]
-        # Calculate attention weights
-        attention_weights = Dense(1, activation="tanh")(inputs)
-        attention_weights = Permute([2, 1])(attention_weights)
-        attention_weights = Dense(neurons, activation="softmax")(attention_weights)
-        attention_weights = Permute([2, 1])(attention_weights)
-        # Apply attention weights to hidden state
-        attention_output = Multiply()([hidden_state, attention_weights])
-        return attention_output
-
     def _create_model(
         self, hidden_neurons: int, dropout_factor: float, activation: str
     ) -> Sequential:
@@ -121,24 +110,16 @@ class Model:
                 )
             )
         )
-        attention_output = self._attention_layer(
-            model.layers[-1].output, hidden_neurons
-        )
-        model.add(
-            Bidirectional(LSTM(round(0.5 * hidden_neurons), return_sequences=True))
-        )
-        model.add(
-            TimeDistributed(Dense(round(0.75 * hidden_neurons), activation=activation))
-        )
+        model.add(AttentionLayer(hidden_neurons))
+        model.add(Bidirectional(LSTM(hidden_neurons, return_sequences=True)))
+        model.add(TimeDistributed(Dense(hidden_neurons, activation=activation)))
         model.add(Dropout(dropout_factor))
-        model.add(
-            TimeDistributed(Dense(round(0.75 * hidden_neurons), activation=activation))
-        )
+        model.add(TimeDistributed(Dense(hidden_neurons, activation=activation)))
         model.add(Dropout(dropout_factor))
         model.add(TimeDistributed(Dense(self._y_train.shape[1], activation=activation)))
         model.add(GlobalMaxPooling1D())
-        model.add(Dense(round(0.5 * hidden_neurons), activation=activation))
-        model.add(Dense(round(0.5 * hidden_neurons), activation=activation))
+        model.add(Dense(hidden_neurons, activation=activation))
+        model.add(Dense(hidden_neurons, activation=activation))
         model.add(Dense(self._y_train.shape[1], activation="linear"))
         model.build(
             input_shape=(
