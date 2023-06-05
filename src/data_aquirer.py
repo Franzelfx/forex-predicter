@@ -151,7 +151,7 @@ class Data_Aquirer:
                 data.drop_duplicates(subset=["t"], keep='last', inplace=True)
                 # Remove unnamed column, if it exists
                 if "Unnamed: 0" in data.columns:
-                    data = data.drop(columns=["Unnamed: 0"])
+                    data = data.drop(columns=["Unnamed: 0"], inplace=True)
                 # Save the data to a csv file
                 if save is True:
                     data.to_csv(f"{self._path}/{pair}_{minutes}.csv")
