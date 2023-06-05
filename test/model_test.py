@@ -21,8 +21,9 @@ class Test_Model(unittest.TestCase):
             test_data = pd.read_csv(MODEL_DATA_SOURCE)
         except:
             aquirer = Data_Aquirer(PATH_PAIRS, API_KEY, api_type="full")
+            from_saved_file = os.getenv("FROM_SAVED_FILE")
             test_data = aquirer.get(
-                PAIR, MINUTES, start=START, save=True, from_file=False
+                PAIR, MINUTES, start=START, end=END, save=True, from_file=from_saved_file
             )
             # Indicators
             indicators = Indicators(test_data, TEST_INDICATORS)
