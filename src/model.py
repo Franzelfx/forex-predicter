@@ -12,6 +12,7 @@ from sklearn.preprocessing import MinMaxScaler
 from keras.callbacks import ModelCheckpoint, EarlyStopping, TensorBoard
 from keras.layers import (
     LSTM,
+    Input,
     Dense,
     Reshape,
     Dropout,
