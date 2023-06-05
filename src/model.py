@@ -69,6 +69,7 @@ class Model:
                 )
             )
         )
+        model.add(Bidirectional(LSTM(attention_neurons, return_sequences=True)))
         # Separate query and value branches for Attention layer
         query = Bidirectional(LSTM(attention_neurons, return_sequences=True))(model.layers[-1].output)
         value = Bidirectional(LSTM(attention_neurons, return_sequences=True))(model.layers[-1].output)
