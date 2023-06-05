@@ -63,7 +63,7 @@ class Model:
         attention_output = Multiply()([hidden_state, attention_weights])
         return attention_output
 
-    def _create_model(self, input_shape, hidden_neurons: int, dropout_factor: float, activation: str) -> Sequential:
+    def _create_model(self, hidden_neurons: int, dropout_factor: float, activation: str) -> Sequential:
         model = Sequential()
         lstm_output = Bidirectional(LSTM(hidden_neurons, return_sequences=True))(model.input)
         attention_output = self._attention_layer(lstm_output, hidden_neurons)
@@ -78,7 +78,7 @@ class Model:
         dense_output2 = Dense(round(0.5 * hidden_neurons), activation=activation)(dense_output1)
         final_output = Dense(self._y_train.shape[1], activation="linear")(dense_output2)
         model = Model(inputs=model.input, outputs=final_output)
-        model.build(input_shape=input_shape)
+        model.build(input_shape=(self._x_train.shape[0], self._x_train.shape[1], self._x_train.shape[2]))
         return model
 
     def _plot_fit_history(self, fit):
