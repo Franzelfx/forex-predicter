@@ -8,4 +8,4 @@ echo "START_PAIR="$1
 # Configure the env variables
 ./_config.sh
 # Run the test
-screen test/python model_test.py
+screen python test/model_test.py
