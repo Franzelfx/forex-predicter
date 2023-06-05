@@ -25,8 +25,14 @@ os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 
 
 class Model:
-    """Used to create, compile, fit and predict with the LSTM model."""
+    """
+    Model for Time Series Prediction.
 
+    :param str path: Path to the directory where the model will be saved.
+    :param str name: Name of the model.
+    :param np.ndarray x_train: The training input data.
+    :param np.ndarray y_train: The training output data.
+    """
     def __init__(
         self,
         path: str,
@@ -34,15 +40,6 @@ class Model:
         x_train: np.ndarray,
         y_train: np.ndarray,
     ):
-        """
-        
-        Model for Time Series Prediction.
-        ---------------------------------
-
-        Parameters
-        ----------
-        :param arg1: Description of the first argument.
-        """
         os.environ['LD_LIBRARY_PATH'] = '/usr/local/cuda/lib64' 
         self._path = path
         self._name = name
@@ -66,9 +63,8 @@ class Model:
         attention_output = Multiply()([hidden_state, attention_weights])
         return attention_output
 
-
     def _create_model(
-        self, hidden_neurons: int, dropout_factor: float, activation: str, stateful: bool = False, batch_size: int = 32
+        self, hidden_neurons: int, dropout_factor: float, activation: str
     ) -> Sequential:
         model = Sequential()
         model.add(Bidirectional(LSTM(hidden_neurons, return_sequences=True)))
@@ -117,7 +113,7 @@ class Model:
         plt.savefig(f"{self._path}/fit_history/{self._name}.png")
 
     def _compile(
-        self, hidden_neurons, dropout, activation, learning_rate, loss, branched_model, stateful=False, batch_size=32
+        self, hidden_neurons, dropout, activation, learning_rate, loss
     ):
         """Compile the model."""
         optimizer = Adam(learning_rate=learning_rate)
@@ -128,7 +124,7 @@ class Model:
             print("Using multiple GPUs.")
             strategy = tf.distribute.MirroredStrategy()
             with strategy.scope():
-                model = self._create_model(hidden_neurons, dropout, activation, stateful=stateful, batch_size=batch_size)
+                model = self._create_model(hidden_neurons, dropout, activation)
                 model.compile(loss=loss, optimizer=optimizer, metrics=["mape"])
         else:
             print("Using single GPU.")
@@ -136,14 +132,14 @@ class Model:
                 print("Multiple GPUs are not available.")
             else:
                 print("Multiple GPUs are not enabled by environment variable.")
-            model = self._create_model(hidden_neurons, dropout, activation, stateful=stateful, batch_size=batch_size)
+            model = self._create_model(hidden_neurons, dropout, activation)
             model.compile(loss=loss, optimizer=optimizer, metrics=["mape"])
         model.summary()
         # Plot the model
         try:
             tf.keras.utils.plot_model(
                 model,
-                to_file=f"{self._path}/models/{name}.png",
+                to_file=f"{self._path}/models/{self._name}.png",
                 show_shapes=True,
                 show_layer_names=True,
                 rankdir="TB",
@@ -157,6 +153,7 @@ class Model:
 
         return model
 
+    #TODO: Add parameter to configure model shape as lists of layers types and neurons as dict.
     def compile_and_fit(
         self,
         hidden_neurons=256,
@@ -174,25 +171,29 @@ class Model:
     ) -> DataFrame:
         """Compile and fit the model.
 
-        @param hidden_neurons: The number of neurons in the hidden layers.
-        @param dropout: The dropout rate between non recurrent layers.
-        @param activation: The activation function for all internal nodes.
-        @param epochs: The number of epochs to train the model.
-        @param learning_rate: The learning rate for the optimizer.
-        @param batch_size: The batch size for the training process.
-        @param validation_spilt: The validation split for the training process.
-        @param patience: The patience for the early stopping callback.
-        @param branched_model: If True, the model will be a branched model.
+        :param int hidden_neurons: The number of neurons in the hidden layers.
+        :param float dropout: The dropout factor for the dropout layers.
+        :param str activation: The activation function for the hidden layers.
+        :param int epochs: The number of epochs for the training process.
+        :param float learning_rate: The learning rate for the training process.
+        :param int batch_size: The batch size for the training process.
+        :param str loss: The loss function for the training process.
+        :param bool branched_model: If True, the model will be a branched model.
+        :param int patience: The patience for the early stopping callback.
+        :param np.ndarray x_val: The validation input data.
+        :param np.ndarray y_val: The validation output data.
+        :param float validation_split: The validation split for the training process.
 
-        @return: The fit history.
+        :returns: The fit history.
 
-        @remarks The metric for this model is fix and is the mean absolute percentage error (MAPE).
-                 The model is saved in the checkpoints folder.
-                 The validation loss is saved in the fit_history folder.
-                 The tensorboard logs are saved in the tensorboard folder.
+        :remarks:   • The metric for this model is fix and is the mean absolute percentage error (MAPE).
+                    • If no validation data is given, the validation split will be used.
+                    • The model is saved in the checkpoints folder.
+                    • The validation loss is saved in the fit_history folder.
+                    • The tensorboard logs are saved in the tensorboard folder.
         """
         # Say how much GPU's are available
-        model = self._compile(hidden_neurons, dropout, activation, learning_rate, loss, branched_model)
+        model = self._compile(hidden_neurons, dropout, activation, learning_rate, loss)
         # Configure callbacks (early stopping, checkpoint, tensorboard)
         model_checkpoint = ModelCheckpoint(
             filepath=f"{self._path}/checkpoints/{self._name}_train.h5",
@@ -238,11 +239,11 @@ class Model:
     ) -> np.ndarray:
         """Predict the output for the given input.
 
-        @param x_test: The input data for the model.
-        @param from_saved_model: If True, the model will be loaded from the saved model.
+        :param np.ndarray x_input: The input data for the prediction as numpy array with shape (samples, time_steps, features).
+        :param int steps: The number of steps to predict (one step is all steps for one sample).
 
-        @remarks If from_saved_model is False, the model has to be fitted first.
-                 The predicted values are scaled back to the original scale.
+        :remarks:   • If from_saved_model is False, "compile_and_fit()" must be called first.
+                    • The predicted values are scaled back to the original scale if a scaler is given.
         """
         path = f"{self._path}/checkpoints/{self._name}_train.h5"
         # Get the model
