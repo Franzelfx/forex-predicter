@@ -27,7 +27,7 @@ class UtilizerIntegrationTest(unittest.TestCase):
                     else:
                         continue
                 # Check, if data should be loaded from provided file
-                from_file = os.environ.get("FROM_FILE")
+                use_data_from_file = os.environ.get("USE_DATA_FROM_FILE")
                 # Get data
                 aquirer = Data_Aquirer(PATH_PAIRS, API_KEY, api_type="full")
                 data = aquirer.get(
@@ -36,7 +36,7 @@ class UtilizerIntegrationTest(unittest.TestCase):
                     start=UTILIZER_START_DATE,
                     end=END,
                     save=True,
-                    from_file=from_file,
+                    from_file=use_data_from_file,
                 )
                 # Apply indicators
                 indicators = Indicators(data, TEST_INDICATORS)
