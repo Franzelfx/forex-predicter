@@ -133,7 +133,7 @@ class Data_Aquirer:
             try:
                 # Check if pair has ":" in it, if so get characters after it
                 if ":" in pair:
-                    self._name = pair.split(":")[1]
+                    pair = pair.split(":")[1]
                 data = pd.read_csv(f"{self._path}/{pair}_{minutes}.csv")
                 print(f"Got data from {self._path}/{pair}_{minutes}.csv")
                 # Extract time from date
