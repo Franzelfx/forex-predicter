@@ -6,6 +6,6 @@ export START_PAIR=$1
 echo "API_KEY"=$API_KEY
 echo "START_PAIR="$1
 # Configure the env variables
-_config.sh
+./_config.sh
 # Run the test
 screen python utilizer_test.py
