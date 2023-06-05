@@ -75,7 +75,12 @@ class Model:
                 )
             )
         )
-        model.add(Attention())  # Add Attention layer after LSTM
+        # Separate query and value branches for Attention layer
+        query = Bidirectional(LSTM(hidden_neurons, return_sequences=True))(model.layers[-1].output)
+        value = Bidirectional(LSTM(hidden_neurons, return_sequences=True))(model.layers[-1].output)
+
+        # Apply Attention layer
+        attention = Attention()([query, value])
         model.add(Bidirectional(LSTM(hidden_neurons, return_sequences=True)))
         model.add(TimeDistributed(Dense(hidden_neurons, activation=activation)))
         model.add(Dropout(dropout_factor))
