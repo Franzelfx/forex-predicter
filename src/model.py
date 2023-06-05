@@ -56,7 +56,7 @@ class Model:
 
     def _create_model(
         self, hidden_neurons: int, dropout_factor: float, activation: str, attention_neurons: int = 64
-        ) -> Model:
+    ) -> Model:
         input_shape = (self._x_train.shape[1], self._x_train.shape[2])
         inputs = Input(shape=input_shape)
 
@@ -68,9 +68,7 @@ class Model:
 
         # Apply Attention layer
         attention = Attention()([query, value])
-        attention_reshape = Reshape((1, attention_neurons * 2))(attention)
-
-        lstm_2 = Bidirectional(LSTM(hidden_neurons, return_sequences=True))(attention_reshape)
+        lstm_2 = Bidirectional(LSTM(hidden_neurons, return_sequences=True))(attention)
         time_distributed_1 = TimeDistributed(Dense(hidden_neurons, activation=activation))(lstm_2)
         dropout_1 = Dropout(dropout_factor)(time_distributed_1)
         time_distributed_2 = TimeDistributed(Dense(hidden_neurons, activation=activation))(dropout_1)
@@ -83,6 +81,7 @@ class Model:
 
         model = Model(inputs=inputs, outputs=output)
         return model
+
 
 
     def _plot_fit_history(self, fit):
