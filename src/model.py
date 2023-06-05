@@ -11,8 +11,9 @@ from keras.models import Sequential
 from sklearn.preprocessing import MinMaxScaler
 from keras.callbacks import ModelCheckpoint, EarlyStopping, TensorBoard
 from keras.layers import (
-    Dense,
     LSTM,
+    Dense,
+    Reshape,
     Dropout,
     GlobalMaxPooling1D,
     Bidirectional,
@@ -103,7 +104,9 @@ class Model:
         self, hidden_neurons: int, dropout_factor: float, activation: str
     ) -> Sequential:
         model = Sequential()
-
+        model.add(
+            Reshape((self._x_train.shape[1], self._x_train.shape[2]), input_shape=(self._x_train.shape[1]*self._x_train.shape[2],))
+        )
         model.add(
             Bidirectional(
                 LSTM(
