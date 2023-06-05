@@ -52,6 +52,8 @@ class AttentionLayer(tf.keras.layers.Layer):
     def call(self, inputs):
         hidden_state = inputs[0]
         context = inputs[1]
+        hidden_state = tf.expand_dims(hidden_state, axis=1)
+        hidden_state = tf.tile(hidden_state, [1, tf.shape(context)[1], 1])
         # Calculate attention weights
         u_it = tf.tanh(tf.matmul(hidden_state, self.W) + self.b)
         att_weights = tf.matmul(u_it, self.u)
@@ -60,9 +62,6 @@ class AttentionLayer(tf.keras.layers.Layer):
         # Apply attention weights to context
         context = context * tf.expand_dims(att_weights, axis=-1)
         return tf.reduce_sum(context, axis=1)
-
-
-
 
 
     def call(self, inputs):
