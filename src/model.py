@@ -58,21 +58,16 @@ class Model:
     ) -> Sequential:
         model = Sequential()
 
-        lstm_layer = Bidirectional(
-            LSTM(
-                hidden_neurons,
-                input_shape=(
-                    self._x_train.shape[1],
-                    self._x_train.shape[2],
-                ),
-                return_sequences=True,
-            )
+        lstm_layer = LSTM(
+            hidden_neurons,
+            input_shape=(self._x_train.shape[1], self._x_train.shape[2]),
+            return_sequences=True
         )
-        model.add(lstm_layer)
+        model.add(Bidirectional(lstm_layer))
 
         # Separate query and value branches for Attention layer
-        query = Bidirectional(LSTM(attention_neurons, return_sequences=True))(lstm_layer.output)
-        value = Bidirectional(LSTM(attention_neurons, return_sequences=True))(lstm_layer.output)
+        query = Bidirectional(LSTM(attention_neurons, return_sequences=True))(model.layers[-1].output)
+        value = Bidirectional(LSTM(attention_neurons, return_sequences=True))(model.layers[-1].output)
 
         # Apply Attention layer
         attention = Attention()([query, value])
