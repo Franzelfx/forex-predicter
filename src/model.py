@@ -33,7 +33,7 @@ class AttentionLayer(tf.keras.layers.Layer):
             self.hidden_state = input_shape[0][-1]
         else:
             self.hidden_state = input_shape[-1]
-            
+
         self.W = self.add_weight(
             name="att_weight",
             shape=(self.hidden_state, self.neurons),
@@ -59,7 +59,7 @@ class AttentionLayer(tf.keras.layers.Layer):
             hidden_state = inputs[0]
         else:
             hidden_state = inputs
-            
+
         context = inputs
         # Calculate attention weights
         u_it = tf.tanh(tf.matmul(hidden_state, self.W) + self.b)
@@ -104,17 +104,19 @@ class Model:
         self, hidden_neurons: int, dropout_factor: float, activation: str
     ) -> Sequential:
         model = Sequential()
+
         model.add(
-            Reshape((self._x_train.shape[1], self._x_train.shape[2]), input_shape=(self._x_train.shape[1]*self._x_train.shape[2],))
+            Reshape(
+                (self._x_train.shape[1], self._x_train.shape[2]),
+                input_shape=(self._x_train.shape[1] * self._x_train.shape[2],),
+            )
         )
         model.add(
             Bidirectional(
                 LSTM(
                     hidden_neurons,
-                    return_sequences=True,
                     input_shape=(
-                        self._x_train.shape[0],  # Update the input shape here
-                        self._x_train.shape[1],
+                        self._x_train.shape[1],  # Update the input shape here
                         self._x_train.shape[2],
                     ),
                 )
