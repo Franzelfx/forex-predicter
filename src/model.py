@@ -17,6 +17,7 @@ from keras.layers import (
     Dense,
     Dropout,
     Attention,
+    RepeatVector,
     Bidirectional,
     TimeDistributed,
     GlobalMaxPooling1D,
@@ -75,7 +76,8 @@ class Model:
         global_max_pooling = GlobalMaxPooling1D()(time_distributed_2)
         dense_1 = Dense(hidden_neurons, activation=activation)(global_max_pooling)
         dense_2 = Dense(hidden_neurons, activation=activation)(dense_1)
-        output = Dense(self._y_train.shape[1], activation='linear')(dense_2)
+        repeat_vector = RepeatVector(self._y_train.shape[1])(dense_2)
+        output = Dense(1, activation='linear')(repeat_vector)
 
         model = KerasModel(inputs=inputs, outputs=output)
         return model
