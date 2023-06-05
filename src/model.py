@@ -60,7 +60,7 @@ class Model:
         model.add(
             Reshape(
                 (self._x_train.shape[1], self._x_train.shape[2]),
-                input_shape=(self._x_train.shape[1] * self._x_train.shape[2],),
+                input_shape=(self._x_train.shape[1], self._x_train.shape[2]),
             )
         )
         model.add(
