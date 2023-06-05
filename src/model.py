@@ -52,18 +52,20 @@ class AttentionLayer(tf.keras.layers.Layer):
     @tf.function
     def call(self, inputs):
         hidden_state, context = inputs
+    
         hidden_state = tf.expand_dims(hidden_state, axis=1)
         hidden_state = tf.tile(hidden_state, [1, tf.shape(context)[1], 1])
-        # Calculate attention weights
-        u_it = tf.tanh(tf.matmul(hidden_state, self.W) + self.b)
-        att_weights = tf.matmul(u_it, self.u)
-        att_weights = tf.squeeze(att_weights, -1)
+    
+        u_it = tf.tanh(tf.einsum('bik,kl->bil', hidden_state, self.W) + self.b)
+        att_weights = tf.einsum('bik,k->bi', u_it, self.u)
         att_weights = tf.nn.softmax(att_weights)
-        # Apply attention weights to context
+    
         context = tf.expand_dims(context, axis=1)
         context = tf.tile(context, [1, tf.shape(hidden_state)[1], 1])
         context = context * tf.expand_dims(att_weights, axis=-1)
-        return tf.reduce_sum(context, axis=1)
+        context = tf.reduce_sum(context, axis=1)
+    
+        return context
 
 class Model:
     """
