@@ -4,12 +4,12 @@ import os
 import unittest
 import traceback
 from config_tb import *
+from src.model import Model
 from src.utilizer import Utilizer
 from src.indicators import Indicators
 from src.visualizer import Visualizer
 from src.data_aquirer import Data_Aquirer
 from src.preprocessor import Preprocessor
-from src.time_series_model import TimeSeriesModel as Model
 
 class SystemTest(unittest.TestCase):
     """Test the system."""

@@ -24,7 +24,7 @@ from keras.layers import (
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 
 
-class TimeSeriesModel:
+class Model:
     """
     Model for Time Series Prediction.
 
