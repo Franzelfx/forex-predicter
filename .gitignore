@@ -1,9 +1,14 @@
 __pycache__
 *.h5
+*.png
 tensorboard
 venv
 *.vscode
 *.csv
-test/api_key.py
+*.log
+*_build*
+*_modules*
+
 !test/model_test/*.csv
 !test/system_test/*.csv
+!doc/*.png

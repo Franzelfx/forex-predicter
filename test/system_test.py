@@ -1,25 +1,35 @@
-"""System test for all modules."""
+"""System test for machine learning training."""
+
+import os
 import unittest
 import traceback
-import numpy as np
 from config_tb import *
 from src.model import Model
+from src.utilizer import Utilizer
 from src.indicators import Indicators
 from src.visualizer import Visualizer
 from src.data_aquirer import Data_Aquirer
 from src.preprocessor import Preprocessor
-
 
 class SystemTest(unittest.TestCase):
     """Test the system."""
 
     def test_system(self):
         """Test the system."""
+        _found_start = False
         for pair in REQUEST_PAIRS:
             try:
+                # If START_PAIR is set, skip all previous pairs
+                if os.environ.get("START_PAIR") and _found_start is False:
+                    if pair == os.environ.get("START_PAIR"):
+                        _found_start = True
+                        print(f"Starting with pair: {pair}")
+                    else:
+                        continue
+                # Get data from the API
                 aquirer = Data_Aquirer(PATH_PAIRS, API_KEY, api_type="full")
                 data = aquirer.get(
-                    pair, MINUTES, start=START, end=END, save=True, from_file=True
+                    pair, MINUTES, start=START, save=True, end=END, from_file=False
                 )
                 # Apply indicators
                 indicators = Indicators(data, TEST_INDICATORS)
@@ -39,7 +49,7 @@ class SystemTest(unittest.TestCase):
                 preprocessor.summary()
                 model = Model(
                     MODEL_PATH,
-                    pair,
+                    pair[2:],
                     preprocessor.x_train,
                     preprocessor.y_train,
                 )
@@ -48,32 +58,22 @@ class SystemTest(unittest.TestCase):
                     hidden_neurons=TEST_NEURONS,
                     batch_size=TEST_BATCH_SIZE,
                     learning_rate=TEST_LEARNING_RATE,
-                    validation_spilt=preprocessor.val_split,
+                    patience=TEST_PATIENCE,
+                    validation_split=TEST_VALIDATION_SPLIT,
                 )
                 # Predict the next values
-                x_test = preprocessor.x_test
-                prediction = model.predict(x_test, scaler=preprocessor.target_scaler)
-                # Reduce to time_steps_out
-                prediction = prediction[:TEST_TIME_STEPS_OUT]
-                y_test = preprocessor.y_test[:TEST_TIME_STEPS_OUT]
-                if TEST_SCALE:
-                    # Inverse the scaling
-                    scaler = preprocessor.target_scaler
-                    y_test = scaler.inverse_transform(y_test.reshape(-1, 1)).flatten()
+                utilizer = Utilizer(model, preprocessor)
+                test_actual = utilizer.test_actual
+                test_predict, y_hat = utilizer.predict(box_pts=TEST_BOX_PTS)
                 # Plot the results
                 visualizer = Visualizer(pair)
                 path = f"{MODEL_PATH}/system_test"
-                visualizer.plot_prediction(prediction, path, actual=y_test)
+                visualizer.plot_prediction(path, y_hat,test_predict=test_predict, test_actual=test_actual)
             except Exception:
                 traceback.print_exc()
-
-    def moving_average(self, data, n):
-        """Calculate the moving average for the given data."""
-        data = np.array(data)
-        ret = np.cumsum(data, dtype=float)
-        ret[n:] = ret[n:] - ret[:-n]
-        return ret[n - 1 :] / n
-
-
+                logging.error(traceback.format_exc())
+    
 if __name__ == "__main__":
+    # get API_KEY from environment variable
+    API_KEY = os.environ.get("API_KEY")
     unittest.main()

@@ -2,13 +2,11 @@
 import numpy as np
 from src.preprocessor import Preprocessor
 from src.model import Model as ModelPreTrained
-from sklearn.preprocessing import MinMaxScaler
-
 
 class Utilizer():
     """The utilizer class, to use the trained model to predict."""
 
-    def __init__(self, model: ModelPreTrained, preprocessor: Preprocessor, ma_period=10) -> None:
+    def __init__(self, model: ModelPreTrained, preprocessor: Preprocessor) -> None:
         """Initialize the utilizer.
         
         @param model The model to use for prediction or the path to the model.
@@ -16,36 +14,48 @@ class Utilizer():
         """
         self._model = model
         self._preprocessor = preprocessor
-        self._ma_period = ma_period
         # Check if model is a path
         if isinstance(model, str):
             self._model = ModelPreTrained.load(model)
-
-    def predict(self) -> np.ndarray:
-        prediction = self._model.predict(
-            self._preprocessor.prediction_set,
-            scaler=self._preprocessor.target_scaler,
-            from_saved_model=True,
-        )
-        # Calculate moving average
-        prediction = self._moving_average(prediction, self._ma_period)
-        # Substract difference between last known value and first predicted value
-        prediction = prediction - self._diff(prediction, self._preprocessor.last_known_y)
-        # Calculate mean of for time_steps_out values
-        prediction = self._mean_of(prediction, self._preprocessor.time_steps_out)
-        return prediction
     
-    def _mean_of(self, data: np.ndarray, period: int) -> np.ndarray:
+    @property
+    def test_actual(self) -> np.ndarray:
+        """Get the actual test values.
+        
+        @return The actual test values.
+        """
+        return self._preprocessor.y_test_inverse
+
+    def predict(self, box_pts=0) -> tuple[np.ndarray, np.ndarray]:
+        """Get test and hat prediction.
+        
+        @return Tuple of test and hat prediction.
+        """
+        # Predict the values
+        train = self._model.predict(self._preprocessor.x_train, scaler=self._preprocessor.target_scaler, from_saved_model=True)
+        test = self._model.predict(self._preprocessor.x_test, scaler=self._preprocessor.target_scaler, from_saved_model=True)
+        y_hat = self._model.predict(self._preprocessor.x_hat, scaler=self._preprocessor.target_scaler, from_saved_model=True)
+        # Substract the difference
+        first_actual = self.test_actual[0]
+        test = test - self._diff(test, first_actual)
+        y_hat = y_hat - self._diff(y_hat, self._preprocessor.last_known_y)
+        # Smooth the data
+        if box_pts > 0:
+            test = self._concat_moving_average(self._preprocessor.x_test_target_inverse, test, box_pts)
+            y_hat = self._concat_moving_average(self._preprocessor.x_hat_target_inverse, y_hat, box_pts)
+        return test, y_hat
+    
+    def _concat_moving_average(self, x_hat: np.ndarray, y_hat: np.ndarray, period: int) -> np.ndarray:
         """Calculate the mean of the given data.
         
         @param data The data to calculate the mean for.
         @param period The period to calculate the mean for.
         @return Array of new values.
         """
-        mean = []
-        for i in range(0, len(data), period):
-            mean.append(np.mean(data[i:i+period]))
-        return np.array(mean)
+        concat = np.concatenate((x_hat, y_hat), axis=0)
+        concat = self._moving_average(concat, period)
+        return concat[-len(y_hat):]
+
 
     def _moving_average(self, data: np.ndarray, n: int) -> np.ndarray:
         """Calculate the moving average for the given data.
@@ -58,6 +68,16 @@ class Utilizer():
         ret = np.cumsum(data, dtype=float)
         ret[n:] = ret[n:] - ret[:-n]
         return ret[n - 1:] / n
+    
+    def _smooth(self, data: np.ndarray, n: int) -> np.ndarray:
+        """Smooth the given data.
+        
+        @param data The data to smooth.
+        @param n The number of values to average.
+        @return The smoothed data.
+        """
+        box = np.ones(n) / n
+        return np.convolve(data, box, mode='same')
 
     def _diff(self, pred: np.ndarray, actual: int) -> np.ndarray:
         """Calculate the difference betwen the first actual value and the first predicted value.

@@ -1,30 +1,62 @@
 """Config file for testbench."""
 import sys
 import os.path
-from api_key import API_KEY
+import logging
+from datetime import timedelta
 from datetime import datetime as date
-from datetime import datetime, timedelta
 
+# ---------------------------------- #
+# Add parent directory to path
+currentdir = os.path.dirname(__file__)
+pardir = os.path.join(currentdir, os.pardir)
+sys.path.append(pardir)
 
-sys.path.append(
-    os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir))
+# ---------------------------------- #
+# Configure logging
+file_path = currentdir + "/_log_/error.log"
+logging.basicConfig(
+    filename=file_path,
+    filemode="a",
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    level=logging.ERROR,
 )
 
+# ---------------------------------- #
 # Data aquirer
-PATH_PAIRS = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.curdir, "pairs"))
+PATH_PAIRS = os.path.join(currentdir, "pairs")
 PAIR = "CADJPY"
 MINUTES = 15
-START = "2010-01-01"
+START = "2008-01-01"
 # Substract 1 hour to get the last full hour
-END = (date.today()- timedelta(hours=1)).strftime("%Y-%m-%d")
+END = (date.today() - timedelta(hours=1)).strftime("%Y-%m-%d")
 API_TYPE = "advanced"
-API_KEY = API_KEY
 
+# ---------------------------------- #
 # Indicators
-PATH_INDICATORS = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.curdir, f"indicators"))
+PATH_INDICATORS = os.path.join(currentdir, "indicators")
 INDICATORS_DATA_SOURCE = f"{PATH_PAIRS}/{PAIR}_{MINUTES}.csv"
-TEST_INDICATORS = ["ATR", "BOLLINGER",'MA5' ,'MA25', "MA50", "MA200", "MACD", "OBV", "RSI", "STOCHASTIC", "VoRSI"]
-#TEST_INDICATORS = ["BOLLINGER",'MA5' ,'MA25', "MA50", "MA200", "VoRSI"]
+TEST_INDICATORS = [
+    "ATR",
+    "BOLLINGER",
+    "MA5",
+    "MA25",
+    "MACD",
+    "OBV",
+    "RSI",
+    "STOCHASTIC",
+    "VoRSI",
+    "HT_TRENDLINE",
+    "HT_TRENDMODE",
+    "HT_DCPERIOD",
+    "HT_DCPHASE",
+    "HT_PHASOR",
+    "HT_SINE",
+    "MFI",
+    "MOM",
+    "PLUS_DI",
+    "PLUS_DM",
+]
+# TEST_INDICATORS = ["BOLLINGER",'MA5' , "VoRSI"]
 EXPECTED_COLUMNS = [
     "v",
     "vw",
@@ -48,32 +80,92 @@ EXPECTED_COLUMNS = [
     "STOCHASTIC_K",
     "STOCHASTIC_D",
     "VoRSI",
+    "HT_TRENDLINE",
+    "HT_TRENDMODE",
+    "HT_DCPERIOD",
+    "HT_DCPHASE",
+    "HT_PHASOR_INPHASE",
+    "HT_PHASOR_QUADRATURE",
+    "HT_SINE_SINE",
+    "HT_SINE_LEADSINE",
+    "MFI",
+    "MOM",
+    "PLUS_DI",
+    "PLUS_DM",
 ]
-TARGET = 'MA5'
+TARGET = "c"
 
+# ---------------------------------- #
 # Preprocessor
-PREPROCESSOR_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.curdir, "preprocessor_test"))
+PREPROCESSOR_PATH = os.path.join(currentdir, "preprocessor")
 PREPROCESSOR_DATA_SOURCE = f"{PATH_INDICATORS}/{PAIR}_{MINUTES}.csv"
-TEST_TIME_STEPS_IN = 1024  # 18 hours
-TEST_TIME_STEPS_OUT = 128  # 12 hours
+TEST_TIME_STEPS_IN = 1920  # 1 Month
+TEST_TIME_STEPS_OUT = 48   # 12 hours
 TEST_LENGTH = TEST_TIME_STEPS_IN + TEST_TIME_STEPS_OUT
 TEST_SCALE = True
 TEST_BRANCHED_MODEL = False
-TEST_SHIFT = 64 # overlap of one means x and y wndows are shifted by one in every sample
+TEST_SHIFT = TEST_TIME_STEPS_IN # overlap of one means x and y windows are shifted by one in every sample
 
 # Model
 MODEL_DATA_SOURCE = f"{PREPROCESSOR_DATA_SOURCE}"
 MODEL_PATH = os.path.abspath(os.path.dirname(__file__))
 MODEL_NAME = f"{PAIR}"
-TEST_EPOCHS = 300
-TEST_NEURONS = 64
-TEST_BATCH_SIZE = 64
-TEST_LEARNING_RATE = 0.0005
-TEST_VALIDATION_SPLIT = 0.2
-PATH_TEST_RESULTS = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.curdir, "test_results"))
+TEST_EPOCHS = 1000
+TEST_NEURONS = 512
+TEST_BATCH_SIZE = 32
+TEST_LEARNING_RATE = 0.0001
+TEST_PATIENCE = 300
+TEST_VALIDATION_SPLIT = 0.1
+PATH_TEST_RESULTS = os.path.join(currentdir, "test_results")
 
+# ---------------------------------- #
 # System test
-REQUEST_PAIRS = ['AUDCHF', 'AUDJPY', 'AUDNZD', 'AUDUSD', 'CADCHF', 'CADJPY', 'CHFJPY', 'EURAUD', 'EURCAD', 'EURCHF', 'EURGBP', 'EURJPY', 'EURNZD', 'EURUSD', 'GBPAUD', 'GBPCAD', 'GBPCHF', 'GBPJPY', 'GBPNZD', 'GBPUSD', 'NZDCAD', 'NZDCHF', 'NZDJPY', 'NZDUSD', 'USDCAD', 'USDCHF', 'USDJPY']
-# Utilizer test
-UTIL_PAIRS = REQUEST_PAIRS
-#UTIL_PAIRS = ['GBPJPY', 'EURUSD']
+FOREX_PAIRS = [
+    "C:AUDCAD",
+    "C:AUDCHF",
+    "C:AUDJPY",
+    "C:AUDNZD",
+    "C:AUDUSD",
+    "C:CADCHF",
+    "C:CADJPY",
+    "C:CHFJPY",
+    "C:EURAUD",
+    "C:EURCAD",
+    "C:EURCHF",
+    "C:EURGBP",
+    "C:EURJPY",
+    "C:EURNZD",
+    "C:EURUSD",
+    "C:GBPAUD",
+    "C:GBPCAD",
+    "C:GBPCHF",
+    "C:GBPJPY",
+    "C:GBPNZD",
+    "C:GBPUSD",
+    "C:NZDCAD",
+    "C:NZDCHF",
+    "C:NZDJPY",
+    "C:NZDUSD",
+    "C:USDCAD",
+    "C:USDCHF",
+    "C:USDJPY",
+]
+# FOREX_PAIRS = ['C:GBPUSD']
+RAW_MATERIALS = ["C:XAGUSD"]
+CRYPTO_PAIRS = [
+    "X:BTCUSD",
+    "X:ETHUSD",
+    "X:LTCUSD",
+    "X:BCHUSD",
+    "X:NEOUSD",
+    "X:DASHUSD",
+    "X:XRPUSD",
+]
+
+# ---------------------------------- #
+# Utilizer test:
+REQUEST_PAIRS = CRYPTO_PAIRS + FOREX_PAIRS + RAW_MATERIALS
+UTIL_PAIRS = CRYPTO_PAIRS + FOREX_PAIRS + RAW_MATERIALS
+# UTIL_PAIRS = CRYPTO_PAIRS
+TEST_BOX_PTS = 5
+UTILIZER_START_DATE = START

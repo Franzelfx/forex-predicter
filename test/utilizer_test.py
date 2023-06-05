@@ -1,7 +1,7 @@
 """Testbench for the utilizer module."""
 import unittest
-import pandas as pd
 import numpy as np
+import pandas as pd
 from config_tb import *
 from src.model import Model
 from src.utilizer import Utilizer

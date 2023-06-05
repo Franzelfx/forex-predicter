@@ -70,7 +70,7 @@ class Data_Aquirer:
         ):
             # Get the data from the API
             print(".", end="", flush=True)
-            url = f"https://api.polygon.io/v2/aggs/ticker/C:{pair}/range/{minutes}/minute/{last}/{end}?adjusted=true&sort=asc&limit=50000&apiKey={self._api_key}"
+            url = f"https://api.polygon.io/v2/aggs/ticker/{pair}/range/{minutes}/minute/{last}/{end}?adjusted=true&sort=asc&limit=50000&apiKey={self._api_key}"
             response = requests.get(url)
             response = response.json()
             # Check if the request was successful
@@ -144,14 +144,12 @@ class Data_Aquirer:
                 # Concatenate the data
                 data = pd.concat([data, request])
                 # Drop duplicates of the time column
-                data = data.drop_duplicates()
+                data.drop_duplicates(subset=["t"], keep='last', inplace=True)
+                # Remove unnamed column, if it exists
+                if "Unnamed: 0" in data.columns:
+                    data = data.drop(columns=["Unnamed: 0"])
                 # Save the data to a csv file
                 if save is True:
-                    # Reset the index
-                    data.reset_index(drop=True, inplace=True)
-                    # Remove unnamed column (if exists)
-                    if "Unnamed: 0" in data.columns:
-                        data.drop(columns=["Unnamed: 0"], inplace=True)
                     data.to_csv(f"{self._path}/{pair}_{minutes}.csv")
                 return data
             except FileNotFoundError:
@@ -163,6 +161,9 @@ class Data_Aquirer:
             data = self._request(pair, minutes, start, end)
         # Save the data to a csv file
         if save is True:
+            # Remove unnamed column, if it exists
+            if "Unnamed: 0" in data.columns:
+                data = data.drop(columns=["Unnamed: 0"])
             data.to_csv(f"{self._path}/{pair}_{minutes}.csv")
             # Return the data
         return data
