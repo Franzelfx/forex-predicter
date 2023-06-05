@@ -55,35 +55,32 @@ class Model:
 
     def _create_model(
         self, hidden_neurons: int, dropout_factor: float, activation: str, attention_neurons: int = 64
-    ) -> Sequential:
-        model = Sequential()
+    ) -> Model:
+        input_shape = (self._x_train.shape[1], self._x_train.shape[2])
+        inputs = Input(shape=input_shape)
 
-        lstm_layer = LSTM(
-            hidden_neurons,
-            input_shape=(self._x_train.shape[1], self._x_train.shape[2]),
-            return_sequences=True
-        )
-        model.add(Bidirectional(lstm_layer))
+        lstm = Bidirectional(LSTM(hidden_neurons, return_sequences=True))(inputs)
 
         # Separate query and value branches for Attention layer
-        query = Bidirectional(LSTM(attention_neurons, return_sequences=True))(model.layers[-1].output)
-        value = Bidirectional(LSTM(attention_neurons, return_sequences=True))(model.layers[-1].output)
+        query = Bidirectional(LSTM(attention_neurons, return_sequences=True))(lstm)
+        value = Bidirectional(LSTM(attention_neurons, return_sequences=True))(lstm)
 
         # Apply Attention layer
         attention = Attention()([query, value])
-        model.add(Reshape((1, attention_neurons * 2)))
-        model.add(attention)
-        model.add(Bidirectional(LSTM(hidden_neurons, return_sequences=True)))
-        model.add(TimeDistributed(Dense(hidden_neurons, activation=activation)))
-        model.add(Dropout(dropout_factor))
-        model.add(TimeDistributed(Dense(hidden_neurons, activation=activation)))
-        model.add(Dropout(dropout_factor))
-        model.add(TimeDistributed(Dense(self._y_train.shape[1], activation=activation)))
-        model.add(GlobalMaxPooling1D())
-        model.add(Dense(hidden_neurons, activation=activation))
-        model.add(Dense(hidden_neurons, activation=activation))
-        model.add(Dense(self._y_train.shape[1], activation="linear"))
+        attention_reshape = Reshape((1, attention_neurons * 2))(attention)
 
+        lstm_2 = Bidirectional(LSTM(hidden_neurons, return_sequences=True))(attention_reshape)
+        time_distributed_1 = TimeDistributed(Dense(hidden_neurons, activation=activation))(lstm_2)
+        dropout_1 = Dropout(dropout_factor)(time_distributed_1)
+        time_distributed_2 = TimeDistributed(Dense(hidden_neurons, activation=activation))(dropout_1)
+        dropout_2 = Dropout(dropout_factor)(time_distributed_2)
+        time_distributed_3 = TimeDistributed(Dense(self._y_train.shape[1], activation=activation))(dropout_2)
+        global_max_pooling = GlobalMaxPooling1D()(time_distributed_3)
+        dense_1 = Dense(hidden_neurons, activation=activation)(global_max_pooling)
+        dense_2 = Dense(hidden_neurons, activation=activation)(dense_1)
+        output = Dense(self._y_train.shape[1], activation='linear')(dense_2)
+
+        model = Model(inputs=inputs, outputs=output)
         return model
 
 
