@@ -131,11 +131,12 @@ class Data_Aquirer:
         if from_file:
             # Get the data from the csv file
             try:
+                csv_pair_name = ""
                 # Check if pair has ":" in it, if so get characters after it
                 if ":" in pair:
-                    pair = pair.split(":")[1]
-                data = pd.read_csv(f"{self._path}/{pair}_{minutes}.csv")
-                print(f"Got data from {self._path}/{pair}_{minutes}.csv")
+                    csv_pair_name = pair.split(":")[1]
+                data = pd.read_csv(f"{self._path}/{csv_pair_name}_{minutes}.csv")
+                print(f"Got data from {self._path}/{csv_pair_name}_{minutes}.csv")
                 # Extract time from date
                 resent_date = data["t"].iloc[-1]
                 recent_date = resent_date.split(" ")[0]
