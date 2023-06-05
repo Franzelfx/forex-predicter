@@ -60,9 +60,10 @@ class AttentionLayer(tf.keras.layers.Layer):
         att_weights = tf.squeeze(att_weights, -1)
         att_weights = tf.nn.softmax(att_weights)
         # Apply attention weights to context
+        context = tf.expand_dims(context, axis=1)
+        context = tf.tile(context, [1, tf.shape(hidden_state)[1], 1])
         context = context * tf.expand_dims(att_weights, axis=-1)
         return tf.reduce_sum(context, axis=1)
-
 
 class Model:
     """
