@@ -53,21 +53,6 @@ class Test_Model(unittest.TestCase):
             branched_model=TEST_BRANCHED_MODEL,
             validation_split=TEST_VALIDATION_SPLIT,
         )
-        # Predict the next values
-        x_test = preprocessor.x_test
-        prediction = model.predict(x_test, scaler=preprocessor.target_scaler)
-        # Reduce to time_steps_out
-        prediction = prediction[:TEST_TIME_STEPS_OUT]
-        y_test = preprocessor.y_test[:TEST_TIME_STEPS_OUT]
-        if TEST_SCALE:
-            # Inverse the scaling
-            scaler = preprocessor.target_scaler
-            y_test = scaler.inverse_transform(y_test.reshape(-1, 1)).flatten()
-        # Plot the results
-        visualizer = Visualizer(PAIR)
-        path = f"{MODEL_PATH}/model_test"
-        visualizer.plot_prediction(prediction, path, y_test=y_test)
-        
 
 if __name__ == "__main__":
     # get API_KEY from environment variable
