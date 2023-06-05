@@ -33,6 +33,7 @@ class Model:
     :param np.ndarray x_train: The training input data.
     :param np.ndarray y_train: The training output data.
     """
+
     def __init__(
         self,
         path: str,
@@ -40,7 +41,7 @@ class Model:
         x_train: np.ndarray,
         y_train: np.ndarray,
     ):
-        os.environ['LD_LIBRARY_PATH'] = '/usr/local/cuda/lib64' 
+        os.environ["LD_LIBRARY_PATH"] = "/usr/local/cuda/lib64"
         self._path = path
         self._name = name
         self._x_train = x_train
@@ -51,34 +52,64 @@ class Model:
     def steps_ahead(self) -> int:
         """Return the number of steps ahead that the model is capable of predicting."""
         return self._y_train.shape[1]
-    
+
     def _attention_layer(self, inputs, neurons):
         hidden_state = inputs[:, -1, :]
         # Calculate attention weights
-        attention_weights = Dense(1, activation='tanh')(inputs)
+        attention_weights = Dense(1, activation="tanh")(inputs)
         attention_weights = Permute([2, 1])(attention_weights)
-        attention_weights = Dense(neurons, activation='softmax')(attention_weights)
+        attention_weights = Dense(neurons, activation="softmax")(attention_weights)
         attention_weights = Permute([2, 1])(attention_weights)
         # Apply attention weights to hidden state
         attention_output = Multiply()([hidden_state, attention_weights])
         return attention_output
 
-    def _create_model(self, hidden_neurons: int, dropout_factor: float, activation: str) -> Sequential:
+    def _create_model(
+        self, hidden_neurons: int, dropout_factor: float, activation: str
+    ) -> Sequential:
         model = Sequential()
-        lstm_output = Bidirectional(LSTM(hidden_neurons, return_sequences=True))(model.input)
+        lstm_output = Bidirectional(
+            LSTM(
+                hidden_neurons,
+                return_sequences=True,
+                input_shape=(
+                    self._x_train.shape[0],
+                    self._x_train.shape[1],
+                    self._x_train.shape[2],
+                ),
+            )
+        )(model.input)
         attention_output = self._attention_layer(lstm_output, hidden_neurons)
-        lstm2_output = Bidirectional(LSTM(round(0.5 * hidden_neurons), return_sequences=True))(attention_output)
-        time_distributed_output = TimeDistributed(Dense(round(0.75 * hidden_neurons), activation=activation))(lstm2_output)
+        lstm2_output = Bidirectional(
+            LSTM(round(0.5 * hidden_neurons), return_sequences=True)
+        )(attention_output)
+        time_distributed_output = TimeDistributed(
+            Dense(round(0.75 * hidden_neurons), activation=activation)
+        )(lstm2_output)
         dropout_output1 = Dropout(dropout_factor)(time_distributed_output)
-        time_distributed2_output = TimeDistributed(Dense(round(0.75 * hidden_neurons), activation=activation))(dropout_output1)
+        time_distributed2_output = TimeDistributed(
+            Dense(round(0.75 * hidden_neurons), activation=activation)
+        )(dropout_output1)
         dropout_output2 = Dropout(dropout_factor)(time_distributed2_output)
-        time_distributed3_output = TimeDistributed(Dense(self._y_train.shape[1], activation=activation))(dropout_output2)
+        time_distributed3_output = TimeDistributed(
+            Dense(self._y_train.shape[1], activation=activation)
+        )(dropout_output2)
         global_pooling_output = GlobalMaxPooling1D()(time_distributed3_output)
-        dense_output1 = Dense(round(0.5 * hidden_neurons), activation=activation)(global_pooling_output)
-        dense_output2 = Dense(round(0.5 * hidden_neurons), activation=activation)(dense_output1)
+        dense_output1 = Dense(round(0.5 * hidden_neurons), activation=activation)(
+            global_pooling_output
+        )
+        dense_output2 = Dense(round(0.5 * hidden_neurons), activation=activation)(
+            dense_output1
+        )
         final_output = Dense(self._y_train.shape[1], activation="linear")(dense_output2)
         model = Model(inputs=model.input, outputs=final_output)
-        model.build(input_shape=(self._x_train.shape[0], self._x_train.shape[1], self._x_train.shape[2]))
+        model.build(
+            input_shape=(
+                self._x_train.shape[0],
+                self._x_train.shape[1],
+                self._x_train.shape[2],
+            )
+        )
         return model
 
     def _plot_fit_history(self, fit):
@@ -111,13 +142,11 @@ class Model:
         # Save the plot
         plt.savefig(f"{self._path}/fit_history/{self._name}.png")
 
-    def _compile(
-        self, hidden_neurons, dropout, activation, learning_rate, loss
-    ):
+    def _compile(self, hidden_neurons, dropout, activation, learning_rate, loss):
         """Compile the model."""
         optimizer = Adam(learning_rate=learning_rate)
         # Check if multiple GPUs are available
-        gpu_devices = tf.config.list_physical_devices('GPU')
+        gpu_devices = tf.config.list_physical_devices("GPU")
         device_count = len(gpu_devices)
         if device_count > 1 and os.environ.get("USE_MULTIPLE_GPUS") == "True":
             print("Using multiple GPUs.")
@@ -127,7 +156,7 @@ class Model:
                 model.compile(loss=loss, optimizer=optimizer, metrics=["mape"])
         else:
             print("Using single GPU.")
-            if(os.environ.get("USE_MULTIPLE_GPUS") == "True"):
+            if os.environ.get("USE_MULTIPLE_GPUS") == "True":
                 print("Multiple GPUs are not available.")
             else:
                 print("Multiple GPUs are not enabled by environment variable.")
@@ -152,7 +181,7 @@ class Model:
 
         return model
 
-    #TODO: Add parameter to configure model shape as lists of layers types and neurons as dict.
+    # TODO: Add parameter to configure model shape as lists of layers types and neurons as dict.
     def compile_and_fit(
         self,
         hidden_neurons=256,
@@ -257,7 +286,7 @@ class Model:
                 )
             prediction_model = self._model
         # Predict the output
-        #y_pred = model.predict(x_input, steps).flatten()
+        # y_pred = model.predict(x_input, steps).flatten()
         print(f"Predict the output for {self._name}.")
         y_pred = prediction_model.predict(x_input, steps=steps, batch_size=32).flatten()
         # Reduce to only the output length
