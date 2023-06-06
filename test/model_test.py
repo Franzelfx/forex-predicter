@@ -46,8 +46,9 @@ class Test_Model(unittest.TestCase):
         # Run for testing
         model.compile_and_fit(
             epochs=TEST_EPOCHS,
-            hidden_neurons=TEST_NEURONS,
+            patience=TEST_PATIENCE,
             batch_size=TEST_BATCH_SIZE,
+            hidden_neurons=TEST_NEURONS,
             learning_rate=TEST_LEARNING_RATE,
             branched_model=TEST_BRANCHED_MODEL,
             validation_split=TEST_VALIDATION_SPLIT,
