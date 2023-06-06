@@ -25,4 +25,4 @@ else
     echo "Not loading from saved file"
     export LOAD_FROM_SAVED_FILE=false
 fi
-python utilizer_test.py
+screen python utilizer_test.py
