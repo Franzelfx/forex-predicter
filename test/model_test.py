@@ -20,14 +20,14 @@ class Test_Model(unittest.TestCase):
         """Test the compile, fit and predict method with data from the preprocessor."""
         aquirer = Data_Aquirer(PATH_PAIRS, API_KEY, api_type="full")
         from_saved_file = os.getenv("FROM_SAVED_FILE")
-        test_data = aquirer.get(
+        api_data = aquirer.get(
             PAIR, MINUTES, start=START, end=END, save=True, from_file=from_saved_file
         )
         # Indicators
-        indicators = Indicators(PATH_INDICATORS, PAIR, data, TEST_INDICATORS)
-        data = indicators.calculate(save=True)
+        indicators = Indicators(PATH_INDICATORS, PAIR, api_data, TEST_INDICATORS)
+        indicator_data = indicators.calculate(save=True)
         preprocessor = Preprocessor(
-            test_data,
+            indicator_data,
             TARGET,
             time_steps_in=TEST_TIME_STEPS_IN,
             time_steps_out=TEST_TIME_STEPS_OUT,
