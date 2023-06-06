@@ -76,9 +76,8 @@ class Model:
         time_distributed_1 = TimeDistributed(Dense(hidden_neurons, activation=activation))(lstm_2)
         dropout_1 = Dropout(dropout_factor)(time_distributed_1)
         global_max_pooling = GlobalMaxPooling1D()(dropout_1)
-        repeat_vector = RepeatVector(self._y_train.shape[1])(global_max_pooling)
-        dense_1 = Dense(hidden_neurons, activation=activation)(repeat_vector)
-        output = Dense(1, activation="linear")(dense_1)
+        dense_1 = Dense(hidden_neurons, activation=activation)(global_max_pooling)
+        output = Dense(self._y_train.shape[1], activation="linear")(dense_1)
         model = KerasModel(inputs=inputs, outputs=output)
         return model
 
