@@ -75,16 +75,10 @@ class Model:
         lstm_2 = Bidirectional(LSTM(hidden_neurons, return_sequences=True))(attention)
         time_distributed_1 = TimeDistributed(Dense(hidden_neurons, activation=activation))(lstm_2)
         dropout_1 = Dropout(dropout_factor)(time_distributed_1)
-        time_distributed_2 = TimeDistributed(Dense(self._y_train.shape[1], activation=activation))(dropout_1)
-        global_max_pooling = GlobalMaxPooling1D()(time_distributed_2)
+        global_max_pooling = GlobalMaxPooling1D()(dropout_1)
         repeat_vector = RepeatVector(self._y_train.shape[1])(global_max_pooling)
         dense_1 = Dense(hidden_neurons, activation=activation)(repeat_vector)
-        dense_2 = Dense(hidden_neurons, activation=activation)(dense_1)
-        dropout_2 = Dropout(dropout_factor)(dense_2)
-        dense_3 = Dense(hidden_neurons, activation=activation)(dropout_2)
-        droput_3 = Dropout(dropout_factor)(dense_3)
-        dense_4 = Dense(hidden_neurons, activation=activation)(droput_3)
-        output = Dense(1, activation='linear')(dense_4)
+        output = Dense(self._y_train.shape[2], activation="linear")(dense_1)
         model = KerasModel(inputs=inputs, outputs=output)
         return model
 
