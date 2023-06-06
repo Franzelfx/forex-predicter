@@ -64,7 +64,7 @@ class Indicators:
         self._data_offset = 0
         # Get data offset (cut 'MA' from the string and convert to int)
         ma = []
-        if 'MA5' or 'MA25' or 'MA50' or 'MA200' in self._requested:
+        if "MA5" or "MA25" or "MA50" or "MA200" in self._requested:
             # Get the maximum of the moving averages
             for i in self._requested:
                 if i.startswith("MA"):
@@ -76,7 +76,9 @@ class Indicators:
             self._data_offset = max(ma)
         # Log some warning, if the indicators are not valid by comparing the lists
         if not set(self._requested).issubset(self._available):
-            warning("One or more indicators are not valid. Please check the documentation.")
+            warning(
+                "One or more indicators are not valid. Please check the documentation."
+            )
 
     def summary(self):
         """Print a summary of the indicators."""
@@ -85,7 +87,7 @@ class Indicators:
     @property
     def data(self) -> pd.DataFrame:
         """Get dataframe (could be with offset, if MA50 or MA200 are active)."""
-        return self._data[self._data_offset:]
+        return self._data[self._data_offset :]
 
     @property
     def requested(self) -> list:
@@ -102,10 +104,23 @@ class Indicators:
         """Get the data offset."""
         return self._data_offset
 
-    def calculate(self, save=False, path=None, ma_target='c', keys=['o', 'h', 'l', 'c', 'v'], macd_target='c', bb_target='c', rsi_target='c', vo_rsi_target='v') -> pd.DataFrame:
+    def calculate(
+        self,
+        save=False,
+        path=None,
+        ma_target="c",
+        keys=["o", "h", "l", "c", "v"],
+        macd_target="c",
+        bb_target="c",
+        rsi_target="c",
+        vo_rsi_target="v",
+        path_extra_info="",
+    ) -> pd.DataFrame:
         """Calculate the indicators and add them to the dataframe."""
         # Calculate the indicators
-        print(f"calculate {len(self._requested)} Indicators with {self._data.memory_usage().sum() / 1024**2:.2f} MB of data, please wait...")
+        print(
+            f"calculate {len(self._requested)} Indicators with {self._data.memory_usage().sum() / 1024**2:.2f} MB of data, please wait..."
+        )
         if "ATR" in self._available:
             self._data["ATR"] = talib.ATR(
                 self._data[keys[1]],
@@ -125,9 +140,13 @@ class Indicators:
         if "MA5" in self._requested:
             self._data["MA5"] = talib.MA(self._data[ma_target], timeperiod=5, matype=0)
         if "MA25" in self._requested:
-            self._data["MA25"] = talib.MA(self._data[ma_target], timeperiod=25, matype=0)
+            self._data["MA25"] = talib.MA(
+                self._data[ma_target], timeperiod=25, matype=0
+            )
         if "MA50" in self._requested:
-            self._data["MA50"] = talib.MA(self._data[ma_target], timeperiod=50, matype=0)
+            self._data["MA50"] = talib.MA(
+                self._data[ma_target], timeperiod=50, matype=0
+            )
         if "MA200" in self._requested:
             self._data["MA200"] = talib.MA(
                 self._data[ma_target], timeperiod=200, matype=0
@@ -176,9 +195,10 @@ class Indicators:
             self._data["HT_DCPHASE"] = talib.HT_DCPHASE(self._data[keys[3]])
         # Hilbert Transform - Phasor Components
         if "HT_PHASOR" in self._requested:
-            self._data["HT_PHASOR_INPHASE"], self._data["HT_PHASOR_QUADRATURE"] = talib.HT_PHASOR(
-                self._data[keys[3]]
-            )
+            (
+                self._data["HT_PHASOR_INPHASE"],
+                self._data["HT_PHASOR_QUADRATURE"],
+            ) = talib.HT_PHASOR(self._data[keys[3]])
         # Hilbert Transform - SineWave
         if "HT_SINE" in self._requested:
             self._data["HT_SINE_SINE"], self._data["HT_SINE_LEADSINE"] = talib.HT_SINE(
@@ -208,8 +228,8 @@ class Indicators:
                 timeperiod=14,
             )
         if save is True:
-            path = f"{self._path}/{self._pair}_{self._interval}_indicators.csv"
+            path = f"{self._path}/{self._pair}_{path_extra_info}_indicators.csv"
             self._data.to_csv(path)
         # Substract the offset, if MA50 or MA200 are active
-        self._data = self._data[self._data_offset:]
+        self._data = self._data[self._data_offset :]
         return self._data
