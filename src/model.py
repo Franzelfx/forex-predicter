@@ -78,7 +78,7 @@ class Model:
         global_max_pooling = GlobalMaxPooling1D()(dropout_1)
         repeat_vector = RepeatVector(self._y_train.shape[1])(global_max_pooling)
         dense_1 = Dense(hidden_neurons, activation=activation)(repeat_vector)
-        output = Dense(self._y_train.shape[2], activation="linear")(dense_1)
+        output = Dense(1, activation="linear")(dense_1)
         model = KerasModel(inputs=inputs, outputs=output)
         return model
 
