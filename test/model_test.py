@@ -8,6 +8,7 @@ from src.indicators import Indicators
 from src.preprocessor import Preprocessor
 from src.data_aquirer import Data_Aquirer
 
+
 class Test_Model(unittest.TestCase):
     """Integration test for the Model class.
 
@@ -17,17 +18,14 @@ class Test_Model(unittest.TestCase):
 
     def test_compile_fit_predict(self):
         """Test the compile, fit and predict method with data from the preprocessor."""
-        try:
-            test_data = pd.read_csv(MODEL_DATA_SOURCE)
-        except:
-            aquirer = Data_Aquirer(PATH_PAIRS, API_KEY, api_type="full")
-            from_saved_file = os.getenv("FROM_SAVED_FILE")
-            test_data = aquirer.get(
-                PAIR, MINUTES, start=START, end=END, save=True, from_file=from_saved_file
-            )
-            # Indicators
-            indicators = Indicators(test_data, TEST_INDICATORS)
-            test_data = indicators.calculate(save=True)
+        aquirer = Data_Aquirer(PATH_PAIRS, API_KEY, api_type="full")
+        from_saved_file = os.getenv("FROM_SAVED_FILE")
+        test_data = aquirer.get(
+            PAIR, MINUTES, start=START, end=END, save=True, from_file=from_saved_file
+        )
+        # Indicators
+        indicators = Indicators(test_data, TEST_INDICATORS)
+        test_data = indicators.calculate(save=True)
         preprocessor = Preprocessor(
             test_data,
             TARGET,
@@ -53,6 +51,7 @@ class Test_Model(unittest.TestCase):
             branched_model=TEST_BRANCHED_MODEL,
             validation_split=TEST_VALIDATION_SPLIT,
         )
+
 
 if __name__ == "__main__":
     # get API_KEY from environment variable
