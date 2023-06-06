@@ -32,7 +32,7 @@ class SystemTest(unittest.TestCase):
                     pair, MINUTES, start=START, save=True, end=END, from_file=False
                 )
                 # Apply indicators
-                indicators = Indicators(data, TEST_INDICATORS)
+                indicators = Indicators(PATH_INDICATORS, pair, data, TEST_INDICATORS)
                 data = indicators.calculate(save=True)
                 # Preprocess data
                 preprocessor = Preprocessor(

@@ -39,10 +39,8 @@ class UtilizerIntegrationTest(unittest.TestCase):
                     from_file=use_data_from_file,
                 )
                 # Apply indicators
-                indicators = Indicators(data, TEST_INDICATORS)
-                data = indicators.calculate(
-                    save=True, path=f"{PATH_INDICATORS}/{pair}_{MINUTES}.csv"
-                )
+                indicators = Indicators(PATH_INDICATORS, pair, data, TEST_INDICATORS)
+                data = indicators.calculate(save=True)
                 indicators.summary()
                 # Preprocess data
                 preprocessor = Preprocessor(

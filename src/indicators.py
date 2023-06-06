@@ -11,7 +11,7 @@ class Indicators:
              Please refer to https://mrjbq7.github.io/ta-lib/ for more information.
     """
 
-    def __init__(self, data: pd.DataFrame, requested: list):
+    def __init__(self, path: str, pair: str, data: pd.DataFrame, requested: list):
         """Set the fundamental attributes.
 
         @param data: The data as a pandas dataframe with volume, volume_weighted
@@ -31,6 +31,11 @@ class Indicators:
                             - 'STOCHASTIC' = 'Stochastic Oscillator'
                             - 'VoRSI' = 'Volume Relative Strength Index'
         """
+        self._path = path
+        self._pair = pair
+        # Check if pair name has ":" in it, if so get characters after it
+        if ":" in self._pair:
+            self._pair = self._pair.split(":")[1]
         self._data = data
         self._requested = requested
         self._available = [
@@ -202,7 +207,8 @@ class Indicators:
                 self._data[keys[2]],
                 timeperiod=14,
             )
-        if save and path is not None:
+        if save is True:
+            path = f"{self._path}/{self._pair}_{self._interval}_indicators.csv"
             self._data.to_csv(path)
         # Substract the offset, if MA50 or MA200 are active
         self._data = self._data[self._data_offset:]

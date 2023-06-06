@@ -15,8 +15,8 @@ class Test_Indicators(unittest.TestCase):
         # Get test data
         self.test_data = pd.read_csv(INDICATORS_DATA_SOURCE)
         # Create an instance of the Indicators class
-        self.indicators = Indicators(self.test_data, TEST_INDICATORS)
-        self.data: DataFrame = self.indicators.calculate(save=True, path=f"{PATH_INDICATORS}/{PAIR}_{MINUTES}.csv")
+        self.indicators = Indicators(PATH_INDICATORS, PAIR, self.test_data, TEST_INDICATORS)
+        self.data: DataFrame = self.indicators.calculate(save=True)
 
     def _summary(self):
         """Test the summary method."""

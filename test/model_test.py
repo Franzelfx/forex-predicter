@@ -24,8 +24,8 @@ class Test_Model(unittest.TestCase):
             PAIR, MINUTES, start=START, end=END, save=True, from_file=from_saved_file
         )
         # Indicators
-        indicators = Indicators(test_data, TEST_INDICATORS)
-        test_data = indicators.calculate(save=True)
+        indicators = Indicators(PATH_INDICATORS, PAIR, data, TEST_INDICATORS)
+        data = indicators.calculate(save=True)
         preprocessor = Preprocessor(
             test_data,
             TARGET,
