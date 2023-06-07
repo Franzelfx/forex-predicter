@@ -1,4 +1,5 @@
 """Testbench for the model class."""
+import logging
 import unittest
 import tensorflow as tf
 from config_tb import *
@@ -64,4 +65,7 @@ class Test_Model(unittest.TestCase):
 if __name__ == "__main__":
     # get API_KEY from environment variable
     API_KEY = os.environ.get("API_KEY")
-    unittest.main()
+    try:
+        unittest.main()
+    except Exception as e:
+        logging.error(e)
