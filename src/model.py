@@ -69,6 +69,7 @@ class Model:
     
         # Apply Attention layer
         attention = MultiHeadAttention(num_attention_heads, hidden_neurons)(query, value)
+        attention = tf.keras.layers.Dropout(dropout_rate)(attention)
         attention = LayerNormalization()(attention)
     
         lstm_2 = LSTM(hidden_neurons, return_sequences=False)(attention)
