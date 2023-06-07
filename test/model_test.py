@@ -20,8 +20,6 @@ class Test_Model(unittest.TestCase):
         """Test the compile, fit and predict method with data from the preprocessor."""
         from_saved_file = os.getenv("FROM_SAVED_FILE")
         use_multiple_gpus = os.environ.get("USE_MULTIPLE_GPUS")
-        print(use_multiple_gpus)
-        print(True)
         # Data
         aquirer = Data_Aquirer(PATH_PAIRS, API_KEY, api_type="full")
         api_data = aquirer.get(

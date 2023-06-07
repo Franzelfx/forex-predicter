@@ -105,7 +105,7 @@ class Data_Aquirer:
         start: str = "2009-01-01",
         end: str = date.today().strftime("%Y-%m-%d"),
         save: bool = False,
-        from_file: bool = False,
+        from_file: bool = None,
     ):
         """Get the data from the API or from the csv file.
 
@@ -122,7 +122,7 @@ class Data_Aquirer:
             end = self.get_last_friday().strftime("%Y-%m-%d")
             print("It's weekend...")
 
-        if from_file is True:
+        if from_file:
             csv_pair_name = pair.split(":")[1] if ":" in pair else ""
             try:
                 data = pd.read_csv(f"{self._path}/{csv_pair_name}_{minutes}.csv")

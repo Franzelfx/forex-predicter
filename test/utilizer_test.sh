@@ -14,6 +14,5 @@ if [ "$answer" != "${answer#[Yy]}" ] ;then
     export FROM_SAVED_FILE=true
 else
     echo "Not loading from saved file"
-    export FROM_SAVED_FILE=false
 fi
 screen python utilizer_test.py
