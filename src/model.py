@@ -62,22 +62,23 @@ class Model:
     
         # LSTM layer
         lstm_1 = LSTM(hidden_neurons, return_sequences=True)(inputs)
-    
+        dropout_1 = tf.keras.layers.Dropout(dropout_rate)(lstm_1)
         # Separate query and value branches for Attention layer
-        query = Dense(hidden_neurons)(lstm_1)
-        value = Dense(hidden_neurons)(lstm_1)
+        query = Dense(hidden_neurons)(dropout_1)
+        value = Dense(hidden_neurons)(dropout_1)
     
         # Apply Attention layer
         attention = MultiHeadAttention(num_attention_heads, hidden_neurons)(query, value)
         attention = tf.keras.layers.Dropout(dropout_rate)(attention)
         attention = LayerNormalization()(attention)
-    
-        lstm_2 = LSTM(hidden_neurons, return_sequences=False)(attention)
+
+        dropout_2 = tf.keras.layers.Dropout(dropout_rate)(attention)
+        lstm_2 = LSTM(hidden_neurons, return_sequences=False)(dropout_2)
         dense_1 = Dense(hidden_neurons, activation="relu")(lstm_2)
-        dropout_1 = tf.keras.layers.Dropout(dropout_rate)(dense_1)
-        dense_2 = Dense(hidden_neurons, activation="relu")(dropout_1)
-        dropout_2 = tf.keras.layers.Dropout(dropout_rate)(dense_2)
-        dense_3 = Dense(hidden_neurons, activation="relu")(dropout_2)
+        dropout_3 = tf.keras.layers.Dropout(dropout_rate)(dense_1)
+        dense_2 = Dense(hidden_neurons, activation="relu")(dropout_3)
+        dropout_4 = tf.keras.layers.Dropout(dropout_rate)(dense_2)
+        dense_3 = Dense(hidden_neurons, activation="relu")(dropout_4)
         dense_4 = Dense(hidden_neurons, activation="relu")(dense_3)
         output = Dense(self._y_train.shape[1], activation="linear")(dense_4)
     
