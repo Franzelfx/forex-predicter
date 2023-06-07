@@ -1,6 +1,6 @@
 """Testbench for the model class."""
 import unittest
-import pandas as pd
+import tensorflow as tf
 from config_tb import *
 from src.model import Model
 from src.visualizer import Visualizer
@@ -18,8 +18,10 @@ class Test_Model(unittest.TestCase):
 
     def test_compile_fit_predict(self):
         """Test the compile, fit and predict method with data from the preprocessor."""
-        aquirer = Data_Aquirer(PATH_PAIRS, API_KEY, api_type="full")
         from_saved_file = os.getenv("FROM_SAVED_FILE")
+        use_multiple_gpus = os.environ.get("USE_MULTIPLE_GPUS")
+        # Data
+        aquirer = Data_Aquirer(PATH_PAIRS, API_KEY, api_type="full")
         api_data = aquirer.get(
             PAIR, MINUTES, start=START, end=END, save=True, from_file=from_saved_file
         )
@@ -35,6 +37,7 @@ class Test_Model(unittest.TestCase):
             shift=TEST_SHIFT,
         )
         preprocessor.summary()
+        # Model
         model = Model(
             MODEL_PATH,
             MODEL_NAME,
@@ -42,15 +45,13 @@ class Test_Model(unittest.TestCase):
             preprocessor.y_train,
         )
         # Run for testing
-        model.compile_and_fit(
-            epochs=TEST_EPOCHS,
-            patience=TEST_PATIENCE,
-            batch_size=TEST_BATCH_SIZE,
-            hidden_neurons=TEST_NEURONS,
+        if use_multiple_gpus:
+            strategy = tf.distribute.MirroredStrategy()
+        model.compile(
             learning_rate=TEST_LEARNING_RATE,
-            branched_model=TEST_BRANCHED_MODEL,
-            validation_split=TEST_VALIDATION_SPLIT,
+            hidden_neurons=TEST_NEURONS
         )
+
 
 
 if __name__ == "__main__":

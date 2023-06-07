@@ -25,10 +25,18 @@
         "STOCHASTIC",
         "VoRSI"
       ],
-      "CONV_NODES": [64],
-      "LSTM_NODES": [64],
-      "DENSE_NODES": [64],
-      "DROPOUT": 0.2
+      "NODES": [
+        {
+          "UNITS": 64,
+          "DROPOUT": 0.2,
+          "ATTENTION_HEADS": 4
+        },
+        {
+          "UNITS": 64,
+          "DROPOUT": 0.2,
+          "ATTENTION_HEADS": 4
+        }
+      ]
     },
     "GBPUSD": {
       "INDICATORS": [
@@ -44,16 +52,32 @@
         "STOCHASTIC",
         "VoRSI"
       ],
-      "CONV_NODES": [64],
-      "LSTM_NODES": [64],
-      "DENSE_NODES": [64],
-      "DROPOUT": 0.2
+      "NODES": [
+        {
+          "UNITS": 64,
+          "DROPOUT": 0.2,
+          "ATTENTION_HEADS": 4
+        },
+        {
+          "UNITS": 64,
+          "DROPOUT": 0.2,
+          "ATTENTION_HEADS": 4
+        }
+      ]
     }
   },
   "CONCAT": {
-    "CONV_NODES": [64],
-    "LSTM_NODES": [256, 128],
-    "DENSE_NODES": [64],
-    "DROPOUT": 0.2
+    "NODES": [
+      {
+        "UNITS": 64,
+        "DROPOUT": 0.2,
+        "ATTENTION_HEADS": 4
+      },
+      {
+        "UNITS": 64,
+        "DROPOUT": 0.2,
+        "ATTENTION_HEADS": 4
+      }
+    ]
   }
 }

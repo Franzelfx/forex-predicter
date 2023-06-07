@@ -32,6 +32,7 @@ class Model:
     :param np.ndarray y_train: The training output data.
     """
 
+    # TODO: passing recipe class to model
     def __init__(
         self,
         path: str,
@@ -54,21 +55,19 @@ class Model:
         """Return the number of steps ahead that the model is capable of predicting."""
         return self._y_train.shape[1]
 
-    def _create_model(
-        self, hidden_neurons: int, num_attention_heads: int, dropout_rate: float
-    ) -> KerasModel:
+    def _build(self, hidden_neurons: int, dropout_rate: float, attention_heads: int):
         input_shape = (self._x_train.shape[1], self._x_train.shape[2])
         inputs = Input(shape=input_shape)
-    
+
         # LSTM layer
         lstm_1 = LSTM(hidden_neurons, return_sequences=True)(inputs)
         dropout_1 = tf.keras.layers.Dropout(dropout_rate)(lstm_1)
         # Separate query and value branches for Attention layer
         query = Dense(hidden_neurons)(dropout_1)
         value = Dense(hidden_neurons)(dropout_1)
-    
+
         # Apply Attention layer
-        attention = MultiHeadAttention(num_attention_heads, hidden_neurons)(query, value)
+        attention = MultiHeadAttention(attention_heads, hidden_neurons)(query, value)
         attention = tf.keras.layers.Dropout(dropout_rate)(attention)
         attention = LayerNormalization()(attention)
 
@@ -81,7 +80,7 @@ class Model:
         dense_3 = Dense(hidden_neurons, activation="relu")(dropout_4)
         dense_4 = Dense(hidden_neurons, activation="relu")(dense_3)
         output = Dense(self._y_train.shape[1], activation="linear")(dense_4)
-    
+
         model = KerasModel(inputs=inputs, outputs=output)
         return model
 
@@ -118,28 +117,21 @@ class Model:
         # Save the plot
         plt.savefig(f"{self._path}/fit_history/{self._name}.png")
 
-    def _compile(self, hidden_neurons, dropout, activation, learning_rate, loss):
+    def compile(
+        self,
+        learning_rate=0.0001,
+        hidden_neurons=32,
+        dropout_rate: float = 0.2,
+        attention_heads: int = 4,
+        loss_fct: str = "mae",
+        strategy=None,
+    ):
         """Compile the model."""
         optimizer = Adam(learning_rate=learning_rate)
         # Check if multiple GPUs are available
-        gpu_devices = tf.config.list_physical_devices("GPU")
-        device_count = len(gpu_devices)
-        if device_count > 1 and os.environ.get("USE_MULTIPLE_GPUS") == "True":
-            print("Using multiple GPUs.")
-            strategy = tf.distribute.MirroredStrategy()
-            with strategy.scope():
-                #TODO: Add attention_head parameter to compile function
-                model = self._create_model(hidden_neurons, 8, dropout)
-                model.compile(loss=loss, optimizer=optimizer, metrics=["mape"])
-        else:
-            print("Using single GPU.")
-            if os.environ.get("USE_MULTIPLE_GPUS") == "True":
-                print("Multiple GPUs are not available.")
-            else:
-                print("Multiple GPUs are not enabled by environment variable.")
-                #TODO: Add attention_head parameter to compile function
-            model = self._create_model(hidden_neurons, 64, dropout)
-            model.compile(loss=loss, optimizer=optimizer, metrics=["mape"])
+        with strategy.scope() if strategy is not None else None:
+            model = self._build(hidden_neurons, dropout_rate, attention_heads)
+            model.compile(loss=loss_fct, optimizer=optimizer, metrics=["mape"])
         model.summary()
         # Plot the model
         try:
@@ -159,17 +151,10 @@ class Model:
 
         return model
 
-    # TODO: Add parameter to configure model shape as lists of layers types and neurons as dict.
-    def compile_and_fit(
+    def fit(
         self,
-        hidden_neurons=256,
-        dropout=0.2,
-        activation="tanh",
         epochs=100,
-        learning_rate=0.001,
         batch_size=32,
-        loss="mae",
-        branched_model=False,
         patience=40,
         x_val=None,
         y_val=None,
@@ -199,8 +184,9 @@ class Model:
                     • The tensorboard logs are saved in the tensorboard folder.
         """
         # Say how much GPU's are available
-        model = self._compile(hidden_neurons, dropout, activation, learning_rate, loss)
-        # Configure callbacks (early stopping, checkpoint, tensorboard)
+        if self._model is None:
+            print("Model is not compiled yet, please compile the model first.")
+            return
         model_checkpoint = ModelCheckpoint(
             filepath=f"{self._path}/checkpoints/{self._name}_train.h5",
             monitor="val_loss",
@@ -216,7 +202,7 @@ class Model:
         if (x_val and y_val) is not None:
             validation_split = 0
         # Fit the model
-        fit = model.fit(
+        fit = self._model.fit(
             self._x_train,
             self._y_train,
             epochs=epochs,
@@ -227,8 +213,8 @@ class Model:
             shuffle=False,
         )
         # Load the best weights
-        model.load_weights(f"{self._path}/checkpoints/{self._name}_train.h5")
-        self._model = model
+        self._model.load_weights(f"{self._path}/checkpoints/{self._name}_train.h5")
+        self._model = self._model
         self._plot_fit_history(fit)
         # Convert the fit history to dataframe
         fit = DataFrame(fit.history)
