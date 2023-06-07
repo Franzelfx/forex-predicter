@@ -18,12 +18,13 @@ class Test_Model(unittest.TestCase):
 
     def test_compile_fit_predict(self):
         """Test the compile, fit and predict method with data from the preprocessor."""
-        from_saved_file = os.getenv("FROM_SAVED_FILE")
+        pair = os.environ.get("START_PAIR")
+        from_saved_file = os.environ.get("FROM_SAVED_FILE")
         use_multiple_gpus = os.environ.get("USE_MULTIPLE_GPUS")
         # Data
         aquirer = Data_Aquirer(PATH_PAIRS, API_KEY, api_type="full")
         api_data = aquirer.get(
-            PAIR, MINUTES, start=START, end=END, save=True, from_file=from_saved_file
+            pair, MINUTES, start=START, end=END, save=True, from_file=from_saved_file
         )
         # Indicators
         indicators = Indicators(PATH_INDICATORS, PAIR, api_data, TEST_INDICATORS)
