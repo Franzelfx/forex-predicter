@@ -124,7 +124,8 @@ class Model:
             print("Using multiple GPUs.")
             strategy = tf.distribute.MirroredStrategy()
             with strategy.scope():
-                model = self._create_model(hidden_neurons, dropout, activation)
+                #TODO: Add attention_head parameter to compile function
+                model = self._create_model(hidden_neurons, 64, dropout)
                 model.compile(loss=loss, optimizer=optimizer, metrics=["mape"])
         else:
             print("Using single GPU.")
@@ -132,7 +133,8 @@ class Model:
                 print("Multiple GPUs are not available.")
             else:
                 print("Multiple GPUs are not enabled by environment variable.")
-            model = self._create_model(hidden_neurons, dropout, activation)
+                #TODO: Add attention_head parameter to compile function
+            model = self._create_model(hidden_neurons, 64, dropout)
             model.compile(loss=loss, optimizer=optimizer, metrics=["mape"])
         model.summary()
         # Plot the model
