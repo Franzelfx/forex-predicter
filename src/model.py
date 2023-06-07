@@ -15,12 +15,8 @@ from keras.layers import (
     LSTM,
     Input,
     Dense,
-    Dropout,
-    Attention,
-    RepeatVector,
-    Bidirectional,
-    TimeDistributed,
-    GlobalMaxPooling1D,
+    LayerNormalization,
+    MultiHeadAttention,
 )
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
