@@ -121,7 +121,6 @@ class Data_Aquirer:
         if date.today().weekday() in (6, 7):  # Check if today is weekend
             end = self.get_last_friday().strftime("%Y-%m-%d")
             print("It's weekend...")
-        print(from_file)
         if from_file is not None and from_file != "" and from_file != "false":
             csv_pair_name = pair.split(":")[1] if ":" in pair else ""
             try:
