@@ -20,9 +20,9 @@ fi
 read -p "Want to use pair data from saved file? (y/n): " answer
 if [ "$answer" != "${answer#[Yy]}" ] ;then
     echo "Loading from saved file"
-    export LOAD_FROM_SAVED_FILE=true
+    export FROM_SAVED_FILE=true
 else
     echo "Not loading from saved file"
-    export LOAD_FROM_SAVED_FILE=false
+    export FROM_SAVED_FILE=false
 fi
 screen python model_test.py

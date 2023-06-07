@@ -16,18 +16,18 @@ class UtilizerIntegrationTest(unittest.TestCase):
     def test_utilizer_integration(self):
         """Test the utilizer."""
         _found_start = False
+        start_pair = os.environ.get("START_PAIR")
+        use_data_from_file = os.environ.get("FROM_SAVED_FILE")
         for pair in UTIL_PAIRS:
             # Try to get environment variables
             try:
                 # If START_PAIR is set, skip all previous pairs
-                if os.environ.get("START_PAIR") and _found_start is False:
+                if start_pair and _found_start is False:
                     if pair == os.environ.get("START_PAIR"):
                         _found_start = True
                         print(f"Starting with pair: {pair}")
                     else:
                         continue
-                # Check, if data should be loaded from provided file
-                use_data_from_file = os.environ.get("USE_DATA_FROM_FILE")
                 # Get data
                 aquirer = Data_Aquirer(PATH_PAIRS, API_KEY, api_type="full")
                 api_data = aquirer.get(
