@@ -117,70 +117,36 @@ class Data_Aquirer:
         @param from_file: If the data should be fetched from the csv file.
 
         @return: The data as pandas dataframe.
-
-        @remarks: The API has a limit of 50.000 data points per request.
-                    For 15 minutes interval, this is 50.000 * 15min = 750 hours = 31 days (excluding weekends).
-                    If the start and end date are too far apart, the request will be split in multiple.
-                    Please take care of the API limits. The API limits can be found here: https://polygon.io/pricing.
         """
-        # Check, if today is weekend, so the end date is friday
-        if date.today().weekday() is (6 or 7):
+        if date.today().weekday() in (6, 7):  # Check if today is weekend
             end = self.get_last_friday().strftime("%Y-%m-%d")
-            print(f"It's weekend ...")
-        # Check if we want to get the data from the API or from the csv file
-        if from_file is True:
-            # Get the data from the csv file
+            print("It's weekend...")
+
+        if from_file:
+            csv_pair_name = pair.split(":")[1] if ":" in pair else ""
             try:
-                csv_pair_name = ""
-                # Check if pair has ":" in it, if so get characters after it
-                if ":" in pair:
-                    csv_pair_name = pair.split(":")[1]
                 data = pd.read_csv(f"{self._path}/{csv_pair_name}_{minutes}.csv")
                 print(f"Got data from {self._path}/{csv_pair_name}_{minutes}.csv")
-                # Extract time from date
-                resent_date = data["t"].iloc[-1]
-                recent_date = resent_date.split(" ")[0]
-                # If recent date is today, subsstract one day
+                recent_date = data["t"].iloc[-1].split(" ")[0]
                 if recent_date == date.today().strftime("%Y-%m-%d"):
                     recent_date = (date.today() - timedelta(days=1)).strftime("%Y-%m-%d")
-                # Get the data from the API
                 request = self._request(pair, minutes, recent_date, end)
-                # Concatenate the data
-                data = pd.concat([data, request])
-                # Drop duplicates of the time column
-                data.drop_duplicates(subset=["t"], keep='last', inplace=True)
-                # Remove unnamed column, if it exists
+                data = pd.concat([data, request]).drop_duplicates(subset=["t"], keep='last')
                 if "Unnamed: 0" in data.columns:
-                    data = data.drop(columns=["Unnamed: 0"], inplace=True)
-                # Save the data to a csv file
-                if save is True:
+                    data = data.drop(columns=["Unnamed: 0"])
+                if save:
                     data.to_csv(f"{self._path}/{csv_pair_name}_{minutes}.csv")
                 return data
             except FileNotFoundError:
                 print(f"No data for {pair} with {minutes} minutes interval found.")
-                print(f"Getting data from API...")
+                print("Getting data from API...")
                 data = self._request(pair, minutes, start, end)
         else:
-            # Get the data from the API
             data = self._request(pair, minutes, start, end)
-        # Save the data to a csv file
-        if save is True:
-            # Remove unnamed column, if it exists
+        if save:
             if "Unnamed: 0" in data.columns:
                 data = data.drop(columns=["Unnamed: 0"])
-        # Check, if there is ":" in the pair name, if so remove and delete all chars before
-            if ":" in pair:
-                pair = pair.split(":")[1]
+            pair = pair.split(":")[1] if ":" in pair else pair
             print(f"Save data to {self._path}/{pair}_{minutes}.csv")
             data.to_csv(f"{self._path}/{pair}_{minutes}.csv")
-            # Return the data
         return data
-
-    def get_last_friday(self):
-        now = date.now()
-        closest_friday = now + timedelta(days=(4 - now.weekday()))
-        return (
-            closest_friday
-            if closest_friday < now
-            else closest_friday - timedelta(days=7)
-        )
