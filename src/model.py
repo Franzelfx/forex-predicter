@@ -73,7 +73,13 @@ class Model:
         attention = LayerNormalization()(attention)
     
         lstm_2 = LSTM(hidden_neurons, return_sequences=False)(attention)
-        output = Dense(self._y_train.shape[1], activation="linear")(lstm_2)
+        dense_1 = Dense(hidden_neurons, activation="relu")(lstm_2)
+        dropout_1 = tf.keras.layers.Dropout(dropout_rate)(dense_1)
+        dense_2 = Dense(hidden_neurons, activation="relu")(dropout_1)
+        dropout_2 = tf.keras.layers.Dropout(dropout_rate)(dense_2)
+        dense_3 = Dense(hidden_neurons, activation="relu")(dropout_2)
+        dense_4 = Dense(hidden_neurons, activation="relu")(dense_3)
+        output = Dense(self._y_train.shape[1], activation="linear")(dense_4)
     
         model = KerasModel(inputs=inputs, outputs=output)
         return model
@@ -156,7 +162,7 @@ class Model:
     def compile_and_fit(
         self,
         hidden_neurons=256,
-        dropout=0.4,
+        dropout=0.2,
         activation="tanh",
         epochs=100,
         learning_rate=0.001,
