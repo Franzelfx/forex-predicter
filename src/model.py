@@ -79,7 +79,7 @@ class Model:
         output = Dense(self._y_train.shape[1], activation="linear")(lstm_2)
     
         model = Model(inputs=inputs, outputs=output)
-    return model
+        return model
 
     def _plot_fit_history(self, fit):
         """Plot the fit history."""
