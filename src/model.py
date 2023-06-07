@@ -128,7 +128,11 @@ class Model:
         """Compile the model."""
         optimizer = Adam(learning_rate=learning_rate)
         # Check if multiple GPUs are available
-        with strategy.scope() if strategy is not None else None:
+        if strategy is not None and hasattr(strategy, "scope"):
+            with strategy.scope():
+                model = self._build(hidden_neurons, dropout_rate, attention_heads)
+                model.compile(loss=loss_fct, optimizer=optimizer, metrics=["mape"])
+        else:
             model = self._build(hidden_neurons, dropout_rate, attention_heads)
             model.compile(loss=loss_fct, optimizer=optimizer, metrics=["mape"])
         model.summary()
