@@ -32,7 +32,6 @@ class Model:
     :param np.ndarray y_train: The training output data.
     """
 
-    # TODO: passing recipe class to model
     def __init__(
         self,
         path: str,
