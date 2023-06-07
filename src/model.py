@@ -64,20 +64,16 @@ class Model:
         input_shape = (self._x_train.shape[1], self._x_train.shape[2])
         inputs = Input(shape=input_shape)
 
-        lstm = Bidirectional(LSTM(hidden_neurons, return_sequences=True))(inputs)
+        lstm_1 = LSTM(hidden_neurons, return_sequences=True)(inputs)
 
         # Separate query and value branches for Attention layer
-        query = Bidirectional(LSTM(hidden_neurons, return_sequences=True))(lstm)
-        value = Bidirectional(LSTM(hidden_neurons, return_sequences=True))(lstm)
+        query = Bidirectional(LSTM(hidden_neurons, return_sequences=True))(lstm_1)
+        value = Bidirectional(LSTM(hidden_neurons, return_sequences=True))(lstm_1)
 
         # Apply Attention layer
         attention = Attention()([query, value])
-        lstm_2 = Bidirectional(LSTM(hidden_neurons, return_sequences=True))(attention)
-        time_distributed_1 = TimeDistributed(Dense(hidden_neurons, activation=activation))(lstm_2)
-        dropout_1 = Dropout(dropout_factor)(time_distributed_1)
-        global_max_pooling = GlobalMaxPooling1D()(dropout_1)
-        dense_1 = Dense(hidden_neurons, activation=activation)(global_max_pooling)
-        output = Dense(self._y_train.shape[1], activation="linear")(dense_1)
+        lstm_2 = LSTM(hidden_neurons, return_sequences=False)(attention)
+        output = Dense(self._y_train.shape[1], activation="linear")(lstm_2)
         model = KerasModel(inputs=inputs, outputs=output)
         return model
 
