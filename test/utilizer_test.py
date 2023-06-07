@@ -30,7 +30,7 @@ class UtilizerIntegrationTest(unittest.TestCase):
                 use_data_from_file = os.environ.get("USE_DATA_FROM_FILE")
                 # Get data
                 aquirer = Data_Aquirer(PATH_PAIRS, API_KEY, api_type="full")
-                data = aquirer.get(
+                api_data = aquirer.get(
                     pair,
                     MINUTES,
                     start=UTILIZER_START_DATE,
@@ -39,14 +39,12 @@ class UtilizerIntegrationTest(unittest.TestCase):
                     from_file=use_data_from_file,
                 )
                 # Apply indicators
-                indicators = Indicators(data, TEST_INDICATORS)
-                data = indicators.calculate(
-                    save=True, path=f"{PATH_INDICATORS}/{pair}_{MINUTES}.csv"
-                )
+                indicators = Indicators(PATH_INDICATORS, pair, api_data, TEST_INDICATORS)
+                indicator_data = indicators.calculate(save=True)
                 indicators.summary()
                 # Preprocess data
                 preprocessor = Preprocessor(
-                    data,
+                    indicator_data,
                     TARGET,
                     time_steps_in=TEST_TIME_STEPS_IN,
                     time_steps_out=TEST_TIME_STEPS_OUT,

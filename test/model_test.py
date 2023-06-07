@@ -8,6 +8,7 @@ from src.indicators import Indicators
 from src.preprocessor import Preprocessor
 from src.data_aquirer import Data_Aquirer
 
+
 class Test_Model(unittest.TestCase):
     """Integration test for the Model class.
 
@@ -17,18 +18,16 @@ class Test_Model(unittest.TestCase):
 
     def test_compile_fit_predict(self):
         """Test the compile, fit and predict method with data from the preprocessor."""
-        try:
-            test_data = pd.read_csv(MODEL_DATA_SOURCE)
-        except:
-            aquirer = Data_Aquirer(PATH_PAIRS, API_KEY, api_type="full")
-            test_data = aquirer.get(
-                PAIR, MINUTES, start=START, save=True, from_file=False
-            )
-            # Indicators
-            indicators = Indicators(test_data, TEST_INDICATORS)
-            test_data = indicators.calculate(save=True)
+        aquirer = Data_Aquirer(PATH_PAIRS, API_KEY, api_type="full")
+        from_saved_file = os.getenv("FROM_SAVED_FILE")
+        api_data = aquirer.get(
+            PAIR, MINUTES, start=START, end=END, save=True, from_file=from_saved_file
+        )
+        # Indicators
+        indicators = Indicators(PATH_INDICATORS, PAIR, api_data, TEST_INDICATORS)
+        indicator_data = indicators.calculate(save=True)
         preprocessor = Preprocessor(
-            test_data,
+            indicator_data,
             TARGET,
             time_steps_in=TEST_TIME_STEPS_IN,
             time_steps_out=TEST_TIME_STEPS_OUT,
@@ -45,12 +44,14 @@ class Test_Model(unittest.TestCase):
         # Run for testing
         model.compile_and_fit(
             epochs=TEST_EPOCHS,
-            hidden_neurons=TEST_NEURONS,
+            patience=TEST_PATIENCE,
             batch_size=TEST_BATCH_SIZE,
+            hidden_neurons=TEST_NEURONS,
             learning_rate=TEST_LEARNING_RATE,
             branched_model=TEST_BRANCHED_MODEL,
             validation_split=TEST_VALIDATION_SPLIT,
         )
+
 
 if __name__ == "__main__":
     # get API_KEY from environment variable

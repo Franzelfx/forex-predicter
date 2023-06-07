@@ -15,12 +15,8 @@ from keras.layers import (
     LSTM,
     Input,
     Dense,
-    Dropout,
-    Attention,
-    RepeatVector,
-    Bidirectional,
-    TimeDistributed,
-    GlobalMaxPooling1D,
+    LayerNormalization,
+    MultiHeadAttention,
 )
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
@@ -43,15 +39,15 @@ class Model:
         x_train: np.ndarray,
         y_train: np.ndarray,
     ):
+        # Check if name has ":" in it, if so get characters after it
+        if ":" in name:
+            name = name.split(":")[1]
+        self._name = name
         os.environ["LD_LIBRARY_PATH"] = "/usr/local/cuda/lib64"
         self._path = path
-        self._name = name
         self._x_train = x_train
         self._y_train = y_train
         self._model = None
-        # Check if name has ":" in it, if so get characters after it
-        if ":" in name:
-            self._name = name.split(":")[1]
 
     @property
     def steps_ahead(self) -> int:
@@ -59,32 +55,33 @@ class Model:
         return self._y_train.shape[1]
 
     def _create_model(
-        self, hidden_neurons: int, dropout_factor: float, activation: str
+        self, hidden_neurons: int, num_attention_heads: int, dropout_rate: float
     ) -> KerasModel:
         input_shape = (self._x_train.shape[1], self._x_train.shape[2])
         inputs = Input(shape=input_shape)
-
-        lstm = Bidirectional(LSTM(hidden_neurons, return_sequences=True))(inputs)
-
+    
+        # LSTM layer
+        lstm_1 = LSTM(hidden_neurons, return_sequences=True)(inputs)
+        dropout_1 = tf.keras.layers.Dropout(dropout_rate)(lstm_1)
         # Separate query and value branches for Attention layer
-        query = Bidirectional(LSTM(hidden_neurons, return_sequences=True))(lstm)
-        value = Bidirectional(LSTM(hidden_neurons, return_sequences=True))(lstm)
-
+        query = Dense(hidden_neurons)(dropout_1)
+        value = Dense(hidden_neurons)(dropout_1)
+    
         # Apply Attention layer
-        attention = Attention()([query, value])
-        lstm_2 = Bidirectional(LSTM(hidden_neurons, return_sequences=True))(attention)
-        time_distributed_1 = TimeDistributed(Dense(hidden_neurons, activation=activation))(lstm_2)
-        dropout_1 = Dropout(dropout_factor)(time_distributed_1)
-        time_distributed_2 = TimeDistributed(Dense(self._y_train.shape[1], activation=activation))(dropout_1)
-        global_max_pooling = GlobalMaxPooling1D()(time_distributed_2)
-        dense_1 = Dense(hidden_neurons, activation=activation)(global_max_pooling)
-        dense_2 = Dense(hidden_neurons, activation=activation)(dense_1)
-        dropout_2 = Dropout(dropout_factor)(dense_2)
-        dense_3 = Dense(hidden_neurons, activation=activation)(dropout_2)
-        droput_3 = Dropout(dropout_factor)(dense_3)
-        dense_4 = Dense(hidden_neurons, activation=activation)(droput_3)
-        output = Dense(self._y_train.shape[1], activation=activation)(dense_4)
+        attention = MultiHeadAttention(num_attention_heads, hidden_neurons)(query, value)
+        attention = tf.keras.layers.Dropout(dropout_rate)(attention)
+        attention = LayerNormalization()(attention)
 
+        dropout_2 = tf.keras.layers.Dropout(dropout_rate)(attention)
+        lstm_2 = LSTM(hidden_neurons, return_sequences=False)(dropout_2)
+        dense_1 = Dense(hidden_neurons, activation="relu")(lstm_2)
+        dropout_3 = tf.keras.layers.Dropout(dropout_rate)(dense_1)
+        dense_2 = Dense(hidden_neurons, activation="relu")(dropout_3)
+        dropout_4 = tf.keras.layers.Dropout(dropout_rate)(dense_2)
+        dense_3 = Dense(hidden_neurons, activation="relu")(dropout_4)
+        dense_4 = Dense(hidden_neurons, activation="relu")(dense_3)
+        output = Dense(self._y_train.shape[1], activation="linear")(dense_4)
+    
         model = KerasModel(inputs=inputs, outputs=output)
         return model
 
@@ -131,7 +128,8 @@ class Model:
             print("Using multiple GPUs.")
             strategy = tf.distribute.MirroredStrategy()
             with strategy.scope():
-                model = self._create_model(hidden_neurons, dropout, activation)
+                #TODO: Add attention_head parameter to compile function
+                model = self._create_model(hidden_neurons, 8, dropout)
                 model.compile(loss=loss, optimizer=optimizer, metrics=["mape"])
         else:
             print("Using single GPU.")
@@ -139,7 +137,8 @@ class Model:
                 print("Multiple GPUs are not available.")
             else:
                 print("Multiple GPUs are not enabled by environment variable.")
-            model = self._create_model(hidden_neurons, dropout, activation)
+                #TODO: Add attention_head parameter to compile function
+            model = self._create_model(hidden_neurons, 64, dropout)
             model.compile(loss=loss, optimizer=optimizer, metrics=["mape"])
         model.summary()
         # Plot the model
@@ -164,7 +163,7 @@ class Model:
     def compile_and_fit(
         self,
         hidden_neurons=256,
-        dropout=0.4,
+        dropout=0.2,
         activation="tanh",
         epochs=100,
         learning_rate=0.001,
