@@ -133,7 +133,7 @@ class Data_Aquirer:
                 request = self._request(pair, minutes, recent_date, end)
                 data = pd.concat([data, request]).drop_duplicates(subset=["t"], keep='last')
                 if "Unnamed: 0" in data.columns:
-                    data = data.drop(columns=["Unnamed: 0"])
+                    data = data.drop(columns=["Unnamed: 0"]).copy()
                 if save:
                     data.to_csv(f"{self._path}/{csv_pair_name}_{minutes}.csv")
                 return data
