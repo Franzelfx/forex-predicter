@@ -24,11 +24,12 @@ logging.basicConfig(
 # ---------------------------------- #
 # Data aquirer
 PATH_PAIRS = os.path.join(currentdir, "pairs")
-PAIR = "CADJPY"
+PAIR = "C:CADJPY"
 MINUTES = 15
 START = "2008-01-01"
 # Substract 1 hour to get the last full hour
-END = (date.today() - timedelta(hours=1)).strftime("%Y-%m-%d")
+#END = (date.today() - timedelta(hours=1)).strftime("%Y-%m-%d")
+END = "2023-01-01"
 API_TYPE = "advanced"
 
 # ---------------------------------- #
@@ -99,7 +100,7 @@ TARGET = "c"
 # Preprocessor
 PREPROCESSOR_PATH = os.path.join(currentdir, "preprocessor")
 PREPROCESSOR_DATA_SOURCE = f"{PATH_INDICATORS}/{PAIR}_{MINUTES}.csv"
-TEST_TIME_STEPS_IN = 1920  # 1 Month
+TEST_TIME_STEPS_IN = 960   # 2 weeks
 TEST_TIME_STEPS_OUT = 48   # 12 hours
 TEST_LENGTH = TEST_TIME_STEPS_IN + TEST_TIME_STEPS_OUT
 TEST_SCALE = True
@@ -111,7 +112,7 @@ MODEL_DATA_SOURCE = f"{PREPROCESSOR_DATA_SOURCE}"
 MODEL_PATH = os.path.abspath(os.path.dirname(__file__))
 MODEL_NAME = f"{PAIR}"
 TEST_EPOCHS = 1000
-TEST_NEURONS = 512
+TEST_NEURONS = 128
 TEST_BATCH_SIZE = 32
 TEST_LEARNING_RATE = 0.0001
 TEST_PATIENCE = 300

@@ -128,11 +128,15 @@ class Data_Aquirer:
             end = self.get_last_friday().strftime("%Y-%m-%d")
             print(f"It's weekend ...")
         # Check if we want to get the data from the API or from the csv file
-        if from_file:
+        if from_file is True:
             # Get the data from the csv file
             try:
-                data = pd.read_csv(f"{self._path}/{pair}_{minutes}.csv")
-                print(f"Got data from {self._path}/{pair}_{minutes}.csv")
+                csv_pair_name = ""
+                # Check if pair has ":" in it, if so get characters after it
+                if ":" in pair:
+                    csv_pair_name = pair.split(":")[1]
+                data = pd.read_csv(f"{self._path}/{csv_pair_name}_{minutes}.csv")
+                print(f"Got data from {self._path}/{csv_pair_name}_{minutes}.csv")
                 # Extract time from date
                 resent_date = data["t"].iloc[-1]
                 recent_date = resent_date.split(" ")[0]
@@ -147,10 +151,10 @@ class Data_Aquirer:
                 data.drop_duplicates(subset=["t"], keep='last', inplace=True)
                 # Remove unnamed column, if it exists
                 if "Unnamed: 0" in data.columns:
-                    data = data.drop(columns=["Unnamed: 0"])
+                    data = data.drop(columns=["Unnamed: 0"], inplace=True)
                 # Save the data to a csv file
                 if save is True:
-                    data.to_csv(f"{self._path}/{pair}_{minutes}.csv")
+                    data.to_csv(f"{self._path}/{csv_pair_name}_{minutes}.csv")
                 return data
             except FileNotFoundError:
                 print(f"No data for {pair} with {minutes} minutes interval found.")
@@ -164,6 +168,10 @@ class Data_Aquirer:
             # Remove unnamed column, if it exists
             if "Unnamed: 0" in data.columns:
                 data = data.drop(columns=["Unnamed: 0"])
+        # Check, if there is ":" in the pair name, if so remove and delete all chars before
+            if ":" in pair:
+                pair = pair.split(":")[1]
+            print(f"Save data to {self._path}/{pair}_{minutes}.csv")
             data.to_csv(f"{self._path}/{pair}_{minutes}.csv")
             # Return the data
         return data

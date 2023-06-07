@@ -17,6 +17,7 @@ from keras.layers import (
     Dense,
     Dropout,
     Attention,
+    RepeatVector,
     Bidirectional,
     TimeDistributed,
     GlobalMaxPooling1D,
@@ -42,9 +43,12 @@ class Model:
         x_train: np.ndarray,
         y_train: np.ndarray,
     ):
+        # Check if name has ":" in it, if so get characters after it
+        if ":" in name:
+            name = name.split(":")[1]
+        self._name = name
         os.environ["LD_LIBRARY_PATH"] = "/usr/local/cuda/lib64"
         self._path = path
-        self._name = name
         self._x_train = x_train
         self._y_train = y_train
         self._model = None
@@ -55,7 +59,7 @@ class Model:
         return self._y_train.shape[1]
 
     def _create_model(
-        self, hidden_neurons: int, dropout_factor: float, activation: str, attention_neurons: int = 64
+        self, hidden_neurons: int, dropout_factor: float, activation: str
     ) -> KerasModel:
         input_shape = (self._x_train.shape[1], self._x_train.shape[2])
         inputs = Input(shape=input_shape)
@@ -63,22 +67,17 @@ class Model:
         lstm = Bidirectional(LSTM(hidden_neurons, return_sequences=True))(inputs)
 
         # Separate query and value branches for Attention layer
-        query = Bidirectional(LSTM(attention_neurons, return_sequences=True))(lstm)
-        value = Bidirectional(LSTM(attention_neurons, return_sequences=True))(lstm)
+        query = Bidirectional(LSTM(hidden_neurons, return_sequences=True))(lstm)
+        value = Bidirectional(LSTM(hidden_neurons, return_sequences=True))(lstm)
 
         # Apply Attention layer
         attention = Attention()([query, value])
         lstm_2 = Bidirectional(LSTM(hidden_neurons, return_sequences=True))(attention)
         time_distributed_1 = TimeDistributed(Dense(hidden_neurons, activation=activation))(lstm_2)
         dropout_1 = Dropout(dropout_factor)(time_distributed_1)
-        time_distributed_2 = TimeDistributed(Dense(hidden_neurons, activation=activation))(dropout_1)
-        dropout_2 = Dropout(dropout_factor)(time_distributed_2)
-        time_distributed_3 = TimeDistributed(Dense(self._y_train.shape[1], activation=activation))(dropout_2)
-        global_max_pooling = GlobalMaxPooling1D()(time_distributed_3)
+        global_max_pooling = GlobalMaxPooling1D()(dropout_1)
         dense_1 = Dense(hidden_neurons, activation=activation)(global_max_pooling)
-        dense_2 = Dense(hidden_neurons, activation=activation)(dense_1)
-        output = Dense(self._y_train.shape[1], activation='linear')(dense_2)
-
+        output = Dense(self._y_train.shape[1], activation="linear")(dense_1)
         model = KerasModel(inputs=inputs, outputs=output)
         return model
 

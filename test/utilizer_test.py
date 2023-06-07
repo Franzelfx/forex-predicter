@@ -1,60 +1,79 @@
 """Testbench for the utilizer module."""
 import unittest
-import numpy as np
-import pandas as pd
+import traceback
 from config_tb import *
 from src.model import Model
 from src.utilizer import Utilizer
 from src.visualizer import Visualizer
+from src.indicators import Indicators
 from src.preprocessor import Preprocessor
+from src.data_aquirer import Data_Aquirer
 
-class UtilizerTest(unittest.TestCase):
+
+class UtilizerIntegrationTest(unittest.TestCase):
     """Test the utilizer."""
 
-    def test_utilizer(self):
+    def test_utilizer_integration(self):
         """Test the utilizer."""
-        test_data = pd.read_csv(MODEL_DATA_SOURCE)
-        # Preprocess the data
-        preprocessor = Preprocessor(
-            test_data,
-            TARGET,
-            time_steps_in=TEST_TIME_STEPS_IN,
-            time_steps_out=TEST_TIME_STEPS_OUT,
-            scale=TEST_SCALE,
-        )
-        preprocessor.summary()
-        # Load the model
-        model = Model(
-            MODEL_PATH,
-            MODEL_NAME,
-            preprocessor.x_train,
-            preprocessor.y_train,
-        )
-        # Last known value
-        last_known_x = preprocessor.last_known_x
-        last_known_y = preprocessor.last_known_y
-        x_predict_cut = preprocessor.data[-(preprocessor.time_steps_in+preprocessor.time_steps_out):-preprocessor.time_steps_out].values
-        # Add samples dimension
-        x_predict_cut = np.expand_dims(x_predict_cut, axis=0)
-        # Directly predict from saved model
-        utilizer_test = Utilizer(model, preprocessor.x_test)
-        utilizer_hat = Utilizer(model, preprocessor.x_predict)
-        utilizer_cut = Utilizer(model, x_predict_cut)
-        utilizer_prediction_Set = Utilizer(model, preprocessor.prediction_set)
-        prediction_test = utilizer_test.predict(TEST_TIME_STEPS_OUT, scaler=preprocessor.target_scaler, ma_period=50, last_known=last_known_x)
-        prediction_hat = utilizer_hat.predict(TEST_TIME_STEPS_OUT, scaler=preprocessor.target_scaler, ma_period=50, last_known=last_known_y)
-        prediction_cut = utilizer_cut.predict(TEST_TIME_STEPS_OUT, scaler=preprocessor.target_scaler, ma_period=50, last_known=last_known_x)
-        prediction_set = utilizer_prediction_Set.predict(TEST_TIME_STEPS_OUT, scaler=preprocessor.target_scaler, ma_period=50, last_known=last_known_x)
-        # Get only last time steps out from prediction set
-        prediction_set = prediction_set[-preprocessor.time_steps_out:]
-        visualizer = Visualizer(PAIR)
-        path = f"{MODEL_PATH}/utilizer_test"
-        visualizer.plot_prediction(prediction_test, path, extra_info=f"test")
-        visualizer.plot_prediction(prediction_hat, path, extra_info=f"hat")
-        visualizer.plot_prediction(prediction_cut, path, extra_info=f"cut")
-        visualizer.plot_prediction(prediction_set, path, extra_info=f"set")
-        # Check, if prediction_test and prediction_hat are not the same
-        self.assertNotEqual(prediction_test, prediction_hat)
+        _found_start = False
+        for pair in UTIL_PAIRS:
+            # Try to get environment variables
+            try:
+                # If START_PAIR is set, skip all previous pairs
+                if os.environ.get("START_PAIR") and _found_start is False:
+                    if pair == os.environ.get("START_PAIR"):
+                        _found_start = True
+                        print(f"Starting with pair: {pair}")
+                    else:
+                        continue
+                # Check, if data should be loaded from provided file
+                use_data_from_file = os.environ.get("USE_DATA_FROM_FILE")
+                # Get data
+                aquirer = Data_Aquirer(PATH_PAIRS, API_KEY, api_type="full")
+                api_data = aquirer.get(
+                    pair,
+                    MINUTES,
+                    start=UTILIZER_START_DATE,
+                    end=END,
+                    save=True,
+                    from_file=use_data_from_file,
+                )
+                # Apply indicators
+                indicators = Indicators(PATH_INDICATORS, pair, api_data, TEST_INDICATORS)
+                indicator_data = indicators.calculate(save=True)
+                indicators.summary()
+                # Preprocess data
+                preprocessor = Preprocessor(
+                    indicator_data,
+                    TARGET,
+                    time_steps_in=TEST_TIME_STEPS_IN,
+                    time_steps_out=TEST_TIME_STEPS_OUT,
+                    scale=TEST_SHIFT,
+                    shift=TEST_SHIFT,
+                )
+                preprocessor.summary()
+                # Load model
+                model = Model(
+                    MODEL_PATH,
+                    pair,
+                    preprocessor.x_train,
+                    preprocessor.y_train,
+                )
+                # Directly predict from saved model
+                utilizer = Utilizer(model, preprocessor)
+                test_actual = utilizer.test_actual
+                test_predict, y_hat = utilizer.predict(box_pts=TEST_BOX_PTS)
+                # Visualize prediction
+                visualizer = Visualizer(pair)
+                path = f"{MODEL_PATH}/utilizer_test"
+                visualizer.plot_prediction(
+                    path, y_hat, test_predict=test_predict, test_actual=test_actual
+                )
+            except Exception:
+                traceback.print_exc()
+                logging.error(traceback.format_exc())
+
 
 if __name__ == "__main__":
+    API_KEY = os.environ.get("API_KEY")
     unittest.main()

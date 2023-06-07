@@ -11,6 +11,8 @@ class Visualizer:
     #      date, time, time iterations, etc.
     def __init__(self, target: str, dark_mode: bool = True):
         """Initialize the visualizer."""
+        if ":" in target:
+            target = target.split(":")[1]
         self.pair = target
         self.dark_mode = dark_mode
 
