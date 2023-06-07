@@ -105,7 +105,7 @@ class Data_Aquirer:
         start: str = "2009-01-01",
         end: str = date.today().strftime("%Y-%m-%d"),
         save: bool = False,
-        from_file = None | str,
+        from_file = None,
     ):
         """Get the data from the API or from the csv file.
 
