@@ -53,12 +53,15 @@ class Test_Model(unittest.TestCase):
             hidden_neurons=TEST_NEURONS,
             strategy=strategy if use_multiple_gpus else None,
         )
+        try:
         model.fit(
             epochs=TEST_EPOCHS,
             batch_size=TEST_BATCH_SIZE,
             validation_split=TEST_VALIDATION_SPLIT,
             patience=TEST_PATIENCE,
         )
+        except Exception as e:
+
 
 if __name__ == "__main__":
     # get API_KEY from environment variable

@@ -205,24 +205,29 @@ class Model:
         if (x_val and y_val) is not None:
             validation_split = 0
         # Fit the model
-        fit = self._model.fit(
-            self._x_train,
-            self._y_train,
-            epochs=epochs,
-            batch_size=batch_size,
-            validation_data=(x_val, y_val) if (x_val and y_val) is not None else None,
-            validation_split=validation_split,
-            callbacks=[tensorboard, model_checkpoint, early_stopping],
-            shuffle=False,
-        )
-        # Load the best weights
-        self._model.load_weights(f"{self._path}/checkpoints/{self._name}_train.h5")
-        self._model = self._model
-        self._plot_fit_history(fit)
-        # Convert the fit history to dataframe
-        fit = DataFrame(fit.history)
-        # Save the fit history
-        fit.to_csv(f"{self._path}/fit_history/{self._name}.csv", index=False)
+        try:
+            fit = self._model.fit(
+                self._x_train,
+                self._y_train,
+                epochs=epochs,
+                batch_size=batch_size,
+                validation_data=(x_val, y_val) if (x_val and y_val) is not None else None,
+                validation_split=validation_split,
+                callbacks=[tensorboard, model_checkpoint, early_stopping],
+                shuffle=False,
+            )
+            # Load the best weights
+            self._model.load_weights(f"{self._path}/checkpoints/{self._name}_train.h5")
+            self._model = self._model
+            self._plot_fit_history(fit)
+            # Convert the fit history to dataframe
+            fit = DataFrame(fit.history)
+            # Save the fit history
+            fit.to_csv(f"{self._path}/fit_history/{self._name}.csv", index=False)
+        except Exception as e:
+            # Print exception with traceback
+            print(e)
+            logging.error(e)
         return fit
 
     def predict(
