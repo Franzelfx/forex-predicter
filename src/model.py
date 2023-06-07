@@ -121,7 +121,7 @@ class Model:
             strategy = tf.distribute.MirroredStrategy()
             with strategy.scope():
                 #TODO: Add attention_head parameter to compile function
-                model = self._create_model(hidden_neurons, 64, dropout)
+                model = self._create_model(hidden_neurons, 8, dropout)
                 model.compile(loss=loss, optimizer=optimizer, metrics=["mape"])
         else:
             print("Using single GPU.")
