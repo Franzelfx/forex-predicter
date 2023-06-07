@@ -132,11 +132,6 @@ class Data_Aquirer:
                     recent_date = (date.today() - timedelta(days=1)).strftime("%Y-%m-%d")
                 request = self._request(pair, minutes, recent_date, end)
                 data = pd.concat([data, request]).drop_duplicates(subset=["t"], keep='last')
-                if "Unnamed: 0" in data.columns:
-                    data = data.drop(columns=["Unnamed: 0"]).copy()
-                if save:
-                    data.to_csv(f"{self._path}/{csv_pair_name}_{minutes}.csv")
-                return data
             except FileNotFoundError:
                 print(f"No data for {pair} with {minutes} minutes interval found.")
                 print("Getting data from API...")
@@ -144,9 +139,9 @@ class Data_Aquirer:
         else:
             data = self._request(pair, minutes, start, end)
         if save:
-            if "Unnamed: 0" in data.columns:
-                data = data.drop(columns=["Unnamed: 0"])
             pair = pair.split(":")[1] if ":" in pair else pair
             print(f"Save data to {self._path}/{pair}_{minutes}.csv")
-            data.to_csv(f"{self._path}/{pair}_{minutes}.csv")
+            data.to_csv(f"{self._path}/{pair}_{minutes}.csv", index=False)
+            # Print column count
+            print(f"Dataset has {len(data.columns)} columns.")
         return data
