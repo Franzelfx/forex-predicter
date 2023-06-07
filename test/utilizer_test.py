@@ -18,6 +18,8 @@ class UtilizerIntegrationTest(unittest.TestCase):
         _found_start = False
         start_pair = os.environ.get("START_PAIR")
         use_data_from_file = os.environ.get("FROM_SAVED_FILE")
+        print(use_multiple_gpus)
+        print(True)
         for pair in UTIL_PAIRS:
             # Try to get environment variables
             try:
