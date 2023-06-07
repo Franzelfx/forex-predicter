@@ -151,8 +151,7 @@ class Model:
             # Print exception with traceback
             print(e)
             logging.error(e)
-
-        return model
+        self._model = model
 
     def fit(
         self,
