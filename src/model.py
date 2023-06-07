@@ -59,23 +59,27 @@ class Model:
         return self._y_train.shape[1]
 
     def _create_model(
-        self, hidden_neurons: int, dropout_factor: float, activation: str
+        self, hidden_neurons: int, num_attention_heads: int, dropout_rate: float
     ) -> KerasModel:
         input_shape = (self._x_train.shape[1], self._x_train.shape[2])
         inputs = Input(shape=input_shape)
-
+    
+        # LSTM layer
         lstm_1 = LSTM(hidden_neurons, return_sequences=True)(inputs)
-
+    
         # Separate query and value branches for Attention layer
-        query = Bidirectional(LSTM(hidden_neurons, return_sequences=True))(lstm_1)
-        value = Bidirectional(LSTM(hidden_neurons, return_sequences=True))(lstm_1)
-
+        query = Dense(hidden_neurons)(lstm_1)
+        value = Dense(hidden_neurons)(lstm_1)
+    
         # Apply Attention layer
-        attention = Attention()([query, value])
+        attention = MultiHeadAttention(num_attention_heads, hidden_neurons)(query, value)
+        attention = LayerNormalization()(attention)
+    
         lstm_2 = LSTM(hidden_neurons, return_sequences=False)(attention)
         output = Dense(self._y_train.shape[1], activation="linear")(lstm_2)
-        model = KerasModel(inputs=inputs, outputs=output)
-        return model
+    
+        model = Model(inputs=inputs, outputs=output)
+    return model
 
     def _plot_fit_history(self, fit):
         """Plot the fit history."""
