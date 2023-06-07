@@ -74,7 +74,7 @@ class Model:
         lstm_2 = LSTM(hidden_neurons, return_sequences=False)(attention)
         output = Dense(self._y_train.shape[1], activation="linear")(lstm_2)
     
-        model = Model(inputs=inputs, outputs=output)
+        model = KerasModel(inputs=inputs, outputs=output)
         return model
 
     def _plot_fit_history(self, fit):
