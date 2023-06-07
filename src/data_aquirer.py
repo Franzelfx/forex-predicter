@@ -122,7 +122,7 @@ class Data_Aquirer:
             end = self.get_last_friday().strftime("%Y-%m-%d")
             print("It's weekend...")
 
-        if from_file:
+        if from_file is not None:
             csv_pair_name = pair.split(":")[1] if ":" in pair else ""
             try:
                 data = pd.read_csv(f"{self._path}/{csv_pair_name}_{minutes}.csv")
