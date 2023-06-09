@@ -217,6 +217,8 @@ class Model:
             return
         self._x_train = self._adjust_sequence_length(self._x_train, batch_size)
         self._y_train = self._adjust_sequence_length(self._y_train, batch_size)
+        self._x_train = self._x_train.reshape(-1, batch_size, self._x_train.shape[1], self._x_train.shape[2])
+        self._y_train = self._y_train.reshape(-1, batch_size, self._y_train.shape[1])
         model_checkpoint = ModelCheckpoint(
             filepath=f"{self._path}/checkpoints/{self._name}_train.h5",
             monitor="val_loss",
@@ -251,11 +253,11 @@ class Model:
             fit = DataFrame(fit.history)
             # Save the fit history
             fit.to_csv(f"{self._path}/fit_history/{self._name}.csv", index=False)
+            return fit
         except Exception as e:
             # Print exception with traceback
             print(e)
             logging.error(e)
-        return fit
 
     def predict(
         self,
