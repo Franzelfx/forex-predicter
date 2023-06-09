@@ -15,6 +15,7 @@ from keras.layers import (
     LSTM,
     Input,
     Dense,
+    Bidirectional,
     LayerNormalization,
     MultiHeadAttention,
 )
@@ -59,7 +60,7 @@ class Model:
         inputs = Input(shape=input_shape)
 
         # LSTM layer
-        lstm_1 = LSTM(hidden_neurons, return_sequences=True)(inputs)
+        lstm_1 = Bidirectional(LSTM(hidden_neurons, return_sequences=True))(inputs)
         dropout_1 = tf.keras.layers.Dropout(dropout_rate)(lstm_1)
         # Separate query and value branches for Attention layer
         query = Dense(hidden_neurons)(dropout_1)
@@ -71,7 +72,7 @@ class Model:
         attention = LayerNormalization()(attention)
 
         dropout_2 = tf.keras.layers.Dropout(dropout_rate)(attention)
-        lstm_2 = LSTM(hidden_neurons, return_sequences=False)(dropout_2)
+        lstm_2 = Bidirectional(LSTM(hidden_neurons, return_sequences=False))(dropout_2)
         dense_1 = Dense(hidden_neurons, activation="relu")(lstm_2)
         dropout_3 = tf.keras.layers.Dropout(dropout_rate)(dense_1)
         dense_2 = Dense(hidden_neurons, activation="relu")(dropout_3)
