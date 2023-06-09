@@ -204,6 +204,7 @@ class Model:
         if self._model is None:
             print("Model is not compiled yet, please compile the model first.")
             return
+        self._adjust_sequence_length(self._x_train, batch_size)
         model_checkpoint = ModelCheckpoint(
             filepath=f"{self._path}/checkpoints/{self._name}_train.h5",
             monitor="val_loss",
@@ -220,7 +221,6 @@ class Model:
             validation_split = 0
         # Fit the model
         try:
-            self._adjust_sequence_length(self._x_train, batch_size)
             fit = self._model.fit(
                 self._x_train,
                 self._y_train,
