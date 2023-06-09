@@ -157,7 +157,13 @@ class Model:
         self._model = model
 
     def _adjust_sequence_length(self, data, batch_size):
-        samples, timesteps, features = data.shape
+        # Check for dimensionality
+        if len(data.shape) == 2:
+            samples, timesteps = data.shape
+        elif len(data.shape) == 3:
+            samples, timesteps, features = data.shape
+        else:
+            raise ValueError("Data must be 2D or 3D")
         new_timesteps = (timesteps // batch_size) * batch_size
         num_drop = timesteps - new_timesteps
         adjusted_data = data[:, :new_timesteps, :]
@@ -205,7 +211,7 @@ class Model:
             print("Model is not compiled yet, please compile the model first.")
             return
         self._x_train = self._adjust_sequence_length(self._x_train, batch_size)
-        #self._y_train = self._adjust_sequence_length(self._y_train, batch_size)
+        self._y_train = self._adjust_sequence_length(self._y_train, batch_size)
         model_checkpoint = ModelCheckpoint(
             filepath=f"{self._path}/checkpoints/{self._name}_train.h5",
             monitor="val_loss",
