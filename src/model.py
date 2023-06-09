@@ -205,7 +205,7 @@ class Model:
             print("Model is not compiled yet, please compile the model first.")
             return
         self._x_train = self._adjust_sequence_length(self._x_train, batch_size)
-        self._y_train = self._adjust_sequence_length(self._y_train, batch_size)
+        #self._y_train = self._adjust_sequence_length(self._y_train, batch_size)
         model_checkpoint = ModelCheckpoint(
             filepath=f"{self._path}/checkpoints/{self._name}_train.h5",
             monitor="val_loss",
