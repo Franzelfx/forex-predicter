@@ -156,7 +156,7 @@ class Model:
             logging.error(e)
         self._model = model
 
-    def _adjust_sequence_length(data, batch_size):
+    def _adjust_sequence_length(self, data, batch_size):
         samples, timesteps, features = data.shape
         new_timesteps = (timesteps // batch_size) * batch_size
         num_drop = timesteps - new_timesteps
