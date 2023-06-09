@@ -28,8 +28,8 @@ PAIR = "C:CADJPY"
 MINUTES = 15
 START = "2018-01-01"
 # Substract 1 hour to get the last full hour
-END = (date.today() - timedelta(hours=1)).strftime("%Y-%m-%d")
-#END = "2023-01-01"
+#END = (date.today() - timedelta(hours=1)).strftime("%Y-%m-%d")
+END = "2023-01-01"
 API_TYPE = "advanced"
 
 # ---------------------------------- #
