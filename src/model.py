@@ -55,12 +55,12 @@ class Model:
         """Return the number of steps ahead that the model is capable of predicting."""
         return self._y_train.shape[1]
 
-    def _build(self, hidden_neurons: int, dropout_rate: float, attention_heads: int):
+    def _build(self, hidden_neurons: int, dropout_rate: float, attention_heads: int, batch_size: int):
         input_shape = (self._x_train.shape[1], self._x_train.shape[2])
-        inputs = Input(batch_shape=(32,) + input_shape)
+        inputs = Input(batch_shape=(batch:size,) + input_shape)
 
         # LSTM layer
-        lstm_1 = Bidirectional(LSTM(hidden_neurons, return_sequences=True, stateful=True, batch_input_shape=(32,) + input_shape))(inputs)
+        lstm_1 = Bidirectional(LSTM(hidden_neurons, return_sequences=True, stateful=True, batch_input_shape=(batch_size,) + input_shape))(inputs)
         dropout_1 = tf.keras.layers.Dropout(dropout_rate)(lstm_1)
         # Separate query and value branches for Attention layer
         query = Dense(hidden_neurons)(dropout_1)
@@ -72,7 +72,7 @@ class Model:
         attention = LayerNormalization()(attention)
 
         dropout_2 = tf.keras.layers.Dropout(dropout_rate)(attention)
-        lstm_2 = Bidirectional(LSTM(hidden_neurons, return_sequences=False, stateful=True, batch_input_shape=(32,) + input_shape))(dropout_2)
+        lstm_2 = Bidirectional(LSTM(hidden_neurons, return_sequences=False, stateful=True, batch_input_shape=(batch:size,) + input_shape))(dropout_2)
         dense_1 = Dense(hidden_neurons, activation="relu")(lstm_2)
         dropout_3 = tf.keras.layers.Dropout(dropout_rate)(dense_1)
         dense_2 = Dense(hidden_neurons, activation="relu")(dropout_3)
@@ -125,6 +125,7 @@ class Model:
         dropout_rate: float = 0.4,
         attention_heads: int = 4,
         loss_fct: str = "mae",
+        batch_size: int = 32,
         strategy=None,
     ):
         """Compile the model."""
@@ -132,10 +133,10 @@ class Model:
         # Check if multiple GPUs are available
         if strategy is not None and hasattr(strategy, "scope"):
             with strategy.scope():
-                model = self._build(hidden_neurons, dropout_rate, attention_heads)
+                model = self._build(hidden_neurons, dropout_rate, attention_heads, batch_size)
                 model.compile(loss=loss_fct, optimizer=optimizer, metrics=["mape"])
         else:
-            model = self._build(hidden_neurons, dropout_rate, attention_heads)
+            model = self._build(hidden_neurons, dropout_rate, attention_heads, batch_size)
             model.compile(loss=loss_fct, optimizer=optimizer, metrics=["mape"])
         model.summary()
         # Plot the model
@@ -154,6 +155,18 @@ class Model:
             print(e)
             logging.error(e)
         self._model = model
+
+    def _adjust_sequence_length(data, batch_size):
+        samples, timesteps, features = data.shape
+        new_timesteps = (timesteps // batch_size) * batch_size
+        num_drop = timesteps - new_timesteps
+        adjusted_data = data[:, :new_timesteps, :]
+
+        if num_drop > 0:
+            # Drop extra timesteps from the end of each sequence
+            adjusted_data = adjusted_data[:, :-num_drop, :]
+
+        return adjusted_data
 
     def fit(
         self,
@@ -207,6 +220,7 @@ class Model:
             validation_split = 0
         # Fit the model
         try:
+            self._adjust_sequence_length(self._x_train, batch_size)
             fit = self._model.fit(
                 self._x_train,
                 self._y_train,
