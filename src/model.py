@@ -57,7 +57,7 @@ class Model:
 
     def _build(self, hidden_neurons: int, dropout_rate: float, attention_heads: int, batch_size: int):
         input_shape = (self._x_train.shape[1], self._x_train.shape[2])
-        inputs = Input(batch_shape=(batch:size,) + input_shape)
+        inputs = Input(batch_shape=(batch_size,) + input_shape)
 
         # LSTM layer
         lstm_1 = Bidirectional(LSTM(hidden_neurons, return_sequences=True, stateful=True, batch_input_shape=(batch_size,) + input_shape))(inputs)
