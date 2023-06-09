@@ -215,10 +215,17 @@ class Model:
         if self._model is None:
             print("Model is not compiled yet, please compile the model first.")
             return
+        # Adjust sequence length
         self._x_train = self._adjust_sequence_length(self._x_train, batch_size)
         self._y_train = self._adjust_sequence_length(self._y_train, batch_size)
-        self._x_train = self._x_train.reshape(-1, batch_size, self._x_train.shape[1], self._x_train.shape[2])
-        self._y_train = self._y_train.reshape(-1, batch_size, self._y_train.shape[1])
+        
+        # Reshape the data to have the batch size as the first dimension
+        num_batches = self._x_train.shape[0] // batch_size
+        self._x_train = self._x_train[:num_batches * batch_size]
+        self._y_train = self._y_train[:num_batches * batch_size]
+        
+        self._x_train = self._x_train.reshape(num_batches, batch_size, self._x_train.shape[1], self._x_train.shape[2])
+        self._y_train = self._y_train.reshape(num_batches, batch_size, self._y_train.shape[1])
         model_checkpoint = ModelCheckpoint(
             filepath=f"{self._path}/checkpoints/{self._name}_train.h5",
             monitor="val_loss",
