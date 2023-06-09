@@ -166,11 +166,16 @@ class Model:
             raise ValueError("Data must be 2D or 3D")
         new_timesteps = (timesteps // batch_size) * batch_size
         num_drop = timesteps - new_timesteps
-        adjusted_data = data[:, :new_timesteps, :]
-
-        if num_drop > 0:
-            # Drop extra timesteps from the end of each sequence
-            adjusted_data = adjusted_data[:, :-num_drop, :]
+        if len(data.shape) == 2:
+            adjusted_data = data[:, :new_timesteps]
+            if num_drop > 0:
+                # Drop extra timesteps from the end of each sequence
+                adjusted_data = adjusted_data[:, :-num_drop]
+        elif len(data.shape) == 3:
+            adjusted_data = data[:, :new_timesteps, :]
+            if num_drop > 0:
+                # Drop extra timesteps from the end of each sequence
+                adjusted_data = adjusted_data[:, :-num_drop, :]
 
         return adjusted_data
 
