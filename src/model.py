@@ -55,12 +55,12 @@ class Model:
         """Return the number of steps ahead that the model is capable of predicting."""
         return self._y_train.shape[1]
 
-    def _build(self, hidden_neurons: int, dropout_rate: float, attention_heads: int):
+    def _build(self, hidden_neurons: int, dropout_rate: float, attention_heads: int, batch_size: int):
         input_shape = (self._x_train.shape[1], self._x_train.shape[2])
-        inputs = Input(shape=input_shape)
+        inputs = Input(batch_shape=(batch_size,) + input_shape)
 
         # LSTM layer
-        lstm_1 = Bidirectional(LSTM(hidden_neurons, return_sequences=True, stateful=True))(inputs)
+        lstm_1 = Bidirectional(LSTM(hidden_neurons, return_sequences=True, stateful=True, batch_input_shape=(batch_size,) + input_shape))(inputs)
         dropout_1 = tf.keras.layers.Dropout(dropout_rate)(lstm_1)
         # Separate query and value branches for Attention layer
         query = Dense(hidden_neurons)(dropout_1)
@@ -72,7 +72,7 @@ class Model:
         attention = LayerNormalization()(attention)
 
         dropout_2 = tf.keras.layers.Dropout(dropout_rate)(attention)
-        lstm_2 = Bidirectional(LSTM(hidden_neurons, return_sequences=False, stateful=True))(dropout_2)
+        lstm_2 = Bidirectional(LSTM(hidden_neurons, return_sequences=False, stateful=True, batch_input_shape=(batch_size,) + input_shape))(dropout_2)
         dense_1 = Dense(hidden_neurons, activation="relu")(lstm_2)
         dropout_3 = tf.keras.layers.Dropout(dropout_rate)(dense_1)
         dense_2 = Dense(hidden_neurons, activation="relu")(dropout_3)
@@ -83,6 +83,7 @@ class Model:
 
         model = KerasModel(inputs=inputs, outputs=output)
         return model
+
 
     def _plot_fit_history(self, fit):
         """Plot the fit history."""
