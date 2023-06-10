@@ -220,7 +220,8 @@ class Model:
         self._y_train = self._adjust_sequence_length(self._y_train, batch_size)
 
         # Calculate the number of samples and features
-        num_samples, num_features = self._x_train.shape
+        num_samples = self._x_train.shape[0]
+        num_features = self._x_train.shape[2]
         
         # Reshape the data to have the sequence length as the first dimension
         self._x_train = self._x_train.reshape(-1, batch_size, num_features)
