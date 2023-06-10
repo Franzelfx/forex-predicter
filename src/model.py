@@ -225,7 +225,7 @@ class Model:
         
         # Reshape the data to have the sequence length as the first dimension
         self._x_train = self._x_train.reshape(-1, batch_size, num_features)
-        self._y_train = self._y_train.reshape(-1, batch_size, self._y_train.shape[1])
+        self._y_train = self._y_train.reshape(-1, batch_size, self._y_train.shape[-1])
         model_checkpoint = ModelCheckpoint(
             filepath=f"{self._path}/checkpoints/{self._name}_train.h5",
             monitor="val_loss",
