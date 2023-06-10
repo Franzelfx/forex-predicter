@@ -55,12 +55,12 @@ class Model:
         """Return the number of steps ahead that the model is capable of predicting."""
         return self._y_train.shape[1]
 
-    def _build(self, hidden_neurons: int, dropout_rate: float, attention_heads: int, batch_size: int):
+    def _build(self, hidden_neurons: int, dropout_rate: float, attention_heads: int):
         input_shape = (self._x_train.shape[1], self._x_train.shape[2])
-        inputs = Input(batch_shape=(batch_size,) + input_shape)
+        inputs = Input(batch_shape=(1,) + input_shape)
 
         # LSTM layer
-        lstm_1 = Bidirectional(LSTM(hidden_neurons, return_sequences=True, stateful=True, batch_input_shape=(batch_size,) + input_shape))(inputs)
+        lstm_1 = Bidirectional(LSTM(hidden_neurons, return_sequences=True, stateful=True, batch_input_shape=(1,) + input_shape))(inputs)
         dropout_1 = tf.keras.layers.Dropout(dropout_rate)(lstm_1)
         # Separate query and value branches for Attention layer
         query = Dense(hidden_neurons)(dropout_1)
@@ -72,7 +72,7 @@ class Model:
         attention = LayerNormalization()(attention)
 
         dropout_2 = tf.keras.layers.Dropout(dropout_rate)(attention)
-        lstm_2 = Bidirectional(LSTM(hidden_neurons, return_sequences=False, stateful=True, batch_input_shape=(batch_size,) + input_shape))(dropout_2)
+        lstm_2 = Bidirectional(LSTM(hidden_neurons, return_sequences=False, stateful=True, batch_input_shape=(1,) + input_shape))(dropout_2)
         dense_1 = Dense(hidden_neurons, activation="relu")(lstm_2)
         dropout_3 = tf.keras.layers.Dropout(dropout_rate)(dense_1)
         dense_2 = Dense(hidden_neurons, activation="relu")(dropout_3)
@@ -125,7 +125,6 @@ class Model:
         dropout_rate: float = 0.4,
         attention_heads: int = 4,
         loss_fct: str = "mae",
-        batch_size: int = 32,
         strategy=None,
     ):
         """Compile the model."""
@@ -133,10 +132,10 @@ class Model:
         # Check if multiple GPUs are available
         if strategy is not None and hasattr(strategy, "scope"):
             with strategy.scope():
-                model = self._build(hidden_neurons, dropout_rate, attention_heads, batch_size)
+                model = self._build(hidden_neurons, dropout_rate, attention_heads)
                 model.compile(loss=loss_fct, optimizer=optimizer, metrics=["mape"])
         else:
-            model = self._build(hidden_neurons, dropout_rate, attention_heads, batch_size)
+            model = self._build(hidden_neurons, dropout_rate, attention_heads)
             model.compile(loss=loss_fct, optimizer=optimizer, metrics=["mape"])
         model.summary()
         # Plot the model
@@ -192,7 +191,6 @@ class Model:
         if self._model is None:
             print("Model is not compiled yet, please compile the model first.")
             return
-        # Create the callbacks
         model_checkpoint = ModelCheckpoint(
             filepath=f"{self._path}/checkpoints/{self._name}_train.h5",
             monitor="val_loss",
@@ -227,11 +225,11 @@ class Model:
             fit = DataFrame(fit.history)
             # Save the fit history
             fit.to_csv(f"{self._path}/fit_history/{self._name}.csv", index=False)
-            return fit
         except Exception as e:
             # Print exception with traceback
             print(e)
             logging.error(e)
+        return fit
 
     def predict(
         self,
