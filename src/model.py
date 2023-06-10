@@ -192,9 +192,6 @@ class Model:
         if self._model is None:
             print("Model is not compiled yet, please compile the model first.")
             return
-        # Remove last sample, as it is not a full batch
-        self._x_train = self._x_train[:-1]
-        self._y_train = self._y_train[:-1]
         # Create the callbacks
         model_checkpoint = ModelCheckpoint(
             filepath=f"{self._path}/checkpoints/{self._name}_train.h5",
