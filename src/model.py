@@ -156,29 +156,6 @@ class Model:
             logging.error(e)
         self._model = model
 
-    def _adjust_sequence_length(self, data, batch_size):
-        # Check for dimensionality
-        if len(data.shape) == 2:
-            samples, timesteps = data.shape
-        elif len(data.shape) == 3:
-            samples, timesteps, features = data.shape
-        else:
-            raise ValueError("Data must be 2D or 3D")
-        new_timesteps = (timesteps // batch_size) * batch_size
-        num_drop = timesteps - new_timesteps
-        if len(data.shape) == 2:
-            adjusted_data = data[:, :new_timesteps]
-            if num_drop > 0:
-                # Drop extra timesteps from the end of each sequence
-                adjusted_data = adjusted_data[:, :-num_drop]
-        elif len(data.shape) == 3:
-            adjusted_data = data[:, :new_timesteps, :]
-            if num_drop > 0:
-                # Drop extra timesteps from the end of each sequence
-                adjusted_data = adjusted_data[:, :-num_drop, :]
-
-        return adjusted_data
-
     def fit(
         self,
         epochs=100,
@@ -215,17 +192,10 @@ class Model:
         if self._model is None:
             print("Model is not compiled yet, please compile the model first.")
             return
-        # Adjust sequence length
-        self._x_train = self._adjust_sequence_length(self._x_train, batch_size)
-        self._y_train = self._adjust_sequence_length(self._y_train, batch_size)
-
-        # Calculate the number of samples and features
-        num_samples = self._x_train.shape[0]
-        num_features = self._x_train.shape[2]
-        
-        # Reshape the data to have the sequence length as the first dimension
-        self._x_train = self._x_train.reshape(-1, batch_size, num_features)
-        self._y_train = self._y_train.reshape(-1, batch_size, self._y_train.shape[-1])
+        # Remove last sample, as it is not a full batch
+        self._x_train = self._x_train[:-1]
+        self._y_train = self._y_train[:-1]
+        # Create the callbacks
         model_checkpoint = ModelCheckpoint(
             filepath=f"{self._path}/checkpoints/{self._name}_train.h5",
             monitor="val_loss",
