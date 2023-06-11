@@ -144,3 +144,12 @@ class Data_Aquirer:
             # Print column count
             print(f"Dataset has {len(data.columns)} columns.")
         return data
+    
+    def get_last_friday(self):
+        now = date.now()
+        closest_friday = now + timedelta(days=(4 - now.weekday()))
+        return (
+            closest_friday
+            if closest_friday < now
+            else closest_friday - timedelta(days=7)
+        )
