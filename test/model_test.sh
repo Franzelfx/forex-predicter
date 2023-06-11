@@ -4,6 +4,11 @@ export API_KEY=kvtkOoyqcuTgNrBqRGIhhLe766CLYbpo
 export START_PAIR=$1
 echo "API_KEY"=$API_KEY
 echo "START_PAIR="$1
+# If no start pair is given, use default
+if [ -z "$START_PAIR" ]
+then
+    export START_PAIR="CADJPY"
+fi
 # Configure the env variables
 source ../venv/bin/activate
 # ------------------------------
