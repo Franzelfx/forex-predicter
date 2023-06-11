@@ -261,7 +261,7 @@ class Model:
         # Predict the output
         # y_pred = model.predict(x_input, steps).flatten()
         print(f"Predict the output for {self._name}.")
-        y_pred = prediction_model.predict(x_input, steps=steps, batch_size=32).flatten()
+        y_pred = prediction_model.predict(x_input, steps=steps).flatten()
         # Reduce to only the output length
         y_pred = y_pred[: self._y_train.shape[1]]
         if scaler is not None:
