@@ -47,12 +47,17 @@ class Data_Aquirer:
     def api_type(self) -> str:
         """Get the API type."""
         return self._api_type
+    
+    @property
+    def time_base(self) -> str:
+        """Get the time base."""
+        return f"{self._time_base} min"
 
-    def _request(self, pair: str, minutes: int, start: str, end: str) -> pd.DataFrame:
+    def _request(self, pair: str, time_base: int, start: str, end: str) -> pd.DataFrame:
         """Do a repeated request with the given parameters."""
         # Get data as long as the last date is not the end date of the previous day
         print(
-            f"Aquiring data for {pair} with {minutes} minutes interval from {start} to {end}"
+            f"Aquiring data for {pair} with {time_base} minutes interval from {start} to {end}"
         )
         data = pd.DataFrame()
         data_return = pd.DataFrame()
@@ -70,7 +75,7 @@ class Data_Aquirer:
         ):
             # Get the data from the API
             print(".", end="", flush=True)
-            url = f"https://api.polygon.io/v2/aggs/ticker/{pair}/range/{minutes}/minute/{last}/{end}?adjusted=true&sort=asc&limit=50000&apiKey={self._api_key}"
+            url = f"https://api.polygon.io/v2/aggs/ticker/{pair}/range/{time_base}/minute/{last}/{end}?adjusted=true&sort=asc&limit=50000&apiKey={self._api_key}"
             response = requests.get(url)
             response = response.json()
             # Check if the request was successful
@@ -101,7 +106,7 @@ class Data_Aquirer:
     def get(
         self,
         pair: str,
-        minutes: int = 1,
+        time_base: int = 1,
         start: str = "2009-01-01",
         end: str = date.today().strftime("%Y-%m-%d"),
         save: bool = False,
@@ -110,7 +115,7 @@ class Data_Aquirer:
         """Get the data from the API or from the csv file.
 
         @param pair: The pair to get the data for (e.g. 'EURUSD').
-        @param minutes: The interval in minutes (e.g. 15min, 5min etc.).
+        @param time_base: The interval in minutes (e.g. 15min, 5min etc.).
         @param start: The start date for the data yyyy-mm-dd (e.g. 2020-01-01).
         @param end: The end date for the data yyyy-mm-dd (e.g. 2022-05-26).
         @param save: If the data should be saved to a csv file.
@@ -118,29 +123,30 @@ class Data_Aquirer:
 
         @return: The data as pandas dataframe.
         """
+        self._time_base = time_base
         if date.today().weekday() in (6, 7):  # Check if today is weekend
             end = self.get_last_friday().strftime("%Y-%m-%d")
             print("It's weekend...")
         if from_file is not None and from_file != "" and from_file != "false":
             csv_pair_name = pair.split(":")[1] if ":" in pair else ""
             try:
-                data = pd.read_csv(f"{self._path}/{csv_pair_name}_{minutes}.csv")
-                print(f"Got data from {self._path}/{csv_pair_name}_{minutes}.csv")
+                data = pd.read_csv(f"{self._path}/{csv_pair_name}_{time_base}.csv")
+                print(f"Got data from {self._path}/{csv_pair_name}_{time_base}.csv")
                 recent_date = data["t"].iloc[-1].split(" ")[0]
                 if recent_date == date.today().strftime("%Y-%m-%d"):
                     recent_date = (date.today() - timedelta(days=1)).strftime("%Y-%m-%d")
-                request = self._request(pair, minutes, recent_date, end)
+                request = self._request(pair, time_base, recent_date, end)
                 data = pd.concat([data, request]).drop_duplicates(subset=["t"], keep='last')
             except FileNotFoundError:
-                print(f"No data for {pair} with {minutes} minutes interval found.")
+                print(f"No data for {pair} with {time_base} minutes interval found.")
                 print("Getting data from API...")
-                data = self._request(pair, minutes, start, end)
+                data = self._request(pair, time_base, start, end)
         else:
-            data = self._request(pair, minutes, start, end)
+            data = self._request(pair, time_base, start, end)
         if save:
             pair = pair.split(":")[1] if ":" in pair else pair
-            print(f"Save data to {self._path}/{pair}_{minutes}.csv")
-            data.to_csv(f"{self._path}/{pair}_{minutes}.csv", index=False)
+            print(f"Save data to {self._path}/{pair}_{time_base}.csv")
+            data.to_csv(f"{self._path}/{pair}_{time_base}.csv", index=False)
             # Print column count
             print(f"Dataset has {len(data.columns)} columns.")
         return data

@@ -29,7 +29,7 @@ class SystemTest(unittest.TestCase):
                 # Get data from the API
                 aquirer = Data_Aquirer(PATH_PAIRS, API_KEY, api_type="full")
                 data = aquirer.get(
-                    pair, MINUTES, start=START, save=True, end=END, from_file=False
+                    pair, MINUTES_TRAIN, start=START, save=True, end=END, from_file=False
                 )
                 # Apply indicators
                 indicators = Indicators(PATH_INDICATORS, pair, data, TEST_INDICATORS)

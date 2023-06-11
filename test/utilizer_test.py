@@ -32,7 +32,7 @@ class UtilizerIntegrationTest(unittest.TestCase):
                 aquirer = Data_Aquirer(PATH_PAIRS, API_KEY, api_type="full")
                 api_data = aquirer.get(
                     pair,
-                    MINUTES,
+                    MINUTES_TEST,
                     start=UTILIZER_START_DATE,
                     end=END,
                     save=True,
@@ -67,7 +67,7 @@ class UtilizerIntegrationTest(unittest.TestCase):
                 visualizer = Visualizer(pair)
                 path = f"{MODEL_PATH}/utilizer_test"
                 visualizer.plot_prediction(
-                    path, y_hat, test_predict=test_predict, test_actual=test_actual
+                    path, y_hat, test_predict=test_predict, test_actual=test_actual, time_base=aquirer.time_base
                 )
             except Exception:
                 traceback.print_exc()

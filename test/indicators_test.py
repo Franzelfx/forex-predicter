@@ -77,7 +77,7 @@ class Test_Indicators(unittest.TestCase):
         plt.plot(self.data['c'], label="close")
         plt.plot(self.data["MA50"], label="MA50")
         plt.legend(loc="upper left")
-        plt.savefig(f"{PATH_INDICATORS}/{PAIR}_{MINUTES}_MA50.png")
+        plt.savefig(f"{PATH_INDICATORS}/{PAIR}_{MINUTES_TRAIN}_MA50.png")
     
     def _plot_indicators_MA200(self):
         """Test the plot_indicators method."""
@@ -89,7 +89,7 @@ class Test_Indicators(unittest.TestCase):
         plt.plot(self.data['c'], label="close")
         plt.plot(self.data["MA200"], label="MA200")
         plt.legend(loc="upper left")
-        plt.savefig(f"{PATH_INDICATORS}/{PAIR}_{MINUTES}_MA200.png")
+        plt.savefig(f"{PATH_INDICATORS}/{PAIR}_{MINUTES_TRAIN}_MA200.png")
 
 if __name__ == '__main__':
     unittest.main()

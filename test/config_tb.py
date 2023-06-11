@@ -25,7 +25,8 @@ logging.basicConfig(
 # Data aquirer
 PATH_PAIRS = os.path.join(currentdir, "pairs")
 PAIR = "C:CADJPY"
-MINUTES = 15
+MINUTES_TRAIN = 1
+MINUTES_TEST = 15
 START = "2018-01-01"
 # Substract 1 hour to get the last full hour
 #END = (date.today() - timedelta(hours=1)).strftime("%Y-%m-%d")
@@ -35,7 +36,7 @@ API_TYPE = "advanced"
 # ---------------------------------- #
 # Indicators
 PATH_INDICATORS = os.path.join(currentdir, "indicators")
-INDICATORS_DATA_SOURCE = f"{PATH_PAIRS}/{PAIR}_{MINUTES}.csv"
+INDICATORS_DATA_SOURCE = f"{PATH_PAIRS}/{PAIR}_{MINUTES_TRAIN}.csv"
 TEST_INDICATORS = [
     "ATR",
     "BOLLINGER",
@@ -99,7 +100,7 @@ TARGET = "c"
 # ---------------------------------- #
 # Preprocessor
 PREPROCESSOR_PATH = os.path.join(currentdir, "preprocessor")
-PREPROCESSOR_DATA_SOURCE = f"{PATH_INDICATORS}/{PAIR}_{MINUTES}.csv"
+PREPROCESSOR_DATA_SOURCE = f"{PATH_INDICATORS}/{PAIR}_{MINUTES_TRAIN}.csv"
 TEST_TIME_STEPS_IN = 960
 TEST_TIME_STEPS_OUT = 96
 TEST_LENGTH = TEST_TIME_STEPS_IN + TEST_TIME_STEPS_OUT

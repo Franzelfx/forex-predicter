@@ -25,7 +25,7 @@ class Test_Model(unittest.TestCase):
         # Data
         aquirer = Data_Aquirer(PATH_PAIRS, API_KEY, api_type="full")
         api_data = aquirer.get(
-            pair, MINUTES, start=START, end=END, save=True, from_file=from_saved_file
+            pair, MINUTES_TRAIN, start=START, end=END, save=True, from_file=from_saved_file
         )
         # Indicators
         indicators = Indicators(PATH_INDICATORS, pair, api_data, TEST_INDICATORS)
