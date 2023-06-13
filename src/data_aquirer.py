@@ -149,7 +149,15 @@ class Data_Aquirer:
             data.to_csv(f"{self._path}/{pair}_{time_base}.csv", index=False)
             # Print column count
             print(f"Dataset has {len(data.columns)} columns.")
+        # Remove all weekends
+        print("Remove all weekends, len before: ", len(data), end=" ")
+        data = self.remove_all_weekends(data)
+        print("len after: ", len(data))
         return data
+    
+    def remove_all_weekends(data: pd.DataFrame) -> pd.DataFrame:
+        """Remove all weekends from the data."""
+        return data[data["t"].dt.dayofweek < 5].reset_index(drop=True)
     
     def get_last_friday(self):
         now = date.now()
