@@ -155,7 +155,7 @@ class Data_Aquirer:
         print("len after: ", len(data))
         return data
     
-    def remove_all_weekends(data: pd.DataFrame) -> pd.DataFrame:
+    def remove_all_weekends(self, data: pd.DataFrame) -> pd.DataFrame:
         """Remove all weekends from the data."""
         return data[data["t"].dt.dayofweek < 5].reset_index(drop=True)
     
