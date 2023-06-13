@@ -51,13 +51,16 @@ class SystemTest(unittest.TestCase):
                     preprocessor.x_train,
                     preprocessor.y_train,
                 )
-                model.compile_and_fit(
-                    epochs=TEST_EPOCHS,
-                    hidden_neurons=TEST_NEURONS,
-                    batch_size=TEST_BATCH_SIZE,
+                model.compile(
                     learning_rate=TEST_LEARNING_RATE,
-                    patience=TEST_PATIENCE,
+                    hidden_neurons=TEST_NEURONS,
+                    strategy=strategy if use_multiple_gpus else None,
+                )
+                model.fit(
+                    epochs=TEST_EPOCHS,
+                    batch_size=TEST_BATCH_SIZE,
                     validation_split=TEST_VALIDATION_SPLIT,
+                    patience=TEST_PATIENCE,
                 )
                 # Predict the next values
                 utilizer = Utilizer(model, preprocessor)
