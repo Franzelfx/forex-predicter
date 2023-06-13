@@ -7,7 +7,6 @@ from datetime import datetime as dt
 class Visualizer:
     """Visualize the results of the model."""
 
-    #TODO: Whole data as input, to get information about
     #      date, time, time iterations, etc.
     def __init__(self, target: str, dark_mode: bool = True):
         """Initialize the visualizer."""
@@ -16,7 +15,6 @@ class Visualizer:
         self.pair = target
         self.dark_mode = dark_mode
 
-    # TODO: Add time information to x-axis
     def plot_prediction(self, path, hat:np.ndarray, test_actual:np.ndarray=None, test_predict:np.ndarray=None, save_csv=True, extra_info="", time_base=None):
         """Plot the prediction."""
         date = dt.now().strftime("%Y-%m-%d_%H-%M-%S")
