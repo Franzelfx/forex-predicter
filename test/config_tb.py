@@ -112,12 +112,12 @@ TEST_SHIFT = TEST_TIME_STEPS_IN # overlap of one means x and y windows are shift
 MODEL_DATA_SOURCE = f"{PREPROCESSOR_DATA_SOURCE}"
 MODEL_PATH = os.path.abspath(os.path.dirname(__file__))
 MODEL_NAME = f"{PAIR}"
-TEST_EPOCHS = 1000
+TEST_EPOCHS = 100
 TEST_NEURONS = 128
 TEST_BATCH_SIZE = 1
-TEST_LEARNING_RATE = 0.0001
-TEST_PATIENCE = 300
-TEST_VALIDATION_SPLIT = 0.1
+TEST_LEARNING_RATE = 0.00005
+TEST_PATIENCE = 15
+TEST_VALIDATION_SPLIT = 0.2
 PATH_TEST_RESULTS = os.path.join(currentdir, "test_results")
 
 # ---------------------------------- #
