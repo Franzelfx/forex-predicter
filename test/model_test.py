@@ -52,7 +52,7 @@ class Test_Model(unittest.TestCase):
         model.compile(
             learning_rate=TEST_LEARNING_RATE,
             hidden_neurons=TEST_NEURONS,
-            strategy=strategy if use_multiple_gpus else None,
+            strategy=strategy if use_multiple_gpus is True or 'true' else None,
         )
         model.fit(
             epochs=TEST_EPOCHS,
