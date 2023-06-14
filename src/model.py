@@ -274,9 +274,9 @@ class Model:
          # Predict the output for each sequence
         y_hat = []
         prediction_model.reset_states()  # Reset the states before prediction
-        for i in range(len(x_hat)):
-            output = prediction_model.predict(np.expand_dims(x_hat[i], axis=0))
-            y_hat.append(output[0, 0])
+        for i in range(x.shape[0]):
+            output = prediction_model.predict(np.expand_dims(x[i], axis=0)).flatten()
+            y_hat.append(output)
 
         # Convert y_hat to numpy array
         y_hat = np.array(y_hat)
