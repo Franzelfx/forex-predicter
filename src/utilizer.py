@@ -33,9 +33,7 @@ class Utilizer():
         """
         # Predict the values
         # Predict the values for each sequence
-        pred = self._model.predict(self._preprocessor.x_train, scaler=self._preprocessor.target_scaler, from_saved_model=True)
-        test = self._model.predict(self._preprocessor.x_test, scaler=self._preprocessor.target_scaler, from_saved_model=True)
-        y_hat = self._model.predict(self._preprocessor.x_hat, scaler=self._preprocessor.target_scaler, from_saved_model=True)
+        test, y_hat = self._model.predict(self._preprocessor.x_test, x_input_hat=self._preprocessor.x_hat, scaler=self._preprocessor.target_scaler, from_saved_model=True)
         # Substract the difference
         first_actual = self.test_actual[0]
         test = test - self._diff(test, first_actual)
