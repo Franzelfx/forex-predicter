@@ -128,7 +128,7 @@ class Model:
         self,
         learning_rate=0.0001,
         hidden_neurons=32,
-        dropout_rate: float = 0.4,
+        dropout_rate: float = 0.2,
         attention_heads: int = 4,
         loss_fct: str = "mae",
         strategy=None,
