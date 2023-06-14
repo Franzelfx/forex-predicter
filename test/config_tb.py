@@ -36,7 +36,7 @@ API_TYPE = "advanced"
 # ---------------------------------- #
 # Indicators
 PATH_INDICATORS = os.path.join(currentdir, "indicators")
-INDICATORS_DATA_SOURCE = f"{PATH_PAIRS}/{PAIR}__{MINUTES_TRAIN}.csv"
+INDICATORS_DATA_SOURCE = f"{PATH_PAIRS}/{PAIR}_{MINUTES_TRAIN}.csv"
 TEST_INDICATORS = [
     "ATR",
     "BOLLINGER",
@@ -101,7 +101,7 @@ TARGET = "c"
 # Preprocessor
 PREPROCESSOR_PATH = os.path.join(currentdir, "preprocessor")
 _PAIR_NAME = PAIR[2:]
-PREPROCESSOR_DATA_SOURCE = f"{PATH_INDICATORS}/{_PAIR_NAME}_indicators.csv"
+PREPROCESSOR_DATA_SOURCE = f"{PATH_INDICATORS}/{_PAIR_NAME}__indicators.csv"
 TEST_TIME_STEPS_IN = 960
 TEST_TIME_STEPS_OUT = 96
 TEST_LENGTH = TEST_TIME_STEPS_IN + TEST_TIME_STEPS_OUT
