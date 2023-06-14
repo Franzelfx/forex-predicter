@@ -13,7 +13,7 @@ fi
 source ../venv/bin/activate
 # ------------------------------
 # Ask User, if multiple GPUs should be used
-read -p "Do you want to use multiple GPUs? (y/n): " answer
+read -p "Do you want to use multiple GPUs? y/[n]: " answer
 if [ "$answer" != "${answer#[Yy]}" ] ;then
     echo "Multiple GPUs will be used"
     export USE_MULTIPLE_GPUS="True"
@@ -22,7 +22,7 @@ else
     export USE_MULTIPLE_GPUS="False"
 fi
 
-read -p "Want to use pair data from saved file? (y/n): " answer
+read -p "Want to use pair data from saved file? y/[n]: " answer
 if [ "$answer" != "${answer#[Yy]}" ] ;then
     echo "Loading from saved file"
     export FROM_SAVED_FILE=true

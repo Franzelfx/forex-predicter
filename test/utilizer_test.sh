@@ -8,7 +8,7 @@ echo "START_PAIR="$1
 source ../venv/bin/activate
 # ------------------------------
 # Ask if want to use saved file
-read -p "Want to use pair data from saved file? (y/n): " answer
+read -p "Want to use pair data from saved file? y/[n]: " answer
 if [ "$answer" != "${answer#[Yy]}" ] ;then
     echo "Loading from saved file"
     export FROM_SAVED_FILE=true
