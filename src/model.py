@@ -26,8 +26,6 @@ os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 class ResetStatesCallback(tf.keras.callbacks.Callback):
     def on_epoch_end(self, epoch, logs=None):
         self.model.reset_states()
-        print("Reset states")
-        sleep(10)
 
 class Model:
     """
