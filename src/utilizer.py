@@ -33,12 +33,7 @@ class Utilizer():
         """
         # Predict the values
         # Predict the values for each sequence
-        for i in range(self._preprocessor.x_train.shape[0]):
-            # Get the input sequence
-            sequence = self._preprocessor.x_train[i]
-            sequence = sequence.reshape(1, self._preprocessor.x_train.shape[1], self._preprocessor.x_train.shape[2])
-            # Predict the output for the sequence
-            pred = self._model.predict(sequence, scaler=self._preprocessor.target_scaler, from_saved_model=True)
+        pred = self._model.predict(self._preprocessor.x_train, scaler=self._preprocessor.target_scaler, from_saved_model=True)
         test = self._model.predict(self._preprocessor.x_test, scaler=self._preprocessor.target_scaler, from_saved_model=True)
         y_hat = self._model.predict(self._preprocessor.x_hat, scaler=self._preprocessor.target_scaler, from_saved_model=True)
         # Substract the difference
