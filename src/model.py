@@ -1,7 +1,7 @@
 """This module contains the model class for the LSTM model."""
 import os
 import logging
-from time import sleep as time
+from time import sleep
 import numpy as np
 import tensorflow as tf
 from pandas import DataFrame
@@ -27,7 +27,7 @@ class ResetStatesCallback(tf.keras.callbacks.Callback):
     def on_epoch_end(self, epoch, logs=None):
         self.model.reset_states()
         print("Reset states")
-        time.delay(5000)
+        sleep(10)
 
 class Model:
     """
