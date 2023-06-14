@@ -25,6 +25,7 @@ os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 class ResetStatesCallback(tf.keras.callbacks.Callback):
     def on_epoch_end(self, epoch, logs=None):
         self.model.reset_states()
+        print("Reset states")
 
 class Model:
     """
@@ -237,14 +238,13 @@ class Model:
 
     def predict(
         self,
-        x_input: np.ndarray,
-        x_input_hat: np.ndarray= None,
-        steps=1,
+        x_hat: np.ndarray,
+        x_train: np.ndarray= None,
+        x_test: np.ndarray = None,
         scaler: MinMaxScaler = None,
         from_saved_model=False,
     ) -> np.ndarray:
         """Predict the output for the given input.
-
         :param np.ndarray x_input: The input data for the prediction as numpy array with shape (samples, time_steps, features).
         :param int steps: The number of steps to predict (one step is all steps for one sample).
 
@@ -254,7 +254,9 @@ class Model:
         path = f"{self._path}/checkpoints/{self._name}_train.h5"
         # Get the model
         if from_saved_model:
-            prediction_model = load_model(path)
+            prediction_model: tf.keras.Model = load_model(path)
+            # Reset the states
+            prediction_model.reset_states()
             print(f"Loaded model from: {path}")
         else:
             # Check if the model has been fitted
@@ -264,20 +266,17 @@ class Model:
                 )
             prediction_model = self._model
         # Predict the output
-        # y_pred = model.predict(x_input, steps).flatten()
-        print(f"Predict the output for {self._name}.")
-        y_pred = prediction_model.predict(x_input, steps=steps).flatten()
-        y_hat = prediction_model.predict(x_input_hat).flatten()
-        # Reduce to only the output length
-        y_pred = y_pred[: self._y_train.shape[1]]
+        if x_train is not None:
+            if x_test is not None:
+                x = np.concatenate((x_train, x_test), axis=0)
+        else:
+            if x_test is not None:
+                x = x_test
+        x = np.concatenate((x, x_hat), axis=0)
+        y_hat = prediction_model.predict(x).flatten()
+        # Scale the output back to the original scale
         if scaler is not None:
-            y_pred = y_pred.reshape(-1, 1)
-            y_pred = scaler.inverse_transform(y_pred)
-            y_pred = y_pred.flatten()
-            print("Scaled back the prediction to original scale.")
-            if y_hat is not None:
-                y_hat = y_hat.reshape(-1, 1)
-                y_hat = scaler.inverse_transform(y_hat)
-                y_hat = y_hat.flatten()
-                return y_pred, y_hat
-        return y_pred
+            y_hat = y_hat.reshape(-1, 1)
+            y_hat = scaler.inverse_transform(y_hat).flatten()
+        return y_hat
+        return 
