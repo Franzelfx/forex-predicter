@@ -36,7 +36,7 @@ class Utilizer():
         for i in range(self._preprocessor.x_train.shape[0]):
             # Get the input sequence
             sequence = self._preprocessor.x_train[i]
-            sequence.reshape(1, preprocessor.x_train.shape[1], preprocessor.x_train.shape[2])
+            sequence.reshape(1, self._preprocessor.x_train.shape[1], self._preprocessor.x_train.shape[2])
             # Predict the output for the sequence
             pred = self._model.predict(sequence, scaler=self._preprocessor.target_scaler, from_saved_model=True)
         test = self._model.predict(self._preprocessor.x_test, scaler=self._preprocessor.target_scaler, from_saved_model=True)
