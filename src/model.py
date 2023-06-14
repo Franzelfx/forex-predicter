@@ -276,7 +276,7 @@ class Model:
         # Predict the output
         print(f"Predicting {len(x)} samples...")
         y_hat = []
-        for i in range(0, len(x_hat), self._batch_size):
+        for i in range(0, len(x), self._batch_size):
             x_batch = x_hat[i:i + self._batch_size]
             y_batch = prediction_model.predict(x_batch, batch_size=self._batch_size, verbose=0).flatten()
             y_hat.append(y_batch)
