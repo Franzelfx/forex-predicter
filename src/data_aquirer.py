@@ -151,13 +151,19 @@ class Data_Aquirer:
             print(f"Dataset has {len(data.columns)} columns.")
         # Remove all weekends
         print("Remove all weekends, len before: ", len(data), end=" ")
-        #data = self.remove_all_weekends(data)
+        data = self.remove_rows_smaller_than(5, data, 'n')
         print("len after: ", len(data))
         return data
     
-    def remove_all_weekends(self, data: pd.DataFrame) -> pd.DataFrame:
-        """Remove all weekends from the data."""
-        return data[data["t"].dt.dayofweek < 5].reset_index(drop=True)
+    def remove_rows_smaller_than(self, offset: int, data: pd.DataFrame, column: str) -> pd.DataFrame:
+        """Remove rows where the value of a specific column is smaller than 5.
+
+        @param data The input DataFrame.
+        @param column The name of the column to filter.
+        @return The filtered DataFrame.
+        """
+        filtered_data = data[data[column] >= offset].reset_index(drop=True)
+        return filtered_data
     
     def get_last_friday(self):
         now = date.now()
