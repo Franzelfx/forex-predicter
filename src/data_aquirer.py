@@ -151,7 +151,7 @@ class Data_Aquirer:
             print(f"Dataset has {len(data.columns)} columns.")
         # Remove all weekends
         print("Remove all weekends, len before: ", len(data), end=" ")
-        data = self.remove_all_weekends(data)
+        #data = self.remove_all_weekends(data)
         print("len after: ", len(data))
         return data
     
