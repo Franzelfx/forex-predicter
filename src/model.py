@@ -273,10 +273,19 @@ class Model:
             if x_test is not None:
                 x = x_test
         x = np.concatenate((x, x_hat), axis=0)
-        y_hat = prediction_model.predict(x).flatten()
+         # Predict the output for each sequence
+        y_hat = []
+        prediction_model.reset_states()  # Reset the states before prediction
+        for i in range(len(x_hat)):
+            output = prediction_model.predict(np.expand_dims(x_hat[i], axis=0))
+            y_hat.append(output[0, 0])
+
+        # Convert y_hat to numpy array
+        y_hat = np.array(y_hat)
+
         # Scale the output back to the original scale
         if scaler is not None:
             y_hat = y_hat.reshape(-1, 1)
             y_hat = scaler.inverse_transform(y_hat).flatten()
+
         return y_hat
-        return 
