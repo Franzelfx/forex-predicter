@@ -272,7 +272,8 @@ class Model:
                 x = x_test
         x = np.vstack((x, x_hat))
         # Predict the output
-        y_hat = prediction_model.predict(x).flatten()
+        print(f"Predicting {len(x)} samples...")
+        y_hat = prediction_model.predict(x, verbose="0").flatten()
         # Scale the output back to the original scale
         if scaler is not None:
             y_hat = y_hat.reshape(-1, 1)
