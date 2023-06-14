@@ -22,6 +22,9 @@ from keras.layers import (
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 
+class ResetStatesCallback(tf.keras.callbacks.Callback):
+    def on_epoch_end(self, epoch, logs=None):
+        self.model.reset_states()
 
 class Model:
     """
@@ -202,6 +205,7 @@ class Model:
             monitor="val_loss", patience=patience, mode="min", verbose=1
         )
         tensorboard = TensorBoard(log_dir=f"{self._path}/tensorboard/{self._name}")
+        reset_states = ResetStatesCallback()
         # Set the validation split
         if (x_val and y_val) is not None:
             validation_split = 0
@@ -214,7 +218,7 @@ class Model:
                 batch_size=batch_size,
                 validation_data=(x_val, y_val) if (x_val and y_val) is not None else None,
                 validation_split=validation_split,
-                callbacks=[tensorboard, model_checkpoint, early_stopping],
+                callbacks=[tensorboard, model_checkpoint, early_stopping, reset_states],
                 shuffle=False,
             )
             # Load the best weights

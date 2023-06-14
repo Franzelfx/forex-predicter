@@ -1,5 +1,6 @@
 """The utilizer module, to use the trained model to predict."""
 import numpy as np
+from logging import warning
 from src.preprocessor import Preprocessor
 from src.model import Model as ModelPreTrained
 
@@ -35,6 +36,9 @@ class Utilizer():
         # Predict the values for each sequence
         test, y_hat = self._model.predict(self._preprocessor.x_test, x_input_hat=self._preprocessor.x_hat, scaler=self._preprocessor.target_scaler, from_saved_model=True)
         # Substract the difference
+        # Warning, if x_test and x_hat are the same
+        if np.array_equal(self._preprocessor.x_test, self._preprocessor.x_hat):
+            warning("x_test and x_hat are the same")
         first_actual = self.test_actual[0]
         test = test - self._diff(test, first_actual)
         y_hat = y_hat - self._diff(y_hat, self._preprocessor.last_known_y)
