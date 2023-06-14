@@ -100,7 +100,8 @@ TARGET = "c"
 # ---------------------------------- #
 # Preprocessor
 PREPROCESSOR_PATH = os.path.join(currentdir, "preprocessor")
-PREPROCESSOR_DATA_SOURCE = f"{PATH_INDICATORS}/{PAIR}_{MINUTES_TRAIN}.csv"
+_PAIR_NAME = PAIR[2:]
+PREPROCESSOR_DATA_SOURCE = f"{PATH_INDICATORS}/{_PAIR_NAME}_indicators.csv"
 TEST_TIME_STEPS_IN = 960
 TEST_TIME_STEPS_OUT = 96
 TEST_LENGTH = TEST_TIME_STEPS_IN + TEST_TIME_STEPS_OUT
