@@ -25,9 +25,9 @@ logging.basicConfig(
 # Data aquirer
 PATH_PAIRS = os.path.join(currentdir, "pairs")
 PAIR = "C:CADJPY"
-MINUTES_TRAIN = 15
-MINUTES_TEST = 15
-START = "2018-01-01"
+MINUTES_TRAIN = 60
+MINUTES_TEST = 60
+START = "2010-01-01"
 # Substract 1 hour to get the last full hour
 END = (date.today() - timedelta(hours=1)).strftime("%Y-%m-%d")
 #END = "2023-01-01"
@@ -116,7 +116,7 @@ MODEL_NAME = f"{PAIR}"
 TEST_EPOCHS = 200
 TEST_NEURONS = 64
 TEST_BATCH_SIZE = 1
-TEST_LEARNING_RATE = 0.00005
+TEST_LEARNING_RATE = 0.0001
 TEST_PATIENCE = 50
 TEST_VALIDATION_SPLIT = 0.2
 PATH_TEST_RESULTS = os.path.join(currentdir, "test_results")
