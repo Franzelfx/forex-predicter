@@ -43,6 +43,7 @@ class Model:
         name: str,
         x_train: np.ndarray,
         y_train: np.ndarray,
+        batch_size: int = 1,
     ):
         # Check if name has ":" in it, if so get characters after it
         if ":" in name:
@@ -52,6 +53,7 @@ class Model:
         self._path = path
         self._x_train = x_train
         self._y_train = y_train
+        self._batch_size = batch_size
         self._model = None
 
     @property
@@ -61,10 +63,10 @@ class Model:
 
     def _build(self, hidden_neurons: int, dropout_rate: float, attention_heads: int):
         input_shape = (self._x_train.shape[1], self._x_train.shape[2])
-        inputs = Input(batch_shape=(None,) + input_shape)
+        inputs = Input(batch_shape=(self._batch_size,) + input_shape)
 
         # LSTM layer
-        lstm_1 = Bidirectional(LSTM(hidden_neurons, return_sequences=True, stateful=True, batch_input_shape=(1,) + input_shape))(inputs)
+        lstm_1 = Bidirectional(LSTM(hidden_neurons, return_sequences=True, stateful=True, batch_input_shape=(self._batch_size,) + input_shape))(inputs)
         dropout_1 = tf.keras.layers.Dropout(dropout_rate)(lstm_1)
         # Separate query and value branches for Attention layer
         query = Dense(hidden_neurons)(dropout_1)
@@ -76,7 +78,7 @@ class Model:
         attention = LayerNormalization()(attention)
 
         dropout_2 = tf.keras.layers.Dropout(dropout_rate)(attention)
-        lstm_2 = Bidirectional(LSTM(hidden_neurons, return_sequences=False, stateful=True, batch_input_shape=(1,) + input_shape))(dropout_2)
+        lstm_2 = Bidirectional(LSTM(hidden_neurons, return_sequences=False, stateful=True, batch_input_shape=(self._batch_size,) + input_shape))(dropout_2)
         dense_1 = Dense(hidden_neurons, activation="relu")(lstm_2)
         dropout_3 = tf.keras.layers.Dropout(dropout_rate)(dense_1)
         dense_2 = Dense(hidden_neurons, activation="relu")(dropout_3)
@@ -273,7 +275,11 @@ class Model:
         x = np.vstack((x, x_hat))
         # Predict the output
         print(f"Predicting {len(x)} samples...")
-        y_hat = prediction_model.predict(x, verbose="0").flatten()
+        y_hat = []
+        for i in range(0, len(x_hat), self._batch_size):
+            x_batch = x_hat[i:i + self._batch_size]
+            y_batch = prediction_model.predict(x_batch, batch_size=self._batch_size, verbose=0).flatten()
+            y_hat.append(y_batch)
         # Scale the output back to the original scale
         if scaler is not None:
             y_hat = y_hat.reshape(-1, 1)
