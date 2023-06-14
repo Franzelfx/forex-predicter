@@ -26,6 +26,7 @@ class ResetStatesCallback(tf.keras.callbacks.Callback):
     def on_epoch_end(self, epoch, logs=None):
         self.model.reset_states()
         print("Reset states")
+        delay(5000)
 
 class Model:
     """
