@@ -255,8 +255,6 @@ class Model:
         # Get the model
         if from_saved_model:
             prediction_model: tf.keras.Model = load_model(path)
-            # Reset the states
-            prediction_model.reset_states()
             print(f"Loaded model from: {path}")
         else:
             # Check if the model has been fitted
