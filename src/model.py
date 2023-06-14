@@ -286,4 +286,6 @@ class Model:
             y_hat = y_hat.reshape(-1, 1)
             y_hat = scaler.inverse_transform(y_hat).flatten()
 
+        print(f"Predicted {len(y_hat)} samples.")
+        print(y_hat)
         return y_hat
