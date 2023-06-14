@@ -234,6 +234,7 @@ class Model:
     def predict(
         self,
         x_input: np.ndarray,
+        x_input_hat: np.ndarray= None,
         steps=1,
         scaler: MinMaxScaler = None,
         from_saved_model=False,
@@ -262,6 +263,7 @@ class Model:
         # y_pred = model.predict(x_input, steps).flatten()
         print(f"Predict the output for {self._name}.")
         y_pred = prediction_model.predict(x_input, steps=steps).flatten()
+        y_hat = prediction_model.predict(x_input_hat).flatten()
         # Reduce to only the output length
         y_pred = y_pred[: self._y_train.shape[1]]
         if scaler is not None:
@@ -269,4 +271,9 @@ class Model:
             y_pred = scaler.inverse_transform(y_pred)
             y_pred = y_pred.flatten()
             print("Scaled back the prediction to original scale.")
+            if y_hat is not None:
+                y_hat = y_hat.reshape(-1, 1)
+                y_hat = scaler.inverse_transform(y_hat)
+                y_hat = y_hat.flatten()
+                return y_pred, y_hat
         return y_pred
