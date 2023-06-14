@@ -99,7 +99,7 @@ TARGET = "c"
 
 # ---------------------------------- #
 # Preprocessor
-PREPROCESSOR_PATH = os.path.join(currentdir, "preprocessor")
+PREPROCESSOR_PATH = os.path.join(currentdir, "preprocessor_test")
 _PAIR_NAME = PAIR[2:]
 PREPROCESSOR_DATA_SOURCE = f"{PATH_INDICATORS}/{_PAIR_NAME}__indicators.csv"
 TEST_TIME_STEPS_IN = 960
