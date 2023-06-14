@@ -36,7 +36,7 @@ API_TYPE = "advanced"
 # ---------------------------------- #
 # Indicators
 PATH_INDICATORS = os.path.join(currentdir, "indicators")
-INDICATORS_DATA_SOURCE = f"{PATH_PAIRS}/{PAIR}_{MINUTES_TRAIN}.csv"
+INDICATORS_DATA_SOURCE = f"{PATH_PAIRS}/{PAIR}__{MINUTES_TRAIN}.csv"
 TEST_INDICATORS = [
     "ATR",
     "BOLLINGER",
