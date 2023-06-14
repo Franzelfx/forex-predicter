@@ -280,6 +280,7 @@ class Model:
             x_batch = x[i:i + self._batch_size]
             y_batch = prediction_model.predict(x_batch, batch_size=self._batch_size, verbose=0).flatten()
             y_hat.append(y_batch)
+            prediction_model.reset_states()
         # Convert to numpy array
         y_hat = np.array(y_hat).flatten()
         # Scale the output back to the original scale
