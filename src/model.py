@@ -168,7 +168,7 @@ class Model:
         patience=40,
         x_val=None,
         y_val=None,
-        validation_split=0.2,
+        validation_split=0.1,
     ) -> DataFrame:
         """Compile and fit the model.
 
