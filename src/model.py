@@ -11,7 +11,7 @@ from datetime import datetime as dt
 from keras.models import load_model
 from keras.models import Model as KerasModel
 from sklearn.preprocessing import MinMaxScaler
-from keras.callbacks import ModelCheckpoint, EarlyStopping, TensorBoard
+from keras.callbacks import ModelCheckpoint, EarlyStopping, TensorBoard, ReduceLROnPlateau
 from keras.layers import (
     LSTM,
     Input,
@@ -197,6 +197,7 @@ class Model:
         if self._model is None:
             print("Model is not compiled yet, please compile the model first.")
             return
+        reset_states = ResetStatesCallback()
         model_checkpoint = ModelCheckpoint(
             filepath=f"{self._path}/checkpoints/{self._name}_train.h5",
             monitor="val_loss",
@@ -208,7 +209,7 @@ class Model:
             monitor="val_loss", patience=patience, mode="min", verbose=1
         )
         tensorboard = TensorBoard(log_dir=f"{self._path}/tensorboard/{self._name}")
-        reset_states = ResetStatesCallback()
+        lr_scheduler = ReduceLROnPlateau(factor=0.5, patience=5, min_lr=0.00001)
         # Set the validation split
         if (x_val and y_val) is not None:
             validation_split = 0
@@ -221,7 +222,7 @@ class Model:
                 batch_size=batch_size,
                 validation_data=(x_val, y_val) if (x_val and y_val) is not None else None,
                 validation_split=validation_split,
-                callbacks=[tensorboard, model_checkpoint, early_stopping, reset_states],
+                callbacks=[tensorboard, model_checkpoint, early_stopping, reset_states, lr_scheduler],
                 shuffle=False,
             )
             # Load the best weights
