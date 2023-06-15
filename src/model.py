@@ -245,6 +245,7 @@ class Model:
         x_train: np.ndarray= None,
         x_test: np.ndarray = None,
         scaler: MinMaxScaler = None,
+        lookback: int = None,
         from_saved_model=False,
     ) -> np.ndarray:
         """Predict the output for the given input.
@@ -277,7 +278,11 @@ class Model:
         # Predict the output
         print(f"Predicting {len(x)} samples...")
         y_hat = []
-        for i in range(0, len(x), self._batch_size):
+        if lookback is not None:
+            lookback = len(x) - lookback
+        else:
+            lookback = 0
+        for i in range(lookback, len(x), self._batch_size):
             x_batch = x[i:i + self._batch_size]
             y_batch = prediction_model.predict(x_batch, batch_size=self._batch_size, verbose=0).flatten()
             y_hat.append(y_batch)
