@@ -51,13 +51,13 @@ class Utilizer:
         #test = test - self._diff(test, first_actual)
         y_hat = y_hat - self._diff(y_hat, self._preprocessor.last_known_y)
         # Smooth the data
-        if box_pts > 0:
+        #if box_pts > 0:
         #    test = self._concat_moving_average(
         #        self._preprocessor.x_test_target_inverse, test, box_pts
         #    )
-            y_hat = self._concat_moving_average(
-                self._preprocessor.x_hat_target_inverse, y_hat, box_pts
-            )
+            #y_hat = self._concat_moving_average(
+            #    self._preprocessor.x_hat_target_inverse, y_hat, box_pts
+            #)
         return y_hat
 
     def _concat_moving_average(
