@@ -28,7 +28,7 @@ class Utilizer:
         """
         return self._preprocessor.y_test_inverse
 
-    def predict(self, box_pts=0, loockback=None) -> tuple[np.ndarray, np.ndarray]:
+    def predict(self, box_pts=0, lookback=None) -> tuple[np.ndarray, np.ndarray]:
         """Get test and hat prediction.
 
         @return Tuple of test and hat prediction.
@@ -40,7 +40,7 @@ class Utilizer:
             x_test=self._preprocessor.x_test,
             x_train=self._preprocessor.x_train,
             scaler=self._preprocessor.target_scaler,
-            loockback=loockback,
+            lookback=lookback,
             from_saved_model=True,
         )
         # Substract the difference
