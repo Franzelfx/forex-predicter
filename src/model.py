@@ -334,16 +334,16 @@ class Model:
             # Drop the extracted from the list
             y_hat = y_hat[: -x_train.shape[0]]
             y_train = np.array(y_train).flatten()
-            print(f"Got {y_train.shape[0]} samples of {self._var_name(y_train)}.")
+            print(f"Got {y_train.shape[0]} samples of x_train.")
         # Extract also the test data if given and drop it from the list.
         if x_test is not None:
             y_test = y_hat[-x_test.shape[0] :]
             y_hat = y_hat[: -x_test.shape[0]]
             y_test = np.array(y_test).flatten()
-            print(f"Got {y_test.shape[0]} samples of {self._var_name(y_test)}.")
+            print(f"Got {y_test.shape[0]} samples of x_test.")
         # Flatten the list
         y_hat = np.array(y_hat).flatten()
-        print(f"Got {y_hat.shape[0]} samples of {self._var_name(y_hat)}.")
+        print(f"Got {y_hat.shape[0]} samples of x_hat.")
 
         # Scale the output back to the original scale
         if scaler is not None:

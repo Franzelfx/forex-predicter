@@ -268,7 +268,7 @@ class Preprocessor:
     def x_test(self) -> np.ndarray:
         """Get the x test data for every feature.
 
-        @return: Last sample of x_train as numpy array in shape of (timesteps, features).
+        @return: Last sample of x_test as numpy array in shape of (timesteps, features).
         """
         return self._x_test
 
@@ -496,10 +496,9 @@ class Preprocessor:
                     self._target
                 ].values
             )
-            if self._shift == None:
-                iterator += steps_in
+            if self._shift is None:
+                iterator += steps_in + steps_out  # Move iterator by steps_in + steps_out
             else:
                 iterator += self._shift
         # TODO: Bug (first value of y_train starts at 2*steps_in)
-        # Dirty fix: Remove first step_in values of x
         return np.array(x), np.array(y)

@@ -58,12 +58,37 @@ class Test_Preprocessor(unittest.TestCase):
         self.assertFalse(x_train.isnull().values.any())
         self.assertFalse(y_train.isnull().values.any())
 
+    def test__test_set(self):
+        """Plot the test set."""
+        test_c = self.preprocessor.feature_test('c')
+        test_ma50 = self.preprocessor.feature_test('MA5')
+        y_test = self.preprocessor.y_test
+        # High dpi for better quality
+        plt.figure(dpi=1200)
+        # Fine line width for better quality
+        plt.rcParams["lines.linewidth"] = 0.25
+        # Plot close price
+        plt.plot(test_c, color="red", label="test_c")
+        # Plot moving average
+        plt.plot(test_ma50, color="green", label="test_ma50")
+        # Plot y_test shifted by the length of the train set
+        y_test = y_test.flatten()
+        plt.plot(
+            np.arange(len(test_c), len(test_c) + len(y_test)),
+            y_test,
+            color="blue",
+            label="y_test",
+        )
+        plt.legend()
+        plt.savefig(f"{PREPROCESSOR_PATH}/test_set.png")
+
+
     def test__train_test_set(self):
         """Plot the train and test set."""
         train_c = self.preprocessor.feature_train('c')
         test_c = self.preprocessor.feature_test('c')
-        train_ma50 = self.preprocessor.feature_train('MA50')
-        test_ma50 = self.preprocessor.feature_test('MA50')
+        train_ma50 = self.preprocessor.feature_train('MA5')
+        test_ma50 = self.preprocessor.feature_test('MA5')
         # High dpi for better quality
         plt.figure(dpi=1200)
         # Fine line width for better quality
