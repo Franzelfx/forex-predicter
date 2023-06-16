@@ -46,10 +46,10 @@ class UtilizerIntegrationTest(unittest.TestCase):
                 preprocessor = Preprocessor(
                     indicator_data,
                     TARGET,
+                    test_length=TEST_LENGTH,
                     time_steps_in=TEST_TIME_STEPS_IN,
                     time_steps_out=TEST_TIME_STEPS_OUT,
-                    scale=TEST_SHIFT,
-                    shift=TEST_SHIFT,
+                    scale=TEST_SCALE,
                 )
                 preprocessor.summary()
                 # Load model
@@ -62,7 +62,7 @@ class UtilizerIntegrationTest(unittest.TestCase):
                 # Directly predict from saved model
                 utilizer = Utilizer(model, preprocessor)
                 test_actual = utilizer.test_actual
-                y_test, y_hat = utilizer.predict(box_pts=TEST_BOX_PTS, lookback=0)
+                y_test, y_hat = utilizer.predict(box_pts=TEST_BOX_PTS, lookback=1)
                 # Visualize prediction
                 visualizer = Visualizer(pair)
                 path = f"{MODEL_PATH}/utilizer_test"
