@@ -39,7 +39,7 @@ class Utilizer:
         x_train = self._preprocessor.x_train[-lookback:]
         y_train, y_test, y_hat = self._model.predict(
             self._preprocessor.x_hat,
-            x_train=self._preprocessor.x_train,
+            x_train=x_train,
             x_test=self._preprocessor.x_test,
             scaler=self._preprocessor.target_scaler,
             from_saved_model=True,
