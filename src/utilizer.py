@@ -43,6 +43,7 @@ class Utilizer:
             scaler=self._preprocessor.target_scaler,
             from_saved_model=True,
         )
+        print(y_hat)
         # Substract the difference
         # Warning, if x_test and x_hat are the same
         if np.array_equal(self._preprocessor.x_test, self._preprocessor.x_hat):
