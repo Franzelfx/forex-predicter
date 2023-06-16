@@ -295,6 +295,8 @@ class Model:
         :remarks:   • If from_saved_model is False, "compile_and_fit()" must be called first.
                     • The predicted values are scaled back to the original scale if a scaler is given.
         """
+        y_train = None
+        y_test = None
         path = f"{self._path}/checkpoints/{self._name}_train.h5"
         # Get the model
         if from_saved_model:
