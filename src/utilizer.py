@@ -36,6 +36,7 @@ class Utilizer:
         # Predict the values
         # Predict the values for each sequence
         print(f"Predicting with a lookback of {lookback}.")
+        x_train = self._preprocessor.x_train[-lookback:]
         y_train, y_test, y_hat = self._model.predict(
             self._preprocessor.x_hat,
             x_train=self._preprocessor.x_train,
