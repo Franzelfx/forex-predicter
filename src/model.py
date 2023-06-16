@@ -353,9 +353,9 @@ class Model:
 
         # Return the predicted values, based on the given input
         return (
-            (y_train, y_test, y_hat)
-            if (x_train and x_test) is not None
+            (y_train.any(), y_test.any(), y_hat.any())
+            if (x_train.any() and x_test.any()) is not None
             else (y_test, y_hat)
-            if x_test is not None
+            if x_test.any() is not None
             else y_hat
         )
