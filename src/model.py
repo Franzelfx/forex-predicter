@@ -10,8 +10,13 @@ from keras.optimizers import Adam
 from datetime import datetime as dt
 from keras.models import load_model
 from keras.models import Model as KerasModel
-from sklearn.preprocessing import MinMaxScaler
-from keras.callbacks import ModelCheckpoint, EarlyStopping, TensorBoard, ReduceLROnPlateau
+from sklearn.preprocessing import StandardScaler
+from keras.callbacks import (
+    ModelCheckpoint,
+    EarlyStopping,
+    TensorBoard,
+    ReduceLROnPlateau,
+)
 from keras.layers import (
     LSTM,
     Input,
@@ -23,9 +28,11 @@ from keras.layers import (
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 
+
 class ResetStatesCallback(tf.keras.callbacks.Callback):
     def on_epoch_end(self, epoch, logs=None):
         self.model.reset_states()
+
 
 class Model:
     """
@@ -61,12 +68,28 @@ class Model:
         """Return the number of steps ahead that the model is capable of predicting."""
         return self._y_train.shape[1]
 
+    def _var_name(self, var):
+        return [tpl[0] for tpl in filter(lambda x: var is x[1], globals().items())][0]
+    
+    def _inverse_transform(self, scaler: StandardScaler, data: np.ndarray) -> np.ndarray:
+        """Inverse transform the data."""
+        data = data.reshape(-1, 1)
+        data = scaler.inverse_transform(data).flatten()
+        return data
+
     def _build(self, hidden_neurons: int, dropout_rate: float, attention_heads: int):
         input_shape = (self._x_train.shape[1], self._x_train.shape[2])
         inputs = Input(batch_shape=(self._batch_size,) + input_shape)
 
         # LSTM layer
-        lstm_1 = Bidirectional(LSTM(hidden_neurons, return_sequences=True, stateful=True, batch_input_shape=(self._batch_size,) + input_shape))(inputs)
+        lstm_1 = Bidirectional(
+            LSTM(
+                hidden_neurons,
+                return_sequences=True,
+                stateful=True,
+                batch_input_shape=(self._batch_size,) + input_shape,
+            )
+        )(inputs)
         dropout_1 = tf.keras.layers.Dropout(dropout_rate)(lstm_1)
         # Separate query and value branches for Attention layer
         query = Dense(hidden_neurons)(dropout_1)
@@ -78,7 +101,14 @@ class Model:
         attention = LayerNormalization()(attention)
 
         dropout_2 = tf.keras.layers.Dropout(dropout_rate)(attention)
-        lstm_2 = Bidirectional(LSTM(hidden_neurons, return_sequences=False, stateful=True, batch_input_shape=(self._batch_size,) + input_shape))(dropout_2)
+        lstm_2 = Bidirectional(
+            LSTM(
+                hidden_neurons,
+                return_sequences=False,
+                stateful=True,
+                batch_input_shape=(self._batch_size,) + input_shape,
+            )
+        )(dropout_2)
         dense_1 = Dense(hidden_neurons, activation="relu")(lstm_2)
         dropout_3 = tf.keras.layers.Dropout(dropout_rate)(dense_1)
         dense_2 = Dense(hidden_neurons, activation="relu")(dropout_3)
@@ -89,7 +119,6 @@ class Model:
 
         model = KerasModel(inputs=inputs, outputs=output)
         return model
-
 
     def _plot_fit_history(self, fit):
         """Plot the fit history."""
@@ -220,9 +249,17 @@ class Model:
                 self._y_train,
                 epochs=epochs,
                 batch_size=batch_size,
-                validation_data=(x_val, y_val) if (x_val and y_val) is not None else None,
+                validation_data=(x_val, y_val)
+                if (x_val and y_val) is not None
+                else None,
                 validation_split=validation_split,
-                callbacks=[tensorboard, model_checkpoint, early_stopping, reset_states, lr_scheduler],
+                callbacks=[
+                    tensorboard,
+                    model_checkpoint,
+                    early_stopping,
+                    reset_states,
+                    lr_scheduler,
+                ],
                 shuffle=False,
             )
             # Load the best weights
@@ -242,10 +279,9 @@ class Model:
     def predict(
         self,
         x_hat: np.ndarray,
-        x_train: np.ndarray= None,
+        x_train: np.ndarray = None,
         x_test: np.ndarray = None,
-        scaler: MinMaxScaler = None,
-        lookback: int = None,
+        scaler: StandardScaler = None,
         from_saved_model=False,
     ) -> np.ndarray:
         """Predict the output for the given input.
@@ -267,7 +303,7 @@ class Model:
                     "The model has not been fitted yet, plase call compile_and_fit() first."
                 )
             prediction_model = self._model
-        # Predict the output
+        # Prepare the input
         if x_train is not None:
             if x_test is not None:
                 x = np.vstack((x_train, x_test))
@@ -276,24 +312,46 @@ class Model:
                 x = x_test
         x = np.vstack((x, x_hat))
         # Predict the output
-        print(f"Predicting {len(x)} samples...")
+        print(f"Predicting {x.shape[0]} samples with {x.shape[1]} timesteps.")
         y_hat = []
-        if lookback is not None:
-            lookback = len(x) - lookback
-        else:
-            lookback = 0
-        for i in range(lookback, len(x), self._batch_size):
-            x_batch = x[i:i + self._batch_size]
-            y_batch = prediction_model.predict(x_batch, batch_size=self._batch_size, verbose=0).flatten()
+        for i in range(0, len(x), self._batch_size):
+            x_batch = x[i : i + self._batch_size]
+            y_batch = prediction_model.predict(
+                x_batch, batch_size=self._batch_size, verbose=0
+            ).flatten()
             y_hat.append(y_batch)
-            prediction_model.reset_states()
-        # Convert to numpy array
+        # Extract the predicted values
+        # When x_train was given, we need to extract x_train from the prediction,
+        # this will be done by taking the last x_train.shape[0] samples from the prediction.
+        if x_train is not None:
+            y_train = y_hat[-x_train.shape[0] :]
+            # Drop the extracted from the list
+            y_hat = y_hat[: -x_train.shape[0]]
+            y_train = np.array(y_train).flatten()
+            print(f"Got {y_train.shape[0]} samples of {self._var_name(y_train)}.")
+        # Extract also the test data if given and drop it from the list.
+        if x_test is not None:
+            y_test = y_hat[-x_test.shape[0] :]
+            y_hat = y_hat[: -x_test.shape[0]]
+            y_test = np.array(y_test).flatten()
+            print(f"Got {y_test.shape[0]} samples of {self._var_name(y_test)}.")
+        # Flatten the list
         y_hat = np.array(y_hat).flatten()
+        print(f"Got {y_hat.shape[0]} samples of {self._var_name(y_hat)}.")
+
         # Scale the output back to the original scale
         if scaler is not None:
-            y_hat = y_hat.reshape(-1, 1)
-            y_hat = scaler.inverse_transform(y_hat).flatten()
+            y_hat = self._inverse_transform(y_hat, scaler)
+            if x_train is not None:
+                y_train = self._inverse_transform(y_train, scaler)
+            if x_test is not None:
+                y_test = self._inverse_transform(y_test, scaler)
 
-        print(f"Predicted {len(y_hat)} samples.")
-        print(y_hat)
-        return y_hat
+        # Return the predicted values, based on the given input
+        return (
+            (y_train, y_test, y_hat)
+            if (x_train and x_test) is not None
+            else (y_test, y_hat)
+            if x_test is not None
+            else y_hat
+        )

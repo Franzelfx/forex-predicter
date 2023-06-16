@@ -35,12 +35,12 @@ class Utilizer:
         """
         # Predict the values
         # Predict the values for each sequence
-        y_hat = self._model.predict(
+        x_train = self._preprocessor.x_train[-lookback:, :, :]
+        y_train, y_test, y_hat = self._model.predict(
             self._preprocessor.x_hat,
+            x_train=x_train,
             x_test=self._preprocessor.x_test,
-            x_train=self._preprocessor.x_train,
             scaler=self._preprocessor.target_scaler,
-            lookback=lookback,
             from_saved_model=True,
         )
         # Substract the difference
@@ -48,17 +48,17 @@ class Utilizer:
         if np.array_equal(self._preprocessor.x_test, self._preprocessor.x_hat):
             warning("x_test and x_hat are the same")
         first_actual = self.test_actual[0]
-        #test = test - self._diff(test, first_actual)
+        y_test = y_test - self._diff(y_test, first_actual)
         y_hat = y_hat - self._diff(y_hat, self._preprocessor.last_known_y)
         # Smooth the data
-        #if box_pts > 0:
-        #    test = self._concat_moving_average(
-        #        self._preprocessor.x_test_target_inverse, test, box_pts
-        #    )
-            #y_hat = self._concat_moving_average(
-            #    self._preprocessor.x_hat_target_inverse, y_hat, box_pts
-            #)
-        return y_hat
+        if box_pts > 0:
+            y_test = self._concat_moving_average(
+                self._preprocessor.x_test_target_inverse, test, box_pts
+            )
+            y_hat = self._concat_moving_average(
+                self._preprocessor.x_hat_target_inverse, y_hat, box_pts
+            )
+        return y_test, y_hat
 
     def _concat_moving_average(
         self, x_hat: np.ndarray, y_hat: np.ndarray, period: int
