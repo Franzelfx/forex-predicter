@@ -69,7 +69,11 @@ class Model:
         return self._y_train.shape[1]
 
     def _var_name(self, var):
-        return [tpl[0] for tpl in filter(lambda x: var is x[1], globals().items())][0]
+        variable_names = [tpl[0] for tpl in filter(lambda x: var is x[1], globals().items())]
+        if variable_names:
+            return variable_names[0]
+        else:
+            return None
     
     def _inverse_transform(self, scaler: StandardScaler, data: np.ndarray) -> np.ndarray:
         """Inverse transform the data."""
