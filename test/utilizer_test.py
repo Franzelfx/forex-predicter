@@ -62,12 +62,12 @@ class UtilizerIntegrationTest(unittest.TestCase):
                 # Directly predict from saved model
                 utilizer = Utilizer(model, preprocessor)
                 test_actual = utilizer.test_actual
-                y_test, y_hat = utilizer.predict(box_pts=TEST_BOX_PTS, lookback=1)
+                y_test, y_hat = utilizer.predict(box_pts=TEST_BOX_PTS, lookback=10)
                 # Visualize prediction
                 visualizer = Visualizer(pair)
                 path = f"{MODEL_PATH}/utilizer_test"
                 visualizer.plot_prediction(
-                    path, y_hat, test_actual=test_actual, test_predict=y_test, time_base=aquirer.time_base
+                    path, y_hat, test_actual=test_actual, time_base=aquirer.time_base
                 )
             except Exception:
                 traceback.print_exc()
