@@ -283,8 +283,8 @@ class Model:
     def predict(
         self,
         x_hat: np.ndarray,
-        x_train: np.ndarray = None,
-        x_test: np.ndarray = None,
+        x_train: np.ndarray = np.array([]),
+        x_test: np.ndarray = np.array([]),
         scaler: StandardScaler = None,
         from_saved_model=False,
     ) -> np.ndarray:
@@ -310,12 +310,10 @@ class Model:
                 )
             prediction_model = self._model
         # Prepare the input
-        if x_train is not None:
-            if x_test is not None:
-                x = np.vstack((x_train, x_test))
-        else:
-            if x_test is not None:
-                x = x_test
+        print(f"x_train samples: {x_train.shape[0]}")
+        print(f"x_test samples: {x_test.shape[0]}")
+        print(f"x_hat samples: {x_hat.shape[0]}")
+        x = np.vstack((x_train, x_test))
         x = np.vstack((x, x_hat))
         # Predict the output
         print(f"Predicting {x.shape[0]} samples with {x.shape[1]} timesteps.")
@@ -334,16 +332,13 @@ class Model:
             # Drop the extracted from the list
             y_hat = y_hat[: -x_train.shape[0]]
             y_train = np.array(y_train).flatten()
-            print(f"Got {y_train.shape[0]} samples of x_train.")
         # Extract also the test data if given and drop it from the list.
         if x_test is not None:
             y_test = y_hat[-x_test.shape[0] :]
             y_hat = y_hat[: -x_test.shape[0]]
             y_test = np.array(y_test).flatten()
-            print(f"Got {y_test.shape[0]} samples of x_test.")
         # Flatten the list
         y_hat = np.array(y_hat).flatten()
-        print(f"Got {y_hat.shape[0]} samples of x_hat.")
 
         # Scale the output back to the original scale
         if scaler is not None:
