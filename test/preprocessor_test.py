@@ -22,7 +22,7 @@ class Test_Preprocessor(unittest.TestCase):
             time_steps_out=TEST_TIME_STEPS_OUT,
             scale=TEST_SCALE,
         )
-    
+
     def test_print_summary(self):
         """Print the summary of the preprocessor."""
         self.preprocessor.summary()
@@ -36,7 +36,7 @@ class Test_Preprocessor(unittest.TestCase):
         """Test the y_train attribute."""
         # Check shape of y_train, has to be (samples, time_steps_out)
         self.assertEqual(self.preprocessor.y_train.shape[1], TEST_TIME_STEPS_OUT)
-    
+
     def test_x_test(self):
         """Test the x_test attribute."""
         self.assertEqual(self.preprocessor.x_test.shape[1], TEST_TIME_STEPS_IN)
@@ -48,7 +48,9 @@ class Test_Preprocessor(unittest.TestCase):
     def test_x_test_x_hat(self):
         """Test the x_test_x_hat attribute."""
         # x_test and x_hat has to be different
-        self.assertFalse(np.array_equal(self.preprocessor.x_test, self.preprocessor.x_hat))
+        self.assertFalse(
+            np.array_equal(self.preprocessor.x_test, self.preprocessor.x_hat)
+        )
 
     def test_nan_values(self):
         """Test if the data contains NaN values."""
@@ -60,21 +62,25 @@ class Test_Preprocessor(unittest.TestCase):
 
     def test__test_set(self):
         """Plot the test set."""
-        test_c = self.preprocessor.feature_test('c')
-        test_ma50 = self.preprocessor.feature_test('MA5')
+        x_test_c = self.preprocessor.x_test[
+            :, :, self.preprocessor.loc_of(self.preprocessor.target)
+        ].flatten()
+        x_test_ma5 = self.preprocessor.x_test[
+            :, :, self.preprocessor.loc_of("MA5")
+        ].flatten()
         y_test = self.preprocessor.y_test
         # High dpi for better quality
         plt.figure(dpi=1200)
         # Fine line width for better quality
         plt.rcParams["lines.linewidth"] = 0.25
         # Plot close price
-        plt.plot(test_c, color="red", label="test_c")
+        plt.plot(x_test_c, color="red", label="test_c")
         # Plot moving average
-        plt.plot(test_ma50, color="green", label="test_ma50")
+        plt.plot(x_test_ma5, color="green", label="test_ma50")
         # Plot y_test shifted by the length of the train set
         y_test = y_test.flatten()
         plt.plot(
-            np.arange(len(test_c), len(test_c) + len(y_test)),
+            np.arange(len(x_test_c), len(x_test_c) + len(y_test)),
             y_test,
             color="blue",
             label="y_test",
@@ -82,13 +88,12 @@ class Test_Preprocessor(unittest.TestCase):
         plt.legend()
         plt.savefig(f"{PREPROCESSOR_PATH}/test_set.png")
 
-
     def test__train_test_set(self):
         """Plot the train and test set."""
-        train_c = self.preprocessor.feature_train('c')
-        test_c = self.preprocessor.feature_test('c')
-        train_ma50 = self.preprocessor.feature_train('MA5')
-        test_ma50 = self.preprocessor.feature_test('MA5')
+        train_c = self.preprocessor.feature_train("c")
+        test_c = self.preprocessor.feature_test("c")
+        train_ma50 = self.preprocessor.feature_train("MA5")
+        test_ma50 = self.preprocessor.feature_test("MA5")
         # High dpi for better quality
         plt.figure(dpi=1200)
         # Fine line width for better quality
@@ -128,9 +133,9 @@ class Test_Preprocessor(unittest.TestCase):
         x_train_target_cs.to_csv(f"{PREPROCESSOR_PATH}/x_train_target.csv")
         y_train_target_cs.to_csv(f"{PREPROCESSOR_PATH}/y_train_target.csv")
         # Get first n_time_steps_out values of second x_train sample
-        x_train_target_plt = x_train_target[1, :self.preprocessor.time_steps_out]
+        x_train_target_plt = x_train_target[1, : self.preprocessor.time_steps_out]
         # Get last n_time_steps_out values of first y_train sample
-        y_train_target_plt = y_train_target[0, -self.preprocessor.time_steps_out:]
+        y_train_target_plt = y_train_target[0, -self.preprocessor.time_steps_out :]
         # Plot the values in subplots
         fig, axs = plt.subplots(2, 1)
         # High dpi for better quality
@@ -162,18 +167,22 @@ class Test_Preprocessor(unittest.TestCase):
         axs[0].legend()
         axs[1].legend()
         plt.savefig(f"{PREPROCESSOR_PATH}/x_y_train.png")
-    
+
     def test___y_train_prediction(self):
         """Test if the y_train prediction is correct."""
         # Get last sample of y_train
-        x_test = self.preprocessor.x_test[-1, :, self.preprocessor.loc_of(self.preprocessor.target)]
+        x_test = self.preprocessor.x_test[
+            -1, :, self.preprocessor.loc_of(self.preprocessor.target)
+        ]
         y_test = self.preprocessor.y_test[-1, :]
         # Get prediction sample
-        x_hat = self.preprocessor.x_hat[-1, :, self.preprocessor.loc_of(self.preprocessor.target)]
+        x_hat = self.preprocessor.x_hat[
+            -1, :, self.preprocessor.loc_of(self.preprocessor.target)
+        ]
         # Extract the lastn_time_steps_out values of x_test
-        #x_test = x_test[-self.preprocessor.time_steps_out:]
+        # x_test = x_test[-self.preprocessor.time_steps_out:]
         # Extract the last n_time_steps_out values of x_predict
-        #x_hat = x_hat[-self.preprocessor.time_steps_out:]
+        # x_hat = x_hat[-self.preprocessor.time_steps_out:]
         # Plot the values in subplots
         fig, axs = plt.subplots(3, 1)
         # High dpi for better quality
@@ -219,6 +228,6 @@ class Test_Preprocessor(unittest.TestCase):
         axs[2].legend()
         plt.savefig(f"{PREPROCESSOR_PATH}/y_train_prediction.png")
 
-    
+
 if __name__ == "__main__":
     unittest.main()
