@@ -345,11 +345,11 @@ class Model:
 
         # Scale the output back to the original scale
         if scaler is not None:
-            y_hat = self._inverse_transform(y_hat, scaler)
+            y_hat = self._inverse_transform(scaler, y_hat)
             if x_train is not None:
-                y_train = self._inverse_transform(y_train, scaler)
+                y_train = self._inverse_transform(scaler, y_train)
             if x_test is not None:
-                y_test = self._inverse_transform(y_test, scaler)
+                y_test = self._inverse_transform(scaler, y_test)
 
         # Return the predicted values, based on the given input
         return (
