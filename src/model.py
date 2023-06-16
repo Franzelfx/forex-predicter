@@ -352,10 +352,4 @@ class Model:
                 y_test = self._inverse_transform(scaler, y_test)
 
         # Return the predicted values, based on the given input
-        return (
-            (y_train.any(), y_test.any(), y_hat.any())
-            if (x_train.any() and x_test.any()) is not None
-            else (y_test, y_hat)
-            if x_test.any() is not None
-            else y_hat
-        )
+        return y_train, y_test, y_hat
