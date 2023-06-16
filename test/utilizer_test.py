@@ -62,7 +62,7 @@ class UtilizerIntegrationTest(unittest.TestCase):
                 # Directly predict from saved model
                 utilizer = Utilizer(model, preprocessor)
                 test_actual = utilizer.test_actual
-                y_test, y_hat = utilizer.predict(box_pts=TEST_BOX_PTS, lookback=1)
+                y_test, y_hat = utilizer.predict(box_pts=TEST_BOX_PTS, lookback=0)
                 # Visualize prediction
                 visualizer = Visualizer(pair)
                 path = f"{MODEL_PATH}/utilizer_test"
