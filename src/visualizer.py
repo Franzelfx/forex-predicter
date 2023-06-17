@@ -63,5 +63,9 @@ class Visualizer:
         if save_csv:
             path = f"{path}"
             df = pd.DataFrame({"prediction": hat})
+            if test_actual is not None:
+                df["actual"] = test_actual
+            if test_predict is not None:
+                df["test_prediction"] = test_predict
             df.to_csv(f"{path}.csv", index=False, )
             print(f"Saved data to {path}.csv")
