@@ -1,7 +1,6 @@
 """This module contains the model class for the LSTM model."""
 import os
 import logging
-from time import sleep
 import numpy as np
 import tensorflow as tf
 from pandas import DataFrame
@@ -25,6 +24,7 @@ from keras.layers import (
     LayerNormalization,
     MultiHeadAttention,
 )
+import numpy as np
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 
@@ -36,13 +36,45 @@ class ResetStatesCallback(tf.keras.callbacks.Callback):
 
 class Model:
     """
-    Model for Time Series Prediction.
+    Model for Time Series Prediction
+    =====
 
-    :param str path: Path to the directory where the model will be saved.
-    :param str name: Name of the model.
-    :param np.ndarray x_train: The training input data.
-    :param np.ndarray y_train: The training output data.
+    Parameters
+    ----------
+    path 
+        :obj:`str` -> Path to save the model
+    name
+        :obj:`str` -> Name of the model
+    x_train
+        :obj:`np.ndarray` -> Training data input shape (samples, time_steps_in, features)
+    y_train
+        :obj:`np.ndarray` -> Training data output shape (samples, time_steps_out)
+    batch_size
+        :obj:`int` -> Batch size for training in fit method
+
+    Attributes
+    ----------
+    steps_ahead
+        :obj:`int`
+        Number of steps ahead to predict
+    
+    Examples
+    --------
+    >>> from src.model import Model
+    >>> model = Model(
+    ...     path="models",
+    ...     name="model",
+    ...     x_train=x_train,
+    ...     y_train=y_train,
+    ...     batch_size=1,
+    ... )
+    >>> model.compile()
+    >>> model.fit(epochs=10)
+    >>> model.predict(x_test)
+    ...
     """
+
+
 
     def __init__(
         self,
@@ -65,7 +97,7 @@ class Model:
 
     @property
     def steps_ahead(self) -> int:
-        """Return the number of steps ahead that the model is capable of predicting."""
+        """Get the steps ahead."""
         return self._y_train.shape[1]
 
     def _var_name(self, var):

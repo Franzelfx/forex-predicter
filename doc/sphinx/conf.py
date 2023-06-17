@@ -1,5 +1,9 @@
 import os
 import sys
+from sphinx.highlighting import lexers
+from pygments.lexers.python import PythonLexer
+from sphinx.highlighting import PygmentsBridge
+
 sys.path.insert(0, os.path.abspath('../../'))
 
 # Configuration file for the Sphinx documentation builder.
@@ -19,11 +23,10 @@ release = '2023.06.02'
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.napoleon', 'sphinx.ext.viewcode', 'myst_parser']
+extensions = ['sphinx.ext.autodoc', 'sphinx.ext.viewcode', 'm2r', 'numpydoc']
 
 templates_path = ['_templates']
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
-
+exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', 'test']
 
 
 # -- Options for HTML output -------------------------------------------------
@@ -45,9 +48,17 @@ html_css_files = ['custom.css']
 def run_apidoc(_):
     from sphinx.ext.apidoc import main
     output_path = os.path.join(os.path.dirname(__file__), '_modules')
-    modules_path = os.path.abspath('../../')
+    modules_path = os.path.abspath('../../src')
     main(['-e', '-M', '-o', output_path, modules_path])
 
+def add_custom_css(app):
+    app.add_css_file('custom.css')
 
+# Register the setup function to be called when building the documentation
 def setup(app):
     app.connect('builder-inited', run_apidoc)
+    app.connect('builder-inited', add_custom_css)
+    app.add_role('highlight', PygmentsBridge())
+    app.add_css_file('custom.css')
+    app.connect('builder-inited', add_custom_css)
+    app.add_css_file('custom.css')

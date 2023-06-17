@@ -30,7 +30,7 @@ MINUTES_TEST = 60
 START = "2020-01-01"
 # Substract 1 hour to get the last full hour
 END = (date.today() - timedelta(hours=1)).strftime("%Y-%m-%d")
-#END = "2023-01-01"
+END = "2023-06-16"
 API_TYPE = "advanced"
 
 # ---------------------------------- #

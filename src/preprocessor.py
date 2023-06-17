@@ -500,5 +500,4 @@ class Preprocessor:
                 iterator += steps_in + steps_out  # Move iterator by steps_in + steps_out
             else:
                 iterator += self._shift
-        # TODO: Bug (first value of y_train starts at 2*steps_in)
         return np.array(x), np.array(y)
