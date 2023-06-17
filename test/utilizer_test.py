@@ -65,7 +65,7 @@ class UtilizerIntegrationTest(unittest.TestCase):
                 test_actual = utilizer.test_actual
                 # Check if x_test and x_hat are the same
                 self.assertFalse(
-                    np.array_equal(utilizer.preprocessor.x_test, utilizer.preprocessor.x_hat)
+                    np.array_equal(preprocessor.x_test, preprocessor.x_hat)
                 )
                 y_test, y_hat = utilizer.predict(box_pts=TEST_BOX_PTS, lookback=10)
                 # Visualize prediction
