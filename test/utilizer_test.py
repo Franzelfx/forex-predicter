@@ -1,6 +1,7 @@
 """Testbench for the utilizer module."""
 import unittest
 import traceback
+import numpy as np
 from config_tb import *
 from src.model import Model
 from src.utilizer import Utilizer
@@ -62,6 +63,10 @@ class UtilizerIntegrationTest(unittest.TestCase):
                 # Directly predict from saved model
                 utilizer = Utilizer(model, preprocessor)
                 test_actual = utilizer.test_actual
+                # Check if x_test and x_hat are the same
+                self.assertFalse(
+                    np.array_equal(utilizer.preprocessor.x_test, utilizer.preprocessor.x_hat)
+                )
                 y_test, y_hat = utilizer.predict(box_pts=TEST_BOX_PTS, lookback=10)
                 # Visualize prediction
                 visualizer = Visualizer(pair)
