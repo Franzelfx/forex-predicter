@@ -39,6 +39,8 @@ class Utilizer:
         print(f"Predicting with a lookback of {lookback}.")
         if lookback is not None and lookback > 0:
             x_train = self._preprocessor.x_train[-lookback:]
+        else:
+            x_train = self._preprocessor.x_train
         y_train, y_test, y_hat = self._model.predict(
             self._preprocessor.x_hat,
             x_train=x_train,
