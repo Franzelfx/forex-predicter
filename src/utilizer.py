@@ -35,13 +35,13 @@ class Utilizer:
         """
         # Predict the values
         # Predict the values for each sequence
-        x_train = None
+        x_train = np.array([])
         print(f"Predicting with a lookback of {lookback}.")
         if lookback is not None and lookback > 0:
             x_train = self._preprocessor.x_train[-lookback:]
         y_train, y_test, y_hat = self._model.predict(
             self._preprocessor.x_hat,
-            x_train=x_train if lookback is not None else None,
+            x_train=x_train,
             x_test=self._preprocessor.x_test,
             scaler=self._preprocessor.target_scaler,
             from_saved_model=True,
