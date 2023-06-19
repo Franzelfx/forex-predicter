@@ -36,7 +36,8 @@ class Utilizer:
         # Predict the values
         # Predict the values for each sequence
         print(f"Predicting with a lookback of {lookback}.")
-        x_train = self._preprocessor.x_train[-lookback:]
+        if lookback is not None and lookback > 0:
+            x_train = self._preprocessor.x_train[-lookback:]
         y_train, y_test, y_hat = self._model.predict(
             self._preprocessor.x_hat,
             x_train=x_train,
@@ -50,7 +51,7 @@ class Utilizer:
         if np.array_equal(self._preprocessor.x_test, self._preprocessor.x_hat):
             warning("x_test and x_hat are the same")
         first_actual = self.test_actual[0]
-        #y_test = y_test - self._diff(y_test, first_actual)
+        y_test = y_test - self._diff(y_test, first_actual)
         y_hat = y_hat - self._diff(y_hat, self._preprocessor.last_known_y)
         # Smooth the data
         if box_pts > 0:
