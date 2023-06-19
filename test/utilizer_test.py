@@ -67,7 +67,7 @@ class UtilizerIntegrationTest(unittest.TestCase):
                 self.assertFalse(
                     np.array_equal(preprocessor.x_test, preprocessor.x_hat)
                 )
-                y_test, y_hat = utilizer.predict(box_pts=TEST_BOX_PTS, lookback=0)
+                y_test, y_hat = utilizer.predict(box_pts=TEST_BOX_PTS, lookback=TEST_LOOKBACK)
                 # Visualize prediction
                 visualizer = Visualizer(pair)
                 path = f"{MODEL_PATH}/utilizer_test"

@@ -345,6 +345,7 @@ class Model:
         print(f"x_train samples: {x_train.shape[0]}")
         print(f"x_test samples: {x_test.shape[0]}")
         print(f"x_hat samples: {x_hat.shape[0]}")
+        #BUG: wrong vstacking
         if x_train.shape[0] > 0:
             x = np.vstack((x_train, x_test))
             x = np.vstack((x, x_hat))
