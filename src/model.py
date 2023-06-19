@@ -345,8 +345,14 @@ class Model:
         print(f"x_train samples: {x_train.shape[0]}")
         print(f"x_test samples: {x_test.shape[0]}")
         print(f"x_hat samples: {x_hat.shape[0]}")
-        x = np.vstack((x_train, x_test))
-        x = np.vstack((x, x_hat))
+        if x_train.shape[0] > 0:
+            x = np.vstack((x_train, x_test))
+            x = np.vstack((x, x_hat))
+        else:
+            if x_test.shape[0] > 0:
+                x = np.vstack((x_test, x_hat))
+            else:
+                x = x_hat
         # Predict the output
         print(f"Predicting {x.shape[0]} samples with {x.shape[1]} timesteps.")
         y_hat = []
