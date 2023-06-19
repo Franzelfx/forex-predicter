@@ -35,6 +35,7 @@ class Utilizer:
         """
         # Predict the values
         # Predict the values for each sequence
+        x_train = None
         print(f"Predicting with a lookback of {lookback}.")
         if lookback is not None and lookback > 0:
             x_train = self._preprocessor.x_train[-lookback:]
