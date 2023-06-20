@@ -64,6 +64,8 @@ class Utilizer:
             y_hat = self._concat_moving_average(
                 self._preprocessor.x_hat_target_inverse, y_hat, box_pts
             )
+        # Concat y_train and y_test
+        y_test = np.concatenate((y_train, y_test), axis=0)
         return y_test, y_hat
 
     def _concat_moving_average(
