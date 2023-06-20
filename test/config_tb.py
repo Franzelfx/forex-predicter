@@ -27,7 +27,7 @@ PATH_PAIRS = os.path.join(currentdir, "pairs")
 PAIR = "C:CADJPY"
 MINUTES_TRAIN = 15
 MINUTES_TEST = 15
-START = "2020-01-01"
+START = "2018-01-01"
 # Substract 1 hour to get the last full hour
 END = (date.today() - timedelta(hours=1)).strftime("%Y-%m-%d")
 #END = "2023-06-16"
@@ -59,7 +59,7 @@ INDICATORS_DATA_SOURCE = f"{PATH_PAIRS}/{pair_name}_{MINUTES_TRAIN}.csv"
 #     "PLUS_DI",
 #     "PLUS_DM",
 # ]
-TEST_INDICATORS = ["BOLLINGER",'MA5' , "VoRSI"]
+TEST_INDICATORS = ["BOLLINGER",'MA5' , "MA25", "VoRSI"]
 EXPECTED_COLUMNS = [
     "v",
     "vw",
@@ -94,14 +94,14 @@ EXPECTED_COLUMNS = [
     "PLUS_DI",
     "PLUS_DM",
 ]
-TARGET = "c"
+TARGET = "MA5"
 
 # ---------------------------------- #
 # Preprocessor
 PREPROCESSOR_PATH = os.path.join(currentdir, "preprocessor_test")
 _PAIR_NAME = PAIR[2:]
 PREPROCESSOR_DATA_SOURCE = f"{PATH_INDICATORS}/{_PAIR_NAME}__indicators.csv"
-TEST_TIME_STEPS_IN = 960
+TEST_TIME_STEPS_IN = 192
 TEST_TIME_STEPS_OUT = 96
 TEST_LENGTH = TEST_TIME_STEPS_IN + TEST_TIME_STEPS_OUT
 TEST_SCALE = True
@@ -113,7 +113,7 @@ MODEL_DATA_SOURCE = f"{PREPROCESSOR_DATA_SOURCE}"
 MODEL_PATH = os.path.abspath(os.path.dirname(__file__))
 MODEL_NAME = f"{PAIR}"
 TEST_EPOCHS = 200
-TEST_NEURONS = 128
+TEST_NEURONS = 256
 TEST_BATCH_SIZE = 1
 TEST_LEARNING_RATE = 0.0001
 TEST_PATIENCE = 50
