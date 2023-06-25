@@ -72,7 +72,7 @@ class UtilizerIntegrationTest(unittest.TestCase):
                 visualizer = Visualizer(pair)
                 path = f"{MODEL_PATH}/utilizer_test"
                 visualizer.plot_prediction(
-                    path, y_hat, test_actual=test_actual, test_predict=y_test, time_base=aquirer.time_base
+                    path, y_hat, test_actual=test_actual, time_base=aquirer.time_base
                 )
             except Exception:
                 traceback.print_exc()
