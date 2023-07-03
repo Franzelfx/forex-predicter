@@ -71,6 +71,10 @@ class UtilizerIntegrationTest(unittest.TestCase):
                 # Visualize prediction
                 visualizer = Visualizer(pair)
                 path = f"{MODEL_PATH}/utilizer_test"
+                # Get last 5 samples of test data
+                x_test = preprocessor.x_test_target_inverse
+                # Concat x_test and test_actual
+                test_actual = np.concatenate((x_test, test_actual), axis=1)
                 visualizer.plot_prediction(
                     path, y_hat, test_actual=test_actual, time_base=aquirer.time_base
                 )
