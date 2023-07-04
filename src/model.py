@@ -145,13 +145,25 @@ class Model:
                 batch_input_shape=(self._batch_size,) + input_shape,
             )
         )(dropout_2)
-        dense_1 = Dense(hidden_neurons, activation="relu")(lstm_2)
+
+        # Second multi head attention layer
+        query_2 = Dense(hidden_neurons)(lstm_2)
+        value_2 = Dense(hidden_neurons)(lstm_2)
+        attention_2 = MultiHeadAttention(attention_heads, hidden_neurons)(
+            query_2, value_2
+        )
+        attention_2 = tf.keras.layers.Dropout(dropout_rate)(attention_2)
+        attention_2 = LayerNormalization()(attention_2)
+
+        # Dense layers
+        dense_1 = Dense(hidden_neurons, activation="relu")(attention_2)
         dropout_3 = tf.keras.layers.Dropout(dropout_rate)(dense_1)
         dense_2 = Dense(hidden_neurons, activation="relu")(dropout_3)
         dropout_4 = tf.keras.layers.Dropout(dropout_rate)(dense_2)
         dense_3 = Dense(hidden_neurons, activation="relu")(dropout_4)
         dense_4 = Dense(hidden_neurons, activation="relu")(dense_3)
         output = Dense(self._y_train.shape[1], activation="linear")(dense_4)
+
 
         model = KerasModel(inputs=inputs, outputs=output)
         return model
