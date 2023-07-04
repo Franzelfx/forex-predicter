@@ -128,7 +128,11 @@ class Model:
                 batch_input_shape=(self._batch_size,) + input_shape,
             )
         )(inputs)
-        dropout_1 = tf.keras.layers.Dropout(dropout_rate)(lstm_1)
+        
+        # Add Dense layer to match LSTM output to MultiHeadAttention output dimension
+        lstm_output_matched = Dense(hidden_neurons)(lstm_1)
+        dropout_1 = tf.keras.layers.Dropout(dropout_rate)(lstm_output_matched)
+        
         # Separate query and value branches for Attention layer
         # Query and Value
         query = Dense(hidden_neurons)(dropout_1)
@@ -187,6 +191,7 @@ class Model:
 
         model = KerasModel(inputs=inputs, outputs=output)
         return model
+
 
     def _plot_fit_history(self, fit):
         """Plot the fit history."""
