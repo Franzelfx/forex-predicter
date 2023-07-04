@@ -7,7 +7,6 @@ from datetime import datetime as dt
 class Visualizer:
     """Visualize the results of the model."""
 
-    #TODO: Whole data as input, to get information about
     #      date, time, time iterations, etc.
     def __init__(self, target: str, dark_mode: bool = True):
         """Initialize the visualizer."""
@@ -16,8 +15,7 @@ class Visualizer:
         self.pair = target
         self.dark_mode = dark_mode
 
-    # TODO: Add time information to x-axis
-    def plot_prediction(self, path, hat:np.ndarray, test_actual:np.ndarray=None, test_predict:np.ndarray=None, save_csv=True, extra_info=""):
+    def plot_prediction(self, path, hat:np.ndarray, test_actual:np.ndarray=None, test_predict:np.ndarray=None, save_csv=True, extra_info="", time_base=None):
         """Plot the prediction."""
         date = dt.now().strftime("%Y-%m-%d_%H-%M-%S")
         if extra_info != "":
@@ -53,7 +51,7 @@ class Visualizer:
                 plt.plot(hat, label="Ahead Prediction")
         plt.legend()
         plt.title(f"Prediction for {self.pair}")
-        plt.xlabel("Time")
+        plt.xlabel(f"Time ({ time_base if time_base is not None else '' })")
         plt.ylabel("Value")
         # Set title (pair name and date)
         plt.title(f"{self.pair} {date}")
@@ -65,5 +63,9 @@ class Visualizer:
         if save_csv:
             path = f"{path}"
             df = pd.DataFrame({"prediction": hat})
+            if test_actual is not None:
+                df["actual"] = test_actual
+            if test_predict is not None:
+                df["test_prediction"] = test_predict
             df.to_csv(f"{path}.csv", index=False, )
             print(f"Saved data to {path}.csv")

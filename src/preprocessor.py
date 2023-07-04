@@ -24,9 +24,9 @@ class Preprocessor:
         time_steps_in=60,
         time_steps_out=30,
         test_length=90,
-        test_split=None,
-        scale=True,
-        shift=None,
+        test_split: float = None,
+        scale: bool = True,
+        shift: int = None,
     ):
         """Set the fundamental attributes.
 
@@ -105,11 +105,11 @@ class Preprocessor:
         # The shift
         if shift is not None:
             if shift < 0:
-                raise ValueError(
-                    f"The shift must be greater than 0. [{shift} < 0]"
-                )
+                raise ValueError(f"The shift must be greater than 0. [{shift} < 0]")
             if time_steps_out % shift != 0:
-                warning("Shift does not divide time_steps_out. (May lead to unexpected results)")
+                warning(
+                    "Shift does not divide time_steps_out. (May lead to unexpected results)"
+                )
         # Drop nan, if necessary
         self._data = self._drop_nan(data)
         # Get last known x and y value
@@ -212,7 +212,7 @@ class Preprocessor:
         @return: The header of the data as list.
         """
         return self._data.columns.tolist()
-    
+
     @property
     def validation_split(self) -> float:
         """Get the validation split.
@@ -268,10 +268,10 @@ class Preprocessor:
     def x_test(self) -> np.ndarray:
         """Get the x test data for every feature.
 
-        @return: Last sample of x_train as numpy array in shape of (timesteps, features).
+        @return: Last sample of x_test as numpy array in shape of (timesteps, features).
         """
         return self._x_test
-    
+
     @property
     def x_test_target_inverse(self) -> np.ndarray:
         """Get the x test data for the selected feture.
@@ -297,20 +297,22 @@ class Preprocessor:
 
         @return: The inverse scaled y test data as numpy array.
         """
-        return self.target_scaler.inverse_transform(self._y_test.reshape(-1, 1)).flatten()
+        return self.target_scaler.inverse_transform(
+            self._y_test.reshape(-1, 1)
+        ).flatten()
 
     @property
     def x_hat(self) -> np.ndarray:
         """Get x_predict (last n_steps_in of data)"""
-        x_predict = self._data[-self._time_steps_in:].values
+        x_predict = self._data[-self._time_steps_in :].values
         # Add samples dimension
         x_predict = np.expand_dims(x_predict, axis=0)
         return x_predict
-    
+
     @property
     def x_hat_target_inverse(self) -> np.ndarray:
         """Get x_predict (last n_steps_in of data)"""
-        x_predict = self._data[-self._time_steps_in:][self._target].values
+        x_predict = self._data[-self._time_steps_in :][self._target].values
         return self.target_scaler.inverse_transform(x_predict.reshape(-1, 1)).flatten()
 
     @property
@@ -494,10 +496,8 @@ class Preprocessor:
                     self._target
                 ].values
             )
-            if self._shift == None:
-                iterator += steps_in
+            if self._shift is None:
+                iterator += steps_in + steps_out  # Move iterator by steps_in + steps_out
             else:
                 iterator += self._shift
-        # TODO: Bug (first value of y_train starts at 2*steps_in)
-        # Dirty fix: Remove first step_in values of x
         return np.array(x), np.array(y)

@@ -9,28 +9,74 @@ from keras.optimizers import Adam
 from datetime import datetime as dt
 from keras.models import load_model
 from keras.models import Model as KerasModel
-from sklearn.preprocessing import MinMaxScaler
-from keras.callbacks import ModelCheckpoint, EarlyStopping, TensorBoard
+from sklearn.preprocessing import StandardScaler
+from keras.callbacks import (
+    ModelCheckpoint,
+    EarlyStopping,
+    TensorBoard,
+    ReduceLROnPlateau,
+)
 from keras.layers import (
+    Add,
     LSTM,
     Input,
     Dense,
+    Dropout,
+    Bidirectional,
     LayerNormalization,
     MultiHeadAttention,
 )
+import numpy as np
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 
 
+class ResetStatesCallback(tf.keras.callbacks.Callback):
+    def on_epoch_end(self, epoch, logs=None):
+        self.model.reset_states()
+
+
 class Model:
     """
-    Model for Time Series Prediction.
+    Model for Time Series Prediction
+    =====
 
-    :param str path: Path to the directory where the model will be saved.
-    :param str name: Name of the model.
-    :param np.ndarray x_train: The training input data.
-    :param np.ndarray y_train: The training output data.
+    Parameters
+    ----------
+    path 
+        :obj:`str` -> Path to save the model
+    name
+        :obj:`str` -> Name of the model
+    x_train
+        :obj:`np.ndarray` -> Training data input shape (samples, time_steps_in, features)
+    y_train
+        :obj:`np.ndarray` -> Training data output shape (samples, time_steps_out)
+    batch_size
+        :obj:`int` -> Batch size for training in fit method
+
+    Attributes
+    ----------
+    steps_ahead
+        :obj:`int`
+        Number of steps ahead to predict
+    
+    Examples
+    --------
+    >>> from src.model import Model
+    >>> model = Model(
+    ...     path="models",
+    ...     name="model",
+    ...     x_train=x_train,
+    ...     y_train=y_train,
+    ...     batch_size=1,
+    ... )
+    >>> model.compile()
+    >>> model.fit(epochs=10)
+    >>> model.predict(x_test)
+    ...
     """
+
+
 
     def __init__(
         self,
@@ -38,6 +84,7 @@ class Model:
         name: str,
         x_train: np.ndarray,
         y_train: np.ndarray,
+        batch_size: int = 1,
     ):
         # Check if name has ":" in it, if so get characters after it
         if ":" in name:
@@ -47,43 +94,104 @@ class Model:
         self._path = path
         self._x_train = x_train
         self._y_train = y_train
+        self._batch_size = batch_size
         self._model = None
 
     @property
     def steps_ahead(self) -> int:
-        """Return the number of steps ahead that the model is capable of predicting."""
+        """Get the steps ahead."""
         return self._y_train.shape[1]
 
-    def _create_model(
-        self, hidden_neurons: int, num_attention_heads: int, dropout_rate: float
-    ) -> KerasModel:
-        input_shape = (self._x_train.shape[1], self._x_train.shape[2])
-        inputs = Input(shape=input_shape)
+    def _var_name(self, var):
+        variable_names = [tpl[0] for tpl in filter(lambda x: var is x[1], globals().items())]
+        if variable_names:
+            return variable_names[0]
+        else:
+            return None
     
+    def _inverse_transform(self, scaler: StandardScaler, data: np.ndarray) -> np.ndarray:
+        """Inverse transform the data."""
+        data = data.reshape(-1, 1)
+        data = scaler.inverse_transform(data).flatten()
+        return data
+
+    def _build(self, hidden_neurons: int, dropout_rate: float, attention_heads: int):
+        input_shape = (self._x_train.shape[1], self._x_train.shape[2])
+        inputs = Input(batch_shape=(self._batch_size,) + input_shape)
+
         # LSTM layer
-        lstm_1 = LSTM(hidden_neurons, return_sequences=True)(inputs)
-        dropout_1 = tf.keras.layers.Dropout(dropout_rate)(lstm_1)
+        lstm_1 = Bidirectional(
+            LSTM(
+                hidden_neurons,
+                return_sequences=True,
+                stateful=True,
+                batch_input_shape=(self._batch_size,) + input_shape,
+            )
+        )(inputs)
+        
+        # Add Dense layer to match LSTM output to MultiHeadAttention output dimension
+        lstm_output_matched = Dense(hidden_neurons)(lstm_1)
+        dropout_1 = tf.keras.layers.Dropout(dropout_rate)(lstm_output_matched)
+        
         # Separate query and value branches for Attention layer
+        # Query and Value
         query = Dense(hidden_neurons)(dropout_1)
         value = Dense(hidden_neurons)(dropout_1)
-    
-        # Apply Attention layer
-        attention = MultiHeadAttention(num_attention_heads, hidden_neurons)(query, value)
-        attention = tf.keras.layers.Dropout(dropout_rate)(attention)
-        attention = LayerNormalization()(attention)
 
-        dropout_2 = tf.keras.layers.Dropout(dropout_rate)(attention)
-        lstm_2 = LSTM(hidden_neurons, return_sequences=False)(dropout_2)
-        dense_1 = Dense(hidden_neurons, activation="relu")(lstm_2)
+        # Apply Attention layer
+        attention_1 = MultiHeadAttention(attention_heads, hidden_neurons)(query, value)
+
+        # Add dropout and residual connection and layer normalization
+        dropout_attention = Dropout(dropout_rate)(attention_1)
+        residual_attention = Add()([dropout_1, dropout_attention])
+        norm_attention = LayerNormalization()(residual_attention)
+
+        # Feed forward layer
+        feed_forward_1 = Dense(hidden_neurons, activation="relu")(norm_attention)
+        feed_forward_2 = Dense(hidden_neurons, activation="relu")(feed_forward_1)
+        feed_forward_3 = Dense(hidden_neurons, activation="relu")(feed_forward_2)
+
+        # Add dropout, residual connection, and layer normalization
+        dropout_ffn = Dropout(dropout_rate)(feed_forward_3)
+        residual_ffn = Add()([norm_attention, dropout_ffn])
+        norm_ffn = LayerNormalization()(residual_ffn)
+
+        # SECOND BLOCK STARTS HERE
+
+        # Query and Value for second block
+        query_2 = Dense(hidden_neurons)(norm_ffn)
+        value_2 = Dense(hidden_neurons)(norm_ffn)
+
+        # Apply Attention layer for second block
+        attention_2 = MultiHeadAttention(attention_heads, hidden_neurons)(query_2, value_2)
+
+        # Add dropout and residual connection and layer normalization for second block
+        dropout_attention_2 = Dropout(dropout_rate)(attention_2)
+        residual_attention_2 = Add()([norm_ffn, dropout_attention_2])
+        norm_attention_2 = LayerNormalization()(residual_attention_2)
+
+        # Feed forward layer for second block
+        feed_forward_1_2 = Dense(hidden_neurons, activation="relu")(norm_attention_2)
+        feed_forward_2_2 = Dense(hidden_neurons, activation="relu")(feed_forward_1_2)
+        feed_forward_3_2 = Dense(hidden_neurons, activation="relu")(feed_forward_2_2)
+
+        # Add dropout, residual connection, and layer normalization for second block
+        dropout_ffn_2 = Dropout(dropout_rate)(feed_forward_3_2)
+        residual_ffn_2 = Add()([norm_attention_2, dropout_ffn_2])
+        norm_ffn_2 = LayerNormalization()(residual_ffn_2)
+
+        # Dense layers
+        dense_1 = Dense(hidden_neurons, activation="relu")(norm_ffn_2)
         dropout_3 = tf.keras.layers.Dropout(dropout_rate)(dense_1)
         dense_2 = Dense(hidden_neurons, activation="relu")(dropout_3)
         dropout_4 = tf.keras.layers.Dropout(dropout_rate)(dense_2)
         dense_3 = Dense(hidden_neurons, activation="relu")(dropout_4)
         dense_4 = Dense(hidden_neurons, activation="relu")(dense_3)
         output = Dense(self._y_train.shape[1], activation="linear")(dense_4)
-    
+
         model = KerasModel(inputs=inputs, outputs=output)
         return model
+
 
     def _plot_fit_history(self, fit):
         """Plot the fit history."""
@@ -118,28 +226,25 @@ class Model:
         # Save the plot
         plt.savefig(f"{self._path}/fit_history/{self._name}.png")
 
-    def _compile(self, hidden_neurons, dropout, activation, learning_rate, loss):
+    def compile(
+        self,
+        learning_rate=0.0001,
+        hidden_neurons=32,
+        dropout_rate: float = 0.2,
+        attention_heads: int = 4,
+        loss_fct: str = "mae",
+        strategy=None,
+    ):
         """Compile the model."""
         optimizer = Adam(learning_rate=learning_rate)
         # Check if multiple GPUs are available
-        gpu_devices = tf.config.list_physical_devices("GPU")
-        device_count = len(gpu_devices)
-        if device_count > 1 and os.environ.get("USE_MULTIPLE_GPUS") == "True":
-            print("Using multiple GPUs.")
-            strategy = tf.distribute.MirroredStrategy()
+        if strategy is not None and hasattr(strategy, "scope"):
             with strategy.scope():
-                #TODO: Add attention_head parameter to compile function
-                model = self._create_model(hidden_neurons, 8, dropout)
-                model.compile(loss=loss, optimizer=optimizer, metrics=["mape"])
+                model = self._build(hidden_neurons, dropout_rate, attention_heads)
+                model.compile(loss=loss_fct, optimizer=optimizer, metrics=["mape"])
         else:
-            print("Using single GPU.")
-            if os.environ.get("USE_MULTIPLE_GPUS") == "True":
-                print("Multiple GPUs are not available.")
-            else:
-                print("Multiple GPUs are not enabled by environment variable.")
-                #TODO: Add attention_head parameter to compile function
-            model = self._create_model(hidden_neurons, 64, dropout)
-            model.compile(loss=loss, optimizer=optimizer, metrics=["mape"])
+            model = self._build(hidden_neurons, dropout_rate, attention_heads)
+            model.compile(loss=loss_fct, optimizer=optimizer, metrics=["mape"])
         model.summary()
         # Plot the model
         try:
@@ -156,24 +261,16 @@ class Model:
             # Print exception with traceback
             print(e)
             logging.error(e)
+        self._model = model
 
-        return model
-
-    # TODO: Add parameter to configure model shape as lists of layers types and neurons as dict.
-    def compile_and_fit(
+    def fit(
         self,
-        hidden_neurons=256,
-        dropout=0.2,
-        activation="tanh",
         epochs=100,
-        learning_rate=0.001,
         batch_size=32,
-        loss="mae",
-        branched_model=False,
         patience=40,
         x_val=None,
         y_val=None,
-        validation_split=0.2,
+        validation_split=0.1,
     ) -> DataFrame:
         """Compile and fit the model.
 
@@ -199,8 +296,10 @@ class Model:
                     • The tensorboard logs are saved in the tensorboard folder.
         """
         # Say how much GPU's are available
-        model = self._compile(hidden_neurons, dropout, activation, learning_rate, loss)
-        # Configure callbacks (early stopping, checkpoint, tensorboard)
+        if self._model is None:
+            print("Model is not compiled yet, please compile the model first.")
+            return
+        reset_states = ResetStatesCallback()
         model_checkpoint = ModelCheckpoint(
             filepath=f"{self._path}/checkpoints/{self._name}_train.h5",
             monitor="val_loss",
@@ -212,49 +311,65 @@ class Model:
             monitor="val_loss", patience=patience, mode="min", verbose=1
         )
         tensorboard = TensorBoard(log_dir=f"{self._path}/tensorboard/{self._name}")
+        lr_scheduler = ReduceLROnPlateau(factor=0.5, patience=5, min_lr=0.000001)
         # Set the validation split
         if (x_val and y_val) is not None:
             validation_split = 0
         # Fit the model
-        fit = model.fit(
-            self._x_train,
-            self._y_train,
-            epochs=epochs,
-            batch_size=batch_size,
-            validation_data=(x_val, y_val) if (x_val and y_val) is not None else None,
-            validation_split=validation_split,
-            callbacks=[tensorboard, model_checkpoint, early_stopping],
-            shuffle=False,
-        )
-        # Load the best weights
-        model.load_weights(f"{self._path}/checkpoints/{self._name}_train.h5")
-        self._model = model
-        self._plot_fit_history(fit)
-        # Convert the fit history to dataframe
-        fit = DataFrame(fit.history)
-        # Save the fit history
-        fit.to_csv(f"{self._path}/fit_history/{self._name}.csv", index=False)
+        try:
+            fit = self._model.fit(
+                self._x_train,
+                self._y_train,
+                epochs=epochs,
+                batch_size=batch_size,
+                validation_data=(x_val, y_val)
+                if (x_val and y_val) is not None
+                else None,
+                validation_split=validation_split,
+                callbacks=[
+                    tensorboard,
+                    model_checkpoint,
+                    early_stopping,
+                    reset_states,
+                    lr_scheduler,
+                ],
+                shuffle=False,
+            )
+            # Load the best weights
+            self._model.load_weights(f"{self._path}/checkpoints/{self._name}_train.h5")
+            self._model = self._model
+            self._plot_fit_history(fit)
+            # Convert the fit history to dataframe
+            fit = DataFrame(fit.history)
+            # Save the fit history
+            fit.to_csv(f"{self._path}/fit_history/{self._name}.csv", index=False)
+        except Exception as e:
+            # Print exception with traceback
+            print(e)
+            logging.error(e)
         return fit
 
     def predict(
         self,
-        x_input: np.ndarray,
-        steps=1,
-        scaler: MinMaxScaler = None,
+        x_hat: np.ndarray,
+        x_train: np.ndarray = np.array([]),
+        x_test: np.ndarray = np.array([]),
+        scaler: StandardScaler = None,
         from_saved_model=False,
     ) -> np.ndarray:
         """Predict the output for the given input.
-
         :param np.ndarray x_input: The input data for the prediction as numpy array with shape (samples, time_steps, features).
         :param int steps: The number of steps to predict (one step is all steps for one sample).
 
         :remarks:   • If from_saved_model is False, "compile_and_fit()" must be called first.
                     • The predicted values are scaled back to the original scale if a scaler is given.
         """
+        y_train = None
+        y_test = None
         path = f"{self._path}/checkpoints/{self._name}_train.h5"
         # Get the model
         if from_saved_model:
-            prediction_model = load_model(path)
+            prediction_model: tf.keras.Model = load_model(path)
             print(f"Loaded model from: {path}")
         else:
             # Check if the model has been fitted
@@ -263,15 +378,51 @@ class Model:
                     "The model has not been fitted yet, plase call compile_and_fit() first."
                 )
             prediction_model = self._model
+        # Prepare the input
+        print(f"x_train samples: {x_train.shape[0]}")
+        print(f"x_test samples: {x_test.shape[0]}")
+        print(f"x_hat samples: {x_hat.shape[0]}")
+        #BUG: wrong vstacking
+        if x_train.shape[0] > 0:
+            x = np.vstack((x_train, x_test))
+            x = np.vstack((x, x_hat))
+        else:
+            if x_test.shape[0] > 0:
+                x = np.vstack((x_test, x_hat))
+            else:
+                x = x_hat
         # Predict the output
-        # y_pred = model.predict(x_input, steps).flatten()
-        print(f"Predict the output for {self._name}.")
-        y_pred = prediction_model.predict(x_input, steps=steps, batch_size=32).flatten()
-        # Reduce to only the output length
-        y_pred = y_pred[: self._y_train.shape[1]]
+        print(f"Predicting {x.shape[0]} samples with {x.shape[1]} timesteps.")
+        y_hat = []
+        for i in range(0, len(x), self._batch_size):
+            x_batch = x[i : i + self._batch_size]
+            y_batch = prediction_model.predict(
+                x_batch, batch_size=self._batch_size, verbose=0
+            ).flatten()
+            y_hat.append(y_batch)
+        # Extract the predicted values
+        # When x_train was given, we need to extract x_train from the prediction,
+        # this will be done by taking the last x_train.shape[0] samples from the prediction.
+        if x_train is not None:
+            y_train = y_hat[-x_train.shape[0] :]
+            # Drop the extracted from the list
+            y_hat = y_hat[: -x_train.shape[0]]
+            y_train = np.array(y_train).flatten()
+        # Extract also the test data if given and drop it from the list.
+        if x_test is not None:
+            y_test = y_hat[-x_test.shape[0] :]
+            y_hat = y_hat[: -x_test.shape[0]]
+            y_test = np.array(y_test).flatten()
+        # Flatten the list
+        y_hat = np.array(y_hat).flatten()
+
+        # Scale the output back to the original scale
         if scaler is not None:
-            y_pred = y_pred.reshape(-1, 1)
-            y_pred = scaler.inverse_transform(y_pred)
-            y_pred = y_pred.flatten()
-            print("Scaled back the prediction to original scale.")
-        return y_pred
+            y_hat = self._inverse_transform(scaler, y_hat)
+            if x_train is not None:
+                y_train = self._inverse_transform(scaler, y_train)
+            if x_test is not None:
+                y_test = self._inverse_transform(scaler, y_test)
+
+        # Return the predicted values, based on the given input
+        return y_train, y_test, y_hat

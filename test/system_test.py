@@ -3,6 +3,7 @@
 import os
 import unittest
 import traceback
+import tensorflow as tf
 from config_tb import *
 from src.model import Model
 from src.utilizer import Utilizer
@@ -17,6 +18,8 @@ class SystemTest(unittest.TestCase):
     def test_system(self):
         """Test the system."""
         _found_start = False
+        from_saved_file = os.environ.get("FROM_SAVED_FILE")
+        use_multiple_gpus = os.environ.get("USE_MULTIPLE_GPUS")
         for pair in REQUEST_PAIRS:
             try:
                 # If START_PAIR is set, skip all previous pairs
@@ -29,7 +32,7 @@ class SystemTest(unittest.TestCase):
                 # Get data from the API
                 aquirer = Data_Aquirer(PATH_PAIRS, API_KEY, api_type="full")
                 data = aquirer.get(
-                    pair, MINUTES, start=START, save=True, end=END, from_file=False
+                    pair, MINUTES_TRAIN, start=START, save=True, end=END, from_file=from_saved_file
                 )
                 # Apply indicators
                 indicators = Indicators(PATH_INDICATORS, pair, data, TEST_INDICATORS)
@@ -51,13 +54,18 @@ class SystemTest(unittest.TestCase):
                     preprocessor.x_train,
                     preprocessor.y_train,
                 )
-                model.compile_and_fit(
-                    epochs=TEST_EPOCHS,
-                    hidden_neurons=TEST_NEURONS,
-                    batch_size=TEST_BATCH_SIZE,
+                if use_multiple_gpus:
+                    strategy = tf.distribute.MirroredStrategy()
+                model.compile(
                     learning_rate=TEST_LEARNING_RATE,
-                    patience=TEST_PATIENCE,
+                    hidden_neurons=TEST_NEURONS,
+                    strategy=strategy if use_multiple_gpus is 'True' else None,
+                )
+                model.fit(
+                    epochs=TEST_EPOCHS,
+                    batch_size=TEST_BATCH_SIZE,
                     validation_split=TEST_VALIDATION_SPLIT,
+                    patience=TEST_PATIENCE,
                 )
                 # Predict the next values
                 utilizer = Utilizer(model, preprocessor)

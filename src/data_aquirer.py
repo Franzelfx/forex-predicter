@@ -47,12 +47,17 @@ class Data_Aquirer:
     def api_type(self) -> str:
         """Get the API type."""
         return self._api_type
+    
+    @property
+    def time_base(self) -> str:
+        """Get the time base."""
+        return f"{self._time_base} min"
 
-    def _request(self, pair: str, minutes: int, start: str, end: str) -> pd.DataFrame:
+    def _request(self, pair: str, time_base: int, start: str, end: str) -> pd.DataFrame:
         """Do a repeated request with the given parameters."""
         # Get data as long as the last date is not the end date of the previous day
         print(
-            f"Aquiring data for {pair} with {minutes} minutes interval from {start} to {end}"
+            f"Aquiring data for {pair} with {time_base} minutes interval from {start} to {end}"
         )
         data = pd.DataFrame()
         data_return = pd.DataFrame()
@@ -70,7 +75,7 @@ class Data_Aquirer:
         ):
             # Get the data from the API
             print(".", end="", flush=True)
-            url = f"https://api.polygon.io/v2/aggs/ticker/{pair}/range/{minutes}/minute/{last}/{end}?adjusted=true&sort=asc&limit=50000&apiKey={self._api_key}"
+            url = f"https://api.polygon.io/v2/aggs/ticker/{pair}/range/{time_base}/minute/{last}/{end}?adjusted=true&sort=asc&limit=50000&apiKey={self._api_key}"
             response = requests.get(url)
             response = response.json()
             # Check if the request was successful
@@ -101,81 +106,65 @@ class Data_Aquirer:
     def get(
         self,
         pair: str,
-        minutes: int = 1,
+        time_base: int = 1,
         start: str = "2009-01-01",
         end: str = date.today().strftime("%Y-%m-%d"),
         save: bool = False,
-        from_file: bool = False,
+        from_file = None,
     ):
         """Get the data from the API or from the csv file.
 
         @param pair: The pair to get the data for (e.g. 'EURUSD').
-        @param minutes: The interval in minutes (e.g. 15min, 5min etc.).
+        @param time_base: The interval in minutes (e.g. 15min, 5min etc.).
         @param start: The start date for the data yyyy-mm-dd (e.g. 2020-01-01).
         @param end: The end date for the data yyyy-mm-dd (e.g. 2022-05-26).
         @param save: If the data should be saved to a csv file.
         @param from_file: If the data should be fetched from the csv file.
 
         @return: The data as pandas dataframe.
-
-        @remarks: The API has a limit of 50.000 data points per request.
-                    For 15 minutes interval, this is 50.000 * 15min = 750 hours = 31 days (excluding weekends).
-                    If the start and end date are too far apart, the request will be split in multiple.
-                    Please take care of the API limits. The API limits can be found here: https://polygon.io/pricing.
         """
-        # Check, if today is weekend, so the end date is friday
-        if date.today().weekday() is (6 or 7):
+        self._time_base = time_base
+        if date.today().weekday() in (6, 7):  # Check if today is weekend
             end = self.get_last_friday().strftime("%Y-%m-%d")
-            print(f"It's weekend ...")
-        # Check if we want to get the data from the API or from the csv file
-        if from_file is True:
-            # Get the data from the csv file
+            print("It's weekend...")
+        if from_file is not None and from_file != "" and from_file != "false":
+            csv_pair_name = pair.split(":")[1] if ":" in pair else ""
             try:
-                csv_pair_name = ""
-                # Check if pair has ":" in it, if so get characters after it
-                if ":" in pair:
-                    csv_pair_name = pair.split(":")[1]
-                data = pd.read_csv(f"{self._path}/{csv_pair_name}_{minutes}.csv")
-                print(f"Got data from {self._path}/{csv_pair_name}_{minutes}.csv")
-                # Extract time from date
-                resent_date = data["t"].iloc[-1]
-                recent_date = resent_date.split(" ")[0]
-                # If recent date is today, subsstract one day
+                data = pd.read_csv(f"{self._path}/{csv_pair_name}_{time_base}.csv")
+                print(f"Got data from {self._path}/{csv_pair_name}_{time_base}.csv")
+                recent_date = data["t"].iloc[-1].split(" ")[0]
                 if recent_date == date.today().strftime("%Y-%m-%d"):
                     recent_date = (date.today() - timedelta(days=1)).strftime("%Y-%m-%d")
-                # Get the data from the API
-                request = self._request(pair, minutes, recent_date, end)
-                # Concatenate the data
-                data = pd.concat([data, request])
-                # Drop duplicates of the time column
-                data.drop_duplicates(subset=["t"], keep='last', inplace=True)
-                # Remove unnamed column, if it exists
-                if "Unnamed: 0" in data.columns:
-                    data = data.drop(columns=["Unnamed: 0"], inplace=True)
-                # Save the data to a csv file
-                if save is True:
-                    data.to_csv(f"{self._path}/{csv_pair_name}_{minutes}.csv")
-                return data
+                request = self._request(pair, time_base, recent_date, end)
+                data = pd.concat([data, request]).drop_duplicates(subset=["t"], keep='last')
             except FileNotFoundError:
-                print(f"No data for {pair} with {minutes} minutes interval found.")
-                print(f"Getting data from API...")
-                data = self._request(pair, minutes, start, end)
+                print(f"No data for {pair} with {time_base} minutes interval found.")
+                print("Getting data from API...")
+                data = self._request(pair, time_base, start, end)
         else:
-            # Get the data from the API
-            data = self._request(pair, minutes, start, end)
-        # Save the data to a csv file
-        if save is True:
-            # Remove unnamed column, if it exists
-            if "Unnamed: 0" in data.columns:
-                data = data.drop(columns=["Unnamed: 0"])
-        # Check, if there is ":" in the pair name, if so remove and delete all chars before
-            if ":" in pair:
-                pair = pair.split(":")[1]
-            print(f"Save data to {self._path}/{pair}_{minutes}.csv")
-            data.to_csv(f"{self._path}/{pair}_{minutes}.csv")
-            # Return the data
+            data = self._request(pair, time_base, start, end)
+        if save:
+            pair = pair.split(":")[1] if ":" in pair else pair
+            print(f"Save data to {self._path}/{pair}_{time_base}.csv")
+            data.to_csv(f"{self._path}/{pair}_{time_base}.csv", index=False)
+            # Print column count
+            print(f"Dataset has {len(data.columns)} columns.")
+        # Remove all weekends
+        print("Remove all weekends, len before: ", len(data), end=" ")
+        data = self.remove_rows_smaller_than(5, data, 'n')
+        print("len after: ", len(data))
         return data
+    
+    def remove_rows_smaller_than(self, offset: int, data: pd.DataFrame, column: str) -> pd.DataFrame:
+        """Remove rows where the value of a specific column is smaller than 5.
 
+        @param data The input DataFrame.
+        @param column The name of the column to filter.
+        @return The filtered DataFrame.
+        """
+        filtered_data = data[data[column] >= offset].reset_index(drop=True)
+        return filtered_data
+    
     def get_last_friday(self):
         now = date.now()
         closest_friday = now + timedelta(days=(4 - now.weekday()))

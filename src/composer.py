@@ -1,12 +1,8 @@
 """This module composes data_aquirer, indicator, preprocessor and model into a single class."""
 import os
 import json
-import pandas as pd
 from tabulate import tabulate
 from dataclasses import dataclass
-from indicators import Indicators
-from .data_aquirer import Data_Aquirer
-from .preprocessor import Preprocessor
 from .branched_model import Branched_Model
 
 PATH = os.path.abspath(os.path.dirname(__file__))
@@ -51,11 +47,8 @@ class Branch:
     def __init__(self, name: str, attributes: dict):
         """Set the attributes."""
         self.name = name
-        self.indicators = attributes["INDICATORS"]
-        self.conv_nodes = attributes["CONV_NODES"]
-        self.lstm_nodes = attributes["LSTM_NODES"]
-        self.dense_nodes = attributes["DENSE_NODES"]
-        self.dropout = attributes["DROPOUT"]
+        self.indicators: list[str] = attributes["INDICATORS"]
+        self.nodes: list[dict] = attributes["NODES"]
 
 
 @dataclass
@@ -67,10 +60,7 @@ class Concat:
         # Top level
         concat_sec = json["CONCAT"]
         # Concat
-        self.conv_nodes = concat_sec["CONV_NODES"]
-        self.lstm_nodes = concat_sec["LSTM_NODES"]
-        self.dense_nodes = concat_sec["DENSE_NODES"]
-        self.dropout = concat_sec["DROPOUT"]
+        self.nodes: list[dict] = concat_sec["NODES"]
 
 
 class Composer:
@@ -87,6 +77,9 @@ class Composer:
         self._concat = None
         self._training = None
 
+        # If ":" is in the pair_name, use string after ":"
+        if ":" in pair_name:
+            pair_name = pair_name.split(":")[1]
         recipe_path = os.path.abspath(os.path.join(PATH_RECIPES ,f"{pair_name}_recipe.json"))
         base_recipe_path = os.path.abspath(os.path.join(PATH_RECIPES, "__BASE__recipe.json"))
     
@@ -105,37 +98,39 @@ class Composer:
         self._concat = Concat(recipe)
 
     def _model_branches(self) -> str:
-        """Return the mode tree of the attributes."""
-        header = [""]
+        """Return the model tree of the attributes."""
+        header = []
         table = {}
-        # remove the name attribute
         for branch in self._branches:
-            table[""] = self._branches[branch].__dict__
-            # pop the name and indicators attribute
-            table[""].pop("name")
-            table[""].pop("indicators")
-            break
+            table[branch] = self._branches[branch].__dict__.copy()
+            table[branch].pop("name", None)  # Remove the "name" attribute
+            table[branch].pop("indicators", None)  # Remove the "indicators" attribute
+            table[branch].pop("nodes", None)  # Remove the "nodes" attribute
 
         for branch in self._branches:
             header.append(branch)
             attr_list = []
-            for key, value in self._branches[branch].__dict__.items():
-                if key != "name" and key != "indicators":
-                    attr_list.append(value)
+            if "nodes" in self._branches[branch].__dict__:
+                for key, value in self._branches[branch].nodes[0].items():
+                    attr_list.append(f"{key}: {value}")
             table[branch] = attr_list
+
         return tabulate(table, headers=header, tablefmt="rst")
 
+
     def _model_concat(self) -> str:
-        """Return the mode tree of the attributes."""
-        header = ["", "CONCAT"]
+        """Return the model tree of the attributes."""
+        header = ["CONCAT"]
         table = {}
-        # remove the name attribute
-        table[""] = self._concat.__dict__
+        table["CONCAT"] = self._concat.__dict__.copy()
+        table["CONCAT"].pop("nodes", None)  # Remove the "nodes" attribute
+
         attr_list = []
-        for key, value in self._concat.__dict__.items():
-            if key != "name":
-                attr_list.append(value)
+        if "nodes" in self._concat.__dict__:
+            for key, value in self._concat.nodes[0].items():
+                attr_list.append(f"{key}: {value}")
         table['CONCAT'] = attr_list
+
         return tabulate(table, headers=header, tablefmt="rst")
 
     def summary(self):

@@ -25,39 +25,41 @@ logging.basicConfig(
 # Data aquirer
 PATH_PAIRS = os.path.join(currentdir, "pairs")
 PAIR = "C:CADJPY"
-MINUTES = 5
-START = "2008-01-01"
+MINUTES_TRAIN = 15
+MINUTES_TEST = 15
+START = "2015-01-01"
 # Substract 1 hour to get the last full hour
-#END = (date.today() - timedelta(hours=1)).strftime("%Y-%m-%d")
-END = "2023-01-01"
+END = (date.today() - timedelta(hours=1)).strftime("%Y-%m-%d")
+#END = "2023-06-16"
 API_TYPE = "advanced"
 
 # ---------------------------------- #
 # Indicators
 PATH_INDICATORS = os.path.join(currentdir, "indicators")
-INDICATORS_DATA_SOURCE = f"{PATH_PAIRS}/{PAIR}_{MINUTES}.csv"
-TEST_INDICATORS = [
-    "ATR",
-    "BOLLINGER",
-    "MA5",
-    "MA25",
-    "MACD",
-    "OBV",
-    "RSI",
-    "STOCHASTIC",
-    "VoRSI",
-    "HT_TRENDLINE",
-    "HT_TRENDMODE",
-    "HT_DCPERIOD",
-    "HT_DCPHASE",
-    "HT_PHASOR",
-    "HT_SINE",
-    "MFI",
-    "MOM",
-    "PLUS_DI",
-    "PLUS_DM",
-]
-# TEST_INDICATORS = ["BOLLINGER",'MA5' , "VoRSI"]
+pair_name = PAIR[2:]
+INDICATORS_DATA_SOURCE = f"{PATH_PAIRS}/{pair_name}_{MINUTES_TRAIN}.csv"
+# TEST_INDICATORS = [
+#     "ATR",
+#     "BOLLINGER",
+#     "MA5",
+#     "MA25",
+#     "MACD",
+#     "OBV",
+#     "RSI",
+#     "STOCHASTIC",
+#     "VoRSI",
+#     "HT_TRENDLINE",
+#     "HT_TRENDMODE",
+#     "HT_DCPERIOD",
+#     "HT_DCPHASE",
+#     "HT_PHASOR",
+#     "HT_SINE",
+#     "MFI",
+#     "MOM",
+#     "PLUS_DI",
+#     "PLUS_DM",
+# ]
+TEST_INDICATORS = ["BOLLINGER",'MA5' , "MA25", "VoRSI"]
 EXPECTED_COLUMNS = [
     "v",
     "vw",
@@ -71,8 +73,6 @@ EXPECTED_COLUMNS = [
     "BOLLINGER_LOWER",
     "MA5",
     "MA25",
-    "MA50",
-    "MA200",
     "MACD",
     "MACD_SIGNAL",
     "MACD_HIST",
@@ -94,14 +94,15 @@ EXPECTED_COLUMNS = [
     "PLUS_DI",
     "PLUS_DM",
 ]
-TARGET = "c"
+TARGET = "MA5"
 
 # ---------------------------------- #
 # Preprocessor
-PREPROCESSOR_PATH = os.path.join(currentdir, "preprocessor")
-PREPROCESSOR_DATA_SOURCE = f"{PATH_INDICATORS}/{PAIR}_{MINUTES}.csv"
-TEST_TIME_STEPS_IN = 960   # 2 weeks
-TEST_TIME_STEPS_OUT = 48   # 12 hours
+PREPROCESSOR_PATH = os.path.join(currentdir, "preprocessor_test")
+_PAIR_NAME = PAIR[2:]
+PREPROCESSOR_DATA_SOURCE = f"{PATH_INDICATORS}/{_PAIR_NAME}__indicators.csv"
+TEST_TIME_STEPS_IN = 192
+TEST_TIME_STEPS_OUT = 96
 TEST_LENGTH = TEST_TIME_STEPS_IN + TEST_TIME_STEPS_OUT
 TEST_SCALE = True
 TEST_BRANCHED_MODEL = False
@@ -111,12 +112,12 @@ TEST_SHIFT = TEST_TIME_STEPS_IN # overlap of one means x and y windows are shift
 MODEL_DATA_SOURCE = f"{PREPROCESSOR_DATA_SOURCE}"
 MODEL_PATH = os.path.abspath(os.path.dirname(__file__))
 MODEL_NAME = f"{PAIR}"
-TEST_EPOCHS = 1000
+TEST_EPOCHS = 200
 TEST_NEURONS = 128
-TEST_BATCH_SIZE = 32
+TEST_BATCH_SIZE = 1
 TEST_LEARNING_RATE = 0.0001
-TEST_PATIENCE = 300
-TEST_VALIDATION_SPLIT = 0.1
+TEST_PATIENCE = 50
+TEST_VALIDATION_SPLIT = 0.2
 PATH_TEST_RESULTS = os.path.join(currentdir, "test_results")
 
 # ---------------------------------- #
@@ -165,8 +166,9 @@ CRYPTO_PAIRS = [
 
 # ---------------------------------- #
 # Utilizer test:
-REQUEST_PAIRS = CRYPTO_PAIRS + FOREX_PAIRS + RAW_MATERIALS
-UTIL_PAIRS = CRYPTO_PAIRS + FOREX_PAIRS + RAW_MATERIALS
+REQUEST_PAIRS = FOREX_PAIRS
+UTIL_PAIRS = FOREX_PAIRS
+TEST_LOOKBACK = 2
 # UTIL_PAIRS = CRYPTO_PAIRS
-TEST_BOX_PTS = 5
+TEST_BOX_PTS = 15
 UTILIZER_START_DATE = START

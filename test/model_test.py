@@ -1,6 +1,7 @@
 """Testbench for the model class."""
+import logging
 import unittest
-import pandas as pd
+import tensorflow as tf
 from config_tb import *
 from src.model import Model
 from src.visualizer import Visualizer
@@ -18,13 +19,16 @@ class Test_Model(unittest.TestCase):
 
     def test_compile_fit_predict(self):
         """Test the compile, fit and predict method with data from the preprocessor."""
+        pair = os.environ.get("START_PAIR")
+        from_saved_file = os.environ.get("FROM_SAVED_FILE")
+        use_multiple_gpus = os.environ.get("USE_MULTIPLE_GPUS")
+        # Data
         aquirer = Data_Aquirer(PATH_PAIRS, API_KEY, api_type="full")
-        from_saved_file = os.getenv("FROM_SAVED_FILE")
         api_data = aquirer.get(
-            PAIR, MINUTES, start=START, end=END, save=True, from_file=from_saved_file
+            pair, MINUTES_TRAIN, start=START, end=END, save=True, from_file=from_saved_file
         )
         # Indicators
-        indicators = Indicators(PATH_INDICATORS, PAIR, api_data, TEST_INDICATORS)
+        indicators = Indicators(PATH_INDICATORS, pair, api_data, TEST_INDICATORS)
         indicator_data = indicators.calculate(save=True)
         preprocessor = Preprocessor(
             indicator_data,
@@ -35,6 +39,7 @@ class Test_Model(unittest.TestCase):
             shift=TEST_SHIFT,
         )
         preprocessor.summary()
+        # Model
         model = Model(
             MODEL_PATH,
             MODEL_NAME,
@@ -42,18 +47,25 @@ class Test_Model(unittest.TestCase):
             preprocessor.y_train,
         )
         # Run for testing
-        model.compile_and_fit(
-            epochs=TEST_EPOCHS,
-            patience=TEST_PATIENCE,
-            batch_size=TEST_BATCH_SIZE,
-            hidden_neurons=TEST_NEURONS,
+        if use_multiple_gpus:
+            strategy = tf.distribute.MirroredStrategy()
+        model.compile(
             learning_rate=TEST_LEARNING_RATE,
-            branched_model=TEST_BRANCHED_MODEL,
+            hidden_neurons=TEST_NEURONS,
+            strategy=strategy if use_multiple_gpus == 'True' else None,
+        )
+        model.fit(
+            epochs=TEST_EPOCHS,
+            batch_size=TEST_BATCH_SIZE,
             validation_split=TEST_VALIDATION_SPLIT,
+            patience=TEST_PATIENCE,
         )
 
 
 if __name__ == "__main__":
     # get API_KEY from environment variable
     API_KEY = os.environ.get("API_KEY")
-    unittest.main()
+    try:
+        unittest.main()
+    except Exception as e:
+        logging.error(e)
