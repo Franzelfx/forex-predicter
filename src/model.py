@@ -17,9 +17,11 @@ from keras.callbacks import (
     ReduceLROnPlateau,
 )
 from keras.layers import (
+    Add,
     LSTM,
     Input,
     Dense,
+    Dropout,
     Bidirectional,
     LayerNormalization,
     MultiHeadAttention,
@@ -128,42 +130,60 @@ class Model:
         )(inputs)
         dropout_1 = tf.keras.layers.Dropout(dropout_rate)(lstm_1)
         # Separate query and value branches for Attention layer
+        # Query and Value
         query = Dense(hidden_neurons)(dropout_1)
         value = Dense(hidden_neurons)(dropout_1)
 
         # Apply Attention layer
-        attention = MultiHeadAttention(attention_heads, hidden_neurons)(query, value)
-        attention = tf.keras.layers.Dropout(dropout_rate)(attention)
-        attention = LayerNormalization()(attention)
+        attention_1 = MultiHeadAttention(attention_heads, hidden_neurons)(query, value)
 
-        dropout_2 = tf.keras.layers.Dropout(dropout_rate)(attention)
-        lstm_2 = Bidirectional(
-            LSTM(
-                hidden_neurons,
-                return_sequences=True,
-                stateful=True,
-                batch_input_shape=(self._batch_size,) + input_shape,
-            )
-        )(dropout_2)
+        # Add dropout and residual connection and layer normalization
+        dropout_attention = Dropout(dropout_rate)(attention_1)
+        residual_attention = Add()([dropout_1, dropout_attention])
+        norm_attention = LayerNormalization()(residual_attention)
 
-        # Second multi head attention layer
-        query_2 = Dense(hidden_neurons)(lstm_2)
-        value_2 = Dense(hidden_neurons)(lstm_2)
-        attention_2 = MultiHeadAttention(attention_heads, hidden_neurons)(
-            query_2, value_2
-        )
-        attention_2 = tf.keras.layers.Dropout(dropout_rate)(attention_2)
-        attention_2 = LayerNormalization()(attention_2)
+        # Feed forward layer
+        feed_forward_1 = Dense(hidden_neurons, activation="relu")(norm_attention)
+        feed_forward_2 = Dense(hidden_neurons, activation="relu")(feed_forward_1)
+        feed_forward_3 = Dense(hidden_neurons, activation="relu")(feed_forward_2)
+
+        # Add dropout, residual connection, and layer normalization
+        dropout_ffn = Dropout(dropout_rate)(feed_forward_3)
+        residual_ffn = Add()([norm_attention, dropout_ffn])
+        norm_ffn = LayerNormalization()(residual_ffn)
+
+        # SECOND BLOCK STARTS HERE
+
+        # Query and Value for second block
+        query_2 = Dense(hidden_neurons)(norm_ffn)
+        value_2 = Dense(hidden_neurons)(norm_ffn)
+
+        # Apply Attention layer for second block
+        attention_2 = MultiHeadAttention(attention_heads, hidden_neurons)(query_2, value_2)
+
+        # Add dropout and residual connection and layer normalization for second block
+        dropout_attention_2 = Dropout(dropout_rate)(attention_2)
+        residual_attention_2 = Add()([norm_ffn, dropout_attention_2])
+        norm_attention_2 = LayerNormalization()(residual_attention_2)
+
+        # Feed forward layer for second block
+        feed_forward_1_2 = Dense(hidden_neurons, activation="relu")(norm_attention_2)
+        feed_forward_2_2 = Dense(hidden_neurons, activation="relu")(feed_forward_1_2)
+        feed_forward_3_2 = Dense(hidden_neurons, activation="relu")(feed_forward_2_2)
+
+        # Add dropout, residual connection, and layer normalization for second block
+        dropout_ffn_2 = Dropout(dropout_rate)(feed_forward_3_2)
+        residual_ffn_2 = Add()([norm_attention_2, dropout_ffn_2])
+        norm_ffn_2 = LayerNormalization()(residual_ffn_2)
 
         # Dense layers
-        dense_1 = Dense(hidden_neurons, activation="relu")(attention_2)
+        dense_1 = Dense(hidden_neurons, activation="relu")(norm_ffn_2)
         dropout_3 = tf.keras.layers.Dropout(dropout_rate)(dense_1)
         dense_2 = Dense(hidden_neurons, activation="relu")(dropout_3)
         dropout_4 = tf.keras.layers.Dropout(dropout_rate)(dense_2)
         dense_3 = Dense(hidden_neurons, activation="relu")(dropout_4)
         dense_4 = Dense(hidden_neurons, activation="relu")(dense_3)
         output = Dense(self._y_train.shape[1], activation="linear")(dense_4)
-
 
         model = KerasModel(inputs=inputs, outputs=output)
         return model
