@@ -25,6 +25,7 @@ from keras.layers import (
     Bidirectional,
     LayerNormalization,
     MultiHeadAttention,
+    GlobalAveragePooling1D,
 )
 import numpy as np
 
@@ -178,9 +179,10 @@ class Model:
         # dropout_ffn_2 = Dropout(dropout_rate)(feed_forward_3_2)
         # residual_ffn_2 = Add()([norm_attention_2, dropout_ffn_2])
         # norm_ffn_2 = LayerNormalization()(residual_ffn_2)
-
+        # Global average pooling
+        gap = GlobalAveragePooling1D()(norm_ffn)
         # Dense layers
-        dense_1 = Dense(hidden_neurons, activation="relu")(norm_ffn)
+        dense_1 = Dense(hidden_neurons, activation="relu")(gap)
         dropout_3 = tf.keras.layers.Dropout(dropout_rate)(dense_1)
         dense_2 = Dense(hidden_neurons, activation="relu")(dropout_3)
         dropout_4 = tf.keras.layers.Dropout(dropout_rate)(dense_2)
