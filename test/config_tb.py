@@ -94,7 +94,7 @@ EXPECTED_COLUMNS = [
     "PLUS_DI",
     "PLUS_DM",
 ]
-TARGET = "MA5"
+TARGET = "c"
 
 # ---------------------------------- #
 # Preprocessor
