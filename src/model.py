@@ -123,7 +123,7 @@ class Model:
         lstm_1 = Bidirectional(
             LSTM(
                 hidden_neurons,
-                return_sequences=True,
+                return_sequences=False,
                 stateful=False,
                 batch_input_shape=(self._batch_size,) + input_shape,
             )
