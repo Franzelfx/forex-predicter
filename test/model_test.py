@@ -45,15 +45,12 @@ class Test_Model(unittest.TestCase):
                 PATH_INDICATORS, corr_pair, api_data_corr, TEST_INDICATORS
             )
             indicator_data_corr = indicators.calculate(save=False)
-            # Drop all rows where the date "t" from indicators_data does not match the 
-            # data from indicators_data_corr
-
+            # Append correlated pair to indicator_data
+            indicator_data_corr = pd.merge(indicator_data, indicator_data_corr, left_on='t', right_on='t', how='inner')
             # Add pair:name to column_names
             indicator_data_corr.columns = [
                 f"{corr_pair[2:]}:{column}" for column in indicator_data_corr.columns
             ]
-            # Append correlated pair to indicator_data
-            indicator_data_corr = pd.merge(indicator_data, indicator_data_corr, left_on='t', right_on='t', how='inner')
         # Concatenate both dataframes
         merged_data = pd.merge(indicator_data, indicator_data_corr, left_on='t', right_on='t', how='inner')
         # Preprocess data
