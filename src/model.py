@@ -131,7 +131,7 @@ class Model:
         )(inputs)
         # Add Dense layer to match LSTM output to MultiHeadAttention output dimension
         lstm_output_matched = Dense(hidden_neurons)(lstm_1)
-        dropout_1 = tf.keras.layers.Dropout(dropout_rate)(lstm_output_matched)
+        dropout_1 = Dropout(dropout_rate)(lstm_output_matched)
         
         # Separate query and value branches for Attention layer
         # Query and Value
@@ -157,10 +157,20 @@ class Model:
         norm_ffn = LayerNormalization()(residual_ffn)
 
         # SECOND BLOCK STARTS HERE
-
+        # LSTM layer for second block
+        lstm_2 = Bidirectional(
+            LSTM(
+                hidden_neurons,
+                return_sequences=True,
+                stateful=False,
+                batch_input_shape=(self._batch_size,) + input_shape,
+            )
+        )(norm_ffn)
+        lstm_output_matched_2 = Dense(hidden_neurons)(lstm_2)
+        dropout_2 = Dropout(dropout_rate)(lstm_output_matched_2)
         # Query and Value for second block
-        query_2 = Dense(hidden_neurons)(norm_ffn)
-        value_2 = Dense(hidden_neurons)(norm_ffn)
+        query_2 = Dense(hidden_neurons)(dropout_2)
+        value_2 = Dense(hidden_neurons)(dropout_2)
 
         # Apply Attention layer for second block
         attention_2 = MultiHeadAttention(attention_heads, hidden_neurons)(query_2, value_2)
@@ -183,30 +193,8 @@ class Model:
         # Global average pooling
         gap = GlobalAveragePooling1D()(norm_ffn_2)
 
-        # Third block
-        query_3 = Dense(hidden_neurons)(gap)
-        value_3 = Dense(hidden_neurons)(norm_ffn_2)
-
-        # Apply Attention layer for third block
-        attention_3 = MultiHeadAttention(attention_heads, hidden_neurons)(query_3, value_3)
-
-        # Add dropout and residual connection and layer normalization for third block
-        dropout_attention_3 = Dropout(dropout_rate)(attention_3)
-        residual_attention_3 = Add()([norm_ffn_2, dropout_attention_3])
-        norm_attention_3 = LayerNormalization()(residual_attention_3)
-
-        # Feed forward layer for third block
-        feed_forward_1_3 = Dense(hidden_neurons, activation="relu")(norm_attention_3)
-        feed_forward_2_3 = Dense(hidden_neurons, activation="relu")(feed_forward_1_3)
-        feed_forward_3_3 = Dense(hidden_neurons, activation="relu")(feed_forward_2_3)
-
-        # Add dropout, residual connection, and layer normalization for third block
-        dropout_ffn_3 = Dropout(dropout_rate)(feed_forward_3_3)
-        residual_ffn_3 = Add()([norm_attention_3, dropout_ffn_3])
-        norm_ffn_3 = LayerNormalization()(residual_ffn_3)
-
         # Dense layers
-        dense_1 = Dense(hidden_neurons, activation="relu")(norm_ffn_3)
+        dense_1 = Dense(hidden_neurons, activation="relu")(gap)
         dropout_3 = tf.keras.layers.Dropout(dropout_rate)(dense_1)
         dense_2 = Dense(hidden_neurons, activation="relu")(dropout_3)
         dropout_4 = tf.keras.layers.Dropout(dropout_rate)(dense_2)
