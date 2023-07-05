@@ -1,10 +1,10 @@
 """Testbench for the model class."""
 import logging
 import unittest
+import pandas as pd
 import tensorflow as tf
 from config_tb import *
 from src.model import Model
-from src.visualizer import Visualizer
 from src.indicators import Indicators
 from src.preprocessor import Preprocessor
 from src.data_aquirer import Data_Aquirer
@@ -23,13 +23,39 @@ class Test_Model(unittest.TestCase):
         from_saved_file = os.environ.get("FROM_SAVED_FILE")
         use_multiple_gpus = os.environ.get("USE_MULTIPLE_GPUS")
         # Data
+        CORR_PAIRS = ["C:USDCHF", "C:EURCAD", "C:GBPJPY"]
         aquirer = Data_Aquirer(PATH_PAIRS, API_KEY, api_type="full")
         api_data = aquirer.get(
             pair, MINUTES_TRAIN, start=START, end=END, save=True, from_file=from_saved_file
         )
-        # Indicators
-        indicators = Indicators(PATH_INDICATORS, pair, api_data, TEST_INDICATORS)
+        indicators = Indicators(PATH_INDICATORS, pair, api_data_corr, TEST_INDICATORS)
         indicator_data = indicators.calculate(save=True)
+        # Get all correlated pairs
+        for corr_pair in CORR_PAIRS:
+            api_data_corr = aquirer.get(
+                corr_pair,
+                MINUTES_TRAIN,
+                start=START,
+                end=END,
+                save=True,
+                from_file=from_saved_file,
+            )
+            # Apply indicator to correlated pair
+            indicators = Indicators(
+                PATH_INDICATORS, corr_pair, api_data_corr, TEST_INDICATORS
+            )
+            indicator_data_corr = indicators.calculate(save=False)
+            # Add pair:name to column_names
+            indicator_data_corr.columns = [
+                f"{corr_pair[2:]}:{column}" for column in indicator_data_corr.columns
+            ]
+            # Append correlated pair to indicator_data
+            indicator_data_corr = pd.concat(
+                [indicator_data, indicator_data_corr], axis=1, sort=False
+                )
+        # Concatenate both dataframes
+        indicator_data = pd.concat([indicator_data, indicator_data_corr], axis=1, sort=False)
+        # Preprocess data
         preprocessor = Preprocessor(
             indicator_data,
             TARGET,
