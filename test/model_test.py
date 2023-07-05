@@ -57,6 +57,7 @@ class Test_Model(unittest.TestCase):
         # Concatenate both dataframes
         merged_data = pd.merge(indicator_data, indicator_data_corr, left_on='t', right_on='t', how='inner')
         # Preprocess data
+        print(merged_data.head(5))
         preprocessor = Preprocessor(
             merged_data,
             TARGET,
