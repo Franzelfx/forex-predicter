@@ -123,12 +123,11 @@ class Model:
         lstm_1 = Bidirectional(
             LSTM(
                 hidden_neurons,
-                return_sequences=False,
+                return_sequences=True,
                 stateful=False,
                 batch_input_shape=(self._batch_size,) + input_shape,
             )
         )(inputs)
-        
         # Add Dense layer to match LSTM output to MultiHeadAttention output dimension
         lstm_output_matched = Dense(hidden_neurons)(lstm_1)
         dropout_1 = tf.keras.layers.Dropout(dropout_rate)(lstm_output_matched)
