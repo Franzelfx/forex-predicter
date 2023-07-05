@@ -46,11 +46,11 @@ class Test_Model(unittest.TestCase):
             )
             indicator_data_corr = indicators.calculate(save=False)
             # Append correlated pair to indicator_data
-            indicator_data_corr = pd.merge(indicator_data, indicator_data_corr, left_on='t', right_on='t', how='inner')
-            # Add pair:name to column_names
-            indicator_data_corr.columns = [
-                f"{corr_pair[2:]}:{column}" for column in indicator_data_corr.columns
-            ]
+            merged_data_corr = pd.merge(merged_data_corr, indicator_data_corr, left_on='t', right_on='t', how='inner')
+            # Rename all colums with pair information except for the time column
+            indicator_data_corr = indicator_data_corr.rename(
+                columns=lambda x: x + f"{corr_pair}" if x != "t" else x
+            )
         # Concatenate both dataframes
         merged_data = pd.merge(indicator_data, indicator_data_corr, left_on='t', right_on='t', how='inner')
         # Preprocess data
