@@ -124,7 +124,7 @@ class Model:
             LSTM(
                 hidden_neurons,
                 return_sequences=True,
-                stateful=True,
+                stateful=False,
                 batch_input_shape=(self._batch_size,) + input_shape,
             )
         )(inputs)
