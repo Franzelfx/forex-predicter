@@ -27,7 +27,7 @@ PATH_PAIRS = os.path.join(currentdir, "pairs")
 PAIR = "C:CADJPY"
 MINUTES_TRAIN = 15
 MINUTES_TEST = 15
-START = "2012-01-01"
+START = "2015-01-01"
 # Substract 1 hour to get the last full hour
 END = (date.today() - timedelta(hours=1)).strftime("%Y-%m-%d")
 #END = "2023-06-16"
@@ -115,7 +115,7 @@ MODEL_NAME = f"{PAIR}"
 TEST_EPOCHS = 200
 TEST_NEURONS = 128
 TEST_ATTENTION_HEADS = 2
-TEST_BATCH_SIZE = 32
+TEST_BATCH_SIZE = 16
 TEST_LEARNING_RATE = 0.0001
 TEST_PATIENCE = 50
 TEST_VALIDATION_SPLIT = 0.2
