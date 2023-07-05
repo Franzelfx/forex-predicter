@@ -182,8 +182,31 @@ class Model:
 
         # Global average pooling
         gap = GlobalAveragePooling1D()(norm_ffn_2)
+
+        # Third block
+        query_3 = Dense(hidden_neurons)(norm_ffn_2)
+        value_3 = Dense(hidden_neurons)(norm_ffn_2)
+
+        # Apply Attention layer for third block
+        attention_3 = MultiHeadAttention(attention_heads, hidden_neurons)(query_3, value_3)
+
+        # Add dropout and residual connection and layer normalization for third block
+        dropout_attention_3 = Dropout(dropout_rate)(attention_3)
+        residual_attention_3 = Add()([norm_ffn_2, dropout_attention_3])
+        norm_attention_3 = LayerNormalization()(residual_attention_3)
+
+        # Feed forward layer for third block
+        feed_forward_1_3 = Dense(hidden_neurons, activation="relu")(norm_attention_3)
+        feed_forward_2_3 = Dense(hidden_neurons, activation="relu")(feed_forward_1_3)
+        feed_forward_3_3 = Dense(hidden_neurons, activation="relu")(feed_forward_2_3)
+
+        # Add dropout, residual connection, and layer normalization for third block
+        dropout_ffn_3 = Dropout(dropout_rate)(feed_forward_3_3)
+        residual_ffn_3 = Add()([norm_attention_3, dropout_ffn_3])
+        norm_ffn_3 = LayerNormalization()(residual_ffn_3)
+
         # Dense layers
-        dense_1 = Dense(hidden_neurons, activation="relu")(gap)
+        dense_1 = Dense(hidden_neurons, activation="relu")(norm_ffn_3)
         dropout_3 = tf.keras.layers.Dropout(dropout_rate)(dense_1)
         dense_2 = Dense(hidden_neurons, activation="relu")(dropout_3)
         dropout_4 = tf.keras.layers.Dropout(dropout_rate)(dense_2)
