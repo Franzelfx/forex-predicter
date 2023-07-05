@@ -31,6 +31,7 @@ class Test_Model(unittest.TestCase):
         indicators = Indicators(PATH_INDICATORS, pair, api_data, TEST_INDICATORS)
         indicator_data = indicators.calculate(save=True)
         # Get all correlated pairs
+        merged_data_corr = pd.DataFrame()
         for corr_pair in CORR_PAIRS:
             api_data_corr = aquirer.get(
                 corr_pair,
@@ -45,12 +46,17 @@ class Test_Model(unittest.TestCase):
                 PATH_INDICATORS, corr_pair, api_data_corr, TEST_INDICATORS
             )
             indicator_data_corr = indicators.calculate(save=False)
-            # Append correlated pair to indicator_data
-            merged_data_corr = pd.merge(merged_data_corr, indicator_data_corr, left_on='t', right_on='t', how='inner')
             # Rename all colums with pair information except for the time column
             indicator_data_corr = indicator_data_corr.rename(
                 columns=lambda x: x + f"{corr_pair}" if x != "t" else x
             )
+            # Merge correlated pair data
+            if merged_data_corr.empty:
+                merged_data_corr = indicator_data_corr
+            else:
+                merged_data_corr = pd.merge(
+                    merged_data_corr, indicator_data_corr, left_on="t", right_on="t", how="inner"
+                )
         # Concatenate both dataframes
         merged_data = pd.merge(indicator_data, indicator_data_corr, left_on='t', right_on='t', how='inner')
         # Preprocess data
