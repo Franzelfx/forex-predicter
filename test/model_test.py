@@ -53,9 +53,7 @@ class Test_Model(unittest.TestCase):
                 f"{corr_pair[2:]}:{column}" for column in indicator_data_corr.columns
             ]
             # Append correlated pair to indicator_data
-            indicator_data_corr = pd.concat(
-                [indicator_data, indicator_data_corr], axis=1, sort=False
-                )
+            indicator_data_corr = pd.merge(indicator_data, indicator_data_corr, left_on='t', right_on='t', how='inner')
         # Concatenate both dataframes
         merged_data = pd.merge(indicator_data, indicator_data_corr, left_on='t', right_on='t', how='inner')
         # Preprocess data
