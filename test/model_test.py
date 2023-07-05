@@ -49,6 +49,10 @@ class Test_Model(unittest.TestCase):
             indicator_data_corr.columns = [
                 f"{corr_pair[2:]}:{column}" for column in indicator_data_corr.columns
             ]
+            # Drop all rows where the dates do not match
+            indicator_data_corr = indicator_data_corr[
+                indicator_data_corr.index.isin(indicator_data.index)
+            ]
             # Append correlated pair to indicator_data
             indicator_data_corr = pd.concat(
                 [indicator_data, indicator_data_corr], axis=1, sort=False
