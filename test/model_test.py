@@ -28,7 +28,7 @@ class Test_Model(unittest.TestCase):
         api_data = aquirer.get(
             pair, MINUTES_TRAIN, start=START, end=END, save=True, from_file=from_saved_file
         )
-        indicators = Indicators(PATH_INDICATORS, pair, api_data_corr, TEST_INDICATORS)
+        indicators = Indicators(PATH_INDICATORS, pair, api_data, TEST_INDICATORS)
         indicator_data = indicators.calculate(save=True)
         # Get all correlated pairs
         for corr_pair in CORR_PAIRS:
