@@ -184,7 +184,7 @@ class Model:
         gap = GlobalAveragePooling1D()(norm_ffn_2)
 
         # Third block
-        query_3 = Dense(hidden_neurons)(norm_ffn_2)
+        query_3 = Dense(hidden_neurons)(gap)
         value_3 = Dense(hidden_neurons)(norm_ffn_2)
 
         # Apply Attention layer for third block
