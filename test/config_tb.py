@@ -27,7 +27,7 @@ PATH_PAIRS = os.path.join(currentdir, "pairs")
 PAIR = "C:CADJPY"
 MINUTES_TRAIN = 15
 MINUTES_TEST = 15
-START = "2020-01-01"
+START = "2010-01-01"
 # Substract 1 hour to get the last full hour
 END = (date.today() - timedelta(hours=1)).strftime("%Y-%m-%d")
 #END = "2023-06-16"
@@ -106,7 +106,7 @@ TEST_TIME_STEPS_OUT = 96
 TEST_LENGTH = TEST_TIME_STEPS_IN + TEST_TIME_STEPS_OUT
 TEST_SCALE = True
 TEST_BRANCHED_MODEL = False
-TEST_SHIFT = TEST_TIME_STEPS_IN # overlap of one means x and y windows are shifted by one in every sample
+TEST_SHIFT = TEST_TIME_STEPS_OUT # overlap of one means x and y windows are shifted by one in every sample
 
 # Model
 MODEL_DATA_SOURCE = f"{PREPROCESSOR_DATA_SOURCE}"
@@ -115,7 +115,7 @@ MODEL_NAME = f"{PAIR}"
 TEST_EPOCHS = 200
 TEST_NEURONS = 128
 TEST_ATTENTION_HEADS = 2
-TEST_BATCH_SIZE = 2
+TEST_BATCH_SIZE = 32
 TEST_LEARNING_RATE = 0.0001
 TEST_PATIENCE = 50
 TEST_VALIDATION_SPLIT = 0.2
