@@ -121,16 +121,16 @@ class Model:
         inputs = Input(batch_shape=(self._batch_size,) + input_shape)
 
         # LSTM layer
-        lstm_1 = Bidirectional(
-            LSTM(
-                hidden_neurons,
-                return_sequences=True,
-                stateful=False,
-                batch_input_shape=(self._batch_size,) + input_shape,
-            )
-        )(inputs)
+        # lstm_1 = Bidirectional(
+        #     LSTM(
+        #         hidden_neurons,
+        #         return_sequences=True,
+        #         stateful=False,
+        #         batch_input_shape=(self._batch_size,) + input_shape,
+        #     )
+        # )(inputs)
         # Add Dense layer to match LSTM output to MultiHeadAttention output dimension
-        lstm_output_matched = Dense(hidden_neurons)(lstm_1)
+        lstm_output_matched = Dense(hidden_neurons)(inputs)
         dropout_1 = Dropout(dropout_rate)(lstm_output_matched)
         
         # Separate query and value branches for Attention layer
@@ -158,15 +158,15 @@ class Model:
 
         # SECOND BLOCK STARTS HERE
         # LSTM layer for second block
-        lstm_2 = Bidirectional(
-            LSTM(
-                hidden_neurons,
-                return_sequences=True,
-                stateful=False,
-                batch_input_shape=(self._batch_size,) + input_shape,
-            )
-        )(norm_ffn)
-        lstm_output_matched_2 = Dense(hidden_neurons)(lstm_2)
+        # lstm_2 = Bidirectional(
+        #     LSTM(
+        #         hidden_neurons,
+        #         return_sequences=True,
+        #         stateful=False,
+        #         batch_input_shape=(self._batch_size,) + input_shape,
+        #     )
+        # )(norm_ffn)
+        lstm_output_matched_2 = Dense(hidden_neurons)(norm_ffn)
         dropout_2 = Dropout(dropout_rate)(lstm_output_matched_2)
         # Query and Value for second block
         query_2 = Dense(hidden_neurons)(dropout_2)

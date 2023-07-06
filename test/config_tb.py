@@ -38,7 +38,7 @@ API_TYPE = "advanced"
 PATH_INDICATORS = os.path.join(currentdir, "indicators")
 pair_name = PAIR[2:]
 INDICATORS_DATA_SOURCE = f"{PATH_PAIRS}/{pair_name}_{MINUTES_TRAIN}.csv"
-TEST_INDICATORS = [
+#TEST_INDICATORS = [
     "ATR",
     "BOLLINGER",
     "MA5",
@@ -59,7 +59,7 @@ TEST_INDICATORS = [
     "PLUS_DI",
     "PLUS_DM",
 ]
-#TEST_INDICATORS = ["BOLLINGER",'MA5' , "MA25", "VoRSI"]
+TEST_INDICATORS = ["BOLLINGER",'MA5' , "MA25", "VoRSI"]
 EXPECTED_COLUMNS = [
     "v",
     "vw",
