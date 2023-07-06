@@ -324,7 +324,7 @@ class Model:
             monitor="val_loss", patience=patience, mode="min", verbose=1
         )
         tensorboard = TensorBoard(log_dir=f"{self._path}/tensorboard/{self._name}")
-        lr_scheduler = ReduceLROnPlateau(factor=0.5, patience=15, min_lr=0.000001)
+        lr_scheduler = ReduceLROnPlateau(factor=0.5, patience=30, min_lr=0.000001)
         # Set the validation split
         if (x_val and y_val) is not None:
             validation_split = 0
