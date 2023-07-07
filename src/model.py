@@ -124,29 +124,29 @@ class Model:
         lstm_branch = Bidirectional(LSTM(hidden_neurons, return_sequences=True))(inputs)
         lstm_dense = Dense(hidden_neurons, activation="relu")(lstm_branch)
         lstm_norm = LayerNormalization()(lstm_dense)
-        lstm_output = Dense(self.hidden_neurons)(lstm_norm)  # Add this line
+        lstm_output = Dense(hidden_neurons)(lstm_norm)
         
         # Transformer branch
         transformer_branch = TransformerBlock(hidden_neurons, attention_heads, dropout_rate)(inputs)
         transformer_norm = LayerNormalization()(transformer_branch)
-        transformer_output = Dense(self.hidden_neurons)(transformer_norm)  # Add this line
+        transformer_output = Dense(hidden_neurons)(transformer_norm)
         
         # Combine both branches
-        combined = Add()([lstm_output, transformer_output])  # Modify this line
+        combined = Add()([lstm_output, transformer_output])
         
         # LSTM layer
         lstm_2 = Bidirectional(LSTM(hidden_neurons, return_sequences=True))(combined)
         lstm_dense_2 = Dense(hidden_neurons, activation="relu")(lstm_2)
         lstm_norm_2 = LayerNormalization()(lstm_dense_2)
-        lstm_output_2 = Dense(self.hidden_neurons)(lstm_norm_2)  # Add this line
+        lstm_output_2 = Dense(hidden_neurons)(lstm_norm_2)
         
         # Transformer layer
         transformer_2 = TransformerBlock(hidden_neurons, attention_heads, dropout_rate)(combined)
         transformer_norm_2 = LayerNormalization()(transformer_2)
-        transformer_output_2 = Dense(self.hidden_neurons)(transformer_norm_2)  # Add this line
+        transformer_output_2 = Dense(hidden_neurons)(transformer_norm_2)
 
         # Combine both branches
-        combined_2 = Add()([lstm_output_2, transformer_output_2])  # Modify this line
+        combined_2 = Add()([lstm_output_2, transformer_output_2])
 
         # Global average pooling
         gap = GlobalAveragePooling1D()(combined_2)
