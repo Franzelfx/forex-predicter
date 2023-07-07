@@ -2,9 +2,9 @@ import tensorflow as tf
 from keras.layers import LayerNormalization, MultiHeadAttention, Dropout, Dense, Add
 
 
-class Transformer(tf.keras.layers.Layer):
+class TransformerBlock(tf.keras.layers.Layer):
     def __init__(self, hidden_neurons, attention_heads, dropout_rate):
-        super(Transformer, self).__init__()
+        super(TransformerBlock, self).__init__()
         self.hidden_neurons = hidden_neurons
         self.attention_heads = attention_heads
         self.dropout_rate = dropout_rate
