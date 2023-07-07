@@ -112,6 +112,7 @@ TEST_SHIFT = TEST_TIME_STEPS_OUT # overlap of one means x and y windows are shif
 MODEL_DATA_SOURCE = f"{PREPROCESSOR_DATA_SOURCE}"
 MODEL_PATH = os.path.abspath(os.path.dirname(__file__))
 MODEL_NAME = f"{PAIR}"
+TEST_NUM_BLOCKS = 3
 TEST_EPOCHS = 1000
 TEST_NEURONS = 256
 TEST_ATTENTION_HEADS = 4
