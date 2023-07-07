@@ -29,4 +29,4 @@ if [ "$answer" != "${answer#[Yy]}" ] ;then
 else
     echo "Not loading from saved file"
 fi
-screen python model_test.py
+screen -S model_test bash -c 'python model_test.py'
