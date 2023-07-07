@@ -225,7 +225,7 @@ class Model:
         self._path = path
         self._y_train = y_train
         # Model structure variables
-        self._branches = [Branch]
+        self._branches = []
         self._summation_neurons_dense = []
         self._summation_dropout_rate = []
         self._summation: Summation = None
