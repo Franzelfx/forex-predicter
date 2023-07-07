@@ -58,8 +58,12 @@ class Test_Model(unittest.TestCase):
                 PATH_INDICATORS, corr_pair, api_data_corr, TEST_INDICATORS
             )
             indicator_data_corr = indicators.calculate(save=False)
-            # Remove all date colums that doesn't appear in the target pair
-            indicator_data_corr = indicator_data_corr[indicator_data_corr["t"].isin(indicator_data["t"])]
+            # Convert time values to a common format
+            indicator_data_corr["t"] = pd.to_datetime(indicator_data_corr["t"])
+            indicator_data["t"] = pd.to_datetime(indicator_data["t"])
+            
+            # Filter the correlated pair to keep only common time values
+            indicator_data_corr = indicator_data_corr[indicator_data_corr["t"].isin(common_time_values)]
             print(len(indicator_data_corr))
             preprocessor_corr = Preprocessor(
                 indicator_data_corr,
