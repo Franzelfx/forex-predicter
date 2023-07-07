@@ -34,6 +34,10 @@ class Test_Model(unittest.TestCase):
         indicators = Indicators(PATH_INDICATORS, pair, target_pair, TEST_INDICATORS)
         indicator_data = indicators.calculate(save=True)
         print(indicator_data.head())
+        # Convert time values to a common format
+        common_time_values = pd.Index(target_pair["t"])
+        for corr_pair in corr_pairs:
+            common_time_values = common_time_values.intersection(pd.Index(corr_pair.x_train["t"]))
         # Preprocess the data
         preprocessor = Preprocessor(
             target_pair,
