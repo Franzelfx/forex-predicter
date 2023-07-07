@@ -124,7 +124,7 @@ class Model:
         lstm_1 = Bidirectional(LSTM(hidden_neurons, return_sequences=True))(inputs)
         # Transformer Layer- Branch
         transformer_block = TransformerBlock(
-            hidden_neurons, dropout_rate, attention_heads
+            hidden_neurons, attention_heads, dropout_rate
         )
         # Add and Norm
         add_1 = Add()([lstm_1, transformer_block])
@@ -133,7 +133,7 @@ class Model:
         lstm_2 = Bidirectional(LSTM(hidden_neurons, return_sequences=True))(norm_1)
         # Transformer Layer- Branch
         transformer_block_2 = TransformerBlock(
-            hidden_neurons, dropout_rate, attention_heads
+            hidden_neurons, attention_heads, dropout_rate
         )
         # Add and Norm
         add_2 = Add()([lstm_2, transformer_block_2])
