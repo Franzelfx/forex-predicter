@@ -62,7 +62,7 @@ class Test_Model(unittest.TestCase):
             indicator_data_corr = indicator_data_corr[
                 indicator_data_corr["t"].isin(indicator_data["t"])
             ]
-            preprocessor = Preprocessor(
+            preprocessor_corr = Preprocessor(
                 indicator_data_corr,
                 TARGET,
                 time_steps_in=TEST_TIME_STEPS_IN,
@@ -71,7 +71,8 @@ class Test_Model(unittest.TestCase):
                 shift=TEST_SHIFT,
             )
             # append to list
-            corr_pairs.append(preprocessor)
+            corr_pairs.append(preprocessor_corr)
+        corr_pairs.append(preprocessor)
 
         # Model
         model = Model(

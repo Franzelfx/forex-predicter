@@ -398,10 +398,16 @@ class Model:
         lr_scheduler = ReduceLROnPlateau(factor=0.5, patience=30, min_lr=0.000001)
         # Split the data
         X_train = []
+        X_val = []
         for branch in self._branches:
-            X_train.append(branch.tensor_input)
-        X_train, X_val, y_train, y_val = train_test_split(
-            X_train, self._y_train, test_size=validation_split, shuffle=False
+            branch_input = branch.tensor_input
+            _X_train, _X_val = train_test_split(
+            branch_input, test_size=validation_split, shuffle=False
+            )
+            X_train.append(_X_train)
+            X_val.append(_X_val)
+        y_train, y_val = train_test_split(
+            self._y_train, test_size=validation_split, shuffle=False
         )
         # Fit the model
         try:
