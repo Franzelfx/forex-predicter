@@ -74,7 +74,7 @@ class Test_Model(unittest.TestCase):
         # Check if all dataframes have the same length
         print(len(target_pair))
         for corr_pair in corr_pairs:
-            print(len(corr_pair.x_train))
+            print(len(corr_pair))
         # Model
         model = Model(
             MODEL_PATH,
