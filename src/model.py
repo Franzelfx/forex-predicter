@@ -225,6 +225,7 @@ class Model:
         self._summation_neurons_dense = []
         self._summation_dropout_rate = []
         # Main branch variables
+        self._main_branch = None
         self._main_branch_neurons_transformer = []
         self._main_branch_neurons_lstm = []
         self._main_branch_neurons_dense = []
