@@ -116,7 +116,7 @@ class Model:
         data = scaler.inverse_transform(data).flatten()
         return data
 
-    def _build(self, hidden_neurons: int, dropout_rate: float, attention_heads: int):
+    def _build(self, hidden_neurons: int, dropout_rate: float, attention_heads: int, key_dim=16):
         input_shape = (self._x_train.shape[1], self._x_train.shape[2])
         inputs = Input(shape=input_shape)
         
@@ -127,7 +127,7 @@ class Model:
         lstm_output = Dense(hidden_neurons)(lstm_norm)
         
         # Transformer branch
-        transformer_branch = TransformerBlock(hidden_neurons, attention_heads, dropout_rate)(inputs)
+        transformer_branch = TransformerBlock(hidden_neurons, attention_heads, key_dim, dropout_rate)(inputs)
         transformer_norm = LayerNormalization()(transformer_branch)
         transformer_output = Dense(hidden_neurons)(transformer_norm)
         
@@ -141,7 +141,7 @@ class Model:
         lstm_output_2 = Dense(hidden_neurons)(lstm_norm_2)
         
         # Transformer layer
-        transformer_2 = TransformerBlock(hidden_neurons, attention_heads, dropout_rate)(combined)
+        transformer_2 = TransformerBlock(hidden_neurons, attention_heads, key_dim, dropout_rate)(combined)
         transformer_norm_2 = LayerNormalization()(transformer_2)
         transformer_output_2 = Dense(hidden_neurons)(transformer_norm_2)
 
