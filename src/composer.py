@@ -1,7 +1,7 @@
 """This module composes data_aquirer, indicator, preprocessor and model into a single class."""
 import os
 import json
-from sr.
+import src.data_aquirer
 from src.model import Model
 from tabulate import tabulate
 from dataclasses import dataclass

@@ -57,10 +57,6 @@ class Test_Model(unittest.TestCase):
                 PATH_INDICATORS, corr_pair, api_data_corr, TEST_INDICATORS
             )
             indicator_data_corr = indicators.calculate(save=False)
-            # Rename all colums with pair information except for the time column
-            indicator_data_corr = indicator_data_corr.rename(
-                columns=lambda x: x + f"{corr_pair}" if x != "t" else x
-            )
             # Remove all date colums that doesn't appear in the target pair
             indicator_data_corr = indicator_data_corr[
                 indicator_data_corr["t"].isin(indicator_data["t"])
