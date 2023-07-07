@@ -91,19 +91,11 @@ class Test_Model(unittest.TestCase):
             learning_rate=TEST_LEARNING_RATE,
             strategy=strategy if use_multiple_gpus == 'True' else None,
         )
-        # Get all validation data
-        x_val = []
-        y_val = []
-        for corr_pair in corr_pairs:
-            x_val.append(corr_pair.x_val)
-            y_val.append(corr_pair.y_val)
         model.fit(
             epochs=TEST_EPOCHS,
             batch_size=TEST_BATCH_SIZE,
             validation_split=TEST_VALIDATION_SPLIT,
-            patience=TEST_PATIENCE,
-            x_val=x_val,
-            y_val=y_val,
+            patience=TEST_PATIENCE
         )
 
 
