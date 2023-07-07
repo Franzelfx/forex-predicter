@@ -141,13 +141,6 @@ class Branch:
 
         self.model = KerasModel(inputs=self.tensor_input, outputs=output)
 
-class Summation:
-    def __init__(self, inputs: List[Tensor]):
-        self.inputs = inputs
-    
-    def __call__(self) -> Tensor:
-        return Add()(self.inputs)
-
 class Output:
     def __init__(
         self,
@@ -266,11 +259,8 @@ class Model:
             # build the model if it has not been built
             if branch.model is None:
                 branch.build_model(output_neurons)
-        # Get the output of the branch
-        branch_outputs = [branch.model.output for branch in self._branches]
         # Combine all branch outputs
-        inputs = [branch.model.output for branch in self._branches]
-        _sum = Summation(inputs)
+        _sum = Add()([branch.model.output for branch in self._branches])
         # Apply output layers to the combined tensor
         final_output = self._output.build_model(_sum, output_neurons)
         # Create the final Keras model
