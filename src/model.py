@@ -265,8 +265,13 @@ class Model:
             raise ValueError("Summation not set. Use the 'summation' method to set it.")
         if self._output is None:
             raise ValueError("Output not set. Use the 'output' method to set it.")
-        # Get outputs of all branches
-        branch_outputs = [branch.build_model(output_neurons) for branch in self._branches]
+        # Get outputs of all branches if branch object is not 
+        for branch in self._branches:
+            # build the model if it has not been built
+            if branch.model is None:
+                branch.build_model(output_neurons)
+        # Get the output of the branch
+        branch_outputs = [branch.model.output for branch in self._branches]
         # Combine all branch outputs
         inputs = [branch.model.output for branch in self._branches]
         self._summation = Summation(inputs, self._summation_neurons_dense, self._summation_dropout_rate)
