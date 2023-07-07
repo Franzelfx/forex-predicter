@@ -224,7 +224,6 @@ class Model:
         self._branches = []
         self._summation_neurons_dense = []
         self._summation_dropout_rate = []
-        self._summation: Summation = None
         self._output: Output = None
         self._model = None
 
@@ -277,7 +276,7 @@ class Model:
 
     def summation(self, neurons_dense: List[int], dropout_rate: List[float]):
         # inputs are outputs of all branches
-        self._summation_neurons_sense = neurons_dense
+        self._summation_neurons_dense = neurons_dense
         self._summation_dropout_rate = dropout_rate
     
     def output(self, neurons_dense: List[int], dropout_rate: List[float]):
