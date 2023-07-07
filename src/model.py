@@ -153,17 +153,17 @@ class Model:
             hidden_neurons, attention_heads, dropout_rate, inputs
         )
         # LSTM Block 1
-        lstm_1 = Bidirectional(LSTM(hidden_neurons, return_sequences=True))(inputs)
+        lstm_1 = Bidirectional(LSTM(hidden_neurons, return_sequences=False))(inputs)
         # Add and normalize
         add_1 = Add()([transformer_block_1, lstm_1])
         norm_1 = LayerNormalization()(add_1)
 
         # Transformer Block 2
         transformer_block_2 = self._transformer_block(
-            hidden_neurons, attention_heads, dropout_rate, norm
+            hidden_neurons, attention_heads, dropout_rate, norm_1
         )
         # LSTM Block 2
-        lstm_2 = Bidirectional(LSTM(hidden_neurons, return_sequences=True))(norm)
+        lstm_2 = Bidirectional(LSTM(hidden_neurons, return_sequences=False))(norm_1)
         # Add and normalize
         add_2 = Add()([transformer_block_2, lstm_2])
         norm_2 = LayerNormalization()(add_2)
