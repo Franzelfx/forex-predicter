@@ -48,7 +48,6 @@ class Test_Model(unittest.TestCase):
             scale=TEST_SCALE,
             shift=TEST_SHIFT,
         )
-        preprocessor.preprocess()
 
         # Get correlated pairs
         for corr_pair in CORR_PAIRS:
@@ -82,7 +81,6 @@ class Test_Model(unittest.TestCase):
                 scale=TEST_SCALE,
                 shift=TEST_SHIFT,
             )
-            preprocessor_corr.preprocess()
             # Append to the list of correlated pairs
             corr_pairs.append(preprocessor_corr)
         corr_pairs.append(preprocessor)
