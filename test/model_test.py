@@ -62,8 +62,7 @@ class Test_Model(unittest.TestCase):
             indicator_data_corr = indicator_data_corr[
                 indicator_data_corr["t"].isin(indicator_data["t"])
             ]
-            print(indicator_data_corr.head())
-            # Preprocess data
+            # Preprocess the data
             preprocessor = Preprocessor(
                 indicator_data_corr,
                 TARGET,
@@ -72,7 +71,6 @@ class Test_Model(unittest.TestCase):
                 scale=TEST_SCALE,
                 shift=TEST_SHIFT,
             )
-            preprocessor.summary()
             # append to list
             corr_pairs.append(preprocessor)
 
