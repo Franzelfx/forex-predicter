@@ -273,7 +273,7 @@ class Model:
         self.model = tf.keras.Model(inputs=[branch.model.input for branch in self._branches], outputs=final_output)
 
     def add_branch(self, inputs: List[int], neurons_transformer: List[int], neurons_lstm: List[int], neurons_dense: List[int], attention_heads: List[int], dropout_rate: List[float]):
-        branch = Branch(name, inputs, neurons_transformer, neurons_lstm, neurons_dense, attention_heads, dropout_rate)
+        branch = Branch(inputs, neurons_transformer, neurons_lstm, neurons_dense, attention_heads, dropout_rate)
         self._branches.append(branch)
 
     def summation(self, neurons_dense: List[int], dropout_rate: List[float]):
