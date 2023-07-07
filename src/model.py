@@ -2,7 +2,7 @@
 import os
 import logging
 import numpy as np
-from typing import List
+from typing import Any, List
 import tensorflow as tf
 from pandas import DataFrame
 from tensorflow import Tensor
@@ -143,8 +143,10 @@ class Branch:
 
 class Summation:
     def __init__(self, inputs: List[Tensor]):
-        output = tf.keras.layers.Add()(inputs)
-        return output
+        self.inputs = inputs
+    
+    def __call__(self) -> Tensor:
+        return Add()(self.inputs)
 
 class Output:
     def __init__(
