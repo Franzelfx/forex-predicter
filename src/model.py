@@ -5,6 +5,7 @@ import numpy as np
 from typing import List
 import tensorflow as tf
 from pandas import DataFrame
+from tensorflow import Tensor
 import matplotlib.pyplot as plt
 from keras.optimizers import Adam
 from datetime import datetime as dt
@@ -37,6 +38,143 @@ class ResetStatesCallback(tf.keras.callbacks.Callback):
     def on_epoch_end(self, epoch, logs=None):
         self.model.reset_states()
 
+class TransformerBlock:
+    def __init__(self, hidden_neurons, attention_heads, dropout_rate):
+        self.hidden_neurons = hidden_neurons
+        self.attention_heads = attention_heads
+        self.dropout_rate = dropout_rate
+
+    def __call__(self, input_tensor):
+        input_matched_1 = Dense(self.hidden_neurons)(input_tensor)
+
+        # Separate query and value branches for Attention layer
+        query = Dense(self.hidden_neurons)(input_matched_1)
+        value = Dense(self.hidden_neurons)(input_matched_1)
+
+        # Apply Attention layer
+        attention_1 = MultiHeadAttention(self.attention_heads, self.hidden_neurons)(query, value)
+
+        # Add dropout and residual connection and layer normalization
+        dropout_attention = Dropout(self.dropout_rate)(attention_1)
+        residual_attention = Add()([input_matched_1, dropout_attention])
+        norm_attention = LayerNormalization()(residual_attention)
+
+        # Feed forward layer
+        feed_forward_1 = Dense(self.hidden_neurons, activation="relu")(norm_attention)
+        feed_forward_2 = Dense(self.hidden_neurons, activation="relu")(feed_forward_1)
+        feed_forward_3 = Dense(self.hidden_neurons, activation="relu")(feed_forward_2)
+
+        # Add dropout, residual connection, and layer normalization
+        dropout_ffn = Dropout(self.dropout_rate)(feed_forward_3)
+        residual_ffn = Add()([norm_attention, dropout_ffn])
+        norm_ffn = LayerNormalization()(residual_ffn)
+
+        return norm_ffn
+
+class TransformerLSTMBlock:
+    def __init__(
+        self, 
+        neurons_transformer, 
+        neurons_lstm, 
+        neurons_dense, 
+        attention_heads, 
+        dropout_rate
+    ):
+        self.neurons_transformer = neurons_transformer
+        self.neurons_lstm = neurons_lstm
+        self.neurons_dense = neurons_dense
+        self.attention_heads = attention_heads
+        self.dropout_rate = dropout_rate
+        self.transformer_block = TransformerBlock(neurons_transformer, attention_heads, dropout_rate)
+
+    def __call__(self, input_tensor):
+        transformer_block = self.transformer_block(input_tensor)
+        lstm = Bidirectional(LSTM(self.neurons_lstm, return_sequences=True))(input_tensor)
+        lstm_matched = Dense(self.neurons_dense)(lstm)
+        added = Add()([transformer_block, lstm_matched])
+        norm = LayerNormalization()(added)
+        return norm
+
+class Branch:
+    def __init__(
+        self,
+        name: str,
+        tensor_input: np.ndarray,
+        neurons_transformer: List[int],
+        neurons_lstm: List[int],
+        neurons_dense: List[int],
+        attention_heads: List[int],
+        dropout_rate: List[float],
+    ):
+        self.name = name
+        self.tensor_input = tensor_input
+        self.neurons_transformer = neurons_transformer
+        self.neurons_lstm = neurons_lstm
+        self.neurons_dense = neurons_dense
+        self.attention_heads = attention_heads
+        self.dropout_rate = dropout_rate
+        self._model = None
+    
+    @property
+    def X_train(self):
+        return self.tensor_input
+
+    def _build_blocks(self):
+        x = self.tensor_input
+        for neurons_transformer, neurons_lstm, neurons_dense, attention_heads, dropout_rate in zip(
+            self.neurons_transformer, self.neurons_lstm, self.neurons_dense, self.attention_heads, self.dropout_rate
+        ):
+            block = TransformerLSTMBlock(
+                neurons_transformer, neurons_lstm, neurons_dense, attention_heads, dropout_rate
+            )
+            x = block(x)
+        return x
+
+    def build_model(self, output_neurons: int):
+        x = self._build_blocks()
+        x = GlobalAveragePooling1D()(x)
+
+        for neurons in self.neurons_dense:
+            x = Dense(neurons, activation="relu")(x)
+            x = Dropout(self.dropout_rate)(x)
+
+        output = Dense(output_neurons, activation="linear")(x)
+
+        self._model = KerasModel(inputs=self.tensor_input, outputs=output)
+
+    @property
+    def model(self) -> KerasModel:
+        return self._model
+
+class Summation:
+    def __init__(self):
+        pass
+
+    def apply(self, inputs: List[Tensor]) -> Tensor:
+        output = tf.keras.layers.Add()(inputs)
+        return output
+
+class Output:
+    def __init__(
+        self,
+        neurons_dense : List[int],
+        dropout_rate : List[float]
+    ):
+        assert len(neurons_dense) == len(dropout_rate), "Length of neurons_dense and dropout_rate should be equal"
+        
+        self.neurons_dense = neurons_dense
+        self.dropout_rate = dropout_rate
+
+    def build_model(self, input_tensor: Tensor, num_outputs: int) -> Tensor:
+        x = input_tensor
+        for neurons, dropout in zip(self.neurons_dense, self.dropout_rate):
+            x = Dense(neurons, activation="relu")(x)
+            x = Dropout(dropout)(x)
+        
+        # Final output layer
+        output = Dense(num_outputs, activation="linear")(x)
+        return output
+
 
 class Model:
     """
@@ -45,7 +183,7 @@ class Model:
 
     Parameters
     ----------
-    path 
+    path
         :obj:`str` -> Path to save the model
     name
         :obj:`str` -> Name of the model
@@ -61,7 +199,7 @@ class Model:
     steps_ahead
         :obj:`int`
         Number of steps ahead to predict
-    
+
     Examples
     --------
     >>> from src.model import Model
@@ -78,15 +216,11 @@ class Model:
     ...
     """
 
-
-
     def __init__(
         self,
         path: str,
         name: str,
-        x_train: np.ndarray,
         y_train: np.ndarray,
-        batch_size: int = 1,
     ):
         # Check if name has ":" in it, if so get characters after it
         if ":" in name:
@@ -94,9 +228,11 @@ class Model:
         self._name = name
         os.environ["LD_LIBRARY_PATH"] = "/usr/local/cuda/lib64"
         self._path = path
-        self._x_train = x_train
         self._y_train = y_train
-        self._batch_size = batch_size
+        # Model structure variables
+        self._branches = [Branch]
+        self._summation = None
+        self._output = None
         self._model = None
 
     @property
@@ -105,80 +241,50 @@ class Model:
         return self._y_train.shape[1]
 
     def _var_name(self, var):
-        variable_names = [tpl[0] for tpl in filter(lambda x: var is x[1], globals().items())]
+        variable_names = [
+            tpl[0] for tpl in filter(lambda x: var is x[1], globals().items())
+        ]
         if variable_names:
             return variable_names[0]
         else:
             return None
-    
-    def _inverse_transform(self, scaler: StandardScaler, data: np.ndarray) -> np.ndarray:
+
+    def _inverse_transform(
+        self, scaler: StandardScaler, data: np.ndarray
+    ) -> np.ndarray:
         """Inverse transform the data."""
         data = data.reshape(-1, 1)
         data = scaler.inverse_transform(data).flatten()
         return data
+
+    def _build(self, num_outputs: int):
+        # Check if branches, summation, and output are all set
+        if not self._branches:
+            raise ValueError("No branches added to the model. Use the 'add_branch' method to add branches.")
+        if self._summation is None:
+            raise ValueError("Summation not set. Use the 'summation' method to set it.")
+        if self._output is None:
+            raise ValueError("Output not set. Use the 'output' method to set it.")
+        # Get outputs of all branches
+        branch_outputs = [branch.build_model(num_outputs) for branch in self.branches]
+        # Combine all branch outputs
+        combined = self._summation.apply(branch_outputs)
+        # Apply output layers to the combined tensor
+        final_output = self._output.build_model(combined, num_outputs)
+        # Create the final Keras model
+        self.model = tf.keras.Model(inputs=[branch.model.input for branch in self._branches], outputs=final_output)
+
+    def add_branch(self, inputs: List[int], neurons_transformer: List[int], neurons_lstm: List[int], neurons_dense: List[int], attention_heads: List[int], dropout_rate: List[float]):
+        branch = Branch(inputs, neurons_transformer, neurons_lstm, neurons_dense, attention_heads, dropout_rate)
+        self._branches.append(branch)
+
+    def summation(self, neurons_dense: List[int], dropout_rate: List[float]):
+        # inputs are outputs of all branches
+        inputs = [branch.model.output for branch in self._branches]
+        self._summation = Summation(inputs, neurons_dense, dropout_rate)
     
-    def _transformer_block(self, hidden_neurons, attention_heads, dropout_rate, input_tensor):
-        input_matched_1 = Dense(hidden_neurons)(input_tensor)
-
-        # Separate query and value branches for Attention layer
-        query = Dense(hidden_neurons)(input_matched_1)
-        value = Dense(hidden_neurons)(input_matched_1)
-
-        # Apply Attention layer
-        attention_1 = MultiHeadAttention(attention_heads, hidden_neurons)(query, value)
-
-        # Add dropout and residual connection and layer normalization
-        dropout_attention = Dropout(dropout_rate)(attention_1)
-        residual_attention = Add()([input_matched_1, dropout_attention])
-        norm_attention = LayerNormalization()(residual_attention)
-
-        # Feed forward layer
-        feed_forward_1 = Dense(hidden_neurons, activation="relu")(norm_attention)
-        feed_forward_2 = Dense(hidden_neurons, activation="relu")(feed_forward_1)
-        feed_forward_3 = Dense(hidden_neurons, activation="relu")(feed_forward_2)
-
-        # Add dropout, residual connection, and layer normalization
-        dropout_ffn = Dropout(dropout_rate)(feed_forward_3)
-        residual_ffn = Add()([norm_attention, dropout_ffn])
-        norm_ffn = LayerNormalization()(residual_ffn)
-
-        return norm_ffn
-
-    def _build_block(self, hidden_neurons, attention_heads, dropout_rate, input_tensor):
-        transformer_block = self._transformer_block(hidden_neurons, attention_heads, dropout_rate, input_tensor)
-        lstm = Bidirectional(LSTM(hidden_neurons, return_sequences=True))(input_tensor)
-        lstm_matched = Dense(hidden_neurons)(lstm)
-        added = Add()([transformer_block, lstm_matched])
-        norm = LayerNormalization()(added)
-        return norm
-
-    def _build_dense_layer(self, neurons, dropout_rate, input_tensor):
-        dense = Dense(neurons, activation="relu")(input_tensor)
-        dropout = Dropout(dropout_rate)(dense)
-        return dropout
-
-    def _build(self, hidden_neurons: List[int], dropout_rate: List[float], attention_heads: List[int], dense_neurons: List[int], dense_dropout: List[float]):
-        assert len(hidden_neurons) == len(attention_heads) == len(dropout_rate), "hidden_neurons, attention_heads, and dropout_rate must have the same length"
-        assert len(dense_neurons) == len(dense_dropout), "dense_neurons and dense_dropout must have the same length"
-        
-        input_shape = (self._x_train.shape[1], self._x_train.shape[2])
-        inputs = Input(batch_shape=(self._batch_size,) + input_shape)
-
-        x = inputs
-        for hidden_neurons_block, attention_heads_block, dropout_rate_block in zip(hidden_neurons, attention_heads, dropout_rate):
-            x = self._build_block(hidden_neurons_block, attention_heads_block, dropout_rate_block, x)
-
-        x = GlobalAveragePooling1D()(x)
-
-        # Dense layers
-        for dense_neurons_block, dropout_rate_block in zip(dense_neurons, dense_dropout):
-            x = self._build_dense_layer(dense_neurons_block, dropout_rate_block, x)
-
-        output = Dense(self._y_train.shape[1], activation="linear")(x)
-
-        model = KerasModel(inputs=inputs, outputs=output)
-        return model
-
+    def output(self, neurons_dense: List[int], dropout_rate: List[float]):
+        self._output = Output(neurons_dense, dropout_rate)
 
 
     def _plot_fit_history(self, fit):
@@ -216,11 +322,7 @@ class Model:
 
     def compile(
         self,
-        num_blocks: int = 3,
         learning_rate=0.0001,
-        hidden_neurons=32,
-        dropout_rate: float = 0.2,
-        attention_heads: int = 2,
         loss_fct: str = "mae",
         strategy=None,
     ):
@@ -229,10 +331,10 @@ class Model:
         # Check if multiple GPUs are available
         if strategy is not None and hasattr(strategy, "scope"):
             with strategy.scope():
-                model = self._build(hidden_neurons=[128,64,32], dropout_rate=[0.2,0.2,0.2], attention_heads=[2,2,2], dense_neurons=[128,64,32], dense_dropout=[0.2,0.2,0.2])
+                model = self._build(self.y_train.shape[1])
                 model.compile(loss=loss_fct, optimizer=optimizer, metrics=["mape"])
         else:
-            model = self._build(num_blocks, hidden_neurons, dropout_rate, attention_heads)
+            model = self._build(self.y_train.shape[1])
             model.compile(loss=loss_fct, optimizer=optimizer, metrics=["mape"])
         model.summary()
         # Plot the model
@@ -270,7 +372,6 @@ class Model:
         :param float learning_rate: The learning rate for the training process.
         :param int batch_size: The batch size for the training process.
         :param str loss: The loss function for the training process.
-        :param bool branched_model: If True, the model will be a branched model.
         :param int patience: The patience for the early stopping callback.
         :param np.ndarray x_val: The validation input data.
         :param np.ndarray y_val: The validation output data.
@@ -304,10 +405,14 @@ class Model:
         # Set the validation split
         if (x_val and y_val) is not None:
             validation_split = 0
+        # Get the X_training data from branches
+        X_train = []
+        for branch in self._branches:
+            X_train.append(branch.X_train)
         # Fit the model
         try:
             fit = self._model.fit(
-                self._x_train,
+                X_train,
                 self._y_train,
                 epochs=epochs,
                 batch_size=batch_size,
@@ -371,7 +476,7 @@ class Model:
         print(f"x_train samples: {x_train.shape[0]}")
         print(f"x_test samples: {x_test.shape[0]}")
         print(f"x_hat samples: {x_hat.shape[0]}")
-        #BUG: wrong vstacking
+        # BUG: wrong vstacking
         if x_train.shape[0] > 0:
             x = np.vstack((x_train, x_test))
             x = np.vstack((x, x_hat))

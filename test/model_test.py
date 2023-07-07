@@ -24,14 +24,25 @@ class Test_Model(unittest.TestCase):
         use_multiple_gpus = os.environ.get("USE_MULTIPLE_GPUS")
         # Data
         CORR_PAIRS = ["C:USDCHF", "C:EURCAD", "C:GBPJPY"]
+        corr_pairs = [Preprocessor]
+        # First get the target pair
         aquirer = Data_Aquirer(PATH_PAIRS, API_KEY, api_type="full")
-        api_data = aquirer.get(
+        target_pair = aquirer.get(
             pair, MINUTES_TRAIN, start=START, end=END, save=True, from_file=from_saved_file
         )
-        indicators = Indicators(PATH_INDICATORS, pair, api_data, TEST_INDICATORS)
+        indicators = Indicators(PATH_INDICATORS, pair, target_pair, TEST_INDICATORS)
         indicator_data = indicators.calculate(save=True)
-        # Get all correlated pairs
-        merged_data_corr = pd.DataFrame()
+        print(indicator_data.head())
+        # Preprocess the data
+        preprocessor = Preprocessor(
+            target_pair,
+            TARGET,
+            time_steps_in=TEST_TIME_STEPS_IN,
+            time_steps_out=TEST_TIME_STEPS_OUT,
+            scale=TEST_SCALE,
+            shift=TEST_SHIFT,
+        )
+        # Get correlated pairs
         for corr_pair in CORR_PAIRS:
             api_data_corr = aquirer.get(
                 corr_pair,
@@ -50,40 +61,39 @@ class Test_Model(unittest.TestCase):
             indicator_data_corr = indicator_data_corr.rename(
                 columns=lambda x: x + f"{corr_pair}" if x != "t" else x
             )
-            # Merge correlated pair data
-            if merged_data_corr.empty:
-                merged_data_corr = indicator_data_corr
-            else:
-                merged_data_corr = pd.merge(
-                    merged_data_corr, indicator_data_corr, left_on="t", right_on="t", how="inner"
-                )
-        # Concatenate both dataframes
-        merged_data = pd.merge(indicator_data, indicator_data_corr, left_on='t', right_on='t', how='inner')
-        # Preprocess data
-        print(merged_data.head(5))
-        preprocessor = Preprocessor(
-            merged_data,
-            TARGET,
-            time_steps_in=TEST_TIME_STEPS_IN,
-            time_steps_out=TEST_TIME_STEPS_OUT,
-            scale=TEST_SCALE,
-            shift=TEST_SHIFT,
-        )
-        preprocessor.summary()
+            # Remove all date colums that doesn't appear in the target pair
+            indicator_data_corr = indicator_data_corr[
+                indicator_data_corr["t"].isin(indicator_data["t"])
+            ]
+            print(indicator_data_corr.head())
+            # Preprocess data
+            preprocessor = Preprocessor(
+                indicator_data_corr,
+                TARGET,
+                time_steps_in=TEST_TIME_STEPS_IN,
+                time_steps_out=TEST_TIME_STEPS_OUT,
+                scale=TEST_SCALE,
+                shift=TEST_SHIFT,
+            )
+            preprocessor.summary()
+            # append to list
+            corr_pairs.append(preprocessor)
+
         # Model
         model = Model(
             MODEL_PATH,
             MODEL_NAME,
-            preprocessor.x_train,
             preprocessor.y_train,
         )
+        for corr_pair in corr_pairs:
+            model.add_branch(corr_pair.x_train, [64], [64], [64], [4], [0.2])
+        model.summation([64], [0.2])
+        model.output([64], [0.2])
         # Run for testing
         if use_multiple_gpus:
             strategy = tf.distribute.MirroredStrategy()
         model.compile(
-            num_blocks=TEST_NUM_BLOCKS,
             learning_rate=TEST_LEARNING_RATE,
-            hidden_neurons=TEST_NEURONS,
             strategy=strategy if use_multiple_gpus == 'True' else None,
         )
         model.fit(
