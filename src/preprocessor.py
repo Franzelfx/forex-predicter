@@ -112,8 +112,9 @@ class Preprocessor:
         # Drop nan, if necessary
         self._data = self._drop_nan(data)
         # Get last known x and y value
-        self._last_known_y = self._data[self._target].iloc[-1]
-        self._first_known_y = self._data[self._target].iloc[-self._time_steps_out]
+        if self._target is not None:
+            self._last_known_y = self._data[self._target].iloc[-1]
+            self._first_known_y = self._data[self._target].iloc[-self._time_steps_out]
         # Scale the data
         if self._scale:
             self._data = self._scale_data(self._data)
@@ -277,6 +278,8 @@ class Preprocessor:
 
         @return: Last sample of x_train as numpy array in shape of (timesteps, features).
         """
+        if self._target is None:
+            raise ValueError("Target is not set")
         x_test = self._x_test[:, :, self.loc_of(self._target)].flatten()
         return self.target_scaler.inverse_transform(x_test.reshape(-1, 1)).flatten()
 
@@ -311,6 +314,8 @@ class Preprocessor:
     @property
     def x_hat_target_inverse(self) -> np.ndarray:
         """Get x_predict (last n_steps_in of data)"""
+        if self._target is None:
+            raise ValueError("Target is not set")
         x_predict = self._data[-self._time_steps_in :][self._target].values
         return self.target_scaler.inverse_transform(x_predict.reshape(-1, 1)).flatten()
 
@@ -354,6 +359,8 @@ class Preprocessor:
 
         @return: The scaler for the target feature.
         """
+        if self._target is None:
+            raise ValueError("Target is not set")
         return self._scaler[self._target]
 
     @property
