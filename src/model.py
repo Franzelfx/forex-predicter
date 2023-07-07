@@ -224,7 +224,12 @@ class Model:
         self._branches = []
         self._summation_neurons_dense = []
         self._summation_dropout_rate = []
-        self._main_branch = None
+        # Main branch variables
+        self._main_branch_neurons_transformer = []
+        self._main_branch_neurons_lstm = []
+        self._main_branch_neurons_dense = []
+        self._main_branch_dropout_rate = []
+        # Output variables
         self._output: Output = None
         self._model = None
 
@@ -267,9 +272,10 @@ class Model:
         _sum = Add()([branch.model.output for branch in self._branches])
         # Main branch
         if self._main_branch is not None:
-            main = self._main_branch.build_model(_sum)
+            main = Branch(_sum, self._main_branch_neurons_transformer, self._main_branch_neurons_lstm, self._main_branch_neurons_dense, self._main_branch_dropout_rate)
+            main.build_model(output_neurons)
         # Apply output layers to the combined tensor
-        final_output = self._output.build_model(main, output_neurons)
+        final_output = self._output.build_model(main.model.output, output_neurons)
         # Create the final Keras model
         model = tf.keras.Model(inputs=[branch.model.input for branch in self._branches], outputs=final_output)
         return model
@@ -284,7 +290,11 @@ class Model:
         self._summation_dropout_rate = dropout_rate
 
     def main_branch(self, neurons_transformer: List[int], neurons_lstm: List[int], neurons_dense: List[int], attention_heads: List[int], dropout_rate: List[float]):
-        self._main_branch = Branch(neurons_transformer, neurons_lstm, neurons_dense, attention_heads, dropout_rate)
+        self._main_branch_neurons_transformer = neurons_transformer
+        self._main_branch_neurons_lstm = neurons_lstm
+        self._main_branch_neurons_dense = neurons_dense
+        self._main_branch_attention_heads = attention_heads
+        self._main_branch_dropout_rate = dropout_rate
     
     def output(self, neurons_dense: List[int], dropout_rate: List[float]):
         self._output = Output(neurons_dense, dropout_rate)
