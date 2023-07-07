@@ -34,11 +34,12 @@ class Test_Model(unittest.TestCase):
         indicators = Indicators(PATH_INDICATORS, pair, target_pair, TEST_INDICATORS)
         indicator_data = indicators.calculate(save=True)
         print(indicator_data.head())
-        # Convert time values to a common format
+        # Get the common time values between the target pair and correlated pairs
         common_time_values = pd.Index(target_pair["t"])
         for corr_pair in corr_pairs:
             common_time_values = common_time_values.intersection(pd.Index(corr_pair.x_train["t"]))
-        # Preprocess the data
+
+        # Preprocess the target pair
         preprocessor = Preprocessor(
             target_pair,
             TARGET,
@@ -47,6 +48,8 @@ class Test_Model(unittest.TestCase):
             scale=TEST_SCALE,
             shift=TEST_SHIFT,
         )
+        preprocessor.preprocess()
+
         # Get correlated pairs
         for corr_pair in CORR_PAIRS:
             api_data_corr = aquirer.get(
@@ -62,13 +65,15 @@ class Test_Model(unittest.TestCase):
                 PATH_INDICATORS, corr_pair, api_data_corr, TEST_INDICATORS
             )
             indicator_data_corr = indicators.calculate(save=False)
+
             # Convert time values to a common format
             indicator_data_corr["t"] = pd.to_datetime(indicator_data_corr["t"])
             indicator_data["t"] = pd.to_datetime(indicator_data["t"])
-            
+
             # Filter the correlated pair to keep only common time values
             indicator_data_corr = indicator_data_corr[indicator_data_corr["t"].isin(common_time_values)]
-            print(len(indicator_data_corr))
+
+            # Preprocess the correlated pair
             preprocessor_corr = Preprocessor(
                 indicator_data_corr,
                 TARGET,
@@ -77,8 +82,23 @@ class Test_Model(unittest.TestCase):
                 scale=TEST_SCALE,
                 shift=TEST_SHIFT,
             )
-            # append to list
+            preprocessor_corr.preprocess()
+            # Append to the list of correlated pairs
             corr_pairs.append(preprocessor_corr)
+        corr_pairs.append(preprocessor)
+
+        # Check the lengths before and after preprocessing
+        target_length_before = len(target_pair)
+        target_length_after = len(preprocessor.x_train)
+        print(f"Target pair length (before preprocessing): {target_length_before}")
+        print(f"Target pair length (after preprocessing): {target_length_after}")
+
+        for i, corr_pair in enumerate(corr_pairs):
+            corr_length_before = len(corr_pair.x_train)
+            corr_pair.preprocess()
+            corr_length_after = len(corr_pair.x_train)
+            print(f"Correlated pair {i+1} length (before preprocessing): {corr_length_before}")
+            print(f"Correlated pair {i+1} length (after preprocessing): {corr_length_after}")
         corr_pairs.append(preprocessor)
         # Check if all dataframes have the same length
         print(len(target_pair))
