@@ -333,10 +333,10 @@ class Model:
         # Check if multiple GPUs are available
         if strategy is not None and hasattr(strategy, "scope"):
             with strategy.scope():
-                model = self._build(self.y_train.shape[1])
+                model = self._build(self._y_train.shape[1])
                 model.compile(loss=loss_fct, optimizer=optimizer, metrics=["mape"])
         else:
-            model = self._build(self.y_train.shape[1])
+            model = self._build(self._y_train.shape[1])
             model.compile(loss=loss_fct, optimizer=optimizer, metrics=["mape"])
         model.summary()
         # Plot the model
