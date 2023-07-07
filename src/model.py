@@ -25,7 +25,6 @@ from keras.layers import (
     Dropout,
     Bidirectional,
     LayerNormalization,
-    MultiHeadAttention,
     GlobalAveragePooling1D,
 )
 import numpy as np
@@ -123,25 +122,32 @@ class Model:
         
         # LSTM branch
         lstm_branch = Bidirectional(LSTM(hidden_neurons, return_sequences=True))(inputs)
-        lstm_norm = LayerNormalization()(lstm_branch)
+        # Add dense layer to match transformer output
+        lstm_dense = Dense(hidden_neurons, activation="relu")(lstm_branch)
+        lstm_norm = LayerNormalization()(lstm_dense)
         
         # Transformer branch
         transformer_branch = TransformerBlock(hidden_neurons, attention_heads, dropout_rate)(inputs)
         transformer_norm = LayerNormalization()(transformer_branch)
         
         # Combine both branches
-        combined = Concatenate()([lstm_norm, transformer_norm])
+        combined = Add()([lstm_norm, transformer_norm])
         
         # LSTM layer
         lstm_2 = Bidirectional(LSTM(hidden_neurons, return_sequences=True))(combined)
-        lstm_norm_2 = LayerNormalization()(lstm_2)
+        # Add dense layer to match transformer output
+        lstm_dense_2 = Dense(hidden_neurons, activation="relu")(lstm_2)
+        lstm_norm_2 = LayerNormalization()(lstm_dense_2)
         
         # Transformer layer
         transformer_2 = TransformerBlock(hidden_neurons, attention_heads, dropout_rate)(combined)
         transformer_norm_2 = LayerNormalization()(transformer_2)
 
+        # Combine both branches
+        combined_2 = Add()([lstm_norm_2, transformer_norm_2])
+
         # Global average pooling
-        gap = GlobalAveragePooling1D()(transformer_norm_2)
+        gap = GlobalAveragePooling1D()(combined_2)
         
         # Dense layers
         dense_1 = Dense(hidden_neurons, activation="relu")(gap)
