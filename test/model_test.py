@@ -73,12 +73,6 @@ class Test_Model(unittest.TestCase):
                 PATH_INDICATORS, corr_pair, api_data_corr, TEST_INDICATORS
             )
             indicator_data_corr = indicators.calculate(save=False)
-            # get a series of unique values from the 't' column of indicator_data
-            values_to_keep = indicator_data['t'].unique()
-            # filter rows of indicator_data_corr, keeping only those where 't' exists in values_to_keep
-            indicator_data_corr = indicator_data_corr[indicator_data_corr['t'].isin(values_to_keep)]
-            # print the length of indicator_data_corr
-            print(f"Length of indicator_data_corr: {len(indicator_data_corr)}")
             # rename all columns except 't'
             indicator_data_corr.columns = [
                 f"{col}_{corr_pair}" if col != 't' else col for col in indicator_data_corr.columns
@@ -88,6 +82,9 @@ class Test_Model(unittest.TestCase):
             # Append to the list of correlated pairs
         # Synchronize the dataframes
         synced_df = Test_Model.synchronize_dataframes(pairs)
+        # print all lengths of the dataframes
+        for df in synced_df:
+            print(len(df))
         # Target pair is first dataframe of the list
         target_pair = synced_df[0]
         # Correlated pairs are the rest of the dataframes
@@ -114,6 +111,7 @@ class Test_Model(unittest.TestCase):
                 shift=TEST_SHIFT,
             )
             corr_pairs.append(corr_pair)
+        corr_pairs.append(target_pair)
 
         # Model
         model = Model(
