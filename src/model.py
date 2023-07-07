@@ -112,10 +112,6 @@ class Branch:
         self.attention_heads = attention_heads
         self.dropout_rate = dropout_rate
         self._model = None
-    
-    @property
-    def X_train(self):
-        return self.tensor_input
 
     def _build_blocks(self):
         x = self.tensor_input
@@ -415,7 +411,7 @@ class Model:
         # Get the X_training data from branches
         X_train = []
         for branch in self._branches:
-            X_train.append(branch.X_train)
+            X_train.append(branch.tensor_input)
         # Fit the model
         try:
             fit = self._model.fit(
