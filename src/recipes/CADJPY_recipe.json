@@ -27,12 +27,14 @@
       ],
       "NODES": [
         {
-          "UNITS": 64,
+          "UNITS_LSTM": 64,
+          "UNITS_TRANSFORMER": 64,
           "DROPOUT": 0.2,
           "ATTENTION_HEADS": 4
         },
         {
-          "UNITS": 64,
+          "UNITS_LSTM": 64,
+          "UNITS_TRANSFORMER": 64,
           "DROPOUT": 0.2,
           "ATTENTION_HEADS": 4
         }

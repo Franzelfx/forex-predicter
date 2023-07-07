@@ -1,9 +1,10 @@
 """This module composes data_aquirer, indicator, preprocessor and model into a single class."""
 import os
 import json
+from sr.
+from src.model import Model
 from tabulate import tabulate
 from dataclasses import dataclass
-from .branched_model import Branched_Model
 
 PATH = os.path.abspath(os.path.dirname(__file__))
 PATH_PAIRS = os.path.abspath(os.path.join(PATH, "pairs"))
@@ -139,27 +140,10 @@ class Composer:
         print(self._model_concat())
 
     def aquire(self):
-
+        pass
 
     def compile(self):
-        """Compose the data_aquirer, indicator, preprocessor and model into a single class."""
-        # data_collection = {}
-        # for branch in self._branches:
-        #     # Get the data for every single branch
-        #     aquirer = Data_Aquirer(PATH_PAIRS, self._base.api_key, api_type=self._base.api_type)
-        #     data = aquirer.get(branch, self._processing.interval, save=True)
-        #     # Get the indicators
-        #     indicators = Indicators(data, self._branches[branch].indicators)
-        #     data = indicators.calculate(save=True, path=f"{PATH_INDICATORS}/{branch}_{self._processing.interval}.csv")
-        #     # Get the preprocessor
-        #     preprocessor = Preprocessor(data, self._processing.steps_in, self._processing.steps_out, self._processing.test_length)
-        #     preprocessor.summary()
-        #     data_collection[branch] = preprocessor
-        # Create the model
-        # TODO first compose with one branch (simpler)
-        model = Branched_Model(PATH_MODEL, self._processing.pair, x_train=None, y_train=None)
-        model.add_branch(conv=[64, 32], lstm=[32, 16], dense=[16, 8], dropout=0.2)
-        model.compile_and_fit()
+        model = 
 
     def fit(self):
         """Fit the model."""
