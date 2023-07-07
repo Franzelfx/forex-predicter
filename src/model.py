@@ -115,15 +115,11 @@ class Model:
         data = data.reshape(-1, 1)
         data = scaler.inverse_transform(data).flatten()
         return data
+    
+    def _transformer_block(hidden_neurons, attention_heads, dropout_rate, input_tensor):
+        input_matched_1 = Dense(hidden_neurons)(input_tensor)
 
-    def _build(self, hidden_neurons: int, dropout_rate: float, attention_heads: int, key_dim=16):
-        input_shape = (self._x_train.shape[1], self._x_train.shape[2])
-        inputs = Input(batch_shape=(self._batch_size,) + input_shape)
-
-        input_matched_1= Dense(hidden_neurons)(inputs)
-        
         # Separate query and value branches for Attention layer
-        # Query and Value
         query = Dense(hidden_neurons)(input_matched_1)
         value = Dense(hidden_neurons)(input_matched_1)
 
@@ -145,8 +141,20 @@ class Model:
         residual_ffn = Add()([norm_attention, dropout_ffn])
         norm_ffn = LayerNormalization()(residual_ffn)
 
+        return norm_ffn
+
+
+    def _build(self, hidden_neurons: int, dropout_rate: float, attention_heads: int, key_dim=16):
+        input_shape = (self._x_train.shape[1], self._x_train.shape[2])
+        inputs = Input(batch_shape=(self._batch_size,) + input_shape)
+
+        # Transformer block
+        transformer_block = self._transformer_block(
+            hidden_neurons, attention_heads, dropout_rate, inputs
+        )
+
         # Global average pooling
-        gap = GlobalAveragePooling1D()(norm_ffn)
+        gap = GlobalAveragePooling1D()(transformer_block)
 
         # Dense layers
         dense_1 = Dense(hidden_neurons, activation="relu")(gap)
@@ -157,7 +165,7 @@ class Model:
         dense_4 = Dense(hidden_neurons, activation="relu")(dense_3)
         output = Dense(self._y_train.shape[1], activation="linear")(dense_4)
 
-        model = Model(inputs=inputs, outputs=output)
+        model = KerasModel(inputs=inputs, outputs=output)
         return model
 
 
