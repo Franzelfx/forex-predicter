@@ -261,7 +261,7 @@ class Model:
         # Check if branches, summation, and output are all set
         if not self._branches:
             raise ValueError("No branches added to the model. Use the 'add_branch' method to add branches.")
-        if self._summation is None:
+        if self._summation_neurons_dense is None or self._summation_dropout_rate is None:
             raise ValueError("Summation not set. Use the 'summation' method to set it.")
         if self._output is None:
             raise ValueError("Output not set. Use the 'output' method to set it.")
