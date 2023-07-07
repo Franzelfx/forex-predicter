@@ -73,7 +73,13 @@ class Test_Model(unittest.TestCase):
             # append to list
             corr_pairs.append(preprocessor_corr)
         corr_pairs.append(preprocessor)
-
+        # Check if all dataframes have the same length
+        for corr_pair in corr_pairs:
+            self.assertEqual(
+                len(corr_pair.x_train),
+                len(preprocessor.x_train),
+                "Length of x_train is not equal",
+            )
         # Model
         model = Model(
             MODEL_PATH,
