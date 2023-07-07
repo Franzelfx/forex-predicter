@@ -403,10 +403,8 @@ class Model:
             validation_split = 0
         # Get the X_training data from branches
         X_train = []
-        y_train = []
         for branch in self._branches:
-            X_train.append(branch.X_train)
-            y_train.append(branch.y_train)
+            X_train.append(branch.tensor_input)
         X_train, X_val, y_train, y_val = train_test_split(
             self._X_train, self._y_train, test_size=0.1, shuffle=False
         )
