@@ -60,6 +60,7 @@ class Test_Model(unittest.TestCase):
             indicator_data_corr = indicators.calculate(save=False)
             # Remove all date colums that doesn't appear in the target pair
             indicator_data_corr = indicator_data_corr[indicator_data_corr["t"].isin(indicator_data["t"])]
+            print(len(indicator_data_corr))
             preprocessor_corr = Preprocessor(
                 indicator_data_corr,
                 TARGET,
@@ -73,8 +74,6 @@ class Test_Model(unittest.TestCase):
         corr_pairs.append(preprocessor)
         # Check if all dataframes have the same length
         print(len(target_pair))
-        for corr_pair in corr_pairs:
-            print(len(corr_pair))
         # Model
         model = Model(
             MODEL_PATH,
