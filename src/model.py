@@ -148,13 +148,28 @@ class Model:
         input_shape = (self._x_train.shape[1], self._x_train.shape[2])
         inputs = Input(batch_shape=(self._batch_size,) + input_shape)
 
-        # Transformer block
-        transformer_block = self._transformer_block(
+        # Transformer Block 1
+        transformer_block_1 = self._transformer_block(
             hidden_neurons, attention_heads, dropout_rate, inputs
         )
+        # LSTM Block 1
+        lstm_1 = Bidirectional(LSTM(hidden_neurons, return_sequences=True))(inputs)
+        # Add and normalize
+        add_1 = Add()([transformer_block_1, lstm_1])
+        norm_1 = LayerNormalization()(add_1)
+
+        # Transformer Block 2
+        transformer_block_2 = self._transformer_block(
+            hidden_neurons, attention_heads, dropout_rate, norm
+        )
+        # LSTM Block 2
+        lstm_2 = Bidirectional(LSTM(hidden_neurons, return_sequences=True))(norm)
+        # Add and normalize
+        add_2 = Add()([transformer_block_2, lstm_2])
+        norm_2 = LayerNormalization()(add_2)
 
         # Global average pooling
-        gap = GlobalAveragePooling1D()(transformer_block)
+        gap = GlobalAveragePooling1D()(norm_2)
 
         # Dense layers
         dense_1 = Dense(hidden_neurons, activation="relu")(gap)
