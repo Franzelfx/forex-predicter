@@ -104,6 +104,7 @@ class Branch:
         neurons_dense: List[int],
         attention_heads: List[int],
         dropout_rate: List[float],
+        is_input: bool = True,
     ):
         self.tensor_input = tensor_input
         self.neurons_transformer = neurons_transformer
@@ -111,10 +112,14 @@ class Branch:
         self.neurons_dense = neurons_dense
         self.attention_heads = attention_heads
         self.dropout_rate = dropout_rate
+        self.is_input = is_input
         self._model = None
 
     def _build_blocks(self):
-        x = Input(shape=self.tensor_input.shape[1:])
+        if self.is_input:
+            x = Input(shape=self.tensor_input.shape[1:])
+        else:
+            x = self.tensor_input
         for neurons_transformer, neurons_lstm, neurons_dense, attention_heads, dropout_rate in zip(
             self.neurons_transformer, self.neurons_lstm, self.neurons_dense, self.attention_heads, self.dropout_rate
         ):
