@@ -118,33 +118,35 @@ class Model:
 
     def _build(self, hidden_neurons: int, dropout_rate: float, attention_heads: int):
         input_shape = (self._x_train.shape[1], self._x_train.shape[2])
-        inputs = Input(batch_shape=(self._batch_size,) + input_shape)
+        inputs = Input(shape=input_shape)
         
         # LSTM branch
         lstm_branch = Bidirectional(LSTM(hidden_neurons, return_sequences=True))(inputs)
-        # Add dense layer to match transformer output
         lstm_dense = Dense(hidden_neurons, activation="relu")(lstm_branch)
         lstm_norm = LayerNormalization()(lstm_dense)
+        lstm_output = Dense(self.hidden_neurons)(lstm_norm)  # Add this line
         
         # Transformer branch
         transformer_branch = TransformerBlock(hidden_neurons, attention_heads, dropout_rate)(inputs)
         transformer_norm = LayerNormalization()(transformer_branch)
+        transformer_output = Dense(self.hidden_neurons)(transformer_norm)  # Add this line
         
         # Combine both branches
-        combined = Add()([lstm_norm, transformer_norm])
+        combined = Add()([lstm_output, transformer_output])  # Modify this line
         
         # LSTM layer
         lstm_2 = Bidirectional(LSTM(hidden_neurons, return_sequences=True))(combined)
-        # Add dense layer to match transformer output
         lstm_dense_2 = Dense(hidden_neurons, activation="relu")(lstm_2)
         lstm_norm_2 = LayerNormalization()(lstm_dense_2)
+        lstm_output_2 = Dense(self.hidden_neurons)(lstm_norm_2)  # Add this line
         
         # Transformer layer
         transformer_2 = TransformerBlock(hidden_neurons, attention_heads, dropout_rate)(combined)
         transformer_norm_2 = LayerNormalization()(transformer_2)
+        transformer_output_2 = Dense(self.hidden_neurons)(transformer_norm_2)  # Add this line
 
         # Combine both branches
-        combined_2 = Add()([lstm_norm_2, transformer_norm_2])
+        combined_2 = Add()([lstm_output_2, transformer_output_2])  # Modify this line
 
         # Global average pooling
         gap = GlobalAveragePooling1D()(combined_2)
@@ -158,7 +160,7 @@ class Model:
         dense_4 = Dense(hidden_neurons, activation="relu")(dense_3)
         output = Dense(self._y_train.shape[1], activation="linear")(dense_4)
 
-        model = KerasModel(inputs=inputs, outputs=output)
+        model = Model(inputs=inputs, outputs=output)
         return model
 
 
