@@ -12,6 +12,7 @@ from datetime import datetime as dt
 from keras.models import load_model
 from keras.models import Model as KerasModel
 from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split
 from keras.callbacks import (
     ModelCheckpoint,
     EarlyStopping,
@@ -402,8 +403,13 @@ class Model:
             validation_split = 0
         # Get the X_training data from branches
         X_train = []
+        y_train = []
         for branch in self._branches:
-            X_train.append(branch.tensor_input)
+            X_train.append(branch.X_train)
+            y_train.append(branch.y_train)
+        X_train, X_val, y_train, y_val = train_test_split(
+            self._X_train, self._y_train, test_size=0.1, shuffle=False
+        )
         # Fit the model
         try:
             fit = self._model.fit(
