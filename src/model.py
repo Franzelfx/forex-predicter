@@ -290,6 +290,7 @@ class Model:
         self._summation_dropout_rate = dropout_rate
 
     def main_branch(self, neurons_transformer: List[int], neurons_lstm: List[int], neurons_dense: List[int], attention_heads: List[int], dropout_rate: List[float]):
+        self._main_branch = True
         self._main_branch_neurons_transformer = neurons_transformer
         self._main_branch_neurons_lstm = neurons_lstm
         self._main_branch_neurons_dense = neurons_dense
