@@ -95,6 +95,7 @@ class TransformerLSTMBlock:
         norm = LayerNormalization()(added)
         return norm
 
+#todo: make it keras compatible
 class Branch:
     def __init__(
         self,
@@ -141,6 +142,7 @@ class Branch:
 
         self.model = KerasModel(inputs=self.tensor_input, outputs=output)
 
+#todo: make it keras compatible
 class Output:
     def __init__(
         self,
