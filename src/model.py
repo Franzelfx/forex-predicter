@@ -153,9 +153,11 @@ class Model:
             hidden_neurons, attention_heads, dropout_rate, inputs
         )
         # LSTM Block 1
-        lstm_1 = Bidirectional(LSTM(hidden_neurons, return_sequences=False))(inputs)
+        lstm_1 = Bidirectional(LSTM(hidden_neurons, return_sequences=True))(inputs)
+        # Match LSTM output shape to Transformer Block output shape
+        lstm_matched_1 = Dense(hidden_neurons)(lstm_1)
         # Add and normalize
-        add_1 = Add()([transformer_block_1, lstm_1])
+        add_1 = Add()([transformer_block_1, lstm_matched_1])
         norm_1 = LayerNormalization()(add_1)
 
         # Transformer Block 2
@@ -163,9 +165,11 @@ class Model:
             hidden_neurons, attention_heads, dropout_rate, norm_1
         )
         # LSTM Block 2
-        lstm_2 = Bidirectional(LSTM(hidden_neurons, return_sequences=False))(norm_1)
+        lstm_2 = Bidirectional(LSTM(hidden_neurons, return_sequences=True))(norm_1)
+        # Match LSTM output shape to Transformer Block output shape
+        lstm_matched_2 = Dense(hidden_neurons)(lstm_2)
         # Add and normalize
-        add_2 = Add()([transformer_block_2, lstm_2])
+        add_2 = Add()([transformer_block_2, lstm_matched_2])
         norm_2 = LayerNormalization()(add_2)
 
         # Global average pooling
