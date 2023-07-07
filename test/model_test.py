@@ -82,6 +82,7 @@ class Test_Model(unittest.TestCase):
             preprocessor.y_train,
         )
         for corr_pair in corr_pairs:
+            print(type(corr_pair.x_train), corr_pair.x_train)
             model.add_branch(corr_pair.x_train, [64], [64], [64], [4], [0.2])
         model.summation([64], [0.2])
         model.output([64], [0.2])
