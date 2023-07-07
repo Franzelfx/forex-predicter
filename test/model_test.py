@@ -94,8 +94,8 @@ class Test_Model(unittest.TestCase):
         correlated_pairs = synced_df[1:]
         # Preprocessor for target pair
         target_pair = Preprocessor(
-            target_pair,
             PREPROCESSOR_PATH,
+            target_pair,
             time_steps_in=TEST_TIME_STEPS_IN,
             time_steps_out=TEST_TIME_STEPS_OUT,
             test_length=TEST_LENGTH,
@@ -107,8 +107,8 @@ class Test_Model(unittest.TestCase):
         corr_pairs = []
         for corr_pair in correlated_pairs:
             corr_pair = Preprocessor(
-                corr_pair,
                 PREPROCESSOR_PATH,
+                corr_pair,
                 time_steps_in=TEST_TIME_STEPS_IN,
                 time_steps_out=TEST_TIME_STEPS_OUT,
                 test_length=TEST_LENGTH,
