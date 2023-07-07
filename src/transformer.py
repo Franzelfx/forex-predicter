@@ -12,7 +12,7 @@ class TransformerBlock(tf.keras.layers.Layer):
         self.query_branch = Dense(self.hidden_neurons)
         self.value_branch = Dense(self.hidden_neurons)
 
-        self.attention = MultiHeadAttention(self.attention_heads, self.hidden_neurons)
+        self.attention = MultiHeadAttention(self.attention_heads, self.hidden_neurons)  # Make sure hidden_neurons match here
         self.dropout_attention = Dropout(self.dropout_rate)
         self.norm_attention = LayerNormalization()
 
