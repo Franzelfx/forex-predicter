@@ -229,8 +229,10 @@ class Model:
         self._y_train = y_train
         # Model structure variables
         self._branches = [Branch]
-        self._summation = None
-        self._output = None
+        self._summation_neurons_dense = []
+        self._summation_dropout_rate = []
+        self._summation: Summation = None
+        self._output: Output = None
         self._model = None
 
     @property
@@ -266,6 +268,8 @@ class Model:
         # Get outputs of all branches
         branch_outputs = [branch.build_model(num_outputs) for branch in self.branches]
         # Combine all branch outputs
+        inputs = [branch.model.output for branch in self._branches]
+        self._summation = Summation(inputs, self._summation_neurons_dense, self._summation_dropout_rate)
         combined = self._summation.apply(branch_outputs)
         # Apply output layers to the combined tensor
         final_output = self._output.build_model(combined, num_outputs)
@@ -278,8 +282,8 @@ class Model:
 
     def summation(self, neurons_dense: List[int], dropout_rate: List[float]):
         # inputs are outputs of all branches
-        inputs = [branch.model.output for branch in self._branches]
-        self._summation = Summation(inputs, neurons_dense, dropout_rate)
+        self._summation_neurons_sense = neurons_dense
+        self._summation_dropout_rate = dropout_rate
     
     def output(self, neurons_dense: List[int], dropout_rate: List[float]):
         self._output = Output(neurons_dense, dropout_rate)
