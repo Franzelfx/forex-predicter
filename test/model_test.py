@@ -59,9 +59,7 @@ class Test_Model(unittest.TestCase):
             )
             indicator_data_corr = indicators.calculate(save=False)
             # Remove all date colums that doesn't appear in the target pair
-            indicator_data_corr = indicator_data_corr[
-                indicator_data_corr["t"].isin(indicator_data["t"])
-            ]
+            indicator_data_corr = indicator_data_corr[~indicator_data_corr["t"].isin(indicator_data["t"])]
             preprocessor_corr = Preprocessor(
                 indicator_data_corr,
                 TARGET,
