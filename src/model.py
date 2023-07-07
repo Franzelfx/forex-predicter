@@ -355,8 +355,6 @@ class Model:
         epochs=100,
         batch_size=32,
         patience=40,
-        x_val=None,
-        y_val=None,
         validation_split=0.1,
     ) -> DataFrame:
         """Compile and fit the model.
@@ -398,26 +396,21 @@ class Model:
         )
         tensorboard = TensorBoard(log_dir=f"{self._path}/tensorboard/{self._name}")
         lr_scheduler = ReduceLROnPlateau(factor=0.5, patience=30, min_lr=0.000001)
-        # Set the validation split
-        if (x_val and y_val) is not None:
-            validation_split = 0
-        # Get the X_training data from branches
+        # Split the data
         X_train = []
         for branch in self._branches:
             X_train.append(branch.tensor_input)
         X_train, X_val, y_train, y_val = train_test_split(
-            self._X_train, self._y_train, test_size=0.1, shuffle=False
+            X_train, self._y_train, test_size=validation_split, shuffle=False
         )
         # Fit the model
         try:
             fit = self._model.fit(
                 X_train,
-                self._y_train,
+                y_train,
                 epochs=epochs,
                 batch_size=batch_size,
-                validation_data=(x_val, y_val)
-                if (x_val and y_val) is not None
-                else None,
+                validation_data=(X_val, y_val),
                 validation_split=validation_split,
                 callbacks=[
                     tensorboard,
