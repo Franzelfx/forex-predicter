@@ -8,7 +8,6 @@ import matplotlib.pyplot as plt
 from keras.optimizers import Adam
 from datetime import datetime as dt
 from keras.models import load_model
-from src.transformer import TransformerBlock
 from keras.models import Model as KerasModel
 from sklearn.preprocessing import StandardScaler
 from keras.callbacks import (
@@ -24,6 +23,7 @@ from keras.layers import (
     Dense,
     Dropout,
     Bidirectional,
+    MultiHeadAttention,
     LayerNormalization,
     GlobalAveragePooling1D,
 )
@@ -118,39 +118,36 @@ class Model:
 
     def _build(self, hidden_neurons: int, dropout_rate: float, attention_heads: int, key_dim=16):
         input_shape = (self._x_train.shape[1], self._x_train.shape[2])
-        inputs = Input(shape=input_shape)
-        
-        # LSTM branch
-        lstm_branch = Bidirectional(LSTM(hidden_neurons, return_sequences=True))(inputs)
-        lstm_dense = Dense(hidden_neurons, activation="relu")(lstm_branch)
-        lstm_norm = LayerNormalization()(lstm_dense)
-        lstm_output = Dense(hidden_neurons)(lstm_norm)
-        
-        # Transformer branch
-        transformer_branch = TransformerBlock(hidden_neurons, attention_heads, dropout_rate)(inputs)
-        transformer_norm = LayerNormalization()(transformer_branch)
-        transformer_output = Dense(hidden_neurons)(transformer_norm)
-        
-        # Combine both branches
-        combined = Add()([lstm_output, transformer_output])
-        
-        # LSTM layer
-        lstm_2 = Bidirectional(LSTM(hidden_neurons, return_sequences=True))(combined)
-        lstm_dense_2 = Dense(hidden_neurons, activation="relu")(lstm_2)
-        lstm_norm_2 = LayerNormalization()(lstm_dense_2)
-        lstm_output_2 = Dense(hidden_neurons)(lstm_norm_2)
-        
-        # Transformer layer
-        transformer_2 = TransformerBlock(hidden_neurons, attention_heads, dropout_rate)(combined)
-        transformer_norm_2 = LayerNormalization()(transformer_2)
-        transformer_output_2 = Dense(hidden_neurons)(transformer_norm_2)
+        inputs = Input(batch_shape=(self._batch_size,) + input_shape)
 
-        # Combine both branches
-        combined_2 = Add()([lstm_output_2, transformer_output_2])
+        input_matched_1= Dense(hidden_neurons)(inputs)
+        
+        # Separate query and value branches for Attention layer
+        # Query and Value
+        query = Dense(hidden_neurons)(input_matched_1)
+        value = Dense(hidden_neurons)(input_matched_1)
+
+        # Apply Attention layer
+        attention_1 = MultiHeadAttention(attention_heads, hidden_neurons)(query, value)
+
+        # Add dropout and residual connection and layer normalization
+        dropout_attention = Dropout(dropout_rate)(attention_1)
+        residual_attention = Add()([input_matched_1, dropout_attention])
+        norm_attention = LayerNormalization()(residual_attention)
+
+        # Feed forward layer
+        feed_forward_1 = Dense(hidden_neurons, activation="relu")(norm_attention)
+        feed_forward_2 = Dense(hidden_neurons, activation="relu")(feed_forward_1)
+        feed_forward_3 = Dense(hidden_neurons, activation="relu")(feed_forward_2)
+
+        # Add dropout, residual connection, and layer normalization
+        dropout_ffn = Dropout(dropout_rate)(feed_forward_3)
+        residual_ffn = Add()([norm_attention, dropout_ffn])
+        norm_ffn = LayerNormalization()(residual_ffn)
 
         # Global average pooling
-        gap = GlobalAveragePooling1D()(combined_2)
-        
+        gap = GlobalAveragePooling1D()(norm_ffn)
+
         # Dense layers
         dense_1 = Dense(hidden_neurons, activation="relu")(gap)
         dropout_3 = Dropout(dropout_rate)(dense_1)
