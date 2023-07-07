@@ -266,7 +266,8 @@ class Model:
         # Apply output layers to the combined tensor
         final_output = self._output.build_model(_sum, output_neurons)
         # Create the final Keras model
-        self.model = tf.keras.Model(inputs=[branch.model.input for branch in self._branches], outputs=final_output)
+        model = tf.keras.Model(inputs=[branch.model.input for branch in self._branches], outputs=final_output)
+        return model
 
     def add_branch(self, inputs: List[int], neurons_transformer: List[int], neurons_lstm: List[int], neurons_dense: List[int], attention_heads: List[int], dropout_rate: List[float]):
         branch = Branch(inputs, neurons_transformer, neurons_lstm, neurons_dense, attention_heads, dropout_rate)
