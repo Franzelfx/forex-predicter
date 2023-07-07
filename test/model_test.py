@@ -80,7 +80,7 @@ class Test_Model(unittest.TestCase):
             preprocessor.y_train,
         )
         for corr_pair in corr_pairs:
-            if isinstance(corr_pair, Preprocessor):
+            if isinstance(corr_pair.x_train, np.ndarray):
                 model.add_branch(corr_pair.x_train, [64], [64], [64], [2], [0.2])
         model.summation([64], [0.2])
         model.output([64], [0.2])
