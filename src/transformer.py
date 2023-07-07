@@ -27,6 +27,9 @@ class TransformerBlock(tf.keras.layers.Layer):
         query = self.query_branch(inputs)
         value = self.value_branch(inputs)
 
+        query = tf.reshape(query, [-1, query.shape[1], self.hidden_neurons])
+        value = tf.reshape(value, [-1, value.shape[1], self.hidden_neurons])
+
         attention_output = self.attention(query, value)
         dropout_attention = self.dropout_attention(attention_output, training=training)
         residual_attention = Add()([inputs, dropout_attention])
