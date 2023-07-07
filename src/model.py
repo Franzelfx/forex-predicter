@@ -114,7 +114,7 @@ class Branch:
         self._model = None
 
     def _build_blocks(self):
-        x = self.tensor_input
+        x = Input(shape=self.tensor_input.shape[1:])
         for neurons_transformer, neurons_lstm, neurons_dense, attention_heads, dropout_rate in zip(
             self.neurons_transformer, self.neurons_lstm, self.neurons_dense, self.attention_heads, self.dropout_rate
         ):
@@ -125,6 +125,7 @@ class Branch:
         return x
 
     def build_model(self, output_neurons: int):
+        # input of input_tensor is (samples, timesteps, features)
         x = self._build_blocks()
         x = GlobalAveragePooling1D()(x)
 
