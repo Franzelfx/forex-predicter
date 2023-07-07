@@ -19,10 +19,10 @@ class Preprocessor:
     def __init__(
         self,
         data: pd.DataFrame,
-        target: str,
         time_steps_in=60,
         time_steps_out=30,
         test_length=90,
+        target: str = None,
         test_split: float = None,
         scale: bool = True,
         shift: int = None,
@@ -66,7 +66,7 @@ class Preprocessor:
         self._scaler = dict  # A dict of scalers for each feature
 
         # Data and target
-        if self._target not in self._data.columns:
+        if self._target is not None and self._target not in data.columns:
             raise ValueError(
                 f"The target column {self._target} is not present in the data."
             )
@@ -429,7 +429,7 @@ class Preprocessor:
         if "Unnamed: 0" in data.columns:
             data = data.drop("Unnamed: 0", axis=1)
         # Check if target column is still in data
-        if self._target not in header:
+        if self._target not in header and self._target is not None:
             raise ValueError(
                 f"The target column {self._target} is not in the data anymore."
             )
@@ -490,11 +490,12 @@ class Preprocessor:
         # with an offset of steps_in
         while iterator + steps_in + steps_out <= len(input_sequence):
             x.append(input_sequence[iterator : iterator + steps_in].values)
-            y.append(
-                input_sequence[iterator + steps_in : iterator + steps_in + steps_out][
-                    self._target
-                ].values
-            )
+            if self.target is not None:
+                y.append(
+                    input_sequence[iterator + steps_in : iterator + steps_in + steps_out][
+                        self._target
+                    ].values
+                )
             if self._shift is None:
                 iterator += steps_in + steps_out  # Move iterator by steps_in + steps_out
             else:

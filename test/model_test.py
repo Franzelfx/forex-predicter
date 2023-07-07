@@ -14,9 +14,33 @@ from src.data_aquirer import Data_Aquirer
 class Test_Model(unittest.TestCase):
     """Integration test for the Model class.
 
+    
     @remarks This test is not a unit test, but an integration test. It tests the
                 preprocessor and model class together.
     """
+
+    def synchronize_dataframes(dataframes, column_to_sync='t'):
+        # Create a list to hold all synchronized dataframes
+        synced_dataframes = []
+        
+        # Start with the first dataframe
+        synced_df = dataframes[0]
+
+        # Loop through the rest of the dataframes
+        for df in dataframes[1:]:
+            # Merge on the column_to_sync with an inner join
+            synced_df = pd.merge(synced_df, df, how='inner', on=column_to_sync)
+            
+        # Now we have a dataframe that contains rows with 't' values 
+        # that appear in all original dataframes. Next, we need to
+        # create a synchronized version of each original dataframe.
+        
+        # Loop through the original dataframes again
+        for df in dataframes:
+            # For each dataframe, keep only the rows that exist in synced_df
+            synced_dataframes.append(df[df[column_to_sync].isin(synced_df[column_to_sync])])
+            
+        return synced_dataframes
 
     def test_compile_fit_predict(self):
         """Test the compile, fit and predict method with data from the preprocessor."""
@@ -25,7 +49,7 @@ class Test_Model(unittest.TestCase):
         use_multiple_gpus = os.environ.get("USE_MULTIPLE_GPUS")
         # Data
         CORR_PAIRS = ["C:USDCHF", "C:EURCAD", "C:GBPJPY"]
-        corr_pairs = []
+        pairs = []
         # First get the target pair
         aquirer = Data_Aquirer(PATH_PAIRS, API_KEY, api_type="full")
         target_pair = aquirer.get(
@@ -33,15 +57,7 @@ class Test_Model(unittest.TestCase):
         )
         indicators = Indicators(PATH_INDICATORS, pair, target_pair, TEST_INDICATORS)
         indicator_data = indicators.calculate(save=True)
-        # Preprocess the target pair
-        preprocessor = Preprocessor(
-            indicator_data,
-            TARGET,
-            time_steps_in=TEST_TIME_STEPS_IN,
-            time_steps_out=TEST_TIME_STEPS_OUT,
-            scale=TEST_SCALE,
-            shift=TEST_SHIFT,
-        )
+        pairs.append(indicator_data)
         # Get correlated pairs
         for corr_pair in CORR_PAIRS:
             api_data_corr = aquirer.get(
@@ -63,23 +79,47 @@ class Test_Model(unittest.TestCase):
             indicator_data_corr = indicator_data_corr[indicator_data_corr['t'].isin(values_to_keep)]
             # print the length of indicator_data_corr
             print(f"Length of indicator_data_corr: {len(indicator_data_corr)}")
+            # rename all columns except 't'
+            indicator_data_corr.columns = [
+                f"{col}_{corr_pair}" if col != 't' else col for col in indicator_data_corr.columns
+            ]
             # Preprocess the correlated pair
-            preprocessor_corr = Preprocessor(
-                indicator_data_corr,
-                TARGET,
+            pairs.append(indicator_data_corr)
+            # Append to the list of correlated pairs
+        # Synchronize the dataframes
+        synced_df = Test_Model.synchronize_dataframes(pairs)
+        # Target pair is first dataframe of the list
+        target_pair = synced_df[0]
+        # Correlated pairs are the rest of the dataframes
+        correlated_pairs = synced_df[1:]
+        # Preprocessor for target pair
+        target_pair = Preprocessor(
+            PREPROCESSOR_PATH,
+            time_steps_in=TEST_TIME_STEPS_IN,
+            time_steps_out=TEST_TIME_STEPS_OUT,
+            test_length=TEST_LENGTH,
+            target=TARGET,
+            scale=TEST_SCALE,
+            shift=TEST_SHIFT,
+        )
+        # Preprocessor for correlated pairs
+        corr_pairs = []
+        for corr_pair in correlated_pairs:
+            corr_pair = Preprocessor(
+                PREPROCESSOR_PATH,
                 time_steps_in=TEST_TIME_STEPS_IN,
                 time_steps_out=TEST_TIME_STEPS_OUT,
+                test_length=TEST_LENGTH,
                 scale=TEST_SCALE,
                 shift=TEST_SHIFT,
             )
-            # Append to the list of correlated pairs
-            corr_pairs.append(preprocessor_corr)
-        corr_pairs.append(preprocessor)
+            corr_pairs.append(corr_pair)
+
         # Model
         model = Model(
             MODEL_PATH,
             MODEL_NAME,
-            preprocessor.y_train,
+            target_pair.y_train,
         )
         for corr_pair in corr_pairs:
             if isinstance(corr_pair.x_train, np.ndarray):
