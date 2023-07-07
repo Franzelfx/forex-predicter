@@ -116,7 +116,7 @@ class Model:
         data = scaler.inverse_transform(data).flatten()
         return data
     
-    def _transformer_block(hidden_neurons, attention_heads, dropout_rate, input_tensor):
+    def _transformer_block(self, hidden_neurons, attention_heads, dropout_rate, input_tensor):
         input_matched_1 = Dense(hidden_neurons)(input_tensor)
 
         # Separate query and value branches for Attention layer
