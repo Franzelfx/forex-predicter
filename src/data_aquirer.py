@@ -150,6 +150,7 @@ class Data_Aquirer:
             # Print column count
             print(f"Dataset has {len(data.columns)} columns.")
         # Remove all weekends
+        data.drop_duplicates(subset=["t"], inplace=True)
         print("Remove all weekends, len before: ", len(data), end=" ")
         data = self.remove_rows_smaller_than(5, data, 'n')
         print("len after: ", len(data))
