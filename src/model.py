@@ -136,8 +136,8 @@ class Branch:
         x = self._build_blocks()
         x = GlobalAveragePooling1D()(x)
 
+        i = 0
         for neurons in self.neurons_dense:
-            i = 0
             x = Dense(neurons, activation="relu")(x)
             x = Dropout(self.dropout_rate[i])(x)
             i += 1
