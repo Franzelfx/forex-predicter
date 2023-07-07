@@ -81,6 +81,7 @@ class Test_Model(unittest.TestCase):
         if use_multiple_gpus:
             strategy = tf.distribute.MirroredStrategy()
         model.compile(
+            num_blocks=TEST_NUM_BLOCKS,
             learning_rate=TEST_LEARNING_RATE,
             hidden_neurons=TEST_NEURONS,
             strategy=strategy if use_multiple_gpus == 'True' else None,

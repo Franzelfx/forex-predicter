@@ -143,37 +143,23 @@ class Model:
 
         return norm_ffn
 
+    def _build_block(self, hidden_neurons, attention_heads, dropout_rate, input_tensor):
+        transformer_block = self._transformer_block(hidden_neurons, attention_heads, dropout_rate, input_tensor)
+        lstm = Bidirectional(LSTM(hidden_neurons, return_sequences=True))(input_tensor)
+        lstm_matched = Dense(hidden_neurons)(lstm)
+        added = Add()([transformer_block, lstm_matched])
+        norm = LayerNormalization()(added)
+        return norm
 
-    def _build(self, hidden_neurons: int, dropout_rate: float, attention_heads: int, key_dim=16):
+    def _build(self, num_blocks: int, hidden_neurons: int, dropout_rate: float, attention_heads: int):
         input_shape = (self._x_train.shape[1], self._x_train.shape[2])
         inputs = Input(batch_shape=(self._batch_size,) + input_shape)
 
-        # Transformer Block 1
-        transformer_block_1 = self._transformer_block(
-            hidden_neurons, attention_heads, dropout_rate, inputs
-        )
-        # LSTM Block 1
-        lstm_1 = Bidirectional(LSTM(hidden_neurons, return_sequences=True))(inputs)
-        # Match LSTM output shape to Transformer Block output shape
-        lstm_matched_1 = Dense(hidden_neurons)(lstm_1)
-        # Add and normalize
-        add_1 = Add()([transformer_block_1, lstm_matched_1])
-        norm_1 = LayerNormalization()(add_1)
+        x = inputs
+        for _ in range(num_blocks):
+            x = self._build_block(hidden_neurons, attention_heads, dropout_rate, x)
 
-        # Transformer Block 2
-        transformer_block_2 = self._transformer_block(
-            hidden_neurons, attention_heads, dropout_rate, norm_1
-        )
-        # LSTM Block 2
-        lstm_2 = Bidirectional(LSTM(hidden_neurons, return_sequences=True))(norm_1)
-        # Match LSTM output shape to Transformer Block output shape
-        lstm_matched_2 = Dense(hidden_neurons)(lstm_2)
-        # Add and normalize
-        add_2 = Add()([transformer_block_2, lstm_matched_2])
-        norm_2 = LayerNormalization()(add_2)
-
-        # Global average pooling
-        gap = GlobalAveragePooling1D()(norm_2)
+        gap = GlobalAveragePooling1D()(x)
 
         # Dense layers
         dense_1 = Dense(hidden_neurons, activation="relu")(gap)
@@ -223,6 +209,7 @@ class Model:
 
     def compile(
         self,
+        num_blocks: int = 3,
         learning_rate=0.0001,
         hidden_neurons=32,
         dropout_rate: float = 0.2,
@@ -238,7 +225,7 @@ class Model:
                 model = self._build(hidden_neurons, dropout_rate, attention_heads)
                 model.compile(loss=loss_fct, optimizer=optimizer, metrics=["mape"])
         else:
-            model = self._build(hidden_neurons, dropout_rate, attention_heads)
+            model = self._build(num_blocks, hidden_neurons, dropout_rate, attention_heads)
             model.compile(loss=loss_fct, optimizer=optimizer, metrics=["mape"])
         model.summary()
         # Plot the model
