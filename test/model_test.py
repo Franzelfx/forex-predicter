@@ -61,6 +61,8 @@ class Test_Model(unittest.TestCase):
             values_to_keep = indicator_data['t'].unique()
             # filter rows of indicator_data_corr, keeping only those where 't' exists in values_to_keep
             indicator_data_corr = indicator_data_corr[indicator_data_corr['t'].isin(values_to_keep)]
+            # print the length of indicator_data_corr
+            print(f"Length of indicator_data_corr: {len(indicator_data_corr)}")
             # Preprocess the correlated pair
             preprocessor_corr = Preprocessor(
                 indicator_data_corr,
