@@ -257,7 +257,7 @@ class Model:
         data = scaler.inverse_transform(data).flatten()
         return data
 
-    def _build(self, num_outputs: int):
+    def _build(self, output_neurons: int):
         # Check if branches, summation, and output are all set
         if not self._branches:
             raise ValueError("No branches added to the model. Use the 'add_branch' method to add branches.")
@@ -266,13 +266,13 @@ class Model:
         if self._output is None:
             raise ValueError("Output not set. Use the 'output' method to set it.")
         # Get outputs of all branches
-        branch_outputs = [branch.build_model(num_outputs) for branch in self._branches]
+        branch_outputs = [branch.build_model(output_neurons) for branch in self._branches]
         # Combine all branch outputs
         inputs = [branch.model.output for branch in self._branches]
         self._summation = Summation(inputs, self._summation_neurons_dense, self._summation_dropout_rate)
         combined = self._summation.apply(branch_outputs)
         # Apply output layers to the combined tensor
-        final_output = self._output.build_model(combined, num_outputs)
+        final_output = self._output.build_model(combined, output_neurons)
         # Create the final Keras model
         self.model = tf.keras.Model(inputs=[branch.model.input for branch in self._branches], outputs=final_output)
 
