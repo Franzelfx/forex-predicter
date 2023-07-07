@@ -142,10 +142,7 @@ class Branch:
         self.model = KerasModel(inputs=self.tensor_input, outputs=output)
 
 class Summation:
-    def __init__(self):
-        pass
-
-    def apply(self, inputs: List[Tensor]) -> Tensor:
+    def __init__(self, inputs: List[Tensor]):
         output = tf.keras.layers.Add()(inputs)
         return output
 
@@ -271,10 +268,9 @@ class Model:
         branch_outputs = [branch.model.output for branch in self._branches]
         # Combine all branch outputs
         inputs = [branch.model.output for branch in self._branches]
-        self._summation = Summation(inputs, self._summation_neurons_dense, self._summation_dropout_rate)
-        combined = self._summation.apply(branch_outputs)
+        _sum = Summation(inputs)
         # Apply output layers to the combined tensor
-        final_output = self._output.build_model(combined, output_neurons)
+        final_output = self._output.build_model(_sum, output_neurons)
         # Create the final Keras model
         self.model = tf.keras.Model(inputs=[branch.model.input for branch in self._branches], outputs=final_output)
 
