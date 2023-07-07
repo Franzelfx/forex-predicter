@@ -62,7 +62,6 @@ class Test_Model(unittest.TestCase):
             indicator_data_corr = indicator_data_corr[
                 indicator_data_corr["t"].isin(indicator_data["t"])
             ]
-            # Preprocess the data
             preprocessor = Preprocessor(
                 indicator_data_corr,
                 TARGET,
