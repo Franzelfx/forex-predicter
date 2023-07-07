@@ -120,32 +120,34 @@ class Model:
     def _build(self, hidden_neurons: int, dropout_rate: float, attention_heads: int):
         input_shape = (self._x_train.shape[1], self._x_train.shape[2])
         inputs = Input(batch_shape=(self._batch_size,) + input_shape)
-        # LSTM- LAyer- Branch
-        lstm_1 = Bidirectional(LSTM(hidden_neurons, return_sequences=True))(inputs)
-        # Transformer Layer- Branch
-        transformer_block = TransformerBlock(
-            hidden_neurons, attention_heads, dropout_rate
-        )
-        # Add and Norm
-        add_1 = Add()([lstm_1, transformer_block])
-        norm_1 = LayerNormalization()(add_1)
-        # LSTM- Layer- Branch
-        lstm_2 = Bidirectional(LSTM(hidden_neurons, return_sequences=True))(norm_1)
-        # Transformer Layer- Branch
-        transformer_block_2 = TransformerBlock(
-            hidden_neurons, attention_heads, dropout_rate
-        )
-        # Add and Norm
-        add_2 = Add()([lstm_2, transformer_block_2])
-        norm_2 = LayerNormalization()(add_2)
+        
+        # LSTM branch
+        lstm_branch = Bidirectional(LSTM(hidden_neurons, return_sequences=True))(inputs)
+        lstm_norm = LayerNormalization()(lstm_branch)
+        
+        # Transformer branch
+        transformer_branch = TransformerBlock(hidden_neurons, attention_heads, dropout_rate)(inputs)
+        transformer_norm = LayerNormalization()(transformer_branch)
+        
+        # Combine both branches
+        combined = Concatenate()([lstm_norm, transformer_norm])
+        
+        # LSTM layer
+        lstm_2 = Bidirectional(LSTM(hidden_neurons, return_sequences=True))(combined)
+        lstm_norm_2 = LayerNormalization()(lstm_2)
+        
+        # Transformer layer
+        transformer_2 = TransformerBlock(hidden_neurons, attention_heads, dropout_rate)(combined)
+        transformer_norm_2 = LayerNormalization()(transformer_2)
 
         # Global average pooling
-        gap = GlobalAveragePooling1D()(norm_2)
+        gap = GlobalAveragePooling1D()(transformer_norm_2)
+        
         # Dense layers
         dense_1 = Dense(hidden_neurons, activation="relu")(gap)
-        dropout_3 = tf.keras.layers.Dropout(dropout_rate)(dense_1)
+        dropout_3 = Dropout(dropout_rate)(dense_1)
         dense_2 = Dense(hidden_neurons, activation="relu")(dropout_3)
-        dropout_4 = tf.keras.layers.Dropout(dropout_rate)(dense_2)
+        dropout_4 = Dropout(dropout_rate)(dense_2)
         dense_3 = Dense(hidden_neurons, activation="relu")(dropout_4)
         dense_4 = Dense(hidden_neurons, activation="relu")(dense_3)
         output = Dense(self._y_train.shape[1], activation="linear")(dense_4)
