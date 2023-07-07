@@ -154,7 +154,7 @@ class Data_Aquirer:
         data = self.remove_rows_smaller_than(5, data, 'n')
         print("len after: ", len(data))
         return data
-    
+
     def remove_rows_smaller_than(self, offset: int, data: pd.DataFrame, column: str) -> pd.DataFrame:
         """Remove rows where the value of a specific column is smaller than 5.
 

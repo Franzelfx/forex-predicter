@@ -2,6 +2,7 @@
 import os
 import logging
 import numpy as np
+from typing import List
 import tensorflow as tf
 from pandas import DataFrame
 import matplotlib.pyplot as plt
@@ -151,27 +152,33 @@ class Model:
         norm = LayerNormalization()(added)
         return norm
 
-    def _build(self, num_blocks: int, hidden_neurons: int, dropout_rate: float, attention_heads: int):
+    def _build_dense_layer(self, neurons, dropout_rate, input_tensor):
+        dense = Dense(neurons, activation="relu")(input_tensor)
+        dropout = Dropout(dropout_rate)(dense)
+        return dropout
+
+    def _build(self, hidden_neurons: List[int], dropout_rate: List[float], attention_heads: List[int], dense_neurons: List[int], dense_dropout: List[float]):
+        assert len(hidden_neurons) == len(attention_heads) == len(dropout_rate), "hidden_neurons, attention_heads, and dropout_rate must have the same length"
+        assert len(dense_neurons) == len(dense_dropout), "dense_neurons and dense_dropout must have the same length"
+        
         input_shape = (self._x_train.shape[1], self._x_train.shape[2])
         inputs = Input(batch_shape=(self._batch_size,) + input_shape)
 
         x = inputs
-        for _ in range(num_blocks):
-            x = self._build_block(hidden_neurons, attention_heads, dropout_rate, x)
+        for hidden_neurons_block, attention_heads_block, dropout_rate_block in zip(hidden_neurons, attention_heads, dropout_rate):
+            x = self._build_block(hidden_neurons_block, attention_heads_block, dropout_rate_block, x)
 
-        gap = GlobalAveragePooling1D()(x)
+        x = GlobalAveragePooling1D()(x)
 
         # Dense layers
-        dense_1 = Dense(hidden_neurons, activation="relu")(gap)
-        dropout_3 = Dropout(dropout_rate)(dense_1)
-        dense_2 = Dense(hidden_neurons, activation="relu")(dropout_3)
-        dropout_4 = Dropout(dropout_rate)(dense_2)
-        dense_3 = Dense(hidden_neurons, activation="relu")(dropout_4)
-        dense_4 = Dense(hidden_neurons, activation="relu")(dense_3)
-        output = Dense(self._y_train.shape[1], activation="linear")(dense_4)
+        for dense_neurons_block, dropout_rate_block in zip(dense_neurons, dense_dropout):
+            x = self._build_dense_layer(dense_neurons_block, dropout_rate_block, x)
+
+        output = Dense(self._y_train.shape[1], activation="linear")(x)
 
         model = KerasModel(inputs=inputs, outputs=output)
         return model
+
 
 
     def _plot_fit_history(self, fit):
@@ -222,7 +229,7 @@ class Model:
         # Check if multiple GPUs are available
         if strategy is not None and hasattr(strategy, "scope"):
             with strategy.scope():
-                model = self._build(hidden_neurons, dropout_rate, attention_heads)
+                model = self._build(hidden_neurons=[128,64,32], dropout_rate=[0.2,0.2,0.2], attention_heads=[2,2,2], dense_neurons=[128,64,32], dense_dropout=[0.2,0.2,0.2])
                 model.compile(loss=loss_fct, optimizer=optimizer, metrics=["mape"])
         else:
             model = self._build(num_blocks, hidden_neurons, dropout_rate, attention_heads)

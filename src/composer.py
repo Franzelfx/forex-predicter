@@ -138,7 +138,10 @@ class Composer:
         print(self._model_branches())
         print(self._model_concat())
 
-    def compose(self):
+    def aquire(self):
+
+
+    def compile(self):
         """Compose the data_aquirer, indicator, preprocessor and model into a single class."""
         # data_collection = {}
         # for branch in self._branches:
@@ -157,3 +160,11 @@ class Composer:
         model = Branched_Model(PATH_MODEL, self._processing.pair, x_train=None, y_train=None)
         model.add_branch(conv=[64, 32], lstm=[32, 16], dense=[16, 8], dropout=0.2)
         model.compile_and_fit()
+
+    def fit(self):
+        """Fit the model."""
+        pass
+
+    def predict(self):
+        """Predict with the model."""
+        pass
