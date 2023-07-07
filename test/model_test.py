@@ -122,6 +122,7 @@ class Test_Model(unittest.TestCase):
         for corr_pair in corr_pairs:
             if isinstance(corr_pair.x_train, np.ndarray):
                 model.add_branch(corr_pair.x_train, [64], [64], [64], [2], [0.2])
+        model.main_branch([64], [64], [64], [2], [0.2])
         model.summation([64], [0.2])
         model.output([64], [0.2])
         # Run for testing
