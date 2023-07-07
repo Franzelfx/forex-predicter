@@ -113,7 +113,7 @@ class Branch:
         self.attention_heads = attention_heads
         self.dropout_rate = dropout_rate
         self.is_input = is_input
-        self._model = None
+        self.model = None
         if self.is_input:
             self.tensor_input = Input(shape=self.tensor_input.shape[1:])
 
@@ -139,11 +139,7 @@ class Branch:
 
         output = Dense(output_neurons, activation="linear")(x)
 
-        self._model = KerasModel(inputs=self.tensor_input, outputs=output)
-
-    @property
-    def model(self) -> KerasModel:
-        return self._model
+        self.model = KerasModel(inputs=self.tensor_input, outputs=output)
 
 class Summation:
     def __init__(self):
