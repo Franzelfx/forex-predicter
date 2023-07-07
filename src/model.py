@@ -117,6 +117,7 @@ class Branch:
         self.is_input = is_input
         self.model = None
         if self.is_input:
+            self.X_train = tensor_input
             self.tensor_input = Input(shape=self.tensor_input.shape[1:])
 
     def _build_blocks(self):
@@ -400,11 +401,8 @@ class Model:
         X_train = []
         X_val = []
         for branch in self._branches:
-            branch_input = branch.tensor_input
-            # Conevert to numpy array
-            branch_input = np.array(branch_input)
             _X_train, _X_val = train_test_split(
-            branch_input, test_size=validation_split, shuffle=False
+            branch.X_train, test_size=validation_split, shuffle=False
             )
             X_train.append(_X_train)
             X_val.append(_X_val)
