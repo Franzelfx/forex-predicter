@@ -98,7 +98,6 @@ class TransformerLSTMBlock:
 class Branch:
     def __init__(
         self,
-        name: str,
         tensor_input: np.ndarray,
         neurons_transformer: List[int],
         neurons_lstm: List[int],
@@ -106,7 +105,6 @@ class Branch:
         attention_heads: List[int],
         dropout_rate: List[float],
     ):
-        self.name = name
         self.tensor_input = tensor_input
         self.neurons_transformer = neurons_transformer
         self.neurons_lstm = neurons_lstm
@@ -275,7 +273,7 @@ class Model:
         self.model = tf.keras.Model(inputs=[branch.model.input for branch in self._branches], outputs=final_output)
 
     def add_branch(self, inputs: List[int], neurons_transformer: List[int], neurons_lstm: List[int], neurons_dense: List[int], attention_heads: List[int], dropout_rate: List[float]):
-        branch = Branch(inputs, neurons_transformer, neurons_lstm, neurons_dense, attention_heads, dropout_rate)
+        branch = Branch(name, inputs, neurons_transformer, neurons_lstm, neurons_dense, attention_heads, dropout_rate)
         self._branches.append(branch)
 
     def summation(self, neurons_dense: List[int], dropout_rate: List[float]):

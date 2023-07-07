@@ -50,6 +50,7 @@ class Preprocessor:
                     3. Create samples for x and y.
         """
         # Data and target
+        self._name = name
         self._data = data
         self._target = target
         # The time steps
