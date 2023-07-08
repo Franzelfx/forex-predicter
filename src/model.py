@@ -2,10 +2,9 @@
 import os
 import logging
 import numpy as np
-from typing import Any, List
+from typing import List
 import tensorflow as tf
 from pandas import DataFrame
-from tensorflow import Tensor
 import matplotlib.pyplot as plt
 from keras.optimizers import Adam
 from datetime import datetime as dt
