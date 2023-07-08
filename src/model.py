@@ -311,6 +311,7 @@ class Model:
     def _build(self, architecture: Architecture) -> KerasModel:
         """Build the model."""
         # Main branch
+        inputs = []
         branches = []
         for branch in architecture.branches:
             input_shape = (branch.input.shape[1], branch.input.shape[2])
@@ -324,6 +325,7 @@ class Model:
                 self._y_train.shape[1],
             )(_input)
             branches.append(_branch)
+            inputs.append(_input)
         # Summation layer
         summation = Add()(branches)
         # Main branch
@@ -342,7 +344,7 @@ class Model:
             architecture.output_neurons,
         )(main_branch)
         # Build the model
-        model = KerasModel(inputs=_input, outputs=output)
+        model = KerasModel(inputs=inputs, outputs=output)
         return model
 
     def _plot_fit_history(self, fit):
