@@ -1,4 +1,11 @@
 """This module contains the model class for the LSTM model."""
+from keras import activations
+from keras import backend
+from keras import constraints
+from keras import initializers
+from keras import regularizers
+from keras.engine.input_spec import InputSpec
+
 import os
 import logging
 import numpy as np
