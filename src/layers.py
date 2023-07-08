@@ -61,6 +61,7 @@ class TransformerBlock(tf.keras.layers.Layer):
 
         return norm_ffn
 
+
 class TransformerLSTMBlock(tf.keras.layers.Layer):
     def __init__(
         self,
@@ -92,6 +93,7 @@ class TransformerLSTMBlock(tf.keras.layers.Layer):
         added = self.add([transformer_block, lstm_matched])
         norm = self.layer_norm(added)
         return norm
+
 
 class Branch(tf.keras.layers.Layer):
     def __init__(
