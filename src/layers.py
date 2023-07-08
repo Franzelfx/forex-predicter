@@ -28,6 +28,7 @@ class TransformerBlock(tf.keras.layers.Layer):
         self.hidden_neurons = hidden_neurons
         self.attention_heads = attention_heads
         self.dropout_rate = dropout_rate
+
         self.dense_1 = Dense(hidden_neurons)
         self.dense_2 = Dense(hidden_neurons)
         self.dense_3 = Dense(hidden_neurons)
@@ -49,9 +50,9 @@ class TransformerBlock(tf.keras.layers.Layer):
         residual_attention = self.add_1([input_matched_1, dropout_attention])
         norm_attention = self.layer_norm_1(residual_attention)
 
-        feed_forward_1 = Dense(self.hidden_neurons, activation="relu")(norm_attention)
-        feed_forward_2 = Dense(self.hidden_neurons, activation="relu")(feed_forward_1)
-        feed_forward_3 = Dense(self.hidden_neurons, activation="relu")(feed_forward_2)
+        feed_forward_1 = self.dense_4(norm_attention)
+        feed_forward_2 = self.dense_5(feed_forward_1)
+        feed_forward_3 = self.dense_6(feed_forward_2)
 
         dropout_ffn = self.dropout_ffn(feed_forward_3)
         residual_ffn = self.add_2([norm_attention, dropout_ffn])
@@ -75,6 +76,7 @@ class TransformerLSTMBlock(tf.keras.layers.Layer):
         self.neurons_dense = neurons_dense
         self.attention_heads = attention_heads
         self.dropout_rate = dropout_rate
+
         self.transformer_block = TransformerBlock(
             neurons_transformer, attention_heads, dropout_rate
         )
