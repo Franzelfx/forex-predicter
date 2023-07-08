@@ -105,6 +105,36 @@ class TransformerBlock:
 
         return norm_ffn
 
+
+class TransformerLSTMBlock:
+    def __init__(
+        self,
+        neurons_transformer,
+        neurons_lstm,
+        neurons_dense,
+        attention_heads,
+        dropout_rate,
+    ):
+        self.neurons_transformer = neurons_transformer
+        self.neurons_lstm = neurons_lstm
+        self.neurons_dense = neurons_dense
+        self.attention_heads = attention_heads
+        self.dropout_rate = dropout_rate
+        self.transformer_block = TransformerBlock(
+            neurons_transformer, attention_heads, dropout_rate
+        )
+
+    def __call__(self, input_tensor):
+        transformer_block = self.transformer_block(input_tensor)
+        lstm = Bidirectional(LSTM(self.neurons_lstm, return_sequences=True))(
+            input_tensor
+        )
+        lstm_matched = Dense(self.neurons_dense)(lstm)
+        added = Add()([transformer_block, lstm_matched])
+        norm = LayerNormalization()(added)
+        return norm
+
+
 class BranchLayer(tf.keras.layers.Layer):
     def __init__(
         self,
@@ -166,6 +196,7 @@ class BranchLayer(tf.keras.layers.Layer):
             x = dropout_layer(x)
         output = self.output_layer(x)
         return output
+
 
 
 class OutputLayer(tf.keras.layers.Layer):
