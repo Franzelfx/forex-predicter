@@ -296,7 +296,7 @@ class Model:
         data = scaler.inverse_transform(data).flatten()
         return data
 
-    def _build(architecture: Architecture) -> KerasModel:
+    def _build(self, architecture: Architecture) -> KerasModel:
         """Build the model."""
         # Main branch
         branches = []
