@@ -126,6 +126,8 @@ class TransformerLSTMBlock:
         )
 
     def __call__(self, input_tensor):
+        print("input tensor shape: ", input_tensor.shape)
+        print("hidden neurons: ", self.neurons_transformer)
         transformer_block = self.transformer_block(input_tensor)
         lstm = Bidirectional(LSTM(self.neurons_lstm, return_sequences=True))(
             input_tensor
