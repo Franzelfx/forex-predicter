@@ -332,7 +332,7 @@ class Model:
         summation = LayerNormalization()(summation)
         # Output layer
         output = OutputLayer(
-            architecture.output.hidden_neurons
+            architecture.output.hidden_neurons,
             architecture.output.dropout_rate,
             self._y_train.shape[1],
         )(summation)
