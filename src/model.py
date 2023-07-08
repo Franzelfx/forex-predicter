@@ -301,7 +301,7 @@ class Model:
         # Main branch
         branches = []
         for branch in architecture.branches:
-            _input = Input(shape=branch.input_shape)
+            _input = Input(shape=branch.input.shape)
             _branch = BranchLayer(branch.transformer_neurons, branch.lstm_neurons, branch.dense_neurons, branch.attention_heads, branch.dropout_rate, branch.is_input)(_input)
             branches.append(_branch)
         # Summation layer
