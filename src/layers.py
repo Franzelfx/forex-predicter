@@ -51,9 +51,9 @@ class TransformerBlock(tf.keras.layers.Layer):
         residual_attention = self.add_1([input_matched_1, dropout_attention])
         norm_attention = self.layer_norm_1(residual_attention)
 
-        feed_forward_1 = self.dense_4(norm_attention)
-        feed_forward_2 = self.dense_5(feed_forward_1)
-        feed_forward_3 = self.dense_6(feed_forward_2)
+        feed_forward_1 = self.dense_1(norm_attention)
+        feed_forward_2 = self.dense_2(feed_forward_1)
+        feed_forward_3 = self.dense_3(feed_forward_2)
 
         dropout_ffn = self.dropout_ffn(feed_forward_3)
         residual_ffn = self.add_2([norm_attention, dropout_ffn])
@@ -93,6 +93,7 @@ class TransformerLSTMBlock(tf.keras.layers.Layer):
         added = self.add([transformer_block, lstm_matched])
         norm = self.layer_norm(added)
         return norm
+
 
 
 class Branch(tf.keras.layers.Layer):
