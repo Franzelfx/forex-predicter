@@ -25,18 +25,9 @@ from keras.callbacks import (
     TensorBoard,
     ReduceLROnPlateau,
 )
-from keras.layers import (
-    Add,
-    LSTM,
-    Input,
-    Dense,
-    Dropout,
-    Softmax,
-    Bidirectional,
-    MultiHeadAttention,
-    LayerNormalization,
-    GlobalAveragePooling1D,
-)
+import src.layers as layers
+
+from keras.layers import Add, LayerNormalization
 import numpy as np
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
@@ -59,12 +50,10 @@ class Branch:
         self.attention_heads = attention_heads
         self.dropout_rate = dropout_rate
 
-
 class Output:
     def __init__(self, hidden_neurons, dropout_rate):
         self.hidden_neurons = hidden_neurons
         self.dropout_rate = dropout_rate
-
 
 class Architecture:
     def __init__(self, branches: List[Branch], main_branch: Branch, output: Output):
@@ -72,218 +61,9 @@ class Architecture:
         self.main_branch: Branch = main_branch
         self.output: Output = output
 
-
 class ResetStatesCallback(tf.keras.callbacks.Callback):
     def on_epoch_end(self, epoch, logs=None):
         self.model.reset_states()
-
-
-class TransformerBlock:
-    def __init__(self, hidden_neurons, attention_heads, dropout_rate):
-        self.hidden_neurons = hidden_neurons
-        self.attention_heads = attention_heads
-        self.dropout_rate = dropout_rate
-
-    def __call__(self, input_tensor):
-        input_matched_1 = Dense(self.hidden_neurons)(input_tensor)
-        # Separate query and value branches for Attention layer
-        query = Dense(self.hidden_neurons)(input_matched_1)
-        value = Dense(self.hidden_neurons)(input_matched_1)
-
-        # Apply Attention layer
-        attention_1 = MultiHeadAttention(self.attention_heads, self.hidden_neurons)(
-            query, value
-        )
-
-        # Add dropout and residual connection and layer normalization
-        dropout_attention = Dropout(self.dropout_rate)(attention_1)
-        residual_attention = Add()([input_matched_1, dropout_attention])
-        norm_attention = LayerNormalization()(residual_attention)
-
-        # Feed forward layer
-        feed_forward_1 = Dense(self.hidden_neurons, activation="relu")(norm_attention)
-        feed_forward_2 = Dense(self.hidden_neurons, activation="relu")(feed_forward_1)
-        feed_forward_3 = Dense(self.hidden_neurons, activation="relu")(feed_forward_2)
-
-        # Add dropout, residual connection, and layer normalization
-        dropout_ffn = Dropout(self.dropout_rate)(feed_forward_3)
-        residual_ffn = Add()([norm_attention, dropout_ffn])
-        norm_ffn = LayerNormalization()(residual_ffn)
-
-        return norm_ffn
-
-
-class TransformerLSTMBlock:
-    def __init__(
-        self,
-        neurons_transformer,
-        neurons_lstm,
-        neurons_dense,
-        attention_heads,
-        dropout_rate,
-    ):
-        self.neurons_transformer = neurons_transformer
-        self.neurons_lstm = neurons_lstm
-        self.neurons_dense = neurons_dense
-        self.attention_heads = attention_heads
-        self.dropout_rate = dropout_rate
-        self.transformer_block = TransformerBlock(
-            neurons_transformer, attention_heads, dropout_rate
-        )
-
-    def __call__(self, input_tensor):
-        transformer_block = self.transformer_block(input_tensor)
-        lstm = Bidirectional(LSTM(self.neurons_lstm, return_sequences=True))(
-            input_tensor
-        )
-        lstm_matched = Dense(self.neurons_dense)(lstm)
-        added = Add()([transformer_block, lstm_matched])
-        norm = LayerNormalization()(added)
-        return norm
-
-
-class BranchLayer(tf.keras.layers.Layer):
-    def __init__(
-        self,
-        neurons_transformer: List[int],
-        neurons_lstm: List[int],
-        neurons_dense: List[int],
-        attention_heads: List[int],
-        dropout_rate: List[float],
-        output_neurons: int,
-        activation=None,
-        use_bias=True,
-        kernel_initializer="glorot_uniform",
-        bias_initializer="zeros",
-        kernel_regularizer=None,
-        bias_regularizer=None,
-        activity_regularizer=None,
-        kernel_constraint=None,
-        bias_constraint=None,
-        **kwargs,
-    ):
-        super().__init__(activity_regularizer=activity_regularizer, **kwargs)
-
-        self.neurons_transformer = neurons_transformer
-        self.neurons_lstm = neurons_lstm
-        self.neurons_dense = neurons_dense
-        self.attention_heads = attention_heads
-        self.dropout_rate = dropout_rate
-        self.output_neurons = int(output_neurons) if not isinstance(output_neurons, int) else output_neurons
-        if self.output_neurons < 0:
-            raise ValueError(
-                "Received an invalid value for `output_neurons`, expected "
-                f"a positive integer. Received: output_neurons={output_neurons}"
-            )
-        self.activation = activations.get(activation)
-        self.use_bias = use_bias
-        self.kernel_initializer = initializers.get(kernel_initializer)
-        self.bias_initializer = initializers.get(bias_initializer)
-        self.kernel_regularizer = regularizers.get(kernel_regularizer)
-        self.bias_regularizer = regularizers.get(bias_regularizer)
-        self.kernel_constraint = constraints.get(kernel_constraint)
-        self.bias_constraint = constraints.get(bias_constraint)
-
-        self.input_spec = InputSpec(min_ndim=2)
-        self.supports_masking = True
-
-    def build(self, input_shape):
-        dtype = tf.as_dtype(self.dtype or backend.floatx())
-        if not (dtype.is_floating or dtype.is_complex):
-            raise TypeError(
-                "A BranchLayer can only be built with a floating-point "
-                f"dtype. Received: dtype={dtype}"
-            )
-
-        input_shape = tf.TensorShape(input_shape)
-        last_dim = tf.compat.dimension_value(input_shape[-1])
-        if last_dim is None:
-            raise ValueError(
-                "The last dimension of the inputs to a BranchLayer "
-                "should be defined. Found None. "
-                f"Full input shape received: {input_shape}"
-            )
-        self.input_spec = InputSpec(min_ndim=2, axes={-1: last_dim})
-        
-        # Build the layers within the branch
-        self.transformer_layers = []
-        for (
-            neurons_transformer,
-            neurons_lstm,
-            neurons_dense,
-            attention_heads,
-            dropout_rate,
-        ) in zip(
-            self.neurons_transformer,
-            self.neurons_lstm,
-            self.neurons_dense,
-            self.attention_heads,
-            self.dropout_rate,
-        ):
-            transformer_block = TransformerLSTMBlock(
-                neurons_transformer,
-                neurons_lstm,
-                neurons_dense,
-                attention_heads,
-                dropout_rate,
-            )
-            self.transformer_layers.append(transformer_block)
-        
-        self.dense_layers = []
-        for neurons, dropout in zip(self.neurons_dense, self.dropout_rate):
-            dense_layer = Dense(neurons, activation="relu")
-            dropout_layer = Dropout(dropout)
-            self.dense_layers.append((dense_layer, dropout_layer))
-        
-        self.output_layer = Dense(self.output_neurons, activation=self.activation)
-        
-        self.built = True
-
-    def call(self, inputs):
-        x = inputs
-        for transformer_layer in self.transformer_layers:
-            x = transformer_layer(x)
-        
-        x = GlobalAveragePooling1D()(x)
-        
-        for dense_layer, dropout_layer in self.dense_layers:
-            x = dense_layer(x)
-            x = dropout_layer(x)
-        
-        outputs = self.output_layer(x)
-        
-        return outputs
-
-
-
-
-class OutputLayer(tf.keras.layers.Layer):
-    def __init__(
-        self,
-        neurons_dense: List[int],
-        dropout_rate: List[float],
-        output_neurons: int,
-        **kwargs,
-    ):
-        super(OutputLayer, self).__init__(**kwargs)
-        assert len(neurons_dense) == len(
-            dropout_rate
-        ), "Length of neurons_dense and dropout_rate should be equal"
-
-        self.neurons_dense = neurons_dense
-        self.dropout_rate = dropout_rate
-        self.output_neurons = output_neurons
-
-    def call(self, inputs, **kwargs):
-        x = inputs
-        for neurons, dropout in zip(self.neurons_dense, self.dropout_rate):
-            x = Dense(neurons, activation="relu")(x)
-            x = Dropout(dropout)(x)
-
-        # Final output layer
-        output = Dense(self.output_neurons)(x)
-        output = Softmax(axis=-1)(output)  # Specify the correct axis value
-        return output
 
 
 class Model:
@@ -372,8 +152,8 @@ class Model:
         branches = []
         for branch in architecture.branches:
             input_shape = (branch.input.shape[1], branch.input.shape[2])
-            _input = Input(shape=input_shape)
-            _branch = BranchLayer(
+            _input = layers.Input(shape=input_shape)
+            _branch = layers.Branch(
                 branch.transformer_neurons,
                 branch.lstm_neurons,
                 branch.dense_neurons,
@@ -388,7 +168,7 @@ class Model:
         # Layer normalization
         summation = LayerNormalization()(summation)
         # Output layer
-        output = OutputLayer(
+        output = layers.Output(
             architecture.output.hidden_neurons,
             architecture.output.dropout_rate,
             self._y_train.shape[1],
