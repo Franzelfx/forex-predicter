@@ -144,58 +144,109 @@ class BranchLayer(tf.keras.layers.Layer):
         attention_heads: List[int],
         dropout_rate: List[float],
         output_neurons: int,
+        activation=None,
+        use_bias=True,
+        kernel_initializer="glorot_uniform",
+        bias_initializer="zeros",
+        kernel_regularizer=None,
+        bias_regularizer=None,
+        activity_regularizer=None,
+        kernel_constraint=None,
+        bias_constraint=None,
         **kwargs,
     ):
-        super(BranchLayer, self).__init__(**kwargs)
+        super().__init__(activity_regularizer=activity_regularizer, **kwargs)
+
         self.neurons_transformer = neurons_transformer
         self.neurons_lstm = neurons_lstm
         self.neurons_dense = neurons_dense
         self.attention_heads = attention_heads
         self.dropout_rate = dropout_rate
-        self.output_neurons = output_neurons
-        self.transformer_blocks = [
-            TransformerLSTMBlock(
-                neurons_transformer,
-                neurons_lstm,
-                neurons_dense,
-                attention_heads,
-                dropout_rate,
+        self.output_neurons = int(output_neurons) if not isinstance(output_neurons, int) else output_neurons
+        if self.output_neurons < 0:
+            raise ValueError(
+                "Received an invalid value for `output_neurons`, expected "
+                f"a positive integer. Received: output_neurons={output_neurons}"
             )
-            for (
-                neurons_transformer,
-                neurons_lstm,
-                neurons_dense,
-                attention_heads,
-                dropout_rate,
-            ) in zip(
-                self.neurons_transformer,
-                self.neurons_lstm,
-                self.neurons_dense,
-                self.attention_heads,
-                self.dropout_rate,
-            )
-        ]
-        self.global_average_pooling = GlobalAveragePooling1D()
-        self.dense_layers = [
-            Dense(neurons, activation="relu")
-            for neurons in self.neurons_dense
-        ]
-        self.dropout_layers = [Dropout(dropout) for dropout in self.dropout_rate]
-        self.output_layer = Dense(output_neurons, activation="linear")
+        self.activation = activations.get(activation)
+        self.use_bias = use_bias
+        self.kernel_initializer = initializers.get(kernel_initializer)
+        self.bias_initializer = initializers.get(bias_initializer)
+        self.kernel_regularizer = regularizers.get(kernel_regularizer)
+        self.bias_regularizer = regularizers.get(bias_regularizer)
+        self.kernel_constraint = constraints.get(kernel_constraint)
+        self.bias_constraint = constraints.get(bias_constraint)
 
-    @tf.function
-    def call(self, inputs, **kwargs):
-        x = inputs
-        for transformer_block in self.transformer_blocks:
-            x = transformer_block(x)
-        x = self.global_average_pooling(x)
-        for dense_layer, dropout_layer in zip(
-            self.dense_layers, self.dropout_layers
+        self.input_spec = InputSpec(min_ndim=2)
+        self.supports_masking = True
+
+    def build(self, input_shape):
+        dtype = tf.as_dtype(self.dtype or backend.floatx())
+        if not (dtype.is_floating or dtype.is_complex):
+            raise TypeError(
+                "A BranchLayer can only be built with a floating-point "
+                f"dtype. Received: dtype={dtype}"
+            )
+
+        input_shape = tf.TensorShape(input_shape)
+        last_dim = tf.compat.dimension_value(input_shape[-1])
+        if last_dim is None:
+            raise ValueError(
+                "The last dimension of the inputs to a BranchLayer "
+                "should be defined. Found None. "
+                f"Full input shape received: {input_shape}"
+            )
+        self.input_spec = InputSpec(min_ndim=2, axes={-1: last_dim})
+        
+        # Build the layers within the branch
+        self.transformer_layers = []
+        for (
+            neurons_transformer,
+            neurons_lstm,
+            neurons_dense,
+            attention_heads,
+            dropout_rate,
+        ) in zip(
+            self.neurons_transformer,
+            self.neurons_lstm,
+            self.neurons_dense,
+            self.attention_heads,
+            self.dropout_rate,
         ):
+            transformer_block = TransformerLSTMBlock(
+                neurons_transformer,
+                neurons_lstm,
+                neurons_dense,
+                attention_heads,
+                dropout_rate,
+            )
+            self.transformer_layers.append(transformer_block)
+        
+        self.dense_layers = []
+        for neurons, dropout in zip(self.neurons_dense, self.dropout_rate):
+            dense_layer = Dense(neurons, activation="relu")
+            dropout_layer = Dropout(dropout)
+            self.dense_layers.append((dense_layer, dropout_layer))
+        
+        self.output_layer = Dense(self.output_neurons, activation=self.activation)
+        
+        self.built = True
+
+    def call(self, inputs):
+        x = inputs
+        for transformer_layer in self.transformer_layers:
+            x = transformer_layer(x)
+        
+        x = GlobalAveragePooling1D()(x)
+        
+        for dense_layer, dropout_layer in self.dense_layers:
             x = dense_layer(x)
             x = dropout_layer(x)
-        output = self.output_layer(x)
-        return output
+        
+        outputs = self.output_layer(x)
+        
+        return outputs
+
 
 
 
