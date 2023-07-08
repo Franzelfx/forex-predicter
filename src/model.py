@@ -328,6 +328,8 @@ class Model:
             inputs.append(_input)
         # Summation layer
         summation = Add()(branches)
+        # Layer normalization
+        summation = LayerNormalization()(summation)
         # Main branch
         main_branch = BranchLayer(
             architecture.main_branch.transformer_neurons,
