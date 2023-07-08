@@ -379,7 +379,7 @@ class Model:
         else:
             model = self._build(architecture)
             model.compile(loss=loss_fct, optimizer=optimizer, metrics=["mape"])
-        model.summary()
+        model.summary(expand_nested=True)
         # Plot the model
         try:
             tf.keras.utils.plot_model(
