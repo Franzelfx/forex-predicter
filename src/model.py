@@ -105,36 +105,6 @@ class TransformerBlock:
 
         return norm_ffn
 
-
-class TransformerLSTMBlock:
-    def __init__(
-        self,
-        neurons_transformer,
-        neurons_lstm,
-        neurons_dense,
-        attention_heads,
-        dropout_rate,
-    ):
-        self.neurons_transformer = neurons_transformer
-        self.neurons_lstm = neurons_lstm
-        self.neurons_dense = neurons_dense
-        self.attention_heads = attention_heads
-        self.dropout_rate = dropout_rate
-        self.transformer_block = TransformerBlock(
-            neurons_transformer, attention_heads, dropout_rate
-        )
-
-    def __call__(self, input_tensor):
-        transformer_block = self.transformer_block(input_tensor)
-        lstm = Bidirectional(LSTM(self.neurons_lstm, return_sequences=True))(
-            input_tensor
-        )
-        lstm_matched = Dense(self.neurons_dense)(lstm)
-        added = Add()([transformer_block, lstm_matched])
-        norm = LayerNormalization()(added)
-        return norm
-
-
 class BranchLayer(tf.keras.layers.Layer):
     def __init__(
         self,
@@ -153,38 +123,48 @@ class BranchLayer(tf.keras.layers.Layer):
         self.attention_heads = attention_heads
         self.dropout_rate = dropout_rate
         self.output_neurons = output_neurons
-        self.model = None
-
-    def call(self, inputs, **kwargs):
-        x = inputs
-        for (
-            neurons_transformer,
-            neurons_lstm,
-            neurons_dense,
-            attention_heads,
-            dropout_rate,
-        ) in zip(
-            self.neurons_transformer,
-            self.neurons_lstm,
-            self.neurons_dense,
-            self.attention_heads,
-            self.dropout_rate,
-        ):
-            block = TransformerLSTMBlock(
+        self.transformer_blocks = [
+            TransformerLSTMBlock(
                 neurons_transformer,
                 neurons_lstm,
                 neurons_dense,
                 attention_heads,
                 dropout_rate,
             )
-            x = block(x)
-        x = GlobalAveragePooling1D()(x)
+            for (
+                neurons_transformer,
+                neurons_lstm,
+                neurons_dense,
+                attention_heads,
+                dropout_rate,
+            ) in zip(
+                self.neurons_transformer,
+                self.neurons_lstm,
+                self.neurons_dense,
+                self.attention_heads,
+                self.dropout_rate,
+            )
+        ]
+        self.global_average_pooling = GlobalAveragePooling1D()
+        self.dense_layers = [
+            Dense(neurons, activation="relu")
+            for neurons in self.neurons_dense
+        ]
+        self.dropout_layers = [Dropout(dropout) for dropout in self.dropout_rate]
+        self.output_layer = Dense(output_neurons, activation="linear")
 
-        for neurons, dropout in zip(self.neurons_dense, self.dropout_rate):
-            x = Dense(neurons, activation="relu")(x)
-            x = Dropout(dropout)(x)
-
-        output = Dense(self.output_neurons, activation="linear")(x)
+    @tf.function
+    def call(self, inputs, **kwargs):
+        x = inputs
+        for transformer_block in self.transformer_blocks:
+            x = transformer_block(x)
+        x = self.global_average_pooling(x)
+        for dense_layer, dropout_layer in zip(
+            self.dense_layers, self.dropout_layers
+        ):
+            x = dense_layer(x)
+            x = dropout_layer(x)
+        output = self.output_layer(x)
         return output
 
 
