@@ -313,7 +313,8 @@ class Model:
         # Main branch
         branches = []
         for branch in architecture.branches:
-            _input = Input(shape=branch.input.shape)
+            input_shape = (branch.input.shape[1], branch.input.shape[2])
+            _input = Input(shape=input_shape)
             _branch = BranchLayer(
                 branch.transformer_neurons,
                 branch.lstm_neurons,
