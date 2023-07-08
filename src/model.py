@@ -330,25 +330,12 @@ class Model:
         summation = Add()(branches)
         # Layer normalization
         summation = LayerNormalization()(summation)
-        # Add a single dense layer
-        summation = Dense(
-            64, activation="relu"
-        )(summation)
-        # Main branch
-        main_branch = BranchLayer(
-            architecture.main_branch.transformer_neurons,
-            architecture.main_branch.lstm_neurons,
-            architecture.main_branch.dense_neurons,
-            architecture.main_branch.attention_heads,
-            architecture.main_branch.dropout_rate,
-            self._y_train.shape[1],
-        )(summation)
         # Output layer
         output = OutputLayer(
             architecture.output_neurons,
             architecture.dropout_rate,
             architecture.output_neurons,
-        )(main_branch)
+        )(summation)
         # Build the model
         model = KerasModel(inputs=inputs, outputs=output)
         return model
