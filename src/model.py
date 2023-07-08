@@ -181,11 +181,10 @@ class BranchLayer(tf.keras.layers.Layer):
             x = block(x)
         x = GlobalAveragePooling1D()(x)
 
-        i = 0
-        for neurons in self.neurons_dense:
+        for neurons, dropout in zip(self.neurons_dense, self.dropout_rate):
             x = Dense(neurons, activation="relu")(x)
-            x = Dropout(self.dropout_rate[i])(x)
-            i += 1
+            x = Dropout(dropout)(x)
+
         output = Dense(self.output_neurons, activation="linear")(x)
         return output
 
