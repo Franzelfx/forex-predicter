@@ -125,7 +125,7 @@ class TransformerLSTMBlock:
         )
 
     def __call__(self, input_tensor):
-        transformer_block = self.transformer_block(input_tensor)
+        transformer_block = self.transformer_block(transformer_block)
         lstm = Bidirectional(LSTM(self.neurons_lstm, return_sequences=True))(
             input_tensor
         )
@@ -196,7 +196,7 @@ class OutputLayer(tf.keras.layers.Layer):
         output_neurons: int,
         **kwargs,
     ):
-        super(Output, self).__init__(**kwargs)
+        super(OutputLayer, self).__init__(**kwargs)
         assert len(neurons_dense) == len(
             dropout_rate
         ), "Length of neurons_dense and dropout_rate should be equal"
