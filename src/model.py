@@ -332,9 +332,9 @@ class Model:
         summation = LayerNormalization()(summation)
         # Output layer
         output = OutputLayer(
-            architecture.output_neurons,
-            architecture.dropout_rate,
-            architecture.output_neurons,
+            architecture.output.hidden_neurons
+            architecture.output.dropout_rate,
+            self._y_train.shape[1],
         )(summation)
         # Build the model
         model = KerasModel(inputs=inputs, outputs=output)
