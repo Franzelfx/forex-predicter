@@ -34,8 +34,17 @@ import numpy as np
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 
-class Branch():
-    def __init__(self, _input: np.ndarray, hidden_neurons, lstm_neurons, dense_neurons, attention_heads, dropout_rate):
+
+class Branch:
+    def __init__(
+        self,
+        _input: np.ndarray,
+        hidden_neurons,
+        lstm_neurons,
+        dense_neurons,
+        attention_heads,
+        dropout_rate,
+    ):
         self.input = _input
         self.transformer_neurons = hidden_neurons
         self.lstm_neurons = lstm_neurons
@@ -43,16 +52,19 @@ class Branch():
         self.attention_heads = attention_heads
         self.dropout_rate = dropout_rate
 
-class Output():
+
+class Output:
     def __init__(self, hidden_neurons, dropout_rate):
         self.hidden_neurons = hidden_neurons
         self.dropout_rate = dropout_rate
 
-class Architecture():
+
+class Architecture:
     def __init__(self, branches: List[Branch], main_branch: Branch, output: Output):
         self.branches: List[Branch] = branches
         self.main_branch: Branch = main_branch
         self.output: Output = output
+
 
 class ResetStatesCallback(tf.keras.callbacks.Callback):
     def on_epoch_end(self, epoch, logs=None):
@@ -302,14 +314,32 @@ class Model:
         branches = []
         for branch in architecture.branches:
             _input = Input(shape=branch.input.shape)
-            _branch = BranchLayer(branch.transformer_neurons, branch.lstm_neurons, branch.dense_neurons, branch.attention_heads, branch.dropout_rate)(_input)
+            _branch = BranchLayer(
+                branch.transformer_neurons,
+                branch.lstm_neurons,
+                branch.dense_neurons,
+                branch.attention_heads,
+                branch.dropout_rate,
+                self._y_train.shape[1],
+            )(_input)
             branches.append(_branch)
         # Summation layer
         summation = Add()(branches)
         # Main branch
-        main_branch = BranchLayer(architecture.main_branch.transformer_neurons, architecture.main_branch.lstm_neurons, architecture.main_branch.dense_neurons, architecture.main_branch.attention_heads, architecture.main_branch.dropout_rate)(summation)
+        main_branch = BranchLayer(
+            architecture.main_branch.transformer_neurons,
+            architecture.main_branch.lstm_neurons,
+            architecture.main_branch.dense_neurons,
+            architecture.main_branch.attention_heads,
+            architecture.main_branch.dropout_rate,
+            self._y_train.shape[1],
+        )(summation)
         # Output layer
-        output = OutputLayer(architecture.output_neurons, architecture.dropout_rate, architecture.output_neurons)(main_branch)
+        output = OutputLayer(
+            architecture.output_neurons,
+            architecture.dropout_rate,
+            architecture.output_neurons,
+        )(main_branch)
         # Build the model
         model = KerasModel(inputs=_input, outputs=output)
         return model
