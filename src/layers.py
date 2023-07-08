@@ -204,7 +204,7 @@ class Branch(tf.keras.layers.Layer):
         
         return outputs
 
-class OutputLayer(tf.keras.layers.Layer):
+class Output(tf.keras.layers.Layer):
     def __init__(
         self,
         neurons_dense: List[int],
@@ -212,7 +212,7 @@ class OutputLayer(tf.keras.layers.Layer):
         output_neurons: int,
         **kwargs,
     ):
-        super(OutputLayer, self).__init__(**kwargs)
+        super(Output, self).__init__(**kwargs)
         assert len(neurons_dense) == len(
             dropout_rate
         ), "Length of neurons_dense and dropout_rate should be equal"
