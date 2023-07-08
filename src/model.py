@@ -79,7 +79,6 @@ class TransformerBlock:
 
     def __call__(self, input_tensor):
         input_matched_1 = Dense(self.hidden_neurons)(input_tensor)
-        print(self.hidden_neurons)
         # Separate query and value branches for Attention layer
         query = Dense(self.hidden_neurons)(input_matched_1)
         value = Dense(self.hidden_neurons)(input_matched_1)
@@ -126,8 +125,6 @@ class TransformerLSTMBlock:
         )
 
     def __call__(self, input_tensor):
-        print("input tensor shape: ", input_tensor.shape)
-        print("hidden neurons: ", self.neurons_transformer)
         transformer_block = self.transformer_block(input_tensor)
         lstm = Bidirectional(LSTM(self.neurons_lstm, return_sequences=True))(
             input_tensor
@@ -391,7 +388,7 @@ class Model:
                 show_shapes=True,
                 show_layer_names=True,
                 rankdir="TB",
-                expand_nested=False,
+                expand_nested=True,
                 dpi=300,
             )
         except Exception as e:
