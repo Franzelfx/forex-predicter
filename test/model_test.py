@@ -9,7 +9,7 @@ from src.model import Model
 from src.indicators import Indicators
 from src.preprocessor import Preprocessor
 from src.data_aquirer import Data_Aquirer
-
+from src.model import Architecture, Branch, Output
 
 class Test_Model(unittest.TestCase):
     """Integration test for the Model class.
@@ -119,16 +119,17 @@ class Test_Model(unittest.TestCase):
             MODEL_NAME,
             target_pair.y_train,
         )
+        branches = []
         for corr_pair in corr_pairs:
             if isinstance(corr_pair.x_train, np.ndarray):
-                model.add_branch(corr_pair.x_train, [64], [64], [64], [2], [0.2])
-        model.main_branch([64], [64], [64], [2], [0.2])
-        model.summation([64], [0.2])
-        model.output([64], [0.2])
-        # Run for testing
+                branches.append(Branch(corr_pair.x_train, [64], [64], [64], [2], [0.2]))
+        main_branch = Branch(target_pair.x_train, [64], [64], [64], [2], [0.2])
+        output = Output([64], [0.2])
+        architecture = Architecture(branches, main_branch, output)        # Run for testing
         if use_multiple_gpus:
             strategy = tf.distribute.MirroredStrategy()
         model.compile(
+            architecture,
             learning_rate=TEST_LEARNING_RATE,
             strategy=strategy if use_multiple_gpus == 'True' else None,
         )

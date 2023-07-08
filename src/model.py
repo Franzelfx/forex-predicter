@@ -34,10 +34,30 @@ import numpy as np
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 
+class Branch():
+    def __init__(self, _input: np.ndarray, hidden_neurons, lstm_neurons, dense_neurons, attention_heads, dropout_rate):
+        self.input = _input
+        self.transformer_neurons = hidden_neurons
+        self.lstm_neurons = lstm_neurons
+        self.dense_neurons = dense_neurons
+        self.attention_heads = attention_heads
+        self.dropout_rate = dropout_rate
+
+class Output():
+    def __init__(self, hidden_neurons, dropout_rate):
+        self.hidden_neurons = hidden_neurons
+        self.dropout_rate = dropout_rate
+
+class Architecture():
+    def __init__(self, branches: List[Branch], main_branch: Branch, output: Output):
+        self.branches: List[Branch] = branches
+        self.main_branch: Branch = main_branch
+        self.output: Output = output
 
 class ResetStatesCallback(tf.keras.callbacks.Callback):
     def on_epoch_end(self, epoch, logs=None):
         self.model.reset_states()
+
 
 class TransformerBlock:
     def __init__(self, hidden_neurons, attention_heads, dropout_rate):
@@ -53,7 +73,9 @@ class TransformerBlock:
         value = Dense(self.hidden_neurons)(input_matched_1)
 
         # Apply Attention layer
-        attention_1 = MultiHeadAttention(self.attention_heads, self.hidden_neurons)(query, value)
+        attention_1 = MultiHeadAttention(self.attention_heads, self.hidden_neurons)(
+            query, value
+        )
 
         # Add dropout and residual connection and layer normalization
         dropout_attention = Dropout(self.dropout_rate)(attention_1)
@@ -72,68 +94,79 @@ class TransformerBlock:
 
         return norm_ffn
 
+
 class TransformerLSTMBlock:
     def __init__(
-        self, 
-        neurons_transformer, 
-        neurons_lstm, 
-        neurons_dense, 
-        attention_heads, 
-        dropout_rate
+        self,
+        neurons_transformer,
+        neurons_lstm,
+        neurons_dense,
+        attention_heads,
+        dropout_rate,
     ):
         self.neurons_transformer = neurons_transformer
         self.neurons_lstm = neurons_lstm
         self.neurons_dense = neurons_dense
         self.attention_heads = attention_heads
         self.dropout_rate = dropout_rate
-        self.transformer_block = TransformerBlock(neurons_transformer, attention_heads, dropout_rate)
+        self.transformer_block = TransformerBlock(
+            neurons_transformer, attention_heads, dropout_rate
+        )
 
     def __call__(self, input_tensor):
         transformer_block = self.transformer_block(input_tensor)
-        lstm = Bidirectional(LSTM(self.neurons_lstm, return_sequences=True))(input_tensor)
+        lstm = Bidirectional(LSTM(self.neurons_lstm, return_sequences=True))(
+            input_tensor
+        )
         lstm_matched = Dense(self.neurons_dense)(lstm)
         added = Add()([transformer_block, lstm_matched])
         norm = LayerNormalization()(added)
         return norm
 
-#todo: make it keras compatible
-class Branch:
+
+class BranchLayer(tf.keras.layers.Layer):
     def __init__(
         self,
-        tensor_input: np.ndarray,
         neurons_transformer: List[int],
         neurons_lstm: List[int],
         neurons_dense: List[int],
         attention_heads: List[int],
         dropout_rate: List[float],
-        is_input: bool = True,
+        output_neurons: int,
+        **kwargs,
     ):
-        self.tensor_input = tensor_input
+        super(BranchLayer, self).__init__(**kwargs)
         self.neurons_transformer = neurons_transformer
         self.neurons_lstm = neurons_lstm
         self.neurons_dense = neurons_dense
         self.attention_heads = attention_heads
         self.dropout_rate = dropout_rate
-        self.is_input = is_input
+        self.output_neurons = output_neurons
         self.model = None
-        if self.is_input:
-            self.X_train = tensor_input
-            self.tensor_input = Input(shape=self.tensor_input.shape[1:])
 
-    def _build_blocks(self):
-        x = self.tensor_input
-        for neurons_transformer, neurons_lstm, neurons_dense, attention_heads, dropout_rate in zip(
-            self.neurons_transformer, self.neurons_lstm, self.neurons_dense, self.attention_heads, self.dropout_rate
+    def call(self, inputs, **kwargs):
+        x = inputs
+        for (
+            neurons_transformer,
+            neurons_lstm,
+            neurons_dense,
+            attention_heads,
+            dropout_rate,
+        ) in zip(
+            self.neurons_transformer,
+            self.neurons_lstm,
+            self.neurons_dense,
+            self.attention_heads,
+            self.dropout_rate,
         ):
             block = TransformerLSTMBlock(
-                neurons_transformer, neurons_lstm, neurons_dense, attention_heads, dropout_rate
+                neurons_transformer,
+                neurons_lstm,
+                neurons_dense,
+                attention_heads,
+                dropout_rate,
             )
             x = block(x)
-        return x
-
-    def build_model(self, output_neurons: int):
-        # input of input_tensor is (samples, timesteps, features)
-        x = self._build_blocks()
         x = GlobalAveragePooling1D()(x)
 
         i = 0
@@ -141,29 +174,35 @@ class Branch:
             x = Dense(neurons, activation="relu")(x)
             x = Dropout(self.dropout_rate[i])(x)
             i += 1
-        output = Dense(output_neurons, activation="linear")(x)
-        self.model = KerasModel(inputs=self.tensor_input, outputs=output)
+        output = Dense(self.output_neurons, activation="linear")(x)
+        return output
 
-#todo: make it keras compatible
-class Output:
+
+class OutputLayer(tf.keras.layers.Layer):
     def __init__(
         self,
-        neurons_dense : List[int],
-        dropout_rate : List[float]
+        neurons_dense: List[int],
+        dropout_rate: List[float],
+        output_neurons: int,
+        **kwargs,
     ):
-        assert len(neurons_dense) == len(dropout_rate), "Length of neurons_dense and dropout_rate should be equal"
-        
+        super(Output, self).__init__(**kwargs)
+        assert len(neurons_dense) == len(
+            dropout_rate
+        ), "Length of neurons_dense and dropout_rate should be equal"
+
         self.neurons_dense = neurons_dense
         self.dropout_rate = dropout_rate
+        self.output_neurons = output_neurons
 
-    def build_model(self, input_tensor: Tensor, num_outputs: int) -> Tensor:
-        x = input_tensor
+    def call(self, inputs, **kwargs):
+        x = inputs
         for neurons, dropout in zip(self.neurons_dense, self.dropout_rate):
             x = Dense(neurons, activation="relu")(x)
             x = Dropout(dropout)(x)
-        
+
         # Final output layer
-        output = Dense(num_outputs, activation="linear")(x)
+        output = Dense(self.output_neurons, activation="linear")(x)
         return output
 
 
@@ -257,51 +296,23 @@ class Model:
         data = scaler.inverse_transform(data).flatten()
         return data
 
-    def _build(self, output_neurons: int):
-        # Check if branches, summation, and output are all set
-        if not self._branches:
-            raise ValueError("No branches added to the model. Use the 'add_branch' method to add branches.")
-        if self._summation_neurons_dense is None or self._summation_dropout_rate is None:
-            raise ValueError("Summation not set. Use the 'summation' method to set it.")
-        if self._output is None:
-            raise ValueError("Output not set. Use the 'output' method to set it.")
-        # Get outputs of all branches if branch object is not 
-        for branch in self._branches:
-            # build the model if it has not been built
-            if branch.model is None:
-                branch.build_model(output_neurons)
-        # Combine all branch outputs
-        _sum = Add()([branch.model.output for branch in self._branches])
+    def _build(architecture: Architecture) -> KerasModel:
+        """Build the model."""
         # Main branch
-        if self._main_branch is not None:
-            main = Branch(_sum, self._main_branch_neurons_transformer, self._main_branch_neurons_lstm, self._main_branch_neurons_dense, self._main_branch_attention_heads, self._main_branch_dropout_rate)
-            main.build_model(output_neurons)
-        # Apply output layers to the combined tensor
-        final_output = self._output.build_model(main.model.output, output_neurons)
-        # Create the final Keras model
-        model = tf.keras.Model(inputs=[branch.model.input for branch in self._branches], outputs=final_output)
+        branches = []
+        for branch in architecture.branches:
+            _input = Input(shape=branch.input_shape)
+            _branch = BranchLayer(branch.transformer_neurons, branch.lstm_neurons, branch.dense_neurons, branch.attention_heads, branch.dropout_rate, branch.is_input)(_input)
+            branches.append(_branch)
+        # Summation layer
+        summation = Add()(branches)
+        # Main branch
+        main_branch = BranchLayer(architecture.main_branch.transformer_neurons, architecture.main_branch.lstm_neurons, architecture.main_branch.dense_neurons, architecture.main_branch.attention_heads, architecture.main_branch.dropout_rate)(summation)
+        # Output layer
+        output = OutputLayer(architecture.output_neurons, architecture.dropout_rate, architecture.output_neurons)(main_branch)
+        # Build the model
+        model = KerasModel(inputs=_input, outputs=output)
         return model
-
-    def add_branch(self, inputs: List[int], neurons_transformer: List[int], neurons_lstm: List[int], neurons_dense: List[int], attention_heads: List[int], dropout_rate: List[float]):
-        branch = Branch(inputs, neurons_transformer, neurons_lstm, neurons_dense, attention_heads, dropout_rate)
-        self._branches.append(branch)
-
-    def summation(self, neurons_dense: List[int], dropout_rate: List[float]):
-        # inputs are outputs of all branches
-        self._summation_neurons_dense = neurons_dense
-        self._summation_dropout_rate = dropout_rate
-
-    def main_branch(self, neurons_transformer: List[int], neurons_lstm: List[int], neurons_dense: List[int], attention_heads: List[int], dropout_rate: List[float]):
-        self._main_branch = True
-        self._main_branch_neurons_transformer = neurons_transformer
-        self._main_branch_neurons_lstm = neurons_lstm
-        self._main_branch_neurons_dense = neurons_dense
-        self._main_branch_attention_heads = attention_heads
-        self._main_branch_dropout_rate = dropout_rate
-    
-    def output(self, neurons_dense: List[int], dropout_rate: List[float]):
-        self._output = Output(neurons_dense, dropout_rate)
-
 
     def _plot_fit_history(self, fit):
         """Plot the fit history."""
@@ -338,6 +349,7 @@ class Model:
 
     def compile(
         self,
+        architecture: Architecture,
         learning_rate=0.0001,
         loss_fct: str = "mae",
         strategy=None,
@@ -347,10 +359,10 @@ class Model:
         # Check if multiple GPUs are available
         if strategy is not None and hasattr(strategy, "scope"):
             with strategy.scope():
-                model = self._build(self._y_train.shape[1])
+                model = self._build(architecture)
                 model.compile(loss=loss_fct, optimizer=optimizer, metrics=["mape"])
         else:
-            model = self._build(self._y_train.shape[1])
+            model = self._build(architecture)
             model.compile(loss=loss_fct, optimizer=optimizer, metrics=["mape"])
         model.summary()
         # Plot the model
@@ -421,7 +433,7 @@ class Model:
         X_val = []
         for branch in self._branches:
             _X_train, _X_val = train_test_split(
-            branch.X_train, test_size=validation_split, shuffle=False
+                branch.X_train, test_size=validation_split, shuffle=False
             )
             X_train.append(_X_train)
             X_val.append(_X_val)
