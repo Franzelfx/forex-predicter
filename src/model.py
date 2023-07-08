@@ -229,6 +229,7 @@ class Model:
         self._main_branch_neurons_transformer = []
         self._main_branch_neurons_lstm = []
         self._main_branch_neurons_dense = []
+        self._main_branch_attention_heads = []
         self._main_branch_dropout_rate = []
         # Output variables
         self._output: Output = None
@@ -273,7 +274,7 @@ class Model:
         _sum = Add()([branch.model.output for branch in self._branches])
         # Main branch
         if self._main_branch is not None:
-            main = Branch(_sum, self._main_branch_neurons_transformer, self._main_branch_neurons_lstm, self._main_branch_neurons_dense, self._main_branch_dropout_rate)
+            main = Branch(_sum, self._main_branch_neurons_transformer, self._main_branch_neurons_lstm, self._main_branch_neurons_dense, self._main_branch_attention_heads, self._main_branch_dropout_rate)
             main.build_model(output_neurons)
         # Apply output layers to the combined tensor
         final_output = self._output.build_model(main.model.output, output_neurons)
