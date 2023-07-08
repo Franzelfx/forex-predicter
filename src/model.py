@@ -330,6 +330,10 @@ class Model:
         summation = Add()(branches)
         # Layer normalization
         summation = LayerNormalization()(summation)
+        # Add a single dense layer
+        summation = Dense(
+            64, activation="relu"
+        )(summation)
         # Main branch
         main_branch = BranchLayer(
             architecture.main_branch.transformer_neurons,
