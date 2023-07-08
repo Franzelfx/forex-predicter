@@ -24,6 +24,7 @@ from keras.layers import (
     Input,
     Dense,
     Dropout,
+    Softmax,
     Bidirectional,
     MultiHeadAttention,
     LayerNormalization,
@@ -212,7 +213,8 @@ class OutputLayer(tf.keras.layers.Layer):
             x = Dropout(dropout)(x)
 
         # Final output layer
-        output = Dense(self.output_neurons, activation="linear")(x)
+        output = Dense(self.output_neurons)(x)
+        output = Softmax(axis=-1)(output)  # Specify the correct axis value
         return output
 
 
