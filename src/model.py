@@ -272,18 +272,7 @@ class Model:
         self._path = path
         self._y_train = y_train
         # Model structure variables
-        self._branches = []
-        self._summation_neurons_dense = []
-        self._summation_dropout_rate = []
-        # Main branch variables
-        self._main_branch = None
-        self._main_branch_neurons_transformer = []
-        self._main_branch_neurons_lstm = []
-        self._main_branch_neurons_dense = []
-        self._main_branch_attention_heads = []
-        self._main_branch_dropout_rate = []
-        # Output variables
-        self._output: Output = None
+        self._architecture = None
         self._model = None
 
     @property
@@ -381,6 +370,7 @@ class Model:
         strategy=None,
     ):
         """Compile the model."""
+        self._architecture = architecture
         optimizer = Adam(learning_rate=learning_rate)
         # Check if multiple GPUs are available
         if strategy is not None and hasattr(strategy, "scope"):
@@ -457,9 +447,9 @@ class Model:
         # Split the data
         X_train = []
         X_val = []
-        for branch in self._branches:
+        for branch in self._architecture.branches:
             _X_train, _X_val = train_test_split(
-                branch.X_train, test_size=validation_split, shuffle=False
+                branch.input, test_size=validation_split, shuffle=False
             )
             X_train.append(_X_train)
             X_val.append(_X_val)
