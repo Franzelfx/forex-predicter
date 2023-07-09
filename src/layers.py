@@ -109,18 +109,8 @@ class Branch(tf.keras.layers.Layer):
         attention_heads: List[int],
         dropout_rate: List[float],
         output_neurons: int,
-        activation=None,
-        use_bias=True,
-        kernel_initializer="glorot_uniform",
-        bias_initializer="zeros",
-        kernel_regularizer=None,
-        bias_regularizer=None,
-        activity_regularizer=None,
-        kernel_constraint=None,
-        bias_constraint=None,
-        **kwargs,
     ):
-        super().__init__(activity_regularizer=activity_regularizer, **kwargs)
+        super(Branch, self).__init__()
 
         self.neurons_transformer = neurons_transformer
         self.neurons_lstm = neurons_lstm
@@ -133,17 +123,6 @@ class Branch(tf.keras.layers.Layer):
                 "Received an invalid value for `output_neurons`, expected "
                 f"a positive integer. Received: output_neurons={output_neurons}"
             )
-        self.activation = activations.get(activation)
-        self.use_bias = use_bias
-        self.kernel_initializer = initializers.get(kernel_initializer)
-        self.bias_initializer = initializers.get(bias_initializer)
-        self.kernel_regularizer = regularizers.get(kernel_regularizer)
-        self.bias_regularizer = regularizers.get(bias_regularizer)
-        self.kernel_constraint = constraints.get(kernel_constraint)
-        self.bias_constraint = constraints.get(bias_constraint)
-
-        self.input_spec = InputSpec(min_ndim=2)
-        self.supports_masking = True
 
     def build(self, input_shape):
         dtype = tf.as_dtype(self.dtype or backend.floatx())
