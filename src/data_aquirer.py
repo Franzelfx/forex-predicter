@@ -150,11 +150,12 @@ class Data_Aquirer:
             # Print column count
             print(f"Dataset has {len(data.columns)} columns.")
         # Remove all weekends
+        data.drop_duplicates(subset=["t"], inplace=True)
         print("Remove all weekends, len before: ", len(data), end=" ")
         data = self.remove_rows_smaller_than(5, data, 'n')
         print("len after: ", len(data))
         return data
-    
+
     def remove_rows_smaller_than(self, offset: int, data: pd.DataFrame, column: str) -> pd.DataFrame:
         """Remove rows where the value of a specific column is smaller than 5.
 

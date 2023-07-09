@@ -1,7 +1,15 @@
 """This module contains the model class for the LSTM model."""
+from keras import activations
+from keras import backend
+from keras import constraints
+from keras import initializers
+from keras import regularizers
+from keras.engine.input_spec import InputSpec
+
 import os
 import logging
 import numpy as np
+from typing import List
 import tensorflow as tf
 from pandas import DataFrame
 import matplotlib.pyplot as plt
@@ -10,26 +18,48 @@ from datetime import datetime as dt
 from keras.models import load_model
 from keras.models import Model as KerasModel
 from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split
 from keras.callbacks import (
     ModelCheckpoint,
     EarlyStopping,
     TensorBoard,
     ReduceLROnPlateau,
 )
-from keras.layers import (
-    Add,
-    LSTM,
-    Input,
-    Dense,
-    Dropout,
-    Bidirectional,
-    LayerNormalization,
-    MultiHeadAttention,
-)
+import src.layers as layers
+
+from keras.layers import Add, LayerNormalization
 import numpy as np
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 
+
+class Branch:
+    def __init__(
+        self,
+        _input: np.ndarray,
+        hidden_neurons,
+        lstm_neurons,
+        dense_neurons,
+        attention_heads,
+        dropout_rate,
+    ):
+        self.input = _input
+        self.transformer_neurons = hidden_neurons
+        self.lstm_neurons = lstm_neurons
+        self.dense_neurons = dense_neurons
+        self.attention_heads = attention_heads
+        self.dropout_rate = dropout_rate
+
+class Output:
+    def __init__(self, hidden_neurons, dropout_rate):
+        self.hidden_neurons = hidden_neurons
+        self.dropout_rate = dropout_rate
+
+class Architecture:
+    def __init__(self, branches: List[Branch], main_branch: Branch, output: Output):
+        self.branches: List[Branch] = branches
+        self.main_branch: Branch = main_branch
+        self.output: Output = output
 
 class ResetStatesCallback(tf.keras.callbacks.Callback):
     def on_epoch_end(self, epoch, logs=None):
@@ -43,7 +73,7 @@ class Model:
 
     Parameters
     ----------
-    path 
+    path
         :obj:`str` -> Path to save the model
     name
         :obj:`str` -> Name of the model
@@ -59,7 +89,7 @@ class Model:
     steps_ahead
         :obj:`int`
         Number of steps ahead to predict
-    
+
     Examples
     --------
     >>> from src.model import Model
@@ -76,15 +106,11 @@ class Model:
     ...
     """
 
-
-
     def __init__(
         self,
         path: str,
         name: str,
-        x_train: np.ndarray,
         y_train: np.ndarray,
-        batch_size: int = 1,
     ):
         # Check if name has ":" in it, if so get characters after it
         if ":" in name:
@@ -92,9 +118,9 @@ class Model:
         self._name = name
         os.environ["LD_LIBRARY_PATH"] = "/usr/local/cuda/lib64"
         self._path = path
-        self._x_train = x_train
         self._y_train = y_train
-        self._batch_size = batch_size
+        # Model structure variables
+        self._architecture = None
         self._model = None
 
     @property
@@ -103,95 +129,63 @@ class Model:
         return self._y_train.shape[1]
 
     def _var_name(self, var):
-        variable_names = [tpl[0] for tpl in filter(lambda x: var is x[1], globals().items())]
+        variable_names = [
+            tpl[0] for tpl in filter(lambda x: var is x[1], globals().items())
+        ]
         if variable_names:
             return variable_names[0]
         else:
             return None
-    
-    def _inverse_transform(self, scaler: StandardScaler, data: np.ndarray) -> np.ndarray:
+
+    def _inverse_transform(
+        self, scaler: StandardScaler, data: np.ndarray
+    ) -> np.ndarray:
         """Inverse transform the data."""
         data = data.reshape(-1, 1)
         data = scaler.inverse_transform(data).flatten()
         return data
 
-    def _build(self, hidden_neurons: int, dropout_rate: float, attention_heads: int):
-        input_shape = (self._x_train.shape[1], self._x_train.shape[2])
-        inputs = Input(batch_shape=(self._batch_size,) + input_shape)
-
-        # LSTM layer
-        lstm_1 = Bidirectional(
-            LSTM(
-                hidden_neurons,
-                return_sequences=True,
-                stateful=True,
-                batch_input_shape=(self._batch_size,) + input_shape,
-            )
-        )(inputs)
-        
-        # Add Dense layer to match LSTM output to MultiHeadAttention output dimension
-        lstm_output_matched = Dense(hidden_neurons)(lstm_1)
-        dropout_1 = tf.keras.layers.Dropout(dropout_rate)(lstm_output_matched)
-        
-        # Separate query and value branches for Attention layer
-        # Query and Value
-        query = Dense(hidden_neurons)(dropout_1)
-        value = Dense(hidden_neurons)(dropout_1)
-
-        # Apply Attention layer
-        attention_1 = MultiHeadAttention(attention_heads, hidden_neurons)(query, value)
-
-        # Add dropout and residual connection and layer normalization
-        dropout_attention = Dropout(dropout_rate)(attention_1)
-        residual_attention = Add()([dropout_1, dropout_attention])
-        norm_attention = LayerNormalization()(residual_attention)
-
-        # Feed forward layer
-        feed_forward_1 = Dense(hidden_neurons, activation="relu")(norm_attention)
-        feed_forward_2 = Dense(hidden_neurons, activation="relu")(feed_forward_1)
-        feed_forward_3 = Dense(hidden_neurons, activation="relu")(feed_forward_2)
-
-        # Add dropout, residual connection, and layer normalization
-        dropout_ffn = Dropout(dropout_rate)(feed_forward_3)
-        residual_ffn = Add()([norm_attention, dropout_ffn])
-        norm_ffn = LayerNormalization()(residual_ffn)
-
-        # SECOND BLOCK STARTS HERE
-
-        # Query and Value for second block
-        query_2 = Dense(hidden_neurons)(norm_ffn)
-        value_2 = Dense(hidden_neurons)(norm_ffn)
-
-        # Apply Attention layer for second block
-        attention_2 = MultiHeadAttention(attention_heads, hidden_neurons)(query_2, value_2)
-
-        # Add dropout and residual connection and layer normalization for second block
-        dropout_attention_2 = Dropout(dropout_rate)(attention_2)
-        residual_attention_2 = Add()([norm_ffn, dropout_attention_2])
-        norm_attention_2 = LayerNormalization()(residual_attention_2)
-
-        # Feed forward layer for second block
-        feed_forward_1_2 = Dense(hidden_neurons, activation="relu")(norm_attention_2)
-        feed_forward_2_2 = Dense(hidden_neurons, activation="relu")(feed_forward_1_2)
-        feed_forward_3_2 = Dense(hidden_neurons, activation="relu")(feed_forward_2_2)
-
-        # Add dropout, residual connection, and layer normalization for second block
-        dropout_ffn_2 = Dropout(dropout_rate)(feed_forward_3_2)
-        residual_ffn_2 = Add()([norm_attention_2, dropout_ffn_2])
-        norm_ffn_2 = LayerNormalization()(residual_ffn_2)
-
-        # Dense layers
-        dense_1 = Dense(hidden_neurons, activation="relu")(norm_ffn_2)
-        dropout_3 = tf.keras.layers.Dropout(dropout_rate)(dense_1)
-        dense_2 = Dense(hidden_neurons, activation="relu")(dropout_3)
-        dropout_4 = tf.keras.layers.Dropout(dropout_rate)(dense_2)
-        dense_3 = Dense(hidden_neurons, activation="relu")(dropout_4)
-        dense_4 = Dense(hidden_neurons, activation="relu")(dense_3)
-        output = Dense(self._y_train.shape[1], activation="linear")(dense_4)
-
+    def _build(self, architecture: Architecture) -> KerasModel:
+        """Build the model."""
+        # Main branch
+        inputs = []
+        branches = []
+        for branch in architecture.branches:
+            input_shape = (branch.input.shape[1], branch.input.shape[2])
+            _input = layers.Input(shape=input_shape)
+            _branch = layers.Branch(
+                branch.transformer_neurons,
+                branch.lstm_neurons,
+                branch.dense_neurons,
+                branch.attention_heads,
+                branch.dropout_rate,
+                self._y_train.shape[1],
+            )(_input)
+            branches.append(_branch)
+            inputs.append(_input)
+        # Summation layer
+        summation = Add()(branches)
+        # Layer normalization
+        summation = LayerNormalization()(summation)
+        # Main branch after the summation
+        #TODO: If thransformer block needs to be added here, than branch should return a tensor of shape (samples, time_steps_out, features), currently it returns a tensor of shape (None, time_steps_out)
+        # main_branch = layers.Branch(
+        #     architecture.main_branch.transformer_neurons,
+        #     architecture.main_branch.lstm_neurons,
+        #     architecture.main_branch.dense_neurons,
+        #     architecture.main_branch.attention_heads,
+        #     architecture.main_branch.dropout_rate,
+        #     self._y_train.shape[1],
+        # )(summation)
+        # Output layer
+        output = layers.Output(
+            architecture.output.hidden_neurons,
+            architecture.output.dropout_rate,
+            self._y_train.shape[1],
+        )(summation)
+        # Build the model
         model = KerasModel(inputs=inputs, outputs=output)
         return model
-
 
     def _plot_fit_history(self, fit):
         """Plot the fit history."""
@@ -228,24 +222,23 @@ class Model:
 
     def compile(
         self,
+        architecture: Architecture,
         learning_rate=0.0001,
-        hidden_neurons=32,
-        dropout_rate: float = 0.2,
-        attention_heads: int = 4,
         loss_fct: str = "mae",
         strategy=None,
     ):
         """Compile the model."""
+        self._architecture = architecture
         optimizer = Adam(learning_rate=learning_rate)
         # Check if multiple GPUs are available
         if strategy is not None and hasattr(strategy, "scope"):
             with strategy.scope():
-                model = self._build(hidden_neurons, dropout_rate, attention_heads)
+                model = self._build(architecture)
                 model.compile(loss=loss_fct, optimizer=optimizer, metrics=["mape"])
         else:
-            model = self._build(hidden_neurons, dropout_rate, attention_heads)
+            model = self._build(architecture)
             model.compile(loss=loss_fct, optimizer=optimizer, metrics=["mape"])
-        model.summary()
+        model.summary(expand_nested=True)
         # Plot the model
         try:
             tf.keras.utils.plot_model(
@@ -254,7 +247,7 @@ class Model:
                 show_shapes=True,
                 show_layer_names=True,
                 rankdir="TB",
-                expand_nested=False,
+                expand_nested=True,
                 dpi=300,
             )
         except Exception as e:
@@ -268,8 +261,6 @@ class Model:
         epochs=100,
         batch_size=32,
         patience=40,
-        x_val=None,
-        y_val=None,
         validation_split=0.1,
     ) -> DataFrame:
         """Compile and fit the model.
@@ -281,7 +272,6 @@ class Model:
         :param float learning_rate: The learning rate for the training process.
         :param int batch_size: The batch size for the training process.
         :param str loss: The loss function for the training process.
-        :param bool branched_model: If True, the model will be a branched model.
         :param int patience: The patience for the early stopping callback.
         :param np.ndarray x_val: The validation input data.
         :param np.ndarray y_val: The validation output data.
@@ -311,20 +301,27 @@ class Model:
             monitor="val_loss", patience=patience, mode="min", verbose=1
         )
         tensorboard = TensorBoard(log_dir=f"{self._path}/tensorboard/{self._name}")
-        lr_scheduler = ReduceLROnPlateau(factor=0.5, patience=5, min_lr=0.000001)
-        # Set the validation split
-        if (x_val and y_val) is not None:
-            validation_split = 0
+        lr_scheduler = ReduceLROnPlateau(factor=0.5, patience=30, min_lr=0.000001)
+        # Split the data
+        X_train = []
+        X_val = []
+        for branch in self._architecture.branches:
+            _X_train, _X_val = train_test_split(
+                branch.input, test_size=validation_split, shuffle=False
+            )
+            X_train.append(_X_train)
+            X_val.append(_X_val)
+        y_train, y_val = train_test_split(
+            self._y_train, test_size=validation_split, shuffle=False
+        )
         # Fit the model
         try:
             fit = self._model.fit(
-                self._x_train,
-                self._y_train,
+                X_train,
+                y_train,
                 epochs=epochs,
                 batch_size=batch_size,
-                validation_data=(x_val, y_val)
-                if (x_val and y_val) is not None
-                else None,
+                validation_data=(X_val, y_val),
                 validation_split=validation_split,
                 callbacks=[
                     tensorboard,
@@ -382,7 +379,7 @@ class Model:
         print(f"x_train samples: {x_train.shape[0]}")
         print(f"x_test samples: {x_test.shape[0]}")
         print(f"x_hat samples: {x_hat.shape[0]}")
-        #BUG: wrong vstacking
+        # BUG: wrong vstacking
         if x_train.shape[0] > 0:
             x = np.vstack((x_train, x_test))
             x = np.vstack((x, x_hat))
