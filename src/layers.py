@@ -35,12 +35,17 @@ class TransformerBlock(tf.keras.layers.Layer):
         self.dense_3 = Dense(hidden_neurons)
         self.multihead_attention = MultiHeadAttention(attention_heads, hidden_neurons)
         self.dropout_attention = Dropout(dropout_rate)
-        self.dropout_ffn = Dropout(dropout_rate)
         self.add_1 = Add()
-        self.add_2 = Add()
         self.layer_norm_1 = LayerNormalization()
+        
+        # Feed forward layers
+        self.dense_ffn_1 = Dense(hidden_neurons, activation='relu')
+        self.dense_ffn_2 = Dense(hidden_neurons, activation='relu')
+        self.dense_ffn_3 = Dense(hidden_neurons, activation='relu')
+
+        self.dropout_ffn = Dropout(dropout_rate)
+        self.add_2 = Add()
         self.layer_norm_2 = LayerNormalization()
-        self.transformer_output = Dense(hidden_neurons)
 
     def call(self, input_tensor):
         input_matched_1 = self.dense_1(input_tensor)
@@ -51,18 +56,16 @@ class TransformerBlock(tf.keras.layers.Layer):
         dropout_attention = self.dropout_attention(attention_1)
         residual_attention = self.add_1([input_matched_1, dropout_attention])
         norm_attention = self.layer_norm_1(residual_attention)
-        # Mismatch between input and output of attention layer
-        
-        feed_forward_1 = self.dense_1(norm_attention)
-        feed_forward_2 = self.dense_2(feed_forward_1)
-        feed_forward_3 = self.dense_3(feed_forward_2)
+
+        feed_forward_1 = self.dense_ffn_1(norm_attention)
+        feed_forward_2 = self.dense_ffn_2(feed_forward_1)
+        feed_forward_3 = self.dense_ffn_3(feed_forward_2)
 
         dropout_ffn = self.dropout_ffn(feed_forward_3)
         residual_ffn = self.add_2([norm_attention, dropout_ffn])
         norm_ffn = self.layer_norm_2(residual_ffn)
-        transformer_output = self.transformer_output(norm_ffn)
 
-        return transformer_output
+        return norm_ffn
 
 
 class TransformerLSTMBlock(tf.keras.layers.Layer):
