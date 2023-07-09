@@ -88,18 +88,15 @@ class TransformerLSTMBlock(tf.keras.layers.Layer):
             neurons_transformer, attention_heads, dropout_rate
         )
         self.lstm_layer = Bidirectional(LSTM(neurons_lstm, return_sequences=True))
-        self.dense_lstm = Dense(neurons_dense)  
         self.add = Add()
-        self.gap = GlobalAveragePooling1D()
+        self.layer_norm = LayerNormalization()
 
     def call(self, input_tensor):
-        transformer_block = self.transformer_block(input_tensor)
-        lstm = self.lstm_layer(input_tensor)
-        pooling = self.pooling(lstm)
-        lstm_matched = self.dense_lstm(pooling)
-        added = self.add([transformer_block, lstm_matched])
-        gap = self.gap(added)
-        return gap
+        transformer = self.transformer_block(input_tensor)
+        lstm = self.lstm_layer(transformer)
+        add = self.add([input_tensor, lstm])
+        norm = self.layer_norm(add)
+        return norm
 
 
 class Branch(tf.keras.layers.Layer):
