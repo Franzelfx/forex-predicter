@@ -50,7 +50,8 @@ class TransformerBlock(tf.keras.layers.Layer):
         dropout_attention = self.dropout_attention(attention_1)
         residual_attention = self.add_1([input_matched_1, dropout_attention])
         norm_attention = self.layer_norm_1(residual_attention)
-
+        # Mismatch between input and output of attention layer
+        
         feed_forward_1 = self.dense_1(norm_attention)
         feed_forward_2 = self.dense_2(feed_forward_1)
         feed_forward_3 = self.dense_3(feed_forward_2)
@@ -82,14 +83,16 @@ class TransformerLSTMBlock(tf.keras.layers.Layer):
             neurons_transformer, attention_heads, dropout_rate
         )
         self.lstm_layer = Bidirectional(LSTM(neurons_lstm, return_sequences=True))
-        self.dense_lstm = Dense(neurons_dense)
+        self.pooling = GlobalAveragePooling1D()
+        self.dense_lstm = Dense(neurons_dense)  
         self.add = Add()
         self.layer_norm = LayerNormalization()
 
     def call(self, input_tensor):
         transformer_block = self.transformer_block(input_tensor)
         lstm = self.lstm_layer(input_tensor)
-        lstm_matched = self.dense_lstm(lstm)
+        pooling = self.pooling(lstm)
+        lstm_matched = self.dense_lstm(pooling)
         added = self.add([transformer_block, lstm_matched])
         norm = self.layer_norm(added)
         return norm
