@@ -7,7 +7,6 @@ from keras import initializers
 from keras import regularizers
 from keras.engine.input_spec import InputSpec
 
-tf.config.run_functions_eagerly(True)
 from typing import List
 
 from keras.layers import (
