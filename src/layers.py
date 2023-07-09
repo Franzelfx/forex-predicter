@@ -87,7 +87,7 @@ class TransformerLSTMBlock(tf.keras.layers.Layer):
             neurons_transformer, attention_heads, dropout_rate
         )
         self.lstm_layer = Bidirectional(LSTM(neurons_lstm, return_sequences=True))
-        self.lstm_match = Dense(neurons_lstm)
+        self.lstm_match = Dense(neurons_lstm, activation="relu")
         self.add = Add()
         self.layer_norm = LayerNormalization()
 
@@ -172,7 +172,7 @@ class Branch(tf.keras.layers.Layer):
             dropout_layer = Dropout(dropout)
             self.dense_layers.append((dense_layer, dropout_layer))
         
-        self.output_layer = Dense(self.output_neurons, activation=self.activation)
+        self.output_layer = Dense(self.output_neurons, activation="softmax")
         
         self.built = True
 
