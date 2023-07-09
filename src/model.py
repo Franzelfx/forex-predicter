@@ -167,12 +167,21 @@ class Model:
         summation = Add()(branches)
         # Layer normalization
         summation = LayerNormalization()(summation)
+        # Main branch after the summation
+        main_branch = layers.Branch(
+            architecture.main_branch.transformer_neurons,
+            architecture.main_branch.lstm_neurons,
+            architecture.main_branch.dense_neurons,
+            architecture.main_branch.attention_heads,
+            architecture.main_branch.dropout_rate,
+            self._y_train.shape[1],
+        )(summation)
         # Output layer
         output = layers.Output(
             architecture.output.hidden_neurons,
             architecture.output.dropout_rate,
             self._y_train.shape[1],
-        )(summation)
+        )(main_branch)
         # Build the model
         model = KerasModel(inputs=inputs, outputs=output)
         return model
