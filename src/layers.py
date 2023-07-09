@@ -40,6 +40,7 @@ class TransformerBlock(tf.keras.layers.Layer):
         self.add_2 = Add()
         self.layer_norm_1 = LayerNormalization()
         self.layer_norm_2 = LayerNormalization()
+        self.transformer_output = Dense(hidden_neurons)
 
     def call(self, input_tensor):
         input_matched_1 = self.dense_1(input_tensor)
@@ -59,8 +60,9 @@ class TransformerBlock(tf.keras.layers.Layer):
         dropout_ffn = self.dropout_ffn(feed_forward_3)
         residual_ffn = self.add_2([norm_attention, dropout_ffn])
         norm_ffn = self.layer_norm_2(residual_ffn)
+        transformer_output = self.transformer_output(norm_ffn)
 
-        return norm_ffn
+        return transformer_output
 
 
 class TransformerLSTMBlock(tf.keras.layers.Layer):
