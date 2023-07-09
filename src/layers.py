@@ -88,13 +88,15 @@ class TransformerLSTMBlock(tf.keras.layers.Layer):
             neurons_transformer, attention_heads, dropout_rate
         )
         self.lstm_layer = Bidirectional(LSTM(neurons_lstm, return_sequences=True))
+        self.lstm_match = Dense(neurons_lstm)
         self.add = Add()
         self.layer_norm = LayerNormalization()
 
     def call(self, input_tensor):
         transformer = self.transformer_block(input_tensor)
         lstm = self.lstm_layer(transformer)
-        add = self.add([input_tensor, lstm])
+        lstm_match = self.lstm_match(lstm)
+        add = self.add([transformer, lstm_match])
         norm = self.layer_norm(add)
         return norm
 
