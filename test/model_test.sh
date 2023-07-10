@@ -29,4 +29,14 @@ if [ "$answer" != "${answer#[Yy]}" ] ;then
 else
     echo "Not loading from saved file"
 fi
+
+read -p "Want to utilize the saved model? y/[n]: " answer
+if [ "$answer" != "${answer#[Yy]}" ] ;then
+    echo "Utilizing the saved model"
+    export UTILIZE_MODEL="True"
+else
+    echo "Not utilizing the saved model"
+    export UTILIZE_MODEL="False"
+fi
+
 screen -S model_test bash -c 'python model_test.py'
