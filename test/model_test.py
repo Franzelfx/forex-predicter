@@ -161,7 +161,7 @@ if __name__ == "__main__":
     tensorboard_logdir = os.environ.get("TENSORBOARD_LOGDIR")
     try:
         tensorboard = subprocess.Popen(
-            ["tensorboard", "--logdir", tensorboard_logdir, "--bind-all"]
+            ["tensorboard", "--logdir", tensorboard_logdir, "--bind_all"]
         )
         unittest.main()
     except Exception as e:
