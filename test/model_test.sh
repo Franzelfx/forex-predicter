@@ -39,4 +39,5 @@ else
     export UTILIZE_MODEL="False"
 fi
 
-screen -S model_test bash -c 'python model_test.py'
+screen -S model_test bash -c 'python model_test.py; bash'
+
