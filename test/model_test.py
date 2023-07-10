@@ -127,7 +127,7 @@ class Test_Model(unittest.TestCase):
             branches = []
             for corr_pair in corr_pairs:
                 if isinstance(corr_pair.x_train, np.ndarray):
-                    branches.append(Branch(corr_pair.x_train, [128, 64], [32, 32], [128, 64], [2, 2], [0.2, 0.2]))
+                    branches.append(Branch(corr_pair.x_train, [64, 32], [32, 32], [64, 32], [2, 2], [0.2, 0.2]))
             main_branch = Branch(target_pair.x_train, [64], [64], [64], [2], [0.2])
             output = Output([128, 128, 128], [0.2, 0.2, 0.2])
             architecture = Architecture(branches, main_branch, output)        # Run for testing
