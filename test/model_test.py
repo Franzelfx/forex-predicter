@@ -82,9 +82,6 @@ class Test_Model(unittest.TestCase):
             # Append to the list of correlated pairs
         # Synchronize the dataframes
         synced_df = Test_Model.synchronize_dataframes(pairs)
-        # print all lengths of the dataframes
-        for df in synced_df:
-            print(len(df))
         # Target pair is first dataframe of the list
         target_pair = synced_df[0]
         # Correlated pairs are the rest of the dataframes

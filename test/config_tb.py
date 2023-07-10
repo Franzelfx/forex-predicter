@@ -27,7 +27,7 @@ PATH_PAIRS = os.path.join(currentdir, "pairs")
 PAIR = "C:CADJPY"
 MINUTES_TRAIN = 15
 MINUTES_TEST = 15
-START = "2020-01-01"
+START = "2015-01-01"
 # Substract 1 hour to get the last full hour
 END = (date.today() - timedelta(hours=1)).strftime("%Y-%m-%d")
 END = "2023-07-7"
@@ -101,7 +101,7 @@ TARGET = "c"
 PREPROCESSOR_PATH = os.path.join(currentdir, "preprocessor_test")
 _PAIR_NAME = PAIR[2:]
 PREPROCESSOR_DATA_SOURCE = f"{PATH_INDICATORS}/{_PAIR_NAME}__indicators.csv"
-TEST_TIME_STEPS_IN = 1024
+TEST_TIME_STEPS_IN = 480
 TEST_TIME_STEPS_OUT = 96
 TEST_LENGTH = TEST_TIME_STEPS_IN + TEST_TIME_STEPS_OUT
 TEST_SCALE = True
