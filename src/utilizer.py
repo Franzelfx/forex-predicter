@@ -39,9 +39,19 @@ class Utilizer:
         x_train = np.array([])
         print(f"Predicting with a lookback of {lookback}.")
         if lookback is not None and lookback > 0:
-            x_train = self._preprocessor.x_train[-lookback:]
+            if isinstance(self._preprocessor, list):
+                x_train = []
+                for preprocessor in self._preprocessor:
+                    x_train.append(preprocessor.x_train[-lookback:])
+            else:
+                x_train = self._preprocessor.x_train[-lookback:]
         else:
-            x_train = self._preprocessor.x_train
+            if isinstance(self._preprocessor, list):
+                x_train = []
+                for preprocessor in self._preprocessor:
+                    x_train.append(preprocessor.x_train)
+            else:
+                x_train = self._preprocessor.x_train
         if isinstance(self._preprocessor, list):
             x_hat = []
             x_test = []
