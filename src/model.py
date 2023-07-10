@@ -18,7 +18,7 @@ from tensorflow.keras.callbacks import (
     ReduceLROnPlateau,
 )
 import src.layers as layers
-from tensorflow.keras.layers import Concatenate, LayerNormalization
+from tensorflow.keras.layers import Concatenate, LayerNormalization, Input
 import numpy as np
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
@@ -143,7 +143,7 @@ class Model:
         branches = []
         for branch in architecture.branches:
             input_shape = (branch.input.shape[1], branch.input.shape[2])
-            _input = layers.Input(shape=input_shape)
+            _input = Input(shape=input_shape)
             _branch = layers.Branch(
                 branch.transformer_neurons,
                 branch.lstm_neurons,
