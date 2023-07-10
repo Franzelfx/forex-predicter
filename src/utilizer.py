@@ -20,6 +20,16 @@ class Utilizer:
         # Check if model is a path
         if isinstance(model, str):
             self._model = ModelPreTrained.load(model)
+        if isinstance(preprocessor, list):
+            self._preprocessor = []
+            # Iterate over all preprocessor and get this one which has some "target_scaler"
+            for preprocessor in preprocessor:
+                try:
+                    self._target_scaler = preprocessor.target_scaler
+                except:
+                    continue
+        else:
+            self._target_scaler = preprocessor.target_scaler
 
     @property
     def test_actual(self) -> np.ndarray:
@@ -65,7 +75,7 @@ class Utilizer:
             x_hat,
             x_train=x_train,
             x_test=x_test,
-            scaler=self._preprocessor.target_scaler,
+            scaler=self._target_scaler,
             from_saved_model=True,
         )
         print(y_hat)
