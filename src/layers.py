@@ -23,6 +23,7 @@ from keras.layers import (
     GlobalAveragePooling1D,
 )
 
+@tf.keras.utils.register_keras_serializable()
 class TransformerBlock(tf.keras.layers.Layer):
     def __init__(self, hidden_neurons, attention_heads, dropout_rate):
         super(TransformerBlock, self).__init__()
@@ -67,7 +68,20 @@ class TransformerBlock(tf.keras.layers.Layer):
 
         return norm_ffn
 
+    def get_config(self):
+        config = super().get_config()
+        config.update({
+            'hidden_neurons': self.hidden_neurons,
+            'attention_heads': self.attention_heads,
+            'dropout_rate': self.dropout_rate,
+        })
+        return config
 
+    @classmethod
+    def from_config(cls, config):
+        return cls(**config)
+
+@tf.keras.utils.register_keras_serializable()
 class TransformerLSTMBlock(tf.keras.layers.Layer):
     def __init__(
         self,
@@ -98,7 +112,26 @@ class TransformerLSTMBlock(tf.keras.layers.Layer):
         concat = self.concat([transformer, lstm_match])
         return concat
 
+    def get_config(self):
+        config = super().get_config().copy()
+        config.update({
+            'neurons_transformer': self.neurons_transformer,
+            'neurons_lstm': self.neurons_lstm,
+            'neurons_dense': self.neurons_dense,
+            'attention_heads': self.attention_heads,
+            'dropout_rate': self.dropout_rate,
+            'transformer_block': self.transformer_block,
+            'lstm_layer': self.lstm_layer,
+            'lstm_match': self.lstm_match,
+            'concat': self.concat,
+        })
+        return config
 
+    @classmethod
+    def from_config(cls, config):
+        return cls(**config)
+
+@tf.keras.utils.register_keras_serializable()
 class Branch(tf.keras.layers.Layer):
     def __init__(
         self,
@@ -140,7 +173,7 @@ class Branch(tf.keras.layers.Layer):
                 f"Full input shape received: {input_shape}"
             )
         self.input_spec = InputSpec(min_ndim=2, axes={-1: last_dim})
-        
+
         # Build the layers within the branch
         self.transformer_layers = []
         for (
@@ -164,32 +197,52 @@ class Branch(tf.keras.layers.Layer):
                 dropout_rate,
             )
             self.transformer_layers.append(transformer_block)
-        
+
         self.dense_layers = []
         for neurons, dropout in zip(self.neurons_dense, self.dropout_rate):
             dense_layer = Dense(neurons, activation="relu")
             dropout_layer = Dropout(dropout)
             self.dense_layers.append((dense_layer, dropout_layer))
-        
+
         self.output_layer = Dense(self.output_neurons, activation="relu")
-        
+
         self.built = True
 
     def call(self, inputs):
         x = inputs
         for transformer_layer in self.transformer_layers:
             x = transformer_layer(x)
-        
+
         x = GlobalAveragePooling1D()(x)
-        
+
         for dense_layer, dropout_layer in self.dense_layers:
             x = dense_layer(x)
             x = dropout_layer(x)
-        
+
         outputs = self.output_layer(x)
-        
+
         return outputs
 
+    def get_config(self):
+        config = super().get_config().copy()
+        config.update({
+            'neurons_transformer': self.neurons_transformer,
+            'neurons_lstm': self.neurons_lstm,
+            'neurons_dense': self.neurons_dense,
+            'attention_heads': self.attention_heads,
+            'dropout_rate': self.dropout_rate,
+            'output_neurons': self.output_neurons,
+            'transformer_layers': self.transformer_layers,
+            'dense_layers': self.dense_layers,
+            'output_layer': self.output_layer,
+        })
+        return config
+
+    @classmethod
+    def from_config(cls, config):
+        return cls(**config)
+
+@tf.keras.utils.register_keras_serializable()
 class Output(tf.keras.layers.Layer):
     def __init__(
         self,
@@ -223,3 +276,17 @@ class Output(tf.keras.layers.Layer):
             x = dropout_layer(x)
         x = self.output_layer(x)
         return x
+
+    def get_config(self):
+        config = super().get_config()
+        config.update({
+            'neurons_dense': self.neurons_dense,
+            'dropout_rate': self.dropout_rate,
+            'output_neurons': self.output_neurons,
+        })
+        return config
+
+    @classmethod
+    def from_config(cls, config):
+        return cls(**config)
+
