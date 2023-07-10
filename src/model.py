@@ -5,20 +5,20 @@ from typing import List
 import tensorflow as tf
 from pandas import DataFrame
 import matplotlib.pyplot as plt
-from tf.keras.optimizers import Adam
+from tensorflow.keras.optimizers import Adam
 from datetime import datetime as dt
-from tf.keras.models import load_model
-from tf.keras.models import Model as KerasModel
+from tensorflow.keras.models import load_model
+from tensorflow.keras.models import Model as KerasModel
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
-from tf.keras.callbacks import (
+from tensorflow.keras.callbacks import (
     ModelCheckpoint,
     EarlyStopping,
     TensorBoard,
     ReduceLROnPlateau,
 )
 import src.layers as layers
-from tf.keras.layers import Concatenate, LayerNormalization
+from tensorflow.keras.layers import Concatenate, LayerNormalization
 import numpy as np
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
