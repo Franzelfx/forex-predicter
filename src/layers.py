@@ -16,6 +16,7 @@ from keras.layers import (
     Dense,
     Dropout,
     Softmax,
+    Concatenate,
     Bidirectional,
     MultiHeadAttention,
     LayerNormalization,
@@ -29,12 +30,12 @@ class TransformerBlock(tf.keras.layers.Layer):
         self.attention_heads = attention_heads
         self.dropout_rate = dropout_rate
 
-        self.dense_1 = Dense(hidden_neurons)
-        self.dense_2 = Dense(hidden_neurons)
-        self.dense_3 = Dense(hidden_neurons)
+        self.dense_1 = Dense(hidden_neurons, activation='relu')
+        self.dense_2 = Dense(hidden_neurons, activation='relu')
+        self.dense_3 = Dense(hidden_neurons, activation='relu')
         self.multihead_attention = MultiHeadAttention(attention_heads, hidden_neurons)
         self.dropout_attention = Dropout(dropout_rate)
-        self.add_1 = Add()
+        self.concat_attention = Concatenate()
         self.layer_norm_1 = LayerNormalization()
         
         # Feed forward layers
@@ -43,7 +44,7 @@ class TransformerBlock(tf.keras.layers.Layer):
         self.dense_ffn_3 = Dense(hidden_neurons, activation='relu')
 
         self.dropout_ffn = Dropout(dropout_rate)
-        self.add_2 = Add()
+        self.concat_ffn = Concatenate()
         self.layer_norm_2 = LayerNormalization()
 
     def call(self, input_tensor):
@@ -53,7 +54,7 @@ class TransformerBlock(tf.keras.layers.Layer):
 
         attention_1 = self.multihead_attention(query, value)
         dropout_attention = self.dropout_attention(attention_1)
-        residual_attention = self.add_1([input_matched_1, dropout_attention])
+        residual_attention = self.concat_attention([input_tensor, dropout_attention])
         norm_attention = self.layer_norm_1(residual_attention)
 
         feed_forward_1 = self.dense_ffn_1(norm_attention)
@@ -61,7 +62,7 @@ class TransformerBlock(tf.keras.layers.Layer):
         feed_forward_3 = self.dense_ffn_3(feed_forward_2)
 
         dropout_ffn = self.dropout_ffn(feed_forward_3)
-        residual_ffn = self.add_2([norm_attention, dropout_ffn])
+        residual_ffn = self.concat_ffn([norm_attention, dropout_ffn])
         norm_ffn = self.layer_norm_2(residual_ffn)
 
         return norm_ffn
@@ -88,16 +89,14 @@ class TransformerLSTMBlock(tf.keras.layers.Layer):
         )
         self.lstm_layer = Bidirectional(LSTM(neurons_lstm, return_sequences=True))
         self.lstm_match = Dense(neurons_lstm, activation="relu")
-        self.add = Add()
-        self.layer_norm = LayerNormalization()
+        self.concat = Concatenate()
 
     def call(self, input_tensor):
         transformer = self.transformer_block(input_tensor)
         lstm = self.lstm_layer(transformer)
         lstm_match = self.lstm_match(lstm)
-        add = self.add([transformer, lstm_match])
-        norm = self.layer_norm(add)
-        return norm
+        concat = self.concat([transformer, lstm_match])
+        return concat
 
 
 class Branch(tf.keras.layers.Layer):
@@ -172,7 +171,7 @@ class Branch(tf.keras.layers.Layer):
             dropout_layer = Dropout(dropout)
             self.dense_layers.append((dense_layer, dropout_layer))
         
-        self.output_layer = Dense(self.output_neurons, activation="softmax")
+        self.output_layer = Dense(self.output_neurons, activation="relu")
         
         self.built = True
 
@@ -209,8 +208,7 @@ class Output(tf.keras.layers.Layer):
         self.output_neurons = output_neurons
         self.dense_layers = []
         self.dropout_layers = []
-        self.output_layer = Dense(output_neurons)
-        self.softmax_layer = Softmax(axis=-1)
+        self.output_layer = Dense(output_neurons, activation="relu")
 
         for neurons, dropout in zip(self.neurons_dense, self.dropout_rate):
             dense_layer = Dense(neurons, activation="relu")
@@ -223,7 +221,5 @@ class Output(tf.keras.layers.Layer):
         for dense_layer, dropout_layer in zip(self.dense_layers, self.dropout_layers):
             x = dense_layer(x)
             x = dropout_layer(x)
-
         x = self.output_layer(x)
-        output = self.softmax_layer(x)
-        return output
+        return x
