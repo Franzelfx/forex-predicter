@@ -27,7 +27,7 @@ from keras.callbacks import (
 )
 import src.layers as layers
 
-from keras.layers import Add, LayerNormalization
+from keras.layers import Concatenate, LayerNormalization
 import numpy as np
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
@@ -164,7 +164,7 @@ class Model:
             branches.append(_branch)
             inputs.append(_input)
         # Summation layer
-        summation = Add()(branches)
+        summation = Concatenate()(branches)
         # Layer normalization
         summation = LayerNormalization()(summation)
         # Main branch after the summation
