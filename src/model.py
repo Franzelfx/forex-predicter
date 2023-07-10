@@ -1,11 +1,3 @@
-"""This module contains the model class for the LSTM model."""
-from keras import activations
-from keras import backend
-from keras import constraints
-from keras import initializers
-from keras import regularizers
-from keras.engine.input_spec import InputSpec
-
 import os
 import logging
 import numpy as np
@@ -13,21 +5,20 @@ from typing import List
 import tensorflow as tf
 from pandas import DataFrame
 import matplotlib.pyplot as plt
-from keras.optimizers import Adam
+from tf.keras.optimizers import Adam
 from datetime import datetime as dt
-from keras.models import load_model
-from keras.models import Model as KerasModel
+from tf.keras.models import load_model
+from tf.keras.models import Model as KerasModel
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
-from keras.callbacks import (
+from tf.keras.callbacks import (
     ModelCheckpoint,
     EarlyStopping,
     TensorBoard,
     ReduceLROnPlateau,
 )
 import src.layers as layers
-
-from keras.layers import Concatenate, LayerNormalization
+from tf.keras.layers import Concatenate, LayerNormalization
 import numpy as np
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"

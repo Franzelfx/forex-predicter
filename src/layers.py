@@ -1,15 +1,9 @@
 import tensorflow.compat.v2 as tf
-
-from keras import activations
-from keras import backend
-from keras import constraints
-from keras import initializers
-from keras import regularizers
-from keras.engine.input_spec import InputSpec
+from tf.keras.engine.input_spec import InputSpec
 
 from typing import List
 
-from keras.layers import (
+from tf.keras.layers import (
     Add,
     LSTM,
     Input,
