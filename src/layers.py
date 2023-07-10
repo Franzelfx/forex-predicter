@@ -2,14 +2,10 @@ import tensorflow.compat.v2 as tf
 from tensorflow.keras.layers import InputSpec
 from typing import List
 from tensorflow.keras.layers import (
-    Add,
     LSTM,
-    Input,
     Dense,
     Dropout,
-    Softmax,
     Concatenate,
-    Bidirectional,
     MultiHeadAttention,
     LayerNormalization,
     GlobalAveragePooling1D,
@@ -93,7 +89,7 @@ class TransformerLSTMBlock(tf.keras.layers.Layer):
         self.transformer_block = TransformerBlock(
             neurons_transformer, attention_heads, dropout_rate
         )
-        self.lstm_layer = Bidirectional(LSTM(neurons_lstm, return_sequences=True))
+        self.lstm_layer = LSTM(neurons_lstm, return_sequences=True)
         self.lstm_match = Dense(neurons_lstm, activation="relu")
         self.concat = Concatenate()
 
