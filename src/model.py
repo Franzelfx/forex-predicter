@@ -283,7 +283,7 @@ class Model:
             return
         reset_states = ResetStatesCallback()
         model_checkpoint = ModelCheckpoint(
-            filepath=f"{self._path}/checkpoints/{self._name}.keras",
+            filepath=f"{self._path}/checkpoints/{self._name}.tf",
             monitor="val_loss",
             save_best_only=True,
             save_weights_only=False,
@@ -325,7 +325,7 @@ class Model:
                 shuffle=False,
             )
             # Load the best weights
-            self._model.load_weights(f"{self._path}/checkpoints/{self._name}.keras")
+            self._model.load_weights(f"{self._path}/checkpoints/{self._name}.tf")
             self._model = self._model
             self._plot_fit_history(fit)
             # Convert the fit history to dataframe
@@ -356,7 +356,7 @@ class Model:
         """
         y_train = None
         y_test = None
-        path = f"{self._path}/checkpoints/{self._name}_train.h5"
+        path = f"{self._path}/checkpoints/{self._name}_train.tf"
         # Get the model
         if from_saved_model:
             prediction_model: tf.keras.Model = load_model(path)
