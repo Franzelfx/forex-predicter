@@ -38,6 +38,5 @@ else
     echo "Not utilizing the saved model"
     export UTILIZE_MODEL="False"
 fi
-
+export TENSORBOARD_LOG = "./tensorboard"
 screen -S model_test bash -c 'python model_test.py; bash'
-
