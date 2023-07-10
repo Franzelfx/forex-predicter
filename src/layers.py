@@ -1,9 +1,9 @@
 import tensorflow.compat.v2 as tf
-from tf.keras.engine.input_spec import InputSpec
+from tensorflow.keras.engine.input_spec import InputSpec
 
 from typing import List
 
-from tf.keras.layers import (
+from tensorflow.keras.layers import (
     Add,
     LSTM,
     Input,
