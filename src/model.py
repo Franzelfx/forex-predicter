@@ -238,6 +238,7 @@ class Model:
         else:
             model = self._build(architecture)
             model.compile(loss=loss_fct, optimizer=optimizer, metrics=["mape"])
+        print(f"Tensorflow version: {tf.__version__}")
         model.summary(expand_nested=True)
         # Plot the model
         try:
