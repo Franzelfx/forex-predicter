@@ -1,11 +1,14 @@
 """Testbench for the model class."""
 import logging
 import unittest
+import traceback
 import numpy as np
 import pandas as pd
 import tensorflow as tf
 from config_tb import *
 from src.model import Model
+from src.utilizer import Utilizer
+from src.visualizer import Visualizer
 from src.indicators import Indicators
 from src.preprocessor import Preprocessor
 from src.data_aquirer import Data_Aquirer
@@ -47,6 +50,7 @@ class Test_Model(unittest.TestCase):
         pair = os.environ.get("START_PAIR")
         from_saved_file = os.environ.get("FROM_SAVED_FILE")
         use_multiple_gpus = os.environ.get("USE_MULTIPLE_GPUS")
+        utilize_model = os.environ.get("UTILIZE_MODEL")
         # Data
         CORR_PAIRS = ["C:USDCHF", "C:EURCAD", "C:GBPJPY"]
         pairs = []
@@ -115,28 +119,38 @@ class Test_Model(unittest.TestCase):
             MODEL_PATH,
             MODEL_NAME,
             target_pair.y_train,
-        )
-        branches = []
-        for corr_pair in corr_pairs:
-            if isinstance(corr_pair.x_train, np.ndarray):
-                branches.append(Branch(corr_pair.x_train, [128], [128], [128], [2], [0.2]))
-        main_branch = Branch(target_pair.x_train, [64], [64], [64], [2], [0.2])
-        output = Output([128, 128, 128], [0.2, 0.2, 0.2])
-        architecture = Architecture(branches, main_branch, output)        # Run for testing
-        if use_multiple_gpus:
-            strategy = tf.distribute.MirroredStrategy()
-        model.compile(
-            architecture,
-            learning_rate=TEST_LEARNING_RATE,
-            strategy=strategy if use_multiple_gpus == 'True' else None,
-        )
-        model.fit(
-            epochs=TEST_EPOCHS,
-            batch_size=TEST_BATCH_SIZE,
-            validation_split=TEST_VALIDATION_SPLIT,
-            patience=TEST_PATIENCE
-        )
-
+            )
+        if utilize_model != "True":
+            branches = []
+            for corr_pair in corr_pairs:
+                if isinstance(corr_pair.x_train, np.ndarray):
+                    branches.append(Branch(corr_pair.x_train, [128], [128], [128], [2], [0.2]))
+            main_branch = Branch(target_pair.x_train, [64], [64], [64], [2], [0.2])
+            output = Output([128, 128, 128], [0.2, 0.2, 0.2])
+            architecture = Architecture(branches, main_branch, output)        # Run for testing
+            if use_multiple_gpus:
+                strategy = tf.distribute.MirroredStrategy()
+            model.compile(
+                architecture,
+                learning_rate=TEST_LEARNING_RATE,
+                strategy=strategy if use_multiple_gpus == 'True' else None,
+            )
+            model.fit(
+                epochs=TEST_EPOCHS,
+                batch_size=TEST_BATCH_SIZE,
+                validation_split=TEST_VALIDATION_SPLIT,
+                patience=TEST_PATIENCE
+            )
+        else:
+            utilizer = Utilizer(model, corr_pairs)
+            y_hat = utilizer.predict(box_pts=TEST_BOX_PTS, lookback=TEST_LOOKBACK)
+            visualizer = Visualizer(pair)
+            path = os.path.join(MODEL_PATH, "model_predictions")
+            x_test = target_pair.x_test_target_inverse
+            test_actual = np.concatenate((x_test, test_actual))
+            visualizer.plot_prediction(
+                path, y_hat, test_actual=test_actual, time_base=aquirer.time_base
+            )
 
 if __name__ == "__main__":
     # get API_KEY from environment variable
@@ -144,4 +158,5 @@ if __name__ == "__main__":
     try:
         unittest.main()
     except Exception as e:
-        logging.error(e)
+        traceback.print_exc()
+        logging.error(traceback.format_exc())

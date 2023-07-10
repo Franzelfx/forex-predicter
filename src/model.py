@@ -37,14 +37,14 @@ class Branch:
     def __init__(
         self,
         _input: np.ndarray,
-        hidden_neurons,
+        transformer_neurons,
         lstm_neurons,
         dense_neurons,
         attention_heads,
         dropout_rate,
     ):
         self.input = _input
-        self.transformer_neurons = hidden_neurons
+        self.transformer_neurons = transformer_neurons
         self.lstm_neurons = lstm_neurons
         self.dense_neurons = dense_neurons
         self.attention_heads = attention_heads
@@ -346,6 +346,7 @@ class Model:
             logging.error(e)
         return fit
 
+    #TODO: move functionality for x_train and x_test into utilizer
     def predict(
         self,
         x_hat: np.ndarray,

@@ -1,5 +1,6 @@
 """The utilizer module, to use the trained model to predict."""
 import numpy as np
+from typing import List
 from logging import warning
 from src.preprocessor import Preprocessor
 from src.model import Model as ModelPreTrained
@@ -8,11 +9,11 @@ from src.model import Model as ModelPreTrained
 class Utilizer:
     """The utilizer class, to use the trained model to predict."""
 
-    def __init__(self, model: ModelPreTrained, preprocessor: Preprocessor) -> None:
+    def __init__(self, model: ModelPreTrained, preprocessor: Preprocessor | List[Preprocessor]) -> None:
         """Initialize the utilizer.
 
         @param model The model to use for prediction or the path to the model.
-        @param data The data to use for prediction or the path to the data.
+        @param preprocessor The preprocessor to use for prediction.
         """
         self._model = model
         self._preprocessor = preprocessor
@@ -41,10 +42,19 @@ class Utilizer:
             x_train = self._preprocessor.x_train[-lookback:]
         else:
             x_train = self._preprocessor.x_train
+        if isinstance(self._preprocessor, list):
+            x_hat = []
+            x_test = []
+            for preprocessor in self._preprocessor:
+                x_hat.append(preprocessor.x_hat)
+                x_test.append(preprocessor.x_test)
+        else:
+            x_hat = self._preprocessor.x_hat
+            x_test = self._preprocessor.x_test
         y_train, y_test, y_hat = self._model.predict(
-            self._preprocessor.x_hat,
+            self.x_hat,
             x_train=x_train,
-            x_test=self._preprocessor.x_test,
+            x_test=x_test,
             scaler=self._preprocessor.target_scaler,
             from_saved_model=True,
         )
