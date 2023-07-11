@@ -17,35 +17,38 @@ from src.preprocessor import Preprocessor
 from src.data_aquirer import Data_Aquirer
 from src.model import Architecture, Branch, Output
 
+
 class Test_Model(unittest.TestCase):
     """Integration test for the Model class.
 
-    
+
     @remarks This test is not a unit test, but an integration test. It tests the
                 preprocessor and model class together.
     """
 
-    def synchronize_dataframes(dataframes, column_to_sync='t'):
+    def synchronize_dataframes(dataframes, column_to_sync="t"):
         # Create a list to hold all synchronized dataframes
         synced_dataframes = []
-        
+
         # Start with the first dataframe
         synced_df = dataframes[0]
 
         # Loop through the rest of the dataframes
         for df in dataframes[1:]:
             # Merge on the column_to_sync with an inner join
-            synced_df = pd.merge(synced_df, df, how='inner', on=column_to_sync)
-            
-        # Now we have a dataframe that contains rows with 't' values 
+            synced_df = pd.merge(synced_df, df, how="inner", on=column_to_sync)
+
+        # Now we have a dataframe that contains rows with 't' values
         # that appear in all original dataframes. Next, we need to
         # create a synchronized version of each original dataframe.
-        
+
         # Loop through the original dataframes again
         for df in dataframes:
             # For each dataframe, keep only the rows that exist in synced_df
-            synced_dataframes.append(df[df[column_to_sync].isin(synced_df[column_to_sync])])
-            
+            synced_dataframes.append(
+                df[df[column_to_sync].isin(synced_df[column_to_sync])]
+            )
+
         return synced_dataframes
 
     def test_compile_fit_predict(self):
@@ -60,7 +63,12 @@ class Test_Model(unittest.TestCase):
         # First get the target pair
         aquirer = Data_Aquirer(PATH_PAIRS, API_KEY, api_type="full")
         target_pair = aquirer.get(
-            pair, MINUTES_TRAIN, start=START, end=END, save=True, from_file=from_saved_file
+            pair,
+            MINUTES_TRAIN,
+            start=START,
+            end=END,
+            save=True,
+            from_file=from_saved_file,
         )
         indicators = Indicators(PATH_INDICATORS, pair, target_pair, TEST_INDICATORS)
         indicator_data = indicators.calculate(save=True)
@@ -82,7 +90,8 @@ class Test_Model(unittest.TestCase):
             indicator_data_corr = indicators.calculate(save=False)
             # rename all columns except 't'
             indicator_data_corr.columns = [
-                f"{col}_{corr_pair}" if col != 't' else col for col in indicator_data_corr.columns
+                f"{col}_{corr_pair}" if col != "t" else col
+                for col in indicator_data_corr.columns
             ]
             # Preprocess the correlated pair
             pairs.append(indicator_data_corr)
@@ -122,28 +131,46 @@ class Test_Model(unittest.TestCase):
             MODEL_PATH,
             MODEL_NAME,
             target_pair.y_train,
-            )
+        )
         if utilize_model != "True":
             branches = []
             for corr_pair in corr_pairs:
                 if isinstance(corr_pair.x_train, np.ndarray):
-                    branches.append(Branch(corr_pair.x_train, [128, 128], [64, 64], [128, 128], [2, 2], [0.2, 0.2]))
-            main_branch = Branch(target_pair.x_train, [128, 128], [64, 64], [128, 128], [2, 2], [0.2, 0.2])
-            output = Output([128, 128, 128], [0.2, 0.2, 0.2])
-            architecture = Architecture(branches, main_branch, output)        # Run for testing
+                    branches.append(
+                        Branch(
+                            corr_pair.x_train,
+                            [256, 128],
+                            [128, 64],
+                            [256, 128],
+                            [2, 2],
+                            [0.2, 0.2],
+                        )
+                    )
+            main_branch = Branch(
+                target_pair.x_train,
+                [256, 128, 128],
+                [128, 64, 64],
+                [256, 128, 128],
+                [2, 2, 2],
+                [0.2, 0.2, 0.2],
+            )
+            output = Output([128, 128, 128, 96, 96, 96], [0.2, 0.2, 0.2, 0.2, 0.2, 0.2])
+            architecture = Architecture(
+                branches, main_branch, output
+            )  # Run for testing
             if use_multiple_gpus:
                 strategy = tf.distribute.MirroredStrategy()
             model.compile(
                 architecture,
                 learning_rate=TEST_LEARNING_RATE,
-                strategy=strategy if use_multiple_gpus == 'True' else None,
+                strategy=strategy if use_multiple_gpus == "True" else None,
             )
             model.fit(
                 epochs=TEST_EPOCHS,
                 batch_size=TEST_BATCH_SIZE,
                 validation_split=TEST_VALIDATION_SPLIT,
                 patience=TEST_PATIENCE,
-                strategy=strategy if use_multiple_gpus == 'True' else None,
+                strategy=strategy if use_multiple_gpus == "True" else None,
             )
         else:
             utilizer = Utilizer(model, corr_pairs)
@@ -155,6 +182,7 @@ class Test_Model(unittest.TestCase):
             visualizer.plot_prediction(
                 path, y_hat, test_actual=test_actual, time_base=aquirer.time_base
             )
+
 
 if __name__ == "__main__":
     # get API_KEY from environment variable
