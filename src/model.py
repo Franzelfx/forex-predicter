@@ -248,7 +248,7 @@ class Model:
         self,
         epochs=100,
         batch_size=32,
-        patience=40,
+        patience=75,
         validation_split=0.1,
         strategy=None,
     ) -> DataFrame:

@@ -27,7 +27,7 @@ PATH_PAIRS = os.path.join(currentdir, "pairs")
 PAIR = "C:CADJPY"
 MINUTES_TRAIN = 15
 MINUTES_TEST = 15
-START = "2015-01-01"
+START = "2010-01-01"
 # Substract 1 hour to get the last full hour
 END = (date.today() - timedelta(hours=1)).strftime("%Y-%m-%d")
 END = "2023-07-7"
@@ -38,28 +38,28 @@ API_TYPE = "advanced"
 PATH_INDICATORS = os.path.join(currentdir, "indicators")
 pair_name = PAIR[2:]
 INDICATORS_DATA_SOURCE = f"{PATH_PAIRS}/{pair_name}_{MINUTES_TRAIN}.csv"
-# TEST_INDICATORS = [
-#     "ATR",
-#     "BOLLINGER",
-#     "MA5",
-#     "MA25",
-#     "MACD",
-#     "OBV",
-#     "RSI",
-#     "STOCHASTIC",
-#     "VoRSI",
-#     "HT_TRENDLINE",
-#     "HT_TRENDMODE",
-#     "HT_DCPERIOD",
-#     "HT_DCPHASE",
-#     "HT_PHASOR",
-#     "HT_SINE",
-#     "MFI",
-#     "MOM",
-#     "PLUS_DI",
-#     "PLUS_DM",
-# ]
-TEST_INDICATORS = ["BOLLINGER",'MA5' , "MA25", "VoRSI"]
+TEST_INDICATORS = [
+    "ATR",
+    "BOLLINGER",
+    "MA5",
+    "MA25",
+    "MACD",
+    "OBV",
+    "RSI",
+    "STOCHASTIC",
+    "VoRSI",
+    "HT_TRENDLINE",
+    "HT_TRENDMODE",
+    "HT_DCPERIOD",
+    "HT_DCPHASE",
+    "HT_PHASOR",
+    "HT_SINE",
+    "MFI",
+    "MOM",
+    "PLUS_DI",
+    "PLUS_DM",
+]
+#TEST_INDICATORS = ["BOLLINGER",'MA5' , "MA25", "VoRSI"]
 EXPECTED_COLUMNS = [
     "v",
     "vw",
@@ -116,9 +116,9 @@ TEST_NUM_BLOCKS = 3
 TEST_EPOCHS = 1000
 TEST_NEURONS = 128
 TEST_ATTENTION_HEADS = 4
-TEST_BATCH_SIZE = 8
-TEST_LEARNING_RATE = 0.0001
-TEST_PATIENCE = 150
+TEST_BATCH_SIZE = 16
+TEST_LEARNING_RATE = 0.0002
+TEST_PATIENCE = 250
 TEST_VALIDATION_SPLIT = 0.2
 PATH_TEST_RESULTS = os.path.join(currentdir, "test_results")
 
