@@ -30,8 +30,8 @@ import src.layers as layers
 from keras.layers import Add, LayerNormalization
 import numpy as np
 
-os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
-
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "0"
+tf.debugging.set_log_device_placement(True)
 
 class Branch:
     def __init__(
