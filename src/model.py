@@ -254,6 +254,7 @@ class Model:
         batch_size=32,
         patience=40,
         validation_split=0.1,
+        strategy=None,
     ) -> DataFrame:
         """Compile and fit the model.
 
@@ -308,22 +309,41 @@ class Model:
         )
         # Fit the model
         try:
-            fit = self._model.fit(
-                X_train,
-                y_train,
-                epochs=epochs,
-                batch_size=batch_size,
-                validation_data=(X_val, y_val),
-                validation_split=validation_split,
-                callbacks=[
-                    tensorboard,
-                    model_checkpoint,
-                    early_stopping,
-                    reset_states,
-                    lr_scheduler,
-                ],
-                shuffle=False,
-            )
+            if strategy is not None and hasattr(strategy, "scope"):
+                with strategy.scope():
+                    fit = self._model.fit(
+                        X_train,
+                        y_train,
+                        epochs=epochs,
+                        batch_size=batch_size,
+                        validation_data=(X_val, y_val),
+                        validation_split=validation_split,
+                        callbacks=[
+                            tensorboard,
+                            model_checkpoint,
+                            early_stopping,
+                            reset_states,
+                            lr_scheduler,
+                        ],
+                        shuffle=False,
+                    )
+            else:
+                fit = self._model.fit(
+                    X_train,
+                    y_train,
+                    epochs=epochs,
+                    batch_size=batch_size,
+                    validation_data=(X_val, y_val),
+                    validation_split=validation_split,
+                    callbacks=[
+                        tensorboard,
+                        model_checkpoint,
+                        early_stopping,
+                        reset_states,
+                        lr_scheduler,
+                    ],
+                    shuffle=False,
+                )
             # Load the best weights
             self._model.load_weights(f"{self._path}/checkpoints/{self._name}.tf")
             self._model = self._model
