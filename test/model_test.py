@@ -158,14 +158,8 @@ class Test_Model(unittest.TestCase):
 if __name__ == "__main__":
     # get API_KEY from environment variable
     API_KEY = os.environ.get("API_KEY")
-    tensorboard_logdir = os.environ.get("TENSORBOARD_LOGDIR")
     try:
-        tensorboard = subprocess.Popen(
-            ["tensorboard", "--logdir", tensorboard_logdir, "--bind_all"]
-        )
         unittest.main()
     except Exception as e:
         traceback.print_exc()
         logging.error(traceback.format_exc())
-    finally:
-        tensorboard.send_signal(subprocess.signal.SIGTERM)
