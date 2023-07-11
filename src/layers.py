@@ -194,7 +194,6 @@ class Branch(tf.keras.layers.Layer):
             'neurons_dense': self.neurons_dense,
             'attention_heads': self.attention_heads,
             'dropout_rate': self.dropout_rate,
-            'output_neurons': self.output_neurons,
             'transformer_layers': self.transformer_layers,
             'dense_layers': self.dense_layers,
             'output_layer': self.output_layer,
