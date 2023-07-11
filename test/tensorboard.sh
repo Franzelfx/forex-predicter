@@ -9,4 +9,4 @@ LOGDIR="./tensorflow"
 mkdir -p ${LOGDIR}
 
 # Running TensorBoard
-screen tensorboard --logdir ${LOGDIR} --bind_all
+tensorboard --logdir ${LOGDIR} --bind_all
