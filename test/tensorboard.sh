@@ -3,7 +3,7 @@
 source ../venv/bin/activate
 # ----------------------------
 # Directory for TensorFlow logs
-LOGDIR="./tensorflow"
+LOGDIR="./tensorboard"
 
 # Ensure the log directory exists
 mkdir -p ${LOGDIR}
