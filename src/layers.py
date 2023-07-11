@@ -1,4 +1,4 @@
-import tensorflow.compat.v2 as tf
+import tensorflow as tf
 from tensorflow.keras.layers import InputSpec
 from typing import List
 from tensorflow.keras.layers import (
@@ -128,7 +128,6 @@ class Branch(tf.keras.layers.Layer):
         neurons_dense: List[int],
         attention_heads: List[int],
         dropout_rate: List[float],
-        output_neurons: int,
     ):
         super(Branch, self).__init__()
 
@@ -137,15 +136,9 @@ class Branch(tf.keras.layers.Layer):
         self.neurons_dense = neurons_dense
         self.attention_heads = attention_heads
         self.dropout_rate = dropout_rate
-        self.output_neurons = int(output_neurons) if not isinstance(output_neurons, int) else output_neurons
-        if self.output_neurons < 0:
-            raise ValueError(
-                "Received an invalid value for `output_neurons`, expected "
-                f"a positive integer. Received: output_neurons={output_neurons}"
-            )
 
     def build(self, input_shape):
-        dtype = tf.as_dtype(self.dtype or backend.floatx())
+        dtype = tf.as_dtype(self.dtype or tf.keras.backend.floatx())
         if not (dtype.is_floating or dtype.is_complex):
             raise TypeError(
                 "A BranchLayer can only be built with a floating-point "
@@ -185,31 +178,13 @@ class Branch(tf.keras.layers.Layer):
                 dropout_rate,
             )
             self.transformer_layers.append(transformer_block)
-
-        self.dense_layers = []
-        for neurons, dropout in zip(self.neurons_dense, self.dropout_rate):
-            dense_layer = Dense(neurons, activation="relu")
-            dropout_layer = Dropout(dropout)
-            self.dense_layers.append((dense_layer, dropout_layer))
-
-        self.output_layer = Dense(self.output_neurons, activation="relu")
-
         self.built = True
 
     def call(self, inputs):
         x = inputs
         for transformer_layer in self.transformer_layers:
             x = transformer_layer(x)
-
-        x = GlobalAveragePooling1D()(x)
-
-        for dense_layer, dropout_layer in self.dense_layers:
-            x = dense_layer(x)
-            x = dropout_layer(x)
-
-        outputs = self.output_layer(x)
-
-        return outputs
+            return x
 
     def get_config(self):
         config = super().get_config().copy()
