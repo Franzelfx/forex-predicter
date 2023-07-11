@@ -224,6 +224,7 @@ class Output(tf.keras.layers.Layer):
         self.output_neurons = output_neurons
         self.dense_layers = []
         self.dropout_layers = []
+        self.gap = GlobalAveragePooling1D()
         self.output_layer = Dense(output_neurons, activation="relu")
 
         for neurons, dropout in zip(self.neurons_dense, self.dropout_rate):
@@ -234,6 +235,7 @@ class Output(tf.keras.layers.Layer):
 
     def call(self, inputs, **kwargs):
         x = inputs
+        x = self.gap(x)
         for dense_layer, dropout_layer in zip(self.dense_layers, self.dropout_layers):
             x = dense_layer(x)
             x = dropout_layer(x)
