@@ -196,7 +196,6 @@ class Branch(tf.keras.layers.Layer):
             'neurons_dense': self.neurons_dense,
             'attention_heads': self.attention_heads,
             'dropout_rate': self.dropout_rate,
-            'transformer_layers': self.transformer_layers,
         })
         return config
 
