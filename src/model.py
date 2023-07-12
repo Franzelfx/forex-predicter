@@ -246,9 +246,10 @@ class Model:
 
     def fit(
         self,
-        epochs=100,
+        epochs=1000,
         batch_size=32,
-        patience=75,
+        patience=250,
+        patience_lr_shedule=50
         validation_split=0.1,
         strategy=None,
     ) -> DataFrame:
@@ -290,7 +291,7 @@ class Model:
             monitor="val_loss", patience=patience, mode="min", verbose=1
         )
         tensorboard = TensorBoard(log_dir=f"{self._path}/tensorboard/{self._name}")
-        lr_scheduler = ReduceLROnPlateau(factor=0.5, patience=30, min_lr=0.000001)
+        lr_scheduler = ReduceLROnPlateau(factor=0.5, patience=patience_lr_schedule, min_lr=0.000001)
         # Split the data
         X_train = []
         X_val = []
