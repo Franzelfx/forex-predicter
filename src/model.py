@@ -372,7 +372,7 @@ class Model:
         """
         y_train = None
         y_test = None
-        path = f"{self._path}/checkpoints/{self._name}_train.tf"
+        path = f"{self._path}/checkpoints/{self._name}.tf"
         # Get the model
         if from_saved_model:
             prediction_model: tf.keras.Model = load_model(path)
