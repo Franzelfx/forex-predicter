@@ -186,7 +186,7 @@ class Branch(tf.keras.layers.Layer):
         x = inputs
         for transformer_layer in self.transformer_layers:
             x = transformer_layer(x)
-            return x
+        return x
 
     def get_config(self):
         config = super().get_config().copy()
