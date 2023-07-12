@@ -39,4 +39,4 @@ else
     export UTILIZE_MODEL="False"
 fi
 export TENSORBOARD_LOGDIR="./tensorboard"
-screen -S model_test bash -c 'python -u model_test.py > model_test_output.log'
+screen -S model_test bash -c 'python -u model_test.py'
