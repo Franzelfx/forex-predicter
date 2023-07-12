@@ -14,7 +14,7 @@ from tensorflow.keras.layers import (
 @tf.keras.utils.register_keras_serializable()
 class TransformerBlock(tf.keras.layers.Layer):
     def __init__(self, hidden_neurons, attention_heads, dropout_rate):
-        super(TransformerBlock, self).__init__()
+        super(TransformerBlock, self).__init__(**kwargs)
         self.hidden_neurons = hidden_neurons
         self.attention_heads = attention_heads
         self.dropout_rate = dropout_rate
@@ -79,7 +79,7 @@ class TransformerLSTMBlock(tf.keras.layers.Layer):
         attention_heads,
         dropout_rate,
     ):
-        super(TransformerLSTMBlock, self).__init__()
+        super(TransformerLSTMBlock, self).__init__(**kwargs)
         self.neurons_transformer = neurons_transformer
         self.neurons_lstm = neurons_lstm
         self.neurons_dense = neurons_dense
@@ -129,7 +129,7 @@ class Branch(tf.keras.layers.Layer):
         attention_heads: List[int],
         dropout_rate: List[float],
     ):
-        super(Branch, self).__init__()
+        super(Branch, self).__init__(**kwargs)
 
         self.neurons_transformer = neurons_transformer
         self.neurons_lstm = neurons_lstm
