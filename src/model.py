@@ -376,7 +376,7 @@ class Model:
         # Get the model
         if from_saved_model:
             prediction_model: tf.keras.Model = load_model(path, custom_objects={
-        'LSTM': tensorflow.keras.layers.LSTM,
+        'LSTM': tf.keras.layers.LSTM,
         'TransformerBlock': layers.TransformerBlock,
         'TransformerLSTMBlock': layers.TransformerLSTMBlock,
         'Branch': layers.Branch,
