@@ -246,9 +246,10 @@ class Model:
 
     def fit(
         self,
-        epochs=100,
+        epochs=1000,
         batch_size=32,
-        patience=75,
+        patience=250,
+        patience_lr_schedule=50,
         validation_split=0.1,
         strategy=None,
     ) -> DataFrame:
@@ -280,7 +281,7 @@ class Model:
             return
         reset_states = ResetStatesCallback()
         model_checkpoint = ModelCheckpoint(
-            filepath=f"{self._path}/checkpoints/{self._name}.tf",
+            filepath=f"{self._path}/checkpoints/{self._name}",
             monitor="val_loss",
             save_best_only=True,
             save_weights_only=False,
@@ -290,7 +291,7 @@ class Model:
             monitor="val_loss", patience=patience, mode="min", verbose=1
         )
         tensorboard = TensorBoard(log_dir=f"{self._path}/tensorboard/{self._name}")
-        lr_scheduler = ReduceLROnPlateau(factor=0.5, patience=30, min_lr=0.000001)
+        lr_scheduler = ReduceLROnPlateau(factor=0.5, patience=patience_lr_schedule, min_lr=0.000001)
         # Split the data
         X_train = []
         X_val = []
@@ -341,7 +342,7 @@ class Model:
                     shuffle=False,
                 )
             # Load the best weights
-            self._model.load_weights(f"{self._path}/checkpoints/{self._name}.tf")
+            self._model.load_weights(f"{self._path}/checkpoints/{self._name}")
             self._model = self._model
             self._plot_fit_history(fit)
             # Convert the fit history to dataframe
@@ -372,10 +373,16 @@ class Model:
         """
         y_train = None
         y_test = None
-        path = f"{self._path}/checkpoints/{self._name}.tf"
+        path = f"{self._path}/checkpoints/{self._name}"
         # Get the model
         if from_saved_model:
-            prediction_model: tf.keras.Model = load_model(path)
+            prediction_model: tf.keras.Model = load_model(path, custom_objects={
+        'LSTM': tf.keras.layers.LSTM,
+        'TransformerBlock': layers.TransformerBlock,
+        'TransformerLSTMBlock': layers.TransformerLSTMBlock,
+        'Branch': layers.Branch,
+        'Output': layers.Output
+    })
             print(f"Loaded model from: {path}")
         else:
             # Check if the model has been fitted
