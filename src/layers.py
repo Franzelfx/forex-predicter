@@ -109,10 +109,6 @@ class TransformerLSTMBlock(tf.keras.layers.Layer):
             'neurons_dense': self.neurons_dense,
             'attention_heads': self.attention_heads,
             'dropout_rate': self.dropout_rate,
-            'transformer_block': self.transformer_block,
-            'lstm_layer': self.lstm_layer,
-            'lstm_match': self.lstm_match,
-            'concat': self.concat,
         })
         return config
 
@@ -138,6 +134,30 @@ class Branch(tf.keras.layers.Layer):
         self.neurons_dense = neurons_dense
         self.attention_heads = attention_heads
         self.dropout_rate = dropout_rate
+
+        # Build the layers within the branch
+        self.transformer_layers = []
+        for (
+            neurons_transformer,
+            neurons_lstm,
+            neurons_dense,
+            attention_heads,
+            dropout_rate,
+        ) in zip(
+            self.neurons_transformer,
+            self.neurons_lstm,
+            self.neurons_dense,
+            self.attention_heads,
+            self.dropout_rate,
+        ):
+            transformer_block = TransformerLSTMBlock(
+                neurons_transformer,
+                neurons_lstm,
+                neurons_dense,
+                attention_heads,
+                dropout_rate,
+            )
+            self.transformer_layers.append(transformer_block)
 
     def build(self, input_shape):
         dtype = tf.as_dtype(self.dtype or tf.keras.backend.floatx())
