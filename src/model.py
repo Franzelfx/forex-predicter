@@ -376,10 +376,10 @@ class Model:
         # Get the model
         if from_saved_model:
             prediction_model: tf.keras.Model = load_model(path, custom_objects={
-        'TransformerBlock': TransformerBlock,
-        'TransformerLSTMBlock': TransformerLSTMBlock,
-        'Branch': Branch,
-        'Output': Output
+        'TransformerBlock': layers.TransformerBlock,
+        'TransformerLSTMBlock': layers.TransformerLSTMBlock,
+        'Branch': layers.Branch,
+        'Output': layers.Output
     })
             print(f"Loaded model from: {path}")
         else:
