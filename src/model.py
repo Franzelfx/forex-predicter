@@ -249,7 +249,7 @@ class Model:
         epochs=1000,
         batch_size=32,
         patience=250,
-        patience_lr_schedule=50,
+        patience_lr_schedule=100,
         validation_split=0.1,
         strategy=None,
     ) -> DataFrame:
