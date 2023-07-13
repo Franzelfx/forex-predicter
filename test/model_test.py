@@ -58,7 +58,7 @@ class Test_Model(unittest.TestCase):
         use_multiple_gpus = os.environ.get("USE_MULTIPLE_GPUS")
         utilize_model = os.environ.get("UTILIZE_MODEL")
         # Data
-        CORR_PAIRS = ["C:USDCHF", "C:EURCAD", "C:GBPJPY"]
+        CORR_PAIRS = ["C:USDCHF", "C:EURCAD", "C:GBPJPY", "C:GBPCAD", "C:USDJPY"]
         pairs = []
         # First get the target pair
         aquirer = Data_Aquirer(PATH_PAIRS, API_KEY, api_type="full")
