@@ -139,11 +139,11 @@ class Test_Model(unittest.TestCase):
                     branches.append(
                         Branch(
                             corr_pair.x_train,
-                            [256, 128],
-                            [128, 64],
-                            [256, 128],
-                            [2, 2],
-                            [0.2, 0.2],
+                            [256, 128, 128],
+                            [128, 64, 64],
+                            [256, 128, 128],
+                            [4, 4, 4],
+                            [0.3, 0.3, 0.3],
                         )
                     )
             main_branch = Branch(
@@ -152,7 +152,7 @@ class Test_Model(unittest.TestCase):
                 [128, 64, 64],
                 [128, 128, 128],
                 [4, 4, 4],
-                [0.2, 0.2, 0.2],
+                [0.3, 0.3, 0.3],
             )
             output = Output([96, 96, 96], [0.2, 0.2, 0.2])
             architecture = Architecture(
