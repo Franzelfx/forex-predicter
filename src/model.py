@@ -12,7 +12,6 @@ from tensorflow.keras.models import Model as KerasModel
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 from tensorflow.keras.callbacks import (
-    ModelCheckpoint,
     EarlyStopping,
     TensorBoard,
     ReduceLROnPlateau,
@@ -55,6 +54,31 @@ class Architecture:
 class ResetStatesCallback(tf.keras.callbacks.Callback):
     def on_epoch_end(self, epoch, logs=None):
         self.model.reset_states()
+
+class ModelCheckpoint(tf.keras.callbacks.Callback):
+    def __init__(self, filepath):
+        super(ModelCheckpoint, self).__init__()
+        self.filepath = filepath
+        self.best_loss = float('inf')  # Initialize with a high value
+        self.best_mape = float('inf')  # Initialize with a high value
+
+    def on_epoch_end(self, epoch, logs=None):
+        val_loss = logs.get('val_loss')
+        val_mape = logs.get('val_mape')
+
+        # Check if both metrics have improved
+        if val_loss < self.best_loss and val_mape < self.best_mape:
+            self.best_loss = val_loss
+            self.best_mape = val_mape
+            print(f"Improved from {self.best_loss:.4f} to {val_loss:.4f} (loss) and {self.best_mape:.4f} to {val_mape:.4f} (MAPE), save Model.")
+            self.model.save(self.filepath)  # Save the model in .keras format
+
+        # Additional actions based on metric values
+        if val_loss < self.best_loss:
+            print("Validation loss improved!")
+
+        if val_mape < self.best_mape:
+            print("Validation MAPE improved!")
 
 
 class Model:
@@ -281,11 +305,7 @@ class Model:
             return
         reset_states = ResetStatesCallback()
         model_checkpoint = ModelCheckpoint(
-            filepath=f"{self._path}/checkpoints/{self._name}",
-            monitor="val_loss",
-            save_best_only=True,
-            save_weights_only=False,
-            verbose=1,
+            filepath=f"{self._path}/checkpoints/{self._name}"
         )
         early_stopping = EarlyStopping(
             monitor="val_loss", patience=patience, mode="min", verbose=1
