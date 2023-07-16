@@ -59,26 +59,24 @@ class ModelCheckpoint(tf.keras.callbacks.Callback):
     def __init__(self, filepath):
         super(ModelCheckpoint, self).__init__()
         self.filepath = filepath
-        self.best_loss = float('inf')  # Initialize with a high value
-        self.best_mape = float('inf')  # Initialize with a high value
+        self.best_score = float('inf')  # Initialize with a high value
 
     def on_epoch_end(self, epoch, logs=None):
         val_loss = logs.get('val_loss')
         val_mape = logs.get('val_mape')
 
-        # Check if both metrics have improved
-        if val_loss < self.best_loss and val_mape < self.best_mape:
-            self.best_loss = val_loss
-            self.best_mape = val_mape
-            print(f"Improved from {self.best_loss:.4f} to {val_loss:.4f} (loss) and {self.best_mape:.4f} to {val_mape:.4f} (MAPE), save Model.")
+        # Scale the metrics
+        scaled_loss = val_loss
+        scaled_mape = val_mape / 100.0  # Scale down the mape value by dividing by a factor
+
+        # Define the combined score (you can use any formula that suits your needs)
+        combined_score = scaled_loss + scaled_mape
+
+        # Check if the combined score is better than the best score seen so far
+        if combined_score < self.best_score:
+            self.best_score = combined_score
+            print(f"Combined score improved to {combined_score:.4f}. Save model.")
             self.model.save(self.filepath)  # Save the model in .keras format
-
-        # Additional actions based on metric values
-        if val_loss < self.best_loss:
-            print("Validation loss improved!")
-
-        if val_mape < self.best_mape:
-            print("Validation MAPE improved!")
 
 
 class Model:
