@@ -23,7 +23,8 @@ class Utilizer:
         if isinstance(preprocessor, list):
             for preprocessor in self._preprocessor:
                 try:
-                    self._target_scaler = preprocessor.target_scaler
+                    self._target_preprocessor = preprocessor
+                    self._target_scaler = self._target_preprocessor.target_scaler
                 except:
                     continue
         else:
@@ -35,7 +36,7 @@ class Utilizer:
 
         @return The actual test values.
         """
-        return self._preprocessor.y_test_inverse
+        return self._target_preprocessor.y_test_inverse
 
     def predict(self, box_pts=0) -> tuple[np.ndarray, np.ndarray]:
         """Get test and hat prediction.
