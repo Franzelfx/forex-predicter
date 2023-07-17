@@ -58,15 +58,13 @@ class Utilizer:
         )
         print(y_hat)
         # Substract the difference
-        first_actual = self.test_actual[0]
-        y_hat = y_hat - self._diff(y_hat, self._preprocessor.last_known_y)
+        y_hat = y_hat - self._diff(y_hat, self._target_preprocessor.last_known_y)
         # Smooth the data
         if box_pts > 0:
             y_hat = self._concat_moving_average(
                 self._preprocessor.x_hat_target_inverse, y_hat, box_pts
             )
         # Concat y_train and y_test
-        y_test = np.concatenate((y_train, y_test), axis=0)
         return y_hat
 
     def _concat_moving_average(
