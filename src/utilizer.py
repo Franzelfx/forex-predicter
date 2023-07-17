@@ -62,7 +62,7 @@ class Utilizer:
         # Smooth the data
         if box_pts > 0:
             y_hat = self._concat_moving_average(
-                self._preprocessor.x_hat_target_inverse, y_hat, box_pts
+                self._target_preprocessor.x_hat_target_inverse, y_hat, box_pts
             )
         # Concat y_train and y_test
         return y_hat
