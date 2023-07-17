@@ -76,7 +76,7 @@ class ModelCheckpoint(tf.keras.callbacks.Callback):
         if combined_score < self.best_score:
             self.best_score = combined_score
             print(f"Combined score improved to {combined_score:.4f}. Save model.")
-            self.model.save(self.filepath)  # Save the model in .keras format
+            self.model.save(filepath)  # Save the model in .keras format
 
 
 class Model:
@@ -409,51 +409,13 @@ class Model:
                     "The model has not been fitted yet, plase call compile_and_fit() first."
                 )
             prediction_model = self._model
-        # Prepare the input
-        print(f"x_train samples: {x_train.shape[0]}")
-        print(f"x_test samples: {x_test.shape[0]}")
-        print(f"x_hat samples: {x_hat.shape[0]}")
-        # BUG: wrong vstacking
-        if x_train.shape[0] > 0:
-            x = np.vstack((x_train, x_test))
-            x = np.vstack((x, x_hat))
-        else:
-            if x_test.shape[0] > 0:
-                x = np.vstack((x_test, x_hat))
-            else:
-                x = x_hat
-        # Predict the output
-        print(f"Predicting {x.shape[0]} samples with {x.shape[1]} timesteps.")
-        y_hat = []
-        for i in range(0, len(x), self._batch_size):
-            x_batch = x[i : i + self._batch_size]
-            y_batch = prediction_model.predict(
-                x_batch, batch_size=self._batch_size, verbose=0
-            ).flatten()
-            y_hat.append(y_batch)
-        # Extract the predicted values
-        # When x_train was given, we need to extract x_train from the prediction,
-        # this will be done by taking the last x_train.shape[0] samples from the prediction.
-        if x_train is not None:
-            y_train = y_hat[-x_train.shape[0] :]
-            # Drop the extracted from the list
-            y_hat = y_hat[: -x_train.shape[0]]
-            y_train = np.array(y_train).flatten()
-        # Extract also the test data if given and drop it from the list.
-        if x_test is not None:
-            y_test = y_hat[-x_test.shape[0] :]
-            y_hat = y_hat[: -x_test.shape[0]]
-            y_test = np.array(y_test).flatten()
-        # Flatten the list
+
+        y_hat = prediction_model.predict(x_hat).flatten()
         y_hat = np.array(y_hat).flatten()
 
         # Scale the output back to the original scale
         if scaler is not None:
             y_hat = self._inverse_transform(scaler, y_hat)
-            if x_train is not None:
-                y_train = self._inverse_transform(scaler, y_train)
-            if x_test is not None:
-                y_test = self._inverse_transform(scaler, y_test)
 
         # Return the predicted values, based on the given input
         return y_train, y_test, y_hat
