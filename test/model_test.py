@@ -179,7 +179,7 @@ class Test_Model(unittest.TestCase):
             path = os.path.join(MODEL_PATH, "model_predictions")
             x_target = utilizer.x_target
             visualizer.plot_prediction(
-                path, y_hat, test_actual=x_target, time_base=aquirer.time_base
+                path, y_hat, test_predict=x_target, time_base=aquirer.time_base
             )
 
 
