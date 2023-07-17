@@ -37,6 +37,14 @@ class Utilizer:
         @return The actual test values.
         """
         return self._target_preprocessor.y_test_inverse
+    
+    @property
+    def x_target(self) -> np.ndarray:
+        """Get the target x values.
+
+        @return The target x values.
+        """
+        return self._target_preprocessor.x_hat_target_inverse
 
     def predict(self, box_pts=0) -> tuple[np.ndarray, np.ndarray]:
         """Get test and hat prediction.

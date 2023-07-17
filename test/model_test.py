@@ -177,10 +177,9 @@ class Test_Model(unittest.TestCase):
             y_hat = utilizer.predict(box_pts=TEST_BOX_PTS)
             visualizer = Visualizer(pair)
             path = os.path.join(MODEL_PATH, "model_predictions")
-            x_test = target_pair.x_test_target_inverse
-            test_actual = np.concatenate((x_test, test_actual))
+            x_target = utilizer.x_target
             visualizer.plot_prediction(
-                path, y_hat, test_actual=test_actual, time_base=aquirer.time_base
+                path, y_hat, test_actual=x_target, time_base=aquirer.time_base
             )
 
 
