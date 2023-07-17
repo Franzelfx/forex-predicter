@@ -41,7 +41,7 @@ class Visualizer:
             # Plot the test prediction
             if(isinstance(test_predict, np.ndarray)):
                 # reduce test predict to 2x len(hat)
-                test_predict = test_predict[:len(hat)*2]
+                test_predict = test_predict[-2*len(hat):]
                 plt.plot(test_predict, label="Input")
                 shift_len = len(test_predict)
             # Then we have to shift the prediction
