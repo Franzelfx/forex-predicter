@@ -76,7 +76,8 @@ class ModelCheckpoint(tf.keras.callbacks.Callback):
         if combined_score < self.best_score:
             self.best_score = combined_score
             print(f"Combined score improved to {combined_score:.4f}. Save model.")
-            self.model.save(self.filepath)  # Save the model in .keras format
+            filepath = self.filepath + f"_{epoch:04d}_{combined_score:.4f}"
+            self.model.save(filepath)  # Save the model in .keras format plus epoch number and combined score
 
 
 class Model:
