@@ -21,9 +21,7 @@ class Utilizer:
         if isinstance(model, str):
             self._model = ModelPreTrained.load(model)
         if isinstance(preprocessor, list):
-            self._preprocessor = []
-            # Iterate over all preprocessor and get this one which has some "target_scaler"
-            for preprocessor in preprocessor:
+            for preprocessor in self._preprocessor:
                 try:
                     self._target_scaler = preprocessor.target_scaler
                 except:
