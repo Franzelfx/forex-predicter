@@ -174,7 +174,7 @@ class Test_Model(unittest.TestCase):
             )
         else:
             utilizer = Utilizer(model, corr_pairs)
-            y_hat = utilizer.predict(box_pts=TEST_BOX_PTS, lookback=TEST_LOOKBACK)
+            y_hat = utilizer.predict(box_pts=TEST_BOX_PTS)
             visualizer = Visualizer(pair)
             path = os.path.join(MODEL_PATH, "model_predictions")
             x_test = target_pair.x_test_target_inverse

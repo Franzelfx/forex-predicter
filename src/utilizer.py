@@ -39,35 +39,17 @@ class Utilizer:
         """
         return self._preprocessor.y_test_inverse
 
-    def predict(self, box_pts=0, lookback=None) -> tuple[np.ndarray, np.ndarray]:
+    def predict(self, box_pts=0) -> tuple[np.ndarray, np.ndarray]:
         """Get test and hat prediction.
 
         @return Tuple of test and hat prediction.
         """
         # Predict the values
         # Predict the values for each sequence
-        x_train = np.array([])
-        print(f"Predicting with a lookback of {lookback}.")
-        if lookback is not None and lookback > 0:
-            if isinstance(self._preprocessor, list):
-                x_train = []
-                for preprocessor in self._preprocessor:
-                    x_train.append(preprocessor.x_train[-lookback:])
-            else:
-                x_train = self._preprocessor.x_train[-lookback:]
-        else:
-            if isinstance(self._preprocessor, list):
-                x_train = []
-                for preprocessor in self._preprocessor:
-                    x_train.append(preprocessor.x_train)
-            else:
-                x_train = self._preprocessor.x_train
+        x_hat = []
         if isinstance(self._preprocessor, list):
-            x_hat = []
-            x_test = []
             for preprocessor in self._preprocessor:
                 x_hat.append(preprocessor.x_hat)
-                x_test.append(preprocessor.x_test)
         else:
             x_hat = self._preprocessor.x_hat
             x_test = self._preprocessor.x_test
