@@ -377,8 +377,6 @@ class Model:
     def predict(
         self,
         x_hat: np.ndarray,
-        x_train: np.ndarray = np.array([]),
-        x_test: np.ndarray = np.array([]),
         scaler: StandardScaler = None,
         from_saved_model=False,
     ) -> np.ndarray:

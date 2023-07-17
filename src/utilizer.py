@@ -73,8 +73,6 @@ class Utilizer:
             x_test = self._preprocessor.x_test
         y_train, y_test, y_hat = self._model.predict(
             x_hat,
-            x_train=x_train,
-            x_test=x_test,
             scaler=self._target_scaler,
             from_saved_model=True,
         )
