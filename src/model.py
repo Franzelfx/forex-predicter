@@ -76,7 +76,7 @@ class ModelCheckpoint(tf.keras.callbacks.Callback):
         if combined_score < self.best_score:
             self.best_score = combined_score
             print(f"Combined score improved to {combined_score:.4f}. Save model.")
-            self.model.save(filepath)  # Save the model in .keras format
+            self.model.save(self.filepath)  # Save the model in .keras format
 
 
 class Model:
@@ -387,8 +387,6 @@ class Model:
         :remarks:   • If from_saved_model is False, "compile_and_fit()" must be called first.
                     • The predicted values are scaled back to the original scale if a scaler is given.
         """
-        y_train = None
-        y_test = None
         path = f"{self._path}/checkpoints/{self._name}"
         # Get the model
         if from_saved_model:
@@ -416,4 +414,4 @@ class Model:
             y_hat = self._inverse_transform(scaler, y_hat)
 
         # Return the predicted values, based on the given input
-        return y_train, y_test, y_hat
+        return y_hat
