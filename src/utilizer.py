@@ -9,7 +9,7 @@ from src.model import Model as ModelPreTrained
 class Utilizer:
     """The utilizer class, to use the trained model to predict."""
 
-    def __init__(self, model: ModelPreTrained, preprocessor: Preprocessor | List[]) -> None:
+    def __init__(self, model: ModelPreTrained, preprocessor: Preprocessor | List) -> None:
         """Initialize the utilizer.
 
         @param model The model to use for prediction or the path to the model.
