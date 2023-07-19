@@ -8,6 +8,9 @@
     "EPOCHS": 150,
     "BATCH_SIZE": 32,
     "LEARNING_RATE": 0.0005,
+    "VALIDATION_SPLIT": 0.2,
+    "PATIENCE":250,
+    "PATIENCE_LR_SCHEDULE":50, 
     "TARGET_FEATURE": "MA5"
   },
   "BRANCHES": {
@@ -27,16 +30,11 @@
       ],
       "NODES": [
         {
-          "UNITS_LSTM": 64,
-          "UNITS_TRANSFORMER": 64,
-          "DROPOUT": 0.2,
-          "ATTENTION_HEADS": 4
-        },
-        {
-          "UNITS_LSTM": 64,
-          "UNITS_TRANSFORMER": 64,
-          "DROPOUT": 0.2,
-          "ATTENTION_HEADS": 4
+          "UNITS_TRANSFORMER": [256, 128, 128],
+          "UNITS_LSTM": [128, 64, 64],
+          "UNITS_DENSE": [128, 64, 64],
+          "ATTENTION_HEADS": [4, 4, 4],
+          "DROPOUT": [0.3, 0.3, 0.3]
         }
       ]
     },
@@ -56,29 +54,31 @@
       ],
       "NODES": [
         {
-          "UNITS": 64,
-          "DROPOUT": 0.2,
-          "ATTENTION_HEADS": 4
-        },
-        {
-          "UNITS": 64,
-          "DROPOUT": 0.2,
-          "ATTENTION_HEADS": 4
+          "UNITS_TRANSFORMER": [256, 128, 128],
+          "UNITS_LSTM": [128, 64, 64],
+          "UNITS_DENSE": [128, 64, 64],
+          "ATTENTION_HEADS": [4, 4, 4],
+          "DROPOUT": [0.3, 0.3, 0.3]
         }
       ]
     }
   },
-  "CONCAT": {
+  "MAIN_BRANCH": {
     "NODES": [
       {
-        "UNITS": 64,
-        "DROPOUT": 0.2,
-        "ATTENTION_HEADS": 4
-      },
+        "UNITS_TRANSFORMER": [256, 128, 128],
+        "UNITS_LSTM": [128, 64, 64],
+        "UNITS_DENSE": [128, 64, 64],
+        "ATTENTION_HEADS": [4, 4, 4],
+        "DROPOUT": [0.3, 0.3, 0.3]
+      }
+    ]
+  },
+  "OUTPUT": {
+    "NODES": [
       {
-        "UNITS": 64,
-        "DROPOUT": 0.2,
-        "ATTENTION_HEADS": 4
+        "UNITS_DENSE": [128, 64, 64],
+        "DROPOUT": [0.3, 0.3, 0.3]
       }
     ]
   }

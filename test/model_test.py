@@ -1,10 +1,7 @@
 """Testbench for the model class."""
-import time
-import signal
 import logging
 import unittest
 import traceback
-import subprocess
 import numpy as np
 import pandas as pd
 import tensorflow as tf

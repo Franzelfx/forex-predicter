@@ -7,7 +7,7 @@ echo "START_PAIR="$1
 # If no start pair is given, use default
 if [ -z "$START_PAIR" ]
 then
-    export START_PAIR="CADJPY"
+    export START_PAIR="C:CADJPY"
 fi
 # Configure the env variables
 source ../venv/bin/activate
