@@ -10,7 +10,7 @@ class Test_Composer(unittest.TestCase):
     @remarks This is some unit test for the Composer class.
     """
 
-    def __init__(self, methodName: str = ..., pair: str = None, fetch=False) -> None:
+    def __init__(self, methodName: str = ..., pair: str = None, fetch: bool = False) -> None:
         """Initialize the testbench."""
         super().__init__(methodName)
         self.composer = Composer(pair)
@@ -28,9 +28,9 @@ class Test_Composer(unittest.TestCase):
         self.composer.fit()
 
 
-def __main__(pair):
+def __main__(pair, fetch):
     suite = unittest.TestSuite()
-    suite.addTest(Test_Composer('test_composer', pair))
+    suite.addTest(Test_Composer('test_composer', pair, fetch))
     runner = unittest.TextTestRunner()
     runner.run(suite)
 
