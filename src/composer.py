@@ -220,7 +220,7 @@ class Composer:
         # (branch names are the same as the pair names) first pair is the main pair
         pairs = []
         pair_names = []
-        pair_names.append(self._processing.pair)
+        #pair_names.append(self._processing.pair)
         for branch in self._branches:
             pair_names.append(branch)
         for pair in pair_names:
