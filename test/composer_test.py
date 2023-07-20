@@ -1,5 +1,6 @@
 """Testbench (unit test) for the Data_Aquirer class."""
 import unittest
+import argparse
 from config_tb import *
 from src.composer import Composer
 
@@ -9,10 +10,10 @@ class Test_Composer(unittest.TestCase):
     @remarks This is some unit test for the Composer class.
     """
 
-    def __init__(self, methodName: str = ...) -> None:
+    def __init__(self, methodName: str = ..., pair: str = None) -> None:
         """Initialize the testbench."""
         super().__init__(methodName)
-        self.composer = Composer(PAIR)
+        self.composer = Composer(pair)
 
     def test_composer(self):
         """Test the composer."""
@@ -23,5 +24,15 @@ class Test_Composer(unittest.TestCase):
         self.composer.compile()
         self.composer.fit()
 
+
+def main(pair):
+    suite = unittest.TestSuite()
+    suite.addTest(Test_Composer('test_composer', pair))
+    runner = unittest.TextTestRunner()
+    runner.run(suite)
+
 if __name__ == '__main__':
-    unittest.main()
+    parser = argparse.ArgumentParser(description='Get pair')
+    parser.add_argument('--pair', type=str, help='Pair for the Composer class')
+    args = parser.parse_args()
+    main(args.pair)
