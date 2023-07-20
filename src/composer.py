@@ -1,15 +1,17 @@
 """This module composes data_aquirer, indicator, preprocessor and model into a single class."""
 import os
 import json
+import numpy as np
 import pandas as pd
-import nupy as np
-from src.data_aquirer import Data_Aquirer
-from src.indicators import Indicators
-from src.preprocessor import Preprocessor
 from src.model import Model
 from tabulate import tabulate
 from dataclasses import dataclass
-from src.model import Architecture, Branch, Output
+from src.model import Architecture
+from src.indicators import Indicators
+from src.preprocessor import Preprocessor
+from src.data_aquirer import Data_Aquirer
+from src.model import Branch as ModelBranch
+from src.model import Output as ModelOutput
 
 PATH = os.path.abspath(os.path.dirname(__file__))
 PATH_RECIPES = os.path.abspath(os.path.join(PATH, "recipes"))
@@ -39,6 +41,7 @@ class Processing:
         # Preparation
         self.pair = processing_sec["PAIR"]
         self.interval = processing_sec["INTERVAL"]
+        self.start_date = processing_sec["START_DATE"]
         self.steps_in = processing_sec["STEPS_IN"]
         self.steps_out = processing_sec["STEPS_OUT"]
         self.test_length = processing_sec["TEST_LENGTH"]
@@ -49,7 +52,7 @@ class Processing:
         self.validation_split = processing_sec["VALIDATION_SPLIT"]
         self.target_feature = processing_sec["TARGET_FEATURE"]
         self.patience = processing_sec["PATIENCE"]
-        self.patience_lr_chedule = processing_sec["PATIENCE_LR_SCHEDULE"]
+        self.patience_lr_schedule = processing_sec["PATIENCE_LR_SCHEDULE"]
 
 
 @dataclass
@@ -60,7 +63,7 @@ class Branch:
         """Set the attributes."""
         self.name = name
         self.indicators: list[str] = attributes["INDICATORS"]
-        self.nodes: list[dict] = attributes["NODES"]
+        self.nodes: dict = attributes["NODES"]
 
 
 @dataclass
@@ -72,7 +75,7 @@ class Output:
         # Top level
         output_sec = json["OUTPUT"]
         # output
-        self.nodes: list[dict] = output_sec["NODES"]
+        self.nodes: dict = output_sec["NODES"]
 
 
 # Alle bisherigen Importe und Klassen bleiben gleich...
@@ -84,7 +87,7 @@ class MainBranch:
 
     def __init__(self, attributes: dict):
         """Set the attributes."""
-        self.nodes: list[dict] = attributes["NODES"]
+        self.nodes: dict = attributes["NODES"]
 
 
 class Composer:
@@ -141,7 +144,7 @@ class Composer:
             header.append(branch)
             attr_list = []
             if "nodes" in self._branches[branch].__dict__:
-                for key, value in self._branches[branch].nodes[0].items():
+                for key, value in self._branches[branch].nodes.items():
                     attr_list.append(f"{key}: {value}")
             table[branch] = attr_list
 
@@ -156,7 +159,7 @@ class Composer:
 
         attr_list = []
         if "nodes" in self._main_branch.__dict__:
-            for key, value in self._main_branch.nodes[0].items():
+            for key, value in self._main_branch.nodes.items():
                 attr_list.append(f"{key}: {value}")
         table["MAIN BRANCH"] = attr_list
 
@@ -171,7 +174,7 @@ class Composer:
 
         attr_list = []
         if "nodes" in self._output.__dict__:
-            for key, value in self._output.nodes[0].items():
+            for key, value in self._output.nodes.items():
                 attr_list.append(f"{key}: {value}")
         table["OUTPUT"] = attr_list
 
@@ -183,7 +186,7 @@ class Composer:
         print(self._model_main_branch())
         print(self._model_output())
 
-    def _synchronize_dataframes(dataframes, column_to_sync="t"):
+    def _synchronize_dataframes(self, dataframes, column_to_sync="t"):
         # Create a list to hold all synchronized dataframes
         synced_dataframes = []
 
@@ -207,7 +210,7 @@ class Composer:
             )
         return synced_dataframes
 
-    def aquire(self, api_key: str = None, api_type: str = None):
+    def aquire(self, api_key: str = None, api_type: str = None, from_file=False, save=True):
         """Aquire the data for al pairs."""
         if api_key is None:
             api_key = self._base.api_key
@@ -222,16 +225,17 @@ class Composer:
             pair_names.append(branch)
         for pair in pair_names:
             # Create a data_aquirer object for each pair
-            aquirer = Data_Aquirer(pair, api_key, api_type)
+            aquirer = Data_Aquirer(PATH_PAIRS, api_key)
             # Aquire the data
-            aquirer.aquire(
-                interval=self._processing.interval,
-                steps_in=self._processing.steps_in,
-                steps_out=self._processing.steps_out,
-                test_length=self._processing.test_length,
+            pair = aquirer.get(
+                pair,
+                time_base=self._processing.interval,
+                start=self._processing.start_date,
+                from_file=from_file,
+                save=save,
             )
             # Append the dataframes to the pairs list
-            pairs.append(aquirer.dataframes)
+            pairs.append(pair)
         # Sync the dataframes
         pairs = self._synchronize_dataframes(pairs)
         self.pairs = pairs
@@ -247,9 +251,9 @@ class Composer:
             if pair_name in self._branches:
                 indicator = Indicators(
                     PATH_INDICATORS,
-                    self._branches[pair_name],
+                    self._branches[pair_name].name,
                     self.pairs[i],
-                    self._branches.indicators,
+                    self._branches[pair_name].indicators,
                 )
             else:
                 # If pair is main pair, calculate indicators differently, as it may not have a corresponding branch in _branches.
@@ -258,16 +262,16 @@ class Composer:
                 )
 
             # Calculate the indicators
-            indicator.calculate(save=save)
+            data = indicator.calculate(save=save)
             # Append the dataframes to the indicators list
-            indicators.append(indicator.dataframes)
+            indicators.append(data)
         self.indicators = indicators
         return indicators
 
     def preprocess(self):
         """Preprocess the data."""
         preprocessed = []
-        for i in enumerate(self.pair_names):
+        for i, _ in enumerate(self.pair_names):
             # Create a preprocessor object for each pair
             preprocessor = Preprocessor(
                 self.indicators[i],
@@ -277,7 +281,7 @@ class Composer:
                 target=self._processing.target_feature,
             )
             # Append the dataframes to the preprocessed list
-            preprocessed.append(preprocessor.dataframes)
+            preprocessed.append(preprocessor)
         self.preprocessed = preprocessed
         self.target_preprocessed = preprocessed[0]
         return preprocessed
@@ -290,27 +294,29 @@ class Composer:
         )
         # Now we create our architecture
         branches = []
+        i = 1
         for branch in self._branches:
-            if isinstance(self.preprocessed[branch].x_train, np.ndarray):
+            if isinstance(self.preprocessed[i].x_train, np.ndarray):
                 branches.append(
-                    Branch(
-                        self.preprocessed[branch].x_train,
-                        self._branches[branch].nodes["NODE_TRANSFORMER"],
-                        self._branches[branch].nodes["NODE_LSTM"],
-                        self._branches[branch].nodes["NODE_DENSE"],
+                    ModelBranch(
+                        self.preprocessed[i].x_train,
+                        self._branches[branch].nodes["UNITS_TRANSFORMER"],
+                        self._branches[branch].nodes["UNITS_LSTM"],
+                        self._branches[branch].nodes["UNITS_DENSE"],
                         self._branches[branch].nodes["ATTENTION_HEADS"],
                         self._branches[branch].nodes["DROPOUT"],
                     )
                 )
-        main_branch = Branch(
+            i = i + 1
+        main_branch = ModelBranch(
             self.target_preprocessed.x_train,
-            self._main_branch.nodes["NODE_TRANSFORMER"],
-            self._main_branch.nodes["NODE_LSTM"],
-            self._main_branch.nodes["NODE_DENSE"],
+            self._main_branch.nodes["UNITS_TRANSFORMER"],
+            self._main_branch.nodes["UNITS_LSTM"],
+            self._main_branch.nodes["UNITS_DENSE"],
             self._main_branch.nodes["ATTENTION_HEADS"],
             self._main_branch.nodes["DROPOUT"],
         )
-        output = Output(self._output.nodes["NODE_DENSE"], self._output.nodes["DROPOUT"])
+        output = ModelOutput(self._output.nodes["UNITS_DENSE"], self._output.nodes["DROPOUT"])
         architecture = Architecture(branches, main_branch, output)
         self.model.compile(
             architecture,
@@ -319,7 +325,7 @@ class Composer:
         )
         return self.model
 
-    def fit(self, strategy):
+    def fit(self, strategy=None):
         """Fit the model."""
         self.model.fit(
             strategy=strategy,

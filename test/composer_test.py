@@ -17,7 +17,11 @@ class Test_Composer(unittest.TestCase):
     def test_composer(self):
         """Test the composer."""
         self.composer.summary()
-        #self.composer.compose()
+        self.composer.aquire()
+        self.composer.calculate()
+        self.composer.preprocess()
+        self.composer.compile()
+        self.composer.fit()
 
 if __name__ == '__main__':
     unittest.main()

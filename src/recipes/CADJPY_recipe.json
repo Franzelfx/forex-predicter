@@ -1,85 +1,214 @@
 {
   "PROCESSING": {
-    "PAIR": "EURUSD",
-    "INTERVAL": 1,
-    "STEPS_IN": 6720,
-    "STEPS_OUT": 672,
-    "TEST_LENGTH": 7392,
-    "EPOCHS": 150,
-    "BATCH_SIZE": 32,
-    "LEARNING_RATE": 0.0005,
-    "VALIDATION_SPLIT": 0.2,
-    "PATIENCE":250,
-    "PATIENCE_LR_SCHEDULE":50, 
+    "PAIR": "C:CADJPY",
+    "INTERVAL": 5,
+    "START_DATE": "2015-01-01",
+    "STEPS_IN": 480,
+    "STEPS_OUT": 96,
+    "TEST_LENGTH": 576,
+    "EPOCHS": 1000,
+    "BATCH_SIZE": 4,
+    "LEARNING_RATE": 0.00001,
+    "VALIDATION_SPLIT": 0.1,
+    "PATIENCE": 250,
+    "PATIENCE_LR_SCHEDULE": 50,
     "TARGET_FEATURE": "MA5"
   },
   "BRANCHES": {
-    "EURUSD": {
+    "C:CADJPY": {
       "INDICATORS": [
         "ATR",
         "BOLLINGER",
         "MA5",
         "MA25",
-        "MA50",
-        "MA200",
         "MACD",
         "OBV",
         "RSI",
         "STOCHASTIC",
-        "VoRSI"
+        "VoRSI",
+        "HT_TRENDLINE",
+        "HT_TRENDMODE",
+        "HT_DCPERIOD",
+        "HT_DCPHASE",
+        "HT_PHASOR",
+        "HT_SINE",
+        "MFI",
+        "MOM",
+        "PLUS_DI",
+        "PLUS_DM"
       ],
-      "NODES": [
-        {
-          "UNITS_TRANSFORMER": [256, 128, 128],
-          "UNITS_LSTM": [128, 64, 64],
-          "UNITS_DENSE": [128, 64, 64],
-          "ATTENTION_HEADS": [4, 4, 4],
-          "DROPOUT": [0.3, 0.3, 0.3]
-        }
-      ]
-    },
-    "GBPUSD": {
-      "INDICATORS": [
-        "ATR",
-        "BOLLINGER",
-        "MA5",
-        "MA25",
-        "MA50",
-        "MA200",
-        "MACD",
-        "OBV",
-        "RSI",
-        "STOCHASTIC",
-        "VoRSI"
-      ],
-      "NODES": [
-        {
-          "UNITS_TRANSFORMER": [256, 128, 128],
-          "UNITS_LSTM": [128, 64, 64],
-          "UNITS_DENSE": [128, 64, 64],
-          "ATTENTION_HEADS": [4, 4, 4],
-          "DROPOUT": [0.3, 0.3, 0.3]
-        }
-      ]
-    }
-  },
-  "MAIN_BRANCH": {
-    "NODES": [
-      {
+      "NODES": {
         "UNITS_TRANSFORMER": [256, 128, 128],
         "UNITS_LSTM": [128, 64, 64],
-        "UNITS_DENSE": [128, 64, 64],
+        "UNITS_DENSE": [256, 128, 128],
         "ATTENTION_HEADS": [4, 4, 4],
         "DROPOUT": [0.3, 0.3, 0.3]
       }
-    ]
-  },
-  "OUTPUT": {
-    "NODES": [
-      {
-        "UNITS_DENSE": [128, 64, 64],
+    },
+    "C:USDCHF": {
+      "INDICATORS": [
+        "ATR",
+        "BOLLINGER",
+        "MA5",
+        "MA25",
+        "MACD",
+        "OBV",
+        "RSI",
+        "STOCHASTIC",
+        "VoRSI",
+        "HT_TRENDLINE",
+        "HT_TRENDMODE",
+        "HT_DCPERIOD",
+        "HT_DCPHASE",
+        "HT_PHASOR",
+        "HT_SINE",
+        "MFI",
+        "MOM",
+        "PLUS_DI",
+        "PLUS_DM"
+      ],
+      "NODES": {
+        "UNITS_TRANSFORMER": [256, 128, 128],
+        "UNITS_LSTM": [128, 64, 64],
+        "UNITS_DENSE": [256, 128, 128],
+        "ATTENTION_HEADS": [4, 4, 4],
         "DROPOUT": [0.3, 0.3, 0.3]
       }
-    ]
+    },
+    "C:EURCAD": {
+      "INDICATORS": [
+        "ATR",
+        "BOLLINGER",
+        "MA5",
+        "MA25",
+        "MACD",
+        "OBV",
+        "RSI",
+        "STOCHASTIC",
+        "VoRSI",
+        "HT_TRENDLINE",
+        "HT_TRENDMODE",
+        "HT_DCPERIOD",
+        "HT_DCPHASE",
+        "HT_PHASOR",
+        "HT_SINE",
+        "MFI",
+        "MOM",
+        "PLUS_DI",
+        "PLUS_DM"
+      ],
+      "NODES": {
+        "UNITS_TRANSFORMER": [256, 128, 128],
+        "UNITS_LSTM": [128, 64, 64],
+        "UNITS_DENSE": [256, 128, 128],
+        "ATTENTION_HEADS": [4, 4, 4],
+        "DROPOUT": [0.3, 0.3, 0.3]
+      }
+    },
+    "C:GBPJPY": {
+      "INDICATORS": [
+        "ATR",
+        "BOLLINGER",
+        "MA5",
+        "MA25",
+        "MACD",
+        "OBV",
+        "RSI",
+        "STOCHASTIC",
+        "VoRSI",
+        "HT_TRENDLINE",
+        "HT_TRENDMODE",
+        "HT_DCPERIOD",
+        "HT_DCPHASE",
+        "HT_PHASOR",
+        "HT_SINE",
+        "MFI",
+        "MOM",
+        "PLUS_DI",
+        "PLUS_DM"
+      ],
+      "NODES": {
+        "UNITS_TRANSFORMER": [256, 128, 128],
+        "UNITS_LSTM": [128, 64, 64],
+        "UNITS_DENSE": [256, 128, 128],
+        "ATTENTION_HEADS": [4, 4, 4],
+        "DROPOUT": [0.3, 0.3, 0.3]
+      }
+    },
+    "C:GBPCAD": {
+      "INDICATORS": [
+        "ATR",
+        "BOLLINGER",
+        "MA5",
+        "MA25",
+        "MACD",
+        "OBV",
+        "RSI",
+        "STOCHASTIC",
+        "VoRSI",
+        "HT_TRENDLINE",
+        "HT_TRENDMODE",
+        "HT_DCPERIOD",
+        "HT_DCPHASE",
+        "HT_PHASOR",
+        "HT_SINE",
+        "MFI",
+        "MOM",
+        "PLUS_DI",
+        "PLUS_DM"
+      ],
+      "NODES": {
+        "UNITS_TRANSFORMER": [256, 128, 128],
+        "UNITS_LSTM": [128, 64, 64],
+        "UNITS_DENSE": [256, 128, 128],
+        "ATTENTION_HEADS": [4, 4, 4],
+        "DROPOUT": [0.3, 0.3, 0.3]
+      }
+    },
+    "C:USDJPY": {
+      "INDICATORS": [
+        "ATR",
+        "BOLLINGER",
+        "MA5",
+        "MA25",
+        "MACD",
+        "OBV",
+        "RSI",
+        "STOCHASTIC",
+        "VoRSI",
+        "HT_TRENDLINE",
+        "HT_TRENDMODE",
+        "HT_DCPERIOD",
+        "HT_DCPHASE",
+        "HT_PHASOR",
+        "HT_SINE",
+        "MFI",
+        "MOM",
+        "PLUS_DI",
+        "PLUS_DM"
+      ],
+      "NODES": {
+        "UNITS_TRANSFORMER": [256, 128, 128],
+        "UNITS_LSTM": [128, 64, 64],
+        "UNITS_DENSE": [256, 128, 128],
+        "ATTENTION_HEADS": [4, 4, 4],
+        "DROPOUT": [0.3, 0.3, 0.3]
+      }
+    }
+  },
+  "MAIN_BRANCH": {
+    "NODES": {
+      "UNITS_TRANSFORMER": [256, 128, 128],
+      "UNITS_LSTM": [128, 64, 64],
+      "UNITS_DENSE": [128, 128, 128],
+      "ATTENTION_HEADS": [4, 4, 4],
+      "DROPOUT": [0.3, 0.3, 0.3]
+    }
+  },
+  "OUTPUT": {
+    "NODES": {
+      "UNITS_DENSE": [128, 96, 96],
+      "DROPOUT": [0.3, 0.3, 0.3]
+    }
   }
 }
