@@ -25,7 +25,7 @@ class Test_Composer(unittest.TestCase):
         self.composer.fit()
 
 
-def main(pair):
+def __main__(pair):
     suite = unittest.TestSuite()
     suite.addTest(Test_Composer('test_composer', pair))
     runner = unittest.TextTestRunner()
@@ -35,4 +35,4 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Get pair')
     parser.add_argument('--pair', type=str, help='Pair for the Composer class')
     args = parser.parse_args()
-    main(args.pair)
+    __main__(args.pair)
