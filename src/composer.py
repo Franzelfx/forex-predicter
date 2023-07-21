@@ -194,21 +194,27 @@ class Composer:
         synced_df = dataframes[0]
 
         # Loop through the rest of the dataframes
-        for df in dataframes[1:]:
+        for i, df in enumerate(dataframes[1:], start=1):  
+            # Generate unique suffixes for each merge
+            suffixes = ('_df{}'.format(i), '_df{}'.format(i + 1))
+
             # Merge on the column_to_sync with an inner join
-            synced_df = pd.merge(synced_df, df, how="inner", on=column_to_sync)
+            synced_df = pd.merge(synced_df, df, how="inner", on=column_to_sync, suffixes=suffixes)
 
         # Now we have a dataframe that contains rows with 't' values
         # that appear in all original dataframes. Next, we need to
         # create a synchronized version of each original dataframe.
 
         # Loop through the original dataframes again
-        for df in dataframes:
+        for i, df in enumerate(dataframes, start=1):
             # For each dataframe, keep only the rows that exist in synced_df
+            df.columns = df.columns.str.replace('_df{}'.format(i), '')  # Remove suffixes for final synced dataframes
             synced_dataframes.append(
                 df[df[column_to_sync].isin(synced_df[column_to_sync])]
             )
+
         return synced_dataframes
+
 
     def aquire(self, api_key: str = None, api_type: str = None, from_file=False, save=True):
         """Aquire the data for al pairs."""
