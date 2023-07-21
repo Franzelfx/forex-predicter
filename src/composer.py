@@ -277,7 +277,7 @@ class Composer:
     def preprocess(self):
         """Preprocess the data."""
         preprocessed = []
-        for i, _ in enumerate(self.pair_names):
+        for i, _ in enumerate(self._branches):
             # Create a preprocessor object for each pair
             preprocessor = Preprocessor(
                 self.indicators[i],
