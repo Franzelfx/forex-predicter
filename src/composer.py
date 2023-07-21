@@ -300,9 +300,8 @@ class Composer:
         )
         # Now we create our architecture
         branches = []
-        i = 1
+        i = 0
         for branch in self._branches:
-            print(len(self.preprocessed))
             if isinstance(self.preprocessed[i].x_train, np.ndarray):
                 branches.append(
                     ModelBranch(
