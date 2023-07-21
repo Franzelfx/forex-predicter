@@ -302,6 +302,7 @@ class Composer:
         branches = []
         i = 1
         for branch in self._branches:
+            print(len(self.preprocessed))
             if isinstance(self.preprocessed[i].x_train, np.ndarray):
                 branches.append(
                     ModelBranch(
