@@ -10,11 +10,12 @@ class Test_Composer(unittest.TestCase):
     @remarks This is some unit test for the Composer class.
     """
 
-    def __init__(self, methodName: str = ..., pair: str = None, fetch: bool = False) -> None:
+    def __init__(self, methodName: str = ..., pair: str = None, fetch: bool = False, predict: bool = False) -> None:
         """Initialize the testbench."""
         super().__init__(methodName)
         self.composer = Composer(pair)
         self.fetch = fetch
+        self.predict = predict
 
     def test_composer(self):
         """Test the composer."""
@@ -43,4 +44,4 @@ if __name__ == '__main__':
     parser.add_argument('--fetch', type=lambda x: (str(x).lower() == 'true'), default=False, help='Fetch status for the Composer class')
     parser.add_argument('--predict', type=lambda x: (str(x).lower() == 'true'), default=False, help='Predict status for the Composer class')
     args = parser.parse_args()
-    __main__(args.pair, args.fetch)
+    __main__(args.pair, args.fetch, args.predict)
