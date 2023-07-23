@@ -25,7 +25,10 @@ class Test_Composer(unittest.TestCase):
         self.composer.calculate()
         self.composer.preprocess()
         self.composer.compile()
-        self.composer.fit()
+        if(self.predict == True):
+            self.composer.predict()
+        else:
+            self.composer.fit()
 
 
 def __main__(pair, fetch):
@@ -38,5 +41,6 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Get pair')
     parser.add_argument('--pair', type=str, help='Pair for the Composer class')
     parser.add_argument('--fetch', type=lambda x: (str(x).lower() == 'true'), default=False, help='Fetch status for the Composer class')
+    parser.add_argument('--predict', type=lambda x: (str(x).lower() == 'true'), default=False, help='Predict status for the Composer class')
     args = parser.parse_args()
     __main__(args.pair, args.fetch)

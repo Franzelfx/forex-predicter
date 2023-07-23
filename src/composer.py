@@ -5,8 +5,10 @@ import numpy as np
 import pandas as pd
 from src.model import Model
 from tabulate import tabulate
+from src.utilizer import Utilizer
 from dataclasses import dataclass
 from src.model import Architecture
+from src.visualizer import Visualizer
 from src.indicators import Indicators
 from src.preprocessor import Preprocessor
 from src.data_aquirer import Data_Aquirer
@@ -344,4 +346,12 @@ class Composer:
 
     def predict(self):
         """Predict with the model."""
-        pass
+        model = self.model
+        utilizer = Utilizer(model, self.preprocessed)
+        y_hat = utilizer.predict(box_pts=15)
+        visualizer = Visualizer(self._processing.pair)
+        path = os.path.join(MODEL_PATH, "model_predictions")
+        x_target = utilizer.x_target
+        visualizer.plot_prediction(
+            path, y_hat, test_predict=x_target, time_base=self._processing.interval
+        )
