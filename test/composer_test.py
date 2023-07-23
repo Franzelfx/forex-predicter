@@ -32,9 +32,9 @@ class Test_Composer(unittest.TestCase):
             self.composer.fit()
 
 
-def __main__(pair, fetch):
+def __main__(pair, fetch, predict):
     suite = unittest.TestSuite()
-    suite.addTest(Test_Composer('test_composer', pair, fetch))
+    suite.addTest(Test_Composer('test_composer', pair, fetch, predict))
     runner = unittest.TextTestRunner()
     runner.run(suite)
 
