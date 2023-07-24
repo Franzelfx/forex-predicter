@@ -8,5 +8,5 @@ venv
 *.log
 *_build*
 *_modules*
-
+.VSCodeCounter
 !doc/*.png

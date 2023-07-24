@@ -15,7 +15,7 @@
     "TARGET_FEATURE": "MA5"
   },
   "BRANCHES": {
-    "C:CADJPY": {
+    "C:EURUSD": {
       "INDICATORS": [
         "ATR",
         "BOLLINGER",

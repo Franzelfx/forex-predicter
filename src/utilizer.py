@@ -21,12 +21,8 @@ class Utilizer:
         if isinstance(model, str):
             self._model = ModelPreTrained.load(model)
         if isinstance(preprocessor, list):
-            for preprocessor in self._preprocessor:
-                try:
-                    self._target_preprocessor = preprocessor
-                    self._target_scaler = self._target_preprocessor.target_scaler
-                except:
-                    continue
+            self._target_preprocessor = preprocessor[0]
+            self._target_scaler = self._target_preprocessor.target_scaler
         else:
             self._target_scaler = preprocessor.target_scaler
 
