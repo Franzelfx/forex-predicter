@@ -12,7 +12,7 @@
     "VALIDATION_SPLIT": 0.1,
     "PATIENCE": 250,
     "PATIENCE_LR_SCHEDULE": 50,
-    "TARGET_FEATURE": "MA5"
+    "TARGET_FEATURE": "c"
   },
   "BRANCHES": {
     "C:EURUSD": {
