@@ -10,7 +10,7 @@
     "BATCH_SIZE": 4,
     "LEARNING_RATE": 0.00001,
     "VALIDATION_SPLIT": 0.1,
-    "PATIENCE": 250,
+    "PATIENCE": 100,
     "PATIENCE_LR_SCHEDULE": 50,
     "TARGET_FEATURE": "c"
   },
@@ -38,11 +38,11 @@
         "PLUS_DM"
       ],
       "NODES": {
-        "UNITS_TRANSFORMER": [256, 128, 128],
-        "UNITS_LSTM": [128, 64, 64],
-        "UNITS_DENSE": [256, 128, 128],
-        "ATTENTION_HEADS": [4, 4, 4],
-        "DROPOUT": [0.3, 0.3, 0.3]
+        "UNITS_TRANSFORMER": [256, 128],
+        "UNITS_LSTM": [128, 64],
+        "UNITS_DENSE": [256, 128],
+        "ATTENTION_HEADS": [4, 4],
+        "DROPOUT": [0.3, 0.3]
       }
     },
     "C:USDCHF": {
@@ -68,11 +68,11 @@
         "PLUS_DM"
       ],
       "NODES": {
-        "UNITS_TRANSFORMER": [256, 128, 128],
-        "UNITS_LSTM": [128, 64, 64],
-        "UNITS_DENSE": [256, 128, 128],
-        "ATTENTION_HEADS": [4, 4, 4],
-        "DROPOUT": [0.3, 0.3, 0.3]
+        "UNITS_TRANSFORMER": [256, 128],
+        "UNITS_LSTM": [128, 64],
+        "UNITS_DENSE": [256, 128],
+        "ATTENTION_HEADS": [4, 4],
+        "DROPOUT": [0.3, 0.3]
       }
     },
     "C:EURCAD": {
@@ -98,11 +98,11 @@
         "PLUS_DM"
       ],
       "NODES": {
-        "UNITS_TRANSFORMER": [256, 128, 128],
-        "UNITS_LSTM": [128, 64, 64],
-        "UNITS_DENSE": [256, 128, 128],
-        "ATTENTION_HEADS": [4, 4, 4],
-        "DROPOUT": [0.3, 0.3, 0.3]
+        "UNITS_TRANSFORMER": [256, 128],
+        "UNITS_LSTM": [128, 64],
+        "UNITS_DENSE": [256, 128],
+        "ATTENTION_HEADS": [4, 4],
+        "DROPOUT": [0.3, 0.3]
       }
     },
     "C:GBPJPY": {
@@ -128,11 +128,11 @@
         "PLUS_DM"
       ],
       "NODES": {
-        "UNITS_TRANSFORMER": [256, 128, 128],
-        "UNITS_LSTM": [128, 64, 64],
-        "UNITS_DENSE": [256, 128, 128],
-        "ATTENTION_HEADS": [4, 4, 4],
-        "DROPOUT": [0.3, 0.3, 0.3]
+        "UNITS_TRANSFORMER": [256, 128],
+        "UNITS_LSTM": [128, 64],
+        "UNITS_DENSE": [256, 128],
+        "ATTENTION_HEADS": [4, 4],
+        "DROPOUT": [0.3, 0.3]
       }
     },
     "C:GBPCAD": {
@@ -158,11 +158,11 @@
         "PLUS_DM"
       ],
       "NODES": {
-        "UNITS_TRANSFORMER": [256, 128, 128],
-        "UNITS_LSTM": [128, 64, 64],
-        "UNITS_DENSE": [256, 128, 128],
-        "ATTENTION_HEADS": [4, 4, 4],
-        "DROPOUT": [0.3, 0.3, 0.3]
+        "UNITS_TRANSFORMER": [256, 128],
+        "UNITS_LSTM": [128, 64],
+        "UNITS_DENSE": [256, 128],
+        "ATTENTION_HEADS": [4, 4],
+        "DROPOUT": [0.3, 0.3]
       }
     },
     "C:USDJPY": {
@@ -188,27 +188,27 @@
         "PLUS_DM"
       ],
       "NODES": {
-        "UNITS_TRANSFORMER": [256, 128, 128],
-        "UNITS_LSTM": [128, 64, 64],
-        "UNITS_DENSE": [256, 128, 128],
-        "ATTENTION_HEADS": [4, 4, 4],
-        "DROPOUT": [0.3, 0.3, 0.3]
+        "UNITS_TRANSFORMER": [256, 128],
+        "UNITS_LSTM": [128, 64],
+        "UNITS_DENSE": [256, 128],
+        "ATTENTION_HEADS": [4, 4],
+        "DROPOUT": [0.3, 0.3]
       }
     }
   },
   "MAIN_BRANCH": {
     "NODES": {
-      "UNITS_TRANSFORMER": [256, 128, 128],
-      "UNITS_LSTM": [128, 64, 64],
-      "UNITS_DENSE": [128, 128, 128],
-      "ATTENTION_HEADS": [4, 4, 4],
-      "DROPOUT": [0.3, 0.3, 0.3]
+      "UNITS_TRANSFORMER": [128, 128],
+      "UNITS_LSTM": [128, 64],
+      "UNITS_DENSE": [128, 128],
+      "ATTENTION_HEADS": [4, 4],
+      "DROPOUT": [0.3, 0.3]
     }
   },
   "OUTPUT": {
     "NODES": {
-      "UNITS_DENSE": [128, 96, 96],
-      "DROPOUT": [0.3, 0.3, 0.3]
+      "UNITS_DENSE": [128, 96],
+      "DROPOUT": [0.3, 0.3]
     }
   }
 }
