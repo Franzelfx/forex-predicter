@@ -38,10 +38,10 @@
         "PLUS_DM"
       ],
       "NODES": {
-        "UNITS_TRANSFORMER": [256, 128],
-        "UNITS_LSTM": [128, 64],
-        "UNITS_DENSE": [256, 128],
-        "ATTENTION_HEADS": [4, 4],
+        "TRANSFORMER": [128, 128],
+        "LSTM": [64, 64],
+        "DENSE": [128, 128],
+        "ATTENTION_HEADS": [2, 2],
         "DROPOUT": [0.3, 0.3]
       }
     },
@@ -68,10 +68,10 @@
         "PLUS_DM"
       ],
       "NODES": {
-        "UNITS_TRANSFORMER": [256, 128],
-        "UNITS_LSTM": [128, 64],
-        "UNITS_DENSE": [256, 128],
-        "ATTENTION_HEADS": [4, 4],
+        "TRANSFORMER": [128, 128],
+        "LSTM": [64, 64],
+        "DENSE": [128, 128],
+        "ATTENTION_HEADS": [2, 2],
         "DROPOUT": [0.3, 0.3]
       }
     },
@@ -98,10 +98,10 @@
         "PLUS_DM"
       ],
       "NODES": {
-        "UNITS_TRANSFORMER": [256, 128],
-        "UNITS_LSTM": [128, 64],
-        "UNITS_DENSE": [256, 128],
-        "ATTENTION_HEADS": [4, 4],
+        "TRANSFORMER": [128, 128],
+        "LSTM": [164, 64],
+        "DENSE": [128, 128],
+        "ATTENTION_HEADS": [2, 2],
         "DROPOUT": [0.3, 0.3]
       }
     },
@@ -128,10 +128,10 @@
         "PLUS_DM"
       ],
       "NODES": {
-        "UNITS_TRANSFORMER": [256, 128],
-        "UNITS_LSTM": [128, 64],
-        "UNITS_DENSE": [256, 128],
-        "ATTENTION_HEADS": [4, 4],
+        "TRANSFORMER": [128, 128],
+        "LSTM": [64, 64],
+        "DENSE": [128, 128],
+        "ATTENTION_HEADS": [2, 2],
         "DROPOUT": [0.3, 0.3]
       }
     },
@@ -158,10 +158,10 @@
         "PLUS_DM"
       ],
       "NODES": {
-        "UNITS_TRANSFORMER": [256, 128],
-        "UNITS_LSTM": [128, 64],
-        "UNITS_DENSE": [256, 128],
-        "ATTENTION_HEADS": [4, 4],
+        "TRANSFORMER": [128, 128],
+        "LSTM": [64, 64],
+        "DENSE": [128, 128],
+        "ATTENTION_HEADS": [2, 2],
         "DROPOUT": [0.3, 0.3]
       }
     },
@@ -188,26 +188,26 @@
         "PLUS_DM"
       ],
       "NODES": {
-        "UNITS_TRANSFORMER": [256, 128],
-        "UNITS_LSTM": [128, 64],
-        "UNITS_DENSE": [256, 128],
-        "ATTENTION_HEADS": [4, 4],
+        "TRANSFORMER": [128, 128],
+        "LSTM": [64, 64],
+        "DENSE": [128, 128],
+        "ATTENTION_HEADS": [2, 2],
         "DROPOUT": [0.3, 0.3]
       }
     }
   },
   "MAIN_BRANCH": {
     "NODES": {
-      "UNITS_TRANSFORMER": [128, 128],
-      "UNITS_LSTM": [128, 64],
-      "UNITS_DENSE": [128, 128],
+      "TRANSFORMER": [512, 512],
+      "LSTM": [128, 64],
+      "DENSE": [512, 512],
       "ATTENTION_HEADS": [4, 4],
       "DROPOUT": [0.3, 0.3]
     }
   },
   "OUTPUT": {
     "NODES": {
-      "UNITS_DENSE": [128, 96],
+      "DENSE": [128, 96],
       "DROPOUT": [0.3, 0.3]
     }
   }

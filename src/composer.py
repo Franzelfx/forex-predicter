@@ -147,7 +147,7 @@ class Composer:
             attr_list = []
             if "nodes" in self._branches[branch].__dict__:
                 for key, value in self._branches[branch].nodes.items():
-                    attr_list.append(f"{key}: {value}")
+                    attr_list.append(f"{key[:2]}: {value}")
             table[branch] = attr_list
 
         return tabulate(table, headers=header, tablefmt="rst")
@@ -308,9 +308,9 @@ class Composer:
                 branches.append(
                     ModelBranch(
                         self.preprocessed[i].x_train,
-                        self._branches[branch].nodes["UNITS_TRANSFORMER"],
-                        self._branches[branch].nodes["UNITS_LSTM"],
-                        self._branches[branch].nodes["UNITS_DENSE"],
+                        self._branches[branch].nodes["TRANSFORMER"],
+                        self._branches[branch].nodes["LSTM"],
+                        self._branches[branch].nodes["DENSE"],
                         self._branches[branch].nodes["ATTENTION_HEADS"],
                         self._branches[branch].nodes["DROPOUT"],
                     )
@@ -318,13 +318,13 @@ class Composer:
             i = i + 1
         main_branch = ModelBranch(
             self.target_preprocessed.x_train,
-            self._main_branch.nodes["UNITS_TRANSFORMER"],
-            self._main_branch.nodes["UNITS_LSTM"],
-            self._main_branch.nodes["UNITS_DENSE"],
+            self._main_branch.nodes["TRANSFORMER"],
+            self._main_branch.nodes["LSTM"],
+            self._main_branch.nodes["DENSE"],
             self._main_branch.nodes["ATTENTION_HEADS"],
             self._main_branch.nodes["DROPOUT"],
         )
-        output = ModelOutput(self._output.nodes["UNITS_DENSE"], self._output.nodes["DROPOUT"])
+        output = ModelOutput(self._output.nodes["DENSE"], self._output.nodes["DROPOUT"])
         architecture = Architecture(branches, main_branch, output)
         self.model.compile(
             architecture,
@@ -348,7 +348,7 @@ class Composer:
         """Predict with the model."""
         model = self.model
         utilizer = Utilizer(model, self.preprocessed)
-        y_hat = utilizer.predict(box_pts=15)
+        y_hat = utilizer.predict(box_pts=25)
         visualizer = Visualizer(self._processing.pair)
         path = os.path.join(MODEL_PATH, "model_predictions")
         x_target = utilizer.x_target
