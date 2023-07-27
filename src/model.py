@@ -59,7 +59,6 @@ class ModelCheckpoint(tf.keras.callbacks.Callback):
     def __init__(self, filepath, save_best_only=True):
         super(ModelCheckpoint, self).__init__()
         self.filepath = filepath
-        self.pair_name = pair_name
         self.best_score = float('inf')  # Initialize with a high value
         self.save_best_only = save_best_only
 
@@ -77,12 +76,12 @@ class ModelCheckpoint(tf.keras.callbacks.Callback):
         # Check if the combined score is better than the best score seen so far
         if combined_score < self.best_score:
             self.best_score = combined_score
-            print(f"\nCombined score improved to {combined_score:.4f}. Save model.")
-            if self.save_best_only:
-                self.model.save(self.filepath)
-            else:
-                filepath = f"{self.filepath}_{self.pair_name}_{epoch:04d}_{combined_score:.4f}"
-                self.model.save(filepath)  # Save the model in .keras format plus epoch number and combined score
+            print(f"Combined score improved to {combined_score:.4f}. Save model.")
+        if self.save_best_only:
+            self.model.save(self.filepath)
+        else:
+            filepath = self.filepath + f"_{epoch:04d}_{combined_score:.4f}"
+            self.model.save(filepath)  # Save the model in .keras format plus epoch number and combined score
 
 
 class Model:
@@ -309,7 +308,7 @@ class Model:
             return
         reset_states = ResetStatesCallback()
         model_checkpoint = ModelCheckpoint(
-            filepath=f"{self._path}/checkpoints/{self._name}",
+            filepath=f"{self._path}/checkpoints/{self._name}"
         )
         early_stopping = EarlyStopping(
             monitor="val_loss", patience=patience, mode="min", verbose=1
