@@ -1,0 +1,214 @@
+{
+  "PROCESSING": {
+    "PAIR": "C:EURCHF",
+    "INTERVAL": 5,
+    "START_DATE": "2015-01-01",
+    "STEPS_IN": 480,
+    "STEPS_OUT": 96,
+    "TEST_LENGTH": 576,
+    "EPOCHS": 1000,
+    "BATCH_SIZE": 4,
+    "LEARNING_RATE": 0.000001,
+    "VALIDATION_SPLIT": 0.1,
+    "PATIENCE": 100,
+    "PATIENCE_LR_SCHEDULE": 50,
+    "TARGET_FEATURE": "c"
+  },
+  "BRANCHES": {
+    "C:EURCHF": {
+      "INDICATORS": [
+        "ATR",
+        "BOLLINGER",
+        "MA5",
+        "MA25",
+        "MACD",
+        "OBV",
+        "RSI",
+        "STOCHASTIC",
+        "VoRSI",
+        "HT_TRENDLINE",
+        "HT_TRENDMODE",
+        "HT_DCPERIOD",
+        "HT_DCPHASE",
+        "HT_PHASOR",
+        "HT_SINE",
+        "MFI",
+        "MOM",
+        "PLUS_DI",
+        "PLUS_DM"
+      ],
+      "NODES": {
+        "TRANSFORMER": [256, 128],
+        "LSTM": [128, 64],
+        "DENSE": [256, 128],
+        "ATTENTION_HEADS": [4, 4],
+        "DROPOUT": [0.3, 0.3]
+      }
+    },
+    "C:CADCHF": {
+      "INDICATORS": [
+        "ATR",
+        "BOLLINGER",
+        "MA5",
+        "MA25",
+        "MACD",
+        "OBV",
+        "RSI",
+        "STOCHASTIC",
+        "VoRSI",
+        "HT_TRENDLINE",
+        "HT_TRENDMODE",
+        "HT_DCPERIOD",
+        "HT_DCPHASE",
+        "HT_PHASOR",
+        "HT_SINE",
+        "MFI",
+        "MOM",
+        "PLUS_DI",
+        "PLUS_DM"
+      ],
+      "NODES": {
+        "TRANSFORMER": [256, 128],
+        "LSTM": [128, 64],
+        "DENSE": [256, 128],
+        "ATTENTION_HEADS": [4, 4],
+        "DROPOUT": [0.3, 0.3]
+      }
+    },
+    "C:GBPCHF": {
+      "INDICATORS": [
+        "ATR",
+        "BOLLINGER",
+        "MA5",
+        "MA25",
+        "MACD",
+        "OBV",
+        "RSI",
+        "STOCHASTIC",
+        "VoRSI",
+        "HT_TRENDLINE",
+        "HT_TRENDMODE",
+        "HT_DCPERIOD",
+        "HT_DCPHASE",
+        "HT_PHASOR",
+        "HT_SINE",
+        "MFI",
+        "MOM",
+        "PLUS_DI",
+        "PLUS_DM"
+      ],
+      "NODES": {
+        "TRANSFORMER": [256, 128],
+        "LSTM": [128, 64],
+        "DENSE": [256, 128],
+        "ATTENTION_HEADS": [4, 4],
+        "DROPOUT": [0.3, 0.3]
+      }
+    },
+    "C:EURCAD": {
+      "INDICATORS": [
+        "ATR",
+        "BOLLINGER",
+        "MA5",
+        "MA25",
+        "MACD",
+        "OBV",
+        "RSI",
+        "STOCHASTIC",
+        "VoRSI",
+        "HT_TRENDLINE",
+        "HT_TRENDMODE",
+        "HT_DCPERIOD",
+        "HT_DCPHASE",
+        "HT_PHASOR",
+        "HT_SINE",
+        "MFI",
+        "MOM",
+        "PLUS_DI",
+        "PLUS_DM"
+      ],
+      "NODES": {
+        "TRANSFORMER": [256, 128],
+        "LSTM": [128, 64],
+        "DENSE": [256, 128],
+        "ATTENTION_HEADS": [4, 4],
+        "DROPOUT": [0.3, 0.3]
+      }
+    },
+    "C:GBPCAD": {
+      "INDICATORS": [
+        "ATR",
+        "BOLLINGER",
+        "MA5",
+        "MA25",
+        "MACD",
+        "OBV",
+        "RSI",
+        "STOCHASTIC",
+        "VoRSI",
+        "HT_TRENDLINE",
+        "HT_TRENDMODE",
+        "HT_DCPERIOD",
+        "HT_DCPHASE",
+        "HT_PHASOR",
+        "HT_SINE",
+        "MFI",
+        "MOM",
+        "PLUS_DI",
+        "PLUS_DM"
+      ],
+      "NODES": {
+        "TRANSFORMER": [256, 128],
+        "LSTM": [128, 64],
+        "DENSE": [256, 128],
+        "ATTENTION_HEADS": [4, 4],
+        "DROPOUT": [0.3, 0.3]
+      }
+    },
+    "C:EURAUD": {
+      "INDICATORS": [
+        "ATR",
+        "BOLLINGER",
+        "MA5",
+        "MA25",
+        "MACD",
+        "OBV",
+        "RSI",
+        "STOCHASTIC",
+        "VoRSI",
+        "HT_TRENDLINE",
+        "HT_TRENDMODE",
+        "HT_DCPERIOD",
+        "HT_DCPHASE",
+        "HT_PHASOR",
+        "HT_SINE",
+        "MFI",
+        "MOM",
+        "PLUS_DI",
+        "PLUS_DM"
+      ],
+      "NODES": {
+        "TRANSFORMER": [256, 128],
+        "LSTM": [128, 64],
+        "DENSE": [256, 128],
+        "ATTENTION_HEADS": [4, 4],
+        "DROPOUT": [0.3, 0.3]
+      }
+    }
+  },
+  "MAIN_BRANCH": {
+    "NODES": {
+      "TRANSFORMER": [128, 128],
+      "LSTM": [128, 64],
+      "DENSE": [128, 128],
+      "ATTENTION_HEADS": [4, 4],
+      "DROPOUT": [0.3, 0.3]
+    }
+  },
+  "OUTPUT": {
+    "NODES": {
+      "DENSE": [128, 96],
+      "DROPOUT": [0.3, 0.3]
+    }
+  }
+}
