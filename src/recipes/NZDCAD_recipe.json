@@ -1,6 +1,6 @@
 {
   "PROCESSING": {
-    "PAIR": "C:EURUSD",
+    "PAIR": "C:NZDCAD",
     "INTERVAL": 5,
     "START_DATE": "2015-01-01",
     "STEPS_IN": 480,
@@ -15,7 +15,7 @@
     "TARGET_FEATURE": "c"
   },
   "BRANCHES": {
-    "C:EURUSD": {
+    "C:NZDCAD": {
       "INDICATORS": [
         "ATR",
         "BOLLINGER",
@@ -38,100 +38,10 @@
         "PLUS_DM"
       ],
       "NODES": {
-        "TRANSFORMER": [128, 128],
-        "LSTM": [64, 64],
-        "DENSE": [128, 128],
-        "ATTENTION_HEADS": [2, 2],
-        "DROPOUT": [0.3, 0.3]
-      }
-    },
-    "C:USDCHF": {
-      "INDICATORS": [
-        "ATR",
-        "BOLLINGER",
-        "MA5",
-        "MA25",
-        "MACD",
-        "OBV",
-        "RSI",
-        "STOCHASTIC",
-        "VoRSI",
-        "HT_TRENDLINE",
-        "HT_TRENDMODE",
-        "HT_DCPERIOD",
-        "HT_DCPHASE",
-        "HT_PHASOR",
-        "HT_SINE",
-        "MFI",
-        "MOM",
-        "PLUS_DI",
-        "PLUS_DM"
-      ],
-      "NODES": {
-        "TRANSFORMER": [128, 128],
-        "LSTM": [64, 64],
-        "DENSE": [128, 128],
-        "ATTENTION_HEADS": [2, 2],
-        "DROPOUT": [0.3, 0.3]
-      }
-    },
-    "C:EURCAD": {
-      "INDICATORS": [
-        "ATR",
-        "BOLLINGER",
-        "MA5",
-        "MA25",
-        "MACD",
-        "OBV",
-        "RSI",
-        "STOCHASTIC",
-        "VoRSI",
-        "HT_TRENDLINE",
-        "HT_TRENDMODE",
-        "HT_DCPERIOD",
-        "HT_DCPHASE",
-        "HT_PHASOR",
-        "HT_SINE",
-        "MFI",
-        "MOM",
-        "PLUS_DI",
-        "PLUS_DM"
-      ],
-      "NODES": {
-        "TRANSFORMER": [128, 128],
-        "LSTM": [164, 64],
-        "DENSE": [128, 128],
-        "ATTENTION_HEADS": [2, 2],
-        "DROPOUT": [0.3, 0.3]
-      }
-    },
-    "C:GBPJPY": {
-      "INDICATORS": [
-        "ATR",
-        "BOLLINGER",
-        "MA5",
-        "MA25",
-        "MACD",
-        "OBV",
-        "RSI",
-        "STOCHASTIC",
-        "VoRSI",
-        "HT_TRENDLINE",
-        "HT_TRENDMODE",
-        "HT_DCPERIOD",
-        "HT_DCPHASE",
-        "HT_PHASOR",
-        "HT_SINE",
-        "MFI",
-        "MOM",
-        "PLUS_DI",
-        "PLUS_DM"
-      ],
-      "NODES": {
-        "TRANSFORMER": [128, 128],
-        "LSTM": [64, 64],
-        "DENSE": [128, 128],
-        "ATTENTION_HEADS": [2, 2],
+        "TRANSFORMER": [256, 128],
+        "LSTM": [128, 64],
+        "DENSE": [256, 128],
+        "ATTENTION_HEADS": [4, 4],
         "DROPOUT": [0.3, 0.3]
       }
     },
@@ -158,10 +68,40 @@
         "PLUS_DM"
       ],
       "NODES": {
-        "TRANSFORMER": [128, 128],
-        "LSTM": [64, 64],
-        "DENSE": [128, 128],
-        "ATTENTION_HEADS": [2, 2],
+        "TRANSFORMER": [256, 128],
+        "LSTM": [128, 64],
+        "DENSE": [256, 128],
+        "ATTENTION_HEADS": [4, 4],
+        "DROPOUT": [0.3, 0.3]
+      }
+    },
+    "C:NZDUSD": {
+      "INDICATORS": [
+        "ATR",
+        "BOLLINGER",
+        "MA5",
+        "MA25",
+        "MACD",
+        "OBV",
+        "RSI",
+        "STOCHASTIC",
+        "VoRSI",
+        "HT_TRENDLINE",
+        "HT_TRENDMODE",
+        "HT_DCPERIOD",
+        "HT_DCPHASE",
+        "HT_PHASOR",
+        "HT_SINE",
+        "MFI",
+        "MOM",
+        "PLUS_DI",
+        "PLUS_DM"
+      ],
+      "NODES": {
+        "TRANSFORMER": [256, 128],
+        "LSTM": [128, 64],
+        "DENSE": [256, 128],
+        "ATTENTION_HEADS": [4, 4],
         "DROPOUT": [0.3, 0.3]
       }
     },
@@ -188,19 +128,79 @@
         "PLUS_DM"
       ],
       "NODES": {
-        "TRANSFORMER": [128, 128],
-        "LSTM": [64, 64],
-        "DENSE": [128, 128],
-        "ATTENTION_HEADS": [2, 2],
+        "TRANSFORMER": [256, 128],
+        "LSTM": [128, 64],
+        "DENSE": [256, 128],
+        "ATTENTION_HEADS": [4, 4],
+        "DROPOUT": [0.3, 0.3]
+      }
+    },
+    "C:USDCHF": {
+      "INDICATORS": [
+        "ATR",
+        "BOLLINGER",
+        "MA5",
+        "MA25",
+        "MACD",
+        "OBV",
+        "RSI",
+        "STOCHASTIC",
+        "VoRSI",
+        "HT_TRENDLINE",
+        "HT_TRENDMODE",
+        "HT_DCPERIOD",
+        "HT_DCPHASE",
+        "HT_PHASOR",
+        "HT_SINE",
+        "MFI",
+        "MOM",
+        "PLUS_DI",
+        "PLUS_DM"
+      ],
+      "NODES": {
+        "TRANSFORMER": [256, 128],
+        "LSTM": [128, 64],
+        "DENSE": [256, 128],
+        "ATTENTION_HEADS": [4, 4],
+        "DROPOUT": [0.3, 0.3]
+      }
+    },
+    "C:CADCHF": {
+      "INDICATORS": [
+        "ATR",
+        "BOLLINGER",
+        "MA5",
+        "MA25",
+        "MACD",
+        "OBV",
+        "RSI",
+        "STOCHASTIC",
+        "VoRSI",
+        "HT_TRENDLINE",
+        "HT_TRENDMODE",
+        "HT_DCPERIOD",
+        "HT_DCPHASE",
+        "HT_PHASOR",
+        "HT_SINE",
+        "MFI",
+        "MOM",
+        "PLUS_DI",
+        "PLUS_DM"
+      ],
+      "NODES": {
+        "TRANSFORMER": [256, 128],
+        "LSTM": [128, 64],
+        "DENSE": [256, 128],
+        "ATTENTION_HEADS": [4, 4],
         "DROPOUT": [0.3, 0.3]
       }
     }
   },
   "MAIN_BRANCH": {
     "NODES": {
-      "TRANSFORMER": [512, 512],
+      "TRANSFORMER": [128, 128],
       "LSTM": [128, 64],
-      "DENSE": [512, 512],
+      "DENSE": [128, 128],
       "ATTENTION_HEADS": [4, 4],
       "DROPOUT": [0.3, 0.3]
     }
