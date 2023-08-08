@@ -45,36 +45,6 @@
         "DROPOUT": [0.3, 0.3]
       }
     },
-    "C:CADCHF": {
-      "INDICATORS": [
-        "ATR",
-        "BOLLINGER",
-        "MA5",
-        "MA25",
-        "MACD",
-        "OBV",
-        "RSI",
-        "STOCHASTIC",
-        "VoRSI",
-        "HT_TRENDLINE",
-        "HT_TRENDMODE",
-        "HT_DCPERIOD",
-        "HT_DCPHASE",
-        "HT_PHASOR",
-        "HT_SINE",
-        "MFI",
-        "MOM",
-        "PLUS_DI",
-        "PLUS_DM"
-      ],
-      "NODES": {
-        "TRANSFORMER": [512, 256],
-        "LSTM": [256, 128],
-        "DENSE": [512, 256],
-        "ATTENTION_HEADS": [2, 2],
-        "DROPOUT": [0.3, 0.3]
-      }
-    },
     "C:GBPCHF": {
       "INDICATORS": [
         "ATR",
@@ -106,36 +76,6 @@
       }
     },
     "C:EURCAD": {
-      "INDICATORS": [
-        "ATR",
-        "BOLLINGER",
-        "MA5",
-        "MA25",
-        "MACD",
-        "OBV",
-        "RSI",
-        "STOCHASTIC",
-        "VoRSI",
-        "HT_TRENDLINE",
-        "HT_TRENDMODE",
-        "HT_DCPERIOD",
-        "HT_DCPHASE",
-        "HT_PHASOR",
-        "HT_SINE",
-        "MFI",
-        "MOM",
-        "PLUS_DI",
-        "PLUS_DM"
-      ],
-      "NODES": {
-        "TRANSFORMER": [512, 256],
-        "LSTM": [256, 128],
-        "DENSE": [512, 256],
-        "ATTENTION_HEADS": [2, 2],
-        "DROPOUT": [0.3, 0.3]
-      }
-    },
-    "C:GBPCAD": {
       "INDICATORS": [
         "ATR",
         "BOLLINGER",
