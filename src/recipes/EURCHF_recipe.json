@@ -41,7 +41,7 @@
         "TRANSFORMER": [512, 256],
         "LSTM": [256, 128],
         "DENSE": [512, 256],
-        "ATTENTION_HEADS": [4, 4],
+        "ATTENTION_HEADS": [2, 2],
         "DROPOUT": [0.3, 0.3]
       }
     },
@@ -71,7 +71,7 @@
         "TRANSFORMER": [512, 256],
         "LSTM": [256, 128],
         "DENSE": [512, 256],
-        "ATTENTION_HEADS": [4, 4],
+        "ATTENTION_HEADS": [2, 2],
         "DROPOUT": [0.3, 0.3]
       }
     },
@@ -101,7 +101,7 @@
         "TRANSFORMER": [512, 256],
         "LSTM": [256, 128],
         "DENSE": [512, 256],
-        "ATTENTION_HEADS": [4, 4],
+        "ATTENTION_HEADS": [2, 2],
         "DROPOUT": [0.3, 0.3]
       }
     },
@@ -131,7 +131,7 @@
         "TRANSFORMER": [512, 256],
         "LSTM": [256, 128],
         "DENSE": [512, 256],
-        "ATTENTION_HEADS": [4, 4],
+        "ATTENTION_HEADS": [2, 2],
         "DROPOUT": [0.3, 0.3]
       }
     },
@@ -161,7 +161,7 @@
         "TRANSFORMER": [512, 256],
         "LSTM": [256, 128],
         "DENSE": [512, 256],
-        "ATTENTION_HEADS": [4, 4],
+        "ATTENTION_HEADS": [2, 2],
         "DROPOUT": [0.3, 0.3]
       }
     },
@@ -191,7 +191,7 @@
         "TRANSFORMER": [512, 256],
         "LSTM": [256, 128],
         "DENSE": [512, 256],
-        "ATTENTION_HEADS": [4, 4],
+        "ATTENTION_HEADS": [2, 2],
         "DROPOUT": [0.3, 0.3]
       }
     }
@@ -201,7 +201,7 @@
       "TRANSFORMER": [512, 512],
       "LSTM": [512, 256],
       "DENSE": [512, 512],
-      "ATTENTION_HEADS": [4, 4],
+      "ATTENTION_HEADS": [2, 2],
       "DROPOUT": [0.3, 0.3]
     }
   },
