@@ -45,36 +45,6 @@
         "DROPOUT": [0.3, 0.3, 0.3]
       }
     },
-    "C:GBPCHF": {
-      "INDICATORS": [
-        "ATR",
-        "BOLLINGER",
-        "MA5",
-        "MA25",
-        "MACD",
-        "OBV",
-        "RSI",
-        "STOCHASTIC",
-        "VoRSI",
-        "HT_TRENDLINE",
-        "HT_TRENDMODE",
-        "HT_DCPERIOD",
-        "HT_DCPHASE",
-        "HT_PHASOR",
-        "HT_SINE",
-        "MFI",
-        "MOM",
-        "PLUS_DI",
-        "PLUS_DM"
-      ],
-      "NODES": {
-        "TRANSFORMER": [128, 128],
-        "LSTM": [64, 64],
-        "DENSE": [128, 128],
-        "ATTENTION_HEADS": [4, 4],
-        "DROPOUT": [0.3, 0.3]
-      }
-    },
     "C:EURCAD": {
       "INDICATORS": [
         "ATR",
@@ -98,51 +68,21 @@
         "PLUS_DM"
       ],
       "NODES": {
-        "TRANSFORMER": [128, 128],
-        "LSTM": [64, 64],
-        "DENSE": [128, 128],
-        "ATTENTION_HEADS": [4, 4],
-        "DROPOUT": [0.3, 0.3]
-      }
-    },
-    "C:EURAUD": {
-      "INDICATORS": [
-        "ATR",
-        "BOLLINGER",
-        "MA5",
-        "MA25",
-        "MACD",
-        "OBV",
-        "RSI",
-        "STOCHASTIC",
-        "VoRSI",
-        "HT_TRENDLINE",
-        "HT_TRENDMODE",
-        "HT_DCPERIOD",
-        "HT_DCPHASE",
-        "HT_PHASOR",
-        "HT_SINE",
-        "MFI",
-        "MOM",
-        "PLUS_DI",
-        "PLUS_DM"
-      ],
-      "NODES": {
-        "TRANSFORMER": [128, 128],
-        "LSTM": [64, 64],
-        "DENSE": [128, 128],
-        "ATTENTION_HEADS": [4, 4],
-        "DROPOUT": [0.3, 0.3]
+        "TRANSFORMER": [128, 128, 128],
+        "LSTM": [128, 64, 64],
+        "DENSE": [128, 128, 128],
+        "ATTENTION_HEADS": [4, 4, 4],
+        "DROPOUT": [0.3, 0.3, 0.3]
       }
     }
   },
   "MAIN_BRANCH": {
     "NODES": {
-      "TRANSFORMER": [128, 128],
-      "LSTM": [64, 64],
-      "DENSE": [128, 128],
-      "ATTENTION_HEADS": [4, 4],
-      "DROPOUT": [0.3, 0.3]
+      "TRANSFORMER": [128, 128, 128],
+      "LSTM": [128, 64, 64],
+      "DENSE": [128, 128, 128],
+      "ATTENTION_HEADS": [4, 4, 4],
+      "DROPOUT": [0.3, 0.3, 0.3]
     }
   },
   "OUTPUT": {
