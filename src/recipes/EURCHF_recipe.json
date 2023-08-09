@@ -3,12 +3,12 @@
     "PAIR": "C:EURCHF",
     "INTERVAL": 5,
     "START_DATE": "2015-01-01",
-    "STEPS_IN": 480,
+    "STEPS_IN": 192,
     "STEPS_OUT": 96,
-    "TEST_LENGTH": 576,
+    "TEST_LENGTH": 288,
     "EPOCHS": 1000,
     "BATCH_SIZE": 2,
-    "LEARNING_RATE": 0.000001,
+    "LEARNING_RATE": 0.00001,
     "VALIDATION_SPLIT": 0.1,
     "PATIENCE": 100,
     "PATIENCE_LR_SCHEDULE": 50,
@@ -38,11 +38,11 @@
         "PLUS_DM"
       ],
       "NODES": {
-        "TRANSFORMER": [512, 256],
-        "LSTM": [256, 128],
-        "DENSE": [512, 256],
-        "ATTENTION_HEADS": [2, 2],
-        "DROPOUT": [0.3, 0.3]
+        "TRANSFORMER": [256, 256, 128],
+        "LSTM": [128, 64, 64],
+        "DENSE": [256, 256, 128],
+        "ATTENTION_HEADS": [4, 4, 4],
+        "DROPOUT": [0.3, 0.3, 0.3]
       }
     },
     "C:GBPCHF": {
@@ -68,11 +68,11 @@
         "PLUS_DM"
       ],
       "NODES": {
-        "TRANSFORMER": [512, 256],
-        "LSTM": [256, 128],
-        "DENSE": [512, 256],
-        "ATTENTION_HEADS": [2, 2],
-        "DROPOUT": [0.3, 0.3]
+        "TRANSFORMER": [256, 256, 128],
+        "LSTM": [128, 64, 64],
+        "DENSE": [256, 256, 128],
+        "ATTENTION_HEADS": [4, 4, 4],
+        "DROPOUT": [0.3, 0.3, 0.3]
       }
     },
     "C:EURCAD": {
@@ -97,13 +97,11 @@
         "PLUS_DI",
         "PLUS_DM"
       ],
-      "NODES": {
-        "TRANSFORMER": [512, 256],
-        "LSTM": [256, 128],
-        "DENSE": [512, 256],
-        "ATTENTION_HEADS": [2, 2],
-        "DROPOUT": [0.3, 0.3]
-      }
+        "TRANSFORMER": [256, 256, 128],
+        "LSTM": [128, 64, 64],
+        "DENSE": [256, 256, 128],
+        "ATTENTION_HEADS": [4, 4, 4],
+        "DROPOUT": [0.3, 0.3, 0.3]
     },
     "C:EURAUD": {
       "INDICATORS": [
@@ -128,26 +126,26 @@
         "PLUS_DM"
       ],
       "NODES": {
-        "TRANSFORMER": [512, 256],
-        "LSTM": [256, 128],
-        "DENSE": [512, 256],
-        "ATTENTION_HEADS": [2, 2],
-        "DROPOUT": [0.3, 0.3]
+        "TRANSFORMER": [256, 256, 128],
+        "LSTM": [128, 64, 64],
+        "DENSE": [256, 256, 128],
+        "ATTENTION_HEADS": [4, 4, 4],
+        "DROPOUT": [0.3, 0.3, 0.3]
       }
     }
   },
   "MAIN_BRANCH": {
     "NODES": {
-      "TRANSFORMER": [1024, 1024],
-      "LSTM": [512, 256],
-      "DENSE": [1024, 1024],
-      "ATTENTION_HEADS": [4, 4],
-      "DROPOUT": [0.3, 0.3]
+      "TRANSFORMER": [256, 256, 128],
+      "LSTM": [128, 64, 64],
+      "DENSE": [256, 256, 128],
+      "ATTENTION_HEADS": [4, 4, 4],
+      "DROPOUT": [0.3, 0.3, 0.3]
     }
   },
   "OUTPUT": {
     "NODES": {
-      "DENSE": [512 ,256, 96],
+      "DENSE": [256 ,96, 96],
       "DROPOUT": [0.3, 0.3, 0.3]
     }
   }
