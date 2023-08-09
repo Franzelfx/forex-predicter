@@ -97,11 +97,13 @@
         "PLUS_DI",
         "PLUS_DM"
       ],
+      "NODES": {
         "TRANSFORMER": [256, 256, 128],
         "LSTM": [128, 64, 64],
         "DENSE": [256, 256, 128],
         "ATTENTION_HEADS": [4, 4, 4],
         "DROPOUT": [0.3, 0.3, 0.3]
+        }
     },
     "C:EURAUD": {
       "INDICATORS": [
