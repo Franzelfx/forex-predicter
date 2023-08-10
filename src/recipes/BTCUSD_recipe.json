@@ -2,7 +2,7 @@
   "PROCESSING": {
     "PAIR": "X:BTCUSD",
     "INTERVAL": 15,
-    "START_DATE": "2010-01-01",
+    "START_DATE": "2018-01-01",
     "STEPS_IN": 192,
     "STEPS_OUT": 46,
     "TEST_LENGTH": 288,
