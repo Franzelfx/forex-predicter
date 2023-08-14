@@ -2,9 +2,9 @@
   "PROCESSING": {
     "PAIR": "X:BTCUSD",
     "INTERVAL": 15,
-    "START_DATE": "2018-01-01",
-    "STEPS_IN": 1024,
-    "STEPS_OUT": 96,
+    "START_DATE": "2015-01-01",
+    "STEPS_IN": 256,
+    "STEPS_OUT": 32,
     "TEST_LENGTH": 2000,
     "EPOCHS": 1000,
     "BATCH_SIZE": 4,
@@ -38,11 +38,11 @@
         "PLUS_DM"
       ],
       "NODES": {
-        "TRANSFORMER": [1024],
-        "LSTM": [256],
-        "DENSE": [1024],
-        "ATTENTION_HEADS": [4],
-        "DROPOUT": [0.3]
+        "TRANSFORMER": [256, 128],
+        "LSTM": [128, 64],
+        "DENSE": [256, 128],
+        "ATTENTION_HEADS": [4, 4],
+        "DROPOUT": [0.3, 0.3]
       }
     },
     "X:XRPUSD": {
@@ -68,19 +68,19 @@
         "PLUS_DM"
       ],
       "NODES": {
-        "TRANSFORMER": [1024],
-        "LSTM": [256],
-        "DENSE": [1024],
-        "ATTENTION_HEADS": [4],
-        "DROPOUT": [0.3]
+        "TRANSFORMER": [256, 128],
+        "LSTM": [128, 64],
+        "DENSE": [256, 128],
+        "ATTENTION_HEADS": [4, 4],
+        "DROPOUT": [0.3, 0.3]
       }
     }
   },
   "MAIN_BRANCH": {
     "NODES": {
-      "TRANSFORMER": [512, 128],
-      "LSTM": [128, 128],
-      "DENSE": [512, 128],
+      "TRANSFORMER": [256, 128],
+      "LSTM": [128, 64],
+      "DENSE": [256, 128],
       "ATTENTION_HEADS": [4, 4],
       "DROPOUT": [0.3, 0.3]
     }
