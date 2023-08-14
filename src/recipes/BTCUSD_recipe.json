@@ -15,7 +15,7 @@
     "TARGET_FEATURE": "c"
   },
   "BRANCHES": {
-    "C:EURCHF": {
+    "X:BTCUSD": {
       "INDICATORS": [
         "ATR",
         "BOLLINGER",
