@@ -38,9 +38,9 @@
         "PLUS_DM"
       ],
       "NODES": {
-        "TRANSFORMER": [256, 128, 128],
-        "LSTM": [128, 64, 64],
-        "DENSE": [256, 128, 128],
+        "TRANSFORMER": [256, 256, 256],
+        "LSTM": [128, 128, 128],
+        "DENSE": [256, 256, 256],
         "ATTENTION_HEADS": [4, 4, 4],
         "DROPOUT": [0.3, 0.3, 0.3]
       }
@@ -68,9 +68,9 @@
         "PLUS_DM"
       ],
       "NODES": {
-        "TRANSFORMER": [256, 128, 128],
-        "LSTM": [128, 64, 64],
-        "DENSE": [256, 128, 128],
+        "TRANSFORMER": [256, 256, 256],
+        "LSTM": [128, 128, 128],
+        "DENSE": [256, 256, 256],
         "ATTENTION_HEADS": [4, 4, 4],
         "DROPOUT": [0.3, 0.3, 0.3]
       }
@@ -78,9 +78,9 @@
   },
   "MAIN_BRANCH": {
     "NODES": {
-      "TRANSFORMER": [256, 128, 128],
-      "LSTM": [128, 64, 64],
-      "DENSE": [256, 128, 128],
+      "TRANSFORMER": [256, 256, 256],
+      "LSTM": [128, 128, 128],
+      "DENSE": [256, 256, 256],
       "ATTENTION_HEADS": [4, 4, 4],
       "DROPOUT": [0.3, 0.3, 0.3]
     }
