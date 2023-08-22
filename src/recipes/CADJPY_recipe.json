@@ -1,10 +1,10 @@
 {
   "PROCESSING": {
     "PAIR": "C:CADJPY",
-    "INTERVAL": 5,
-    "START_DATE": "2010-01-01",
-    "STEPS_IN": 512,
-    "STEPS_OUT": 32,
+    "INTERVAL": 60,
+    "START_DATE": "2018-01-01",
+    "STEPS_IN": 96,
+    "STEPS_OUT": 96,
     "TEST_LENGTH": 2000,
     "EPOCHS": 1000,
     "BATCH_SIZE": 4,
