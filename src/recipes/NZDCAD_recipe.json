@@ -1,21 +1,21 @@
 {
   "PROCESSING": {
-    "PAIR": "C:CADJPY",
-    "INTERVAL": 60,
-    "START_DATE": "2010-01-01",
-    "STEPS_IN": 512,
+    "PAIR": "C:NZDCAD",
+    "INTERVAL": 5,
+    "START_DATE": "2015-01-01",
+    "STEPS_IN": 480,
     "STEPS_OUT": 96,
-    "TEST_LENGTH": 2000,
+    "TEST_LENGTH": 576,
     "EPOCHS": 1000,
-    "BATCH_SIZE": 4,
+    "BATCH_SIZE": 2,
     "LEARNING_RATE": 0.00001,
-    "VALIDATION_SPLIT": 0.01,
+    "VALIDATION_SPLIT": 0.1,
     "PATIENCE": 100,
     "PATIENCE_LR_SCHEDULE": 50,
     "TARGET_FEATURE": "c"
   },
   "BRANCHES": {
-    "C:CADJPY": {
+    "C:NZDCAD": {
       "INDICATORS": [
         "ATR",
         "BOLLINGER",
@@ -38,101 +38,11 @@
         "PLUS_DM"
       ],
       "NODES": {
-        "TRANSFORMER": [128, 128, 128],
-        "LSTM": [128, 128, 128],
-        "DENSE": [128, 128, 128],
-        "ATTENTION_HEADS": [4, 4, 4],
-        "DROPOUT": [0.3, 0.3, 0.3]
-      }
-    },
-    "C:USDCHF": {
-      "INDICATORS": [
-        "ATR",
-        "BOLLINGER",
-        "MA5",
-        "MA25",
-        "MACD",
-        "OBV",
-        "RSI",
-        "STOCHASTIC",
-        "VoRSI",
-        "HT_TRENDLINE",
-        "HT_TRENDMODE",
-        "HT_DCPERIOD",
-        "HT_DCPHASE",
-        "HT_PHASOR",
-        "HT_SINE",
-        "MFI",
-        "MOM",
-        "PLUS_DI",
-        "PLUS_DM"
-      ],
-      "NODES": {
-        "TRANSFORMER": [128, 128, 128],
-        "LSTM": [128, 128, 128],
-        "DENSE": [128, 128, 128],
-        "ATTENTION_HEADS": [4, 4, 4],
-        "DROPOUT": [0.3, 0.3, 0.3]
-      }
-    },
-    "C:EURCAD": {
-      "INDICATORS": [
-        "ATR",
-        "BOLLINGER",
-        "MA5",
-        "MA25",
-        "MACD",
-        "OBV",
-        "RSI",
-        "STOCHASTIC",
-        "VoRSI",
-        "HT_TRENDLINE",
-        "HT_TRENDMODE",
-        "HT_DCPERIOD",
-        "HT_DCPHASE",
-        "HT_PHASOR",
-        "HT_SINE",
-        "MFI",
-        "MOM",
-        "PLUS_DI",
-        "PLUS_DM"
-      ],
-      "NODES": {
-        "TRANSFORMER": [128, 128, 128],
-        "LSTM": [128, 128, 128],
-        "DENSE": [128, 128, 128],
-        "ATTENTION_HEADS": [4, 4, 4],
-        "DROPOUT": [0.3, 0.3, 0.3]
-      }
-    },
-    "C:GBPJPY": {
-      "INDICATORS": [
-        "ATR",
-        "BOLLINGER",
-        "MA5",
-        "MA25",
-        "MACD",
-        "OBV",
-        "RSI",
-        "STOCHASTIC",
-        "VoRSI",
-        "HT_TRENDLINE",
-        "HT_TRENDMODE",
-        "HT_DCPERIOD",
-        "HT_DCPHASE",
-        "HT_PHASOR",
-        "HT_SINE",
-        "MFI",
-        "MOM",
-        "PLUS_DI",
-        "PLUS_DM"
-      ],
-      "NODES": {
-        "TRANSFORMER": [128, 128, 128],
-        "LSTM": [128, 128, 128],
-        "DENSE": [128, 128, 128],
-        "ATTENTION_HEADS": [4, 4, 4],
-        "DROPOUT": [0.3, 0.3, 0.3]
+        "TRANSFORMER": [512, 256],
+        "LSTM": [128, 64],
+        "DENSE": [512, 256],
+        "ATTENTION_HEADS": [4, 4],
+        "DROPOUT": [0.3, 0.3]
       }
     },
     "C:GBPCAD": {
@@ -158,11 +68,41 @@
         "PLUS_DM"
       ],
       "NODES": {
-        "TRANSFORMER": [128, 128, 128],
-        "LSTM": [128, 128, 128],
-        "DENSE": [128, 128, 128],
-        "ATTENTION_HEADS": [4, 4, 4],
-        "DROPOUT": [0.3, 0.3, 0.3]
+        "TRANSFORMER": [512, 256],
+        "LSTM": [128, 64],
+        "DENSE": [512, 256],
+        "ATTENTION_HEADS": [4, 4],
+        "DROPOUT": [0.3, 0.3]
+      }
+    },
+    "C:NZDUSD": {
+      "INDICATORS": [
+        "ATR",
+        "BOLLINGER",
+        "MA5",
+        "MA25",
+        "MACD",
+        "OBV",
+        "RSI",
+        "STOCHASTIC",
+        "VoRSI",
+        "HT_TRENDLINE",
+        "HT_TRENDMODE",
+        "HT_DCPERIOD",
+        "HT_DCPHASE",
+        "HT_PHASOR",
+        "HT_SINE",
+        "MFI",
+        "MOM",
+        "PLUS_DI",
+        "PLUS_DM"
+      ],
+      "NODES": {
+        "TRANSFORMER": [512, 256],
+        "LSTM": [128, 64],
+        "DENSE": [512, 256],
+        "ATTENTION_HEADS": [4, 4],
+        "DROPOUT": [0.3, 0.3]
       }
     },
     "C:USDJPY": {
@@ -188,27 +128,87 @@
         "PLUS_DM"
       ],
       "NODES": {
-        "TRANSFORMER": [128, 128, 128],
-        "LSTM": [128, 128, 128],
-        "DENSE": [128, 128, 128],
-        "ATTENTION_HEADS": [4, 4, 4],
-        "DROPOUT": [0.3, 0.3, 0.3]
+        "TRANSFORMER": [512, 256],
+        "LSTM": [128, 64],
+        "DENSE": [512, 256],
+        "ATTENTION_HEADS": [4, 4],
+        "DROPOUT": [0.3, 0.3]
+      }
+    },
+    "C:USDCHF": {
+      "INDICATORS": [
+        "ATR",
+        "BOLLINGER",
+        "MA5",
+        "MA25",
+        "MACD",
+        "OBV",
+        "RSI",
+        "STOCHASTIC",
+        "VoRSI",
+        "HT_TRENDLINE",
+        "HT_TRENDMODE",
+        "HT_DCPERIOD",
+        "HT_DCPHASE",
+        "HT_PHASOR",
+        "HT_SINE",
+        "MFI",
+        "MOM",
+        "PLUS_DI",
+        "PLUS_DM"
+      ],
+      "NODES": {
+        "TRANSFORMER": [512, 256],
+        "LSTM": [128, 64],
+        "DENSE": [512, 256],
+        "ATTENTION_HEADS": [4, 4],
+        "DROPOUT": [0.3, 0.3]
+      }
+    },
+    "C:CADCHF": {
+      "INDICATORS": [
+        "ATR",
+        "BOLLINGER",
+        "MA5",
+        "MA25",
+        "MACD",
+        "OBV",
+        "RSI",
+        "STOCHASTIC",
+        "VoRSI",
+        "HT_TRENDLINE",
+        "HT_TRENDMODE",
+        "HT_DCPERIOD",
+        "HT_DCPHASE",
+        "HT_PHASOR",
+        "HT_SINE",
+        "MFI",
+        "MOM",
+        "PLUS_DI",
+        "PLUS_DM"
+      ],
+      "NODES": {
+        "TRANSFORMER": [512, 256],
+        "LSTM": [128, 64],
+        "DENSE": [512, 256],
+        "ATTENTION_HEADS": [4, 4],
+        "DROPOUT": [0.3, 0.3]
       }
     }
   },
   "MAIN_BRANCH": {
     "NODES": {
-      "TRANSFORMER": [128, 128, 128],
-      "LSTM": [128, 128, 128],
-      "DENSE": [128, 128, 128],
-      "ATTENTION_HEADS": [4, 4, 4],
-      "DROPOUT": [0.3, 0.3, 0.3]
+      "TRANSFORMER": [256, 256],
+      "LSTM": [128, 64],
+      "DENSE": [256, 256],
+      "ATTENTION_HEADS": [4, 4],
+      "DROPOUT": [0.3, 0.3]
     }
   },
   "OUTPUT": {
     "NODES": {
-      "DENSE": [128, 96, 96],
-      "DROPOUT": [0.3, 0.3, 0.3]
+      "DENSE": [256, 96],
+      "DROPOUT": [0.3, 0.3]
     }
   }
 }

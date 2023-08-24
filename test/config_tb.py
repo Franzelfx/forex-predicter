@@ -25,12 +25,12 @@ logging.basicConfig(
 # Data aquirer
 PATH_PAIRS = os.path.join(currentdir, "pairs")
 PAIR = "C:CADJPY"
-MINUTES_TRAIN = 15
-MINUTES_TEST = 15
+MINUTES_TRAIN = 5
+MINUTES_TEST = 5
 START = "2015-01-01"
 # Substract 1 hour to get the last full hour
 END = (date.today() - timedelta(hours=1)).strftime("%Y-%m-%d")
-END = "2023-07-7"
+#END = "2023-07-17"
 API_TYPE = "advanced"
 
 # ---------------------------------- #
@@ -38,28 +38,28 @@ API_TYPE = "advanced"
 PATH_INDICATORS = os.path.join(currentdir, "indicators")
 pair_name = PAIR[2:]
 INDICATORS_DATA_SOURCE = f"{PATH_PAIRS}/{pair_name}_{MINUTES_TRAIN}.csv"
-# TEST_INDICATORS = [
-#     "ATR",
-#     "BOLLINGER",
-#     "MA5",
-#     "MA25",
-#     "MACD",
-#     "OBV",
-#     "RSI",
-#     "STOCHASTIC",
-#     "VoRSI",
-#     "HT_TRENDLINE",
-#     "HT_TRENDMODE",
-#     "HT_DCPERIOD",
-#     "HT_DCPHASE",
-#     "HT_PHASOR",
-#     "HT_SINE",
-#     "MFI",
-#     "MOM",
-#     "PLUS_DI",
-#     "PLUS_DM",
-# ]
-TEST_INDICATORS = ["BOLLINGER",'MA5' , "MA25", "VoRSI"]
+TEST_INDICATORS = [
+    "ATR",
+    "BOLLINGER",
+    "MA5",
+    "MA25",
+    "MACD",
+    "OBV",
+    "RSI",
+    "STOCHASTIC",
+    "VoRSI",
+    "HT_TRENDLINE",
+    "HT_TRENDMODE",
+    "HT_DCPERIOD",
+    "HT_DCPHASE",
+    "HT_PHASOR",
+    "HT_SINE",
+    "MFI",
+    "MOM",
+    "PLUS_DI",
+    "PLUS_DM",
+]
+#TEST_INDICATORS = ["BOLLINGER",'MA5' , "MA25", "VoRSI"]
 EXPECTED_COLUMNS = [
     "v",
     "vw",
@@ -101,12 +101,12 @@ TARGET = "c"
 PREPROCESSOR_PATH = os.path.join(currentdir, "preprocessor_test")
 _PAIR_NAME = PAIR[2:]
 PREPROCESSOR_DATA_SOURCE = f"{PATH_INDICATORS}/{_PAIR_NAME}__indicators.csv"
-TEST_TIME_STEPS_IN = 1024
+TEST_TIME_STEPS_IN = 480
 TEST_TIME_STEPS_OUT = 96
 TEST_LENGTH = TEST_TIME_STEPS_IN + TEST_TIME_STEPS_OUT
 TEST_SCALE = True
 TEST_BRANCHED_MODEL = False
-TEST_SHIFT = TEST_TIME_STEPS_OUT # overlap of one means x and y windows are shifted by one in every sample
+TEST_SHIFT = TEST_TIME_STEPS_IN # overlap of one means x and y windows are shifted by one in every sample
 
 # Model
 MODEL_DATA_SOURCE = f"{PREPROCESSOR_DATA_SOURCE}"
@@ -116,9 +116,9 @@ TEST_NUM_BLOCKS = 3
 TEST_EPOCHS = 1000
 TEST_NEURONS = 128
 TEST_ATTENTION_HEADS = 4
-TEST_BATCH_SIZE = 32
-TEST_LEARNING_RATE = 0.001
-TEST_PATIENCE = 150
+TEST_BATCH_SIZE = 4
+TEST_LEARNING_RATE = 0.00001
+TEST_PATIENCE = 250
 TEST_VALIDATION_SPLIT = 0.2
 PATH_TEST_RESULTS = os.path.join(currentdir, "test_results")
 
@@ -172,5 +172,5 @@ REQUEST_PAIRS = FOREX_PAIRS
 UTIL_PAIRS = FOREX_PAIRS
 TEST_LOOKBACK = 2
 # UTIL_PAIRS = CRYPTO_PAIRS
-TEST_BOX_PTS = 15
+TEST_BOX_PTS = 10
 UTILIZER_START_DATE = START

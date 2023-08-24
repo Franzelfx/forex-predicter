@@ -1,0 +1,94 @@
+{
+  "PROCESSING": {
+    "PAIR": "C:EURCHF",
+    "INTERVAL": 15,
+    "START_DATE": "2010-01-01",
+    "STEPS_IN": 192,
+    "STEPS_OUT": 46,
+    "TEST_LENGTH": 288,
+    "EPOCHS": 1000,
+    "BATCH_SIZE": 8,
+    "LEARNING_RATE": 0.00001,
+    "VALIDATION_SPLIT": 0.1,
+    "PATIENCE": 100,
+    "PATIENCE_LR_SCHEDULE": 50,
+    "TARGET_FEATURE": "c"
+  },
+  "BRANCHES": {
+    "C:EURCHF": {
+      "INDICATORS": [
+        "ATR",
+        "BOLLINGER",
+        "MA5",
+        "MA25",
+        "MACD",
+        "OBV",
+        "RSI",
+        "STOCHASTIC",
+        "VoRSI",
+        "HT_TRENDLINE",
+        "HT_TRENDMODE",
+        "HT_DCPERIOD",
+        "HT_DCPHASE",
+        "HT_PHASOR",
+        "HT_SINE",
+        "MFI",
+        "MOM",
+        "PLUS_DI",
+        "PLUS_DM"
+      ],
+      "NODES": {
+        "TRANSFORMER": [128, 128, 128],
+        "LSTM": [128, 64, 64],
+        "DENSE": [128, 128, 128],
+        "ATTENTION_HEADS": [4, 4, 4],
+        "DROPOUT": [0.3, 0.3, 0.3]
+      }
+    },
+    "C:EURCAD": {
+      "INDICATORS": [
+        "ATR",
+        "BOLLINGER",
+        "MA5",
+        "MA25",
+        "MACD",
+        "OBV",
+        "RSI",
+        "STOCHASTIC",
+        "VoRSI",
+        "HT_TRENDLINE",
+        "HT_TRENDMODE",
+        "HT_DCPERIOD",
+        "HT_DCPHASE",
+        "HT_PHASOR",
+        "HT_SINE",
+        "MFI",
+        "MOM",
+        "PLUS_DI",
+        "PLUS_DM"
+      ],
+      "NODES": {
+        "TRANSFORMER": [128, 128, 128],
+        "LSTM": [128, 64, 64],
+        "DENSE": [128, 128, 128],
+        "ATTENTION_HEADS": [4, 4, 4],
+        "DROPOUT": [0.3, 0.3, 0.3]
+      }
+    }
+  },
+  "MAIN_BRANCH": {
+    "NODES": {
+      "TRANSFORMER": [128, 128, 128],
+      "LSTM": [128, 64, 64],
+      "DENSE": [128, 128, 128],
+      "ATTENTION_HEADS": [4, 4, 4],
+      "DROPOUT": [0.3, 0.3, 0.3]
+    }
+  },
+  "OUTPUT": {
+    "NODES": {
+      "DENSE": [128 ,96, 96],
+      "DROPOUT": [0.3, 0.3, 0.3]
+    }
+  }
+}

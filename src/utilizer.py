@@ -1,5 +1,6 @@
 """The utilizer module, to use the trained model to predict."""
 import numpy as np
+from typing import List
 from logging import warning
 from src.preprocessor import Preprocessor
 from src.model import Model as ModelPreTrained
@@ -8,17 +9,22 @@ from src.model import Model as ModelPreTrained
 class Utilizer:
     """The utilizer class, to use the trained model to predict."""
 
-    def __init__(self, model: ModelPreTrained, preprocessor: Preprocessor) -> None:
+    def __init__(self, model: ModelPreTrained, preprocessor: Preprocessor | List) -> None:
         """Initialize the utilizer.
 
         @param model The model to use for prediction or the path to the model.
-        @param data The data to use for prediction or the path to the data.
+        @param preprocessor The preprocessor to use for prediction.
         """
         self._model = model
         self._preprocessor = preprocessor
         # Check if model is a path
         if isinstance(model, str):
             self._model = ModelPreTrained.load(model)
+        if isinstance(preprocessor, list):
+            self._target_preprocessor = preprocessor[0]
+            self._target_scaler = self._target_preprocessor.target_scaler
+        else:
+            self._target_scaler = preprocessor.target_scaler
 
     @property
     def test_actual(self) -> np.ndarray:
@@ -26,47 +32,44 @@ class Utilizer:
 
         @return The actual test values.
         """
-        return self._preprocessor.y_test_inverse
+        return self._target_preprocessor.y_test_inverse
+    
+    @property
+    def x_target(self) -> np.ndarray:
+        """Get the target x values.
 
-    def predict(self, box_pts=0, lookback=None) -> tuple[np.ndarray, np.ndarray]:
+        @return The target x values.
+        """
+        return self._target_preprocessor.x_hat_target_inverse
+
+    def predict(self, box_pts=0) -> tuple[np.ndarray, np.ndarray]:
         """Get test and hat prediction.
 
         @return Tuple of test and hat prediction.
         """
         # Predict the values
         # Predict the values for each sequence
-        x_train = np.array([])
-        print(f"Predicting with a lookback of {lookback}.")
-        if lookback is not None and lookback > 0:
-            x_train = self._preprocessor.x_train[-lookback:]
+        x_hat = []
+        if isinstance(self._preprocessor, list):
+            for preprocessor in self._preprocessor:
+                x_hat.append(preprocessor.x_hat)
         else:
-            x_train = self._preprocessor.x_train
-        y_train, y_test, y_hat = self._model.predict(
-            self._preprocessor.x_hat,
-            x_train=x_train,
-            x_test=self._preprocessor.x_test,
-            scaler=self._preprocessor.target_scaler,
+            x_hat = self._preprocessor.x_hat
+        y_hat = self._model.predict(
+            x_hat,
+            scaler=self._target_scaler,
             from_saved_model=True,
         )
         print(y_hat)
         # Substract the difference
-        # Warning, if x_test and x_hat are the same
-        if np.array_equal(self._preprocessor.x_test, self._preprocessor.x_hat):
-            warning("x_test and x_hat are the same")
-        first_actual = self.test_actual[0]
-        y_test = y_test - self._diff(y_test, first_actual)
-        y_hat = y_hat - self._diff(y_hat, self._preprocessor.last_known_y)
+        y_hat = y_hat - self._diff(y_hat, self._target_preprocessor.last_known_y)
         # Smooth the data
         if box_pts > 0:
-            y_test = self._concat_moving_average(
-                self._preprocessor.x_test_target_inverse, y_test, box_pts
-            )
             y_hat = self._concat_moving_average(
-                self._preprocessor.x_hat_target_inverse, y_hat, box_pts
+                self._target_preprocessor.x_hat_target_inverse, y_hat, box_pts
             )
         # Concat y_train and y_test
-        y_test = np.concatenate((y_train, y_test), axis=0)
-        return y_test, y_hat
+        return y_hat
 
     def _concat_moving_average(
         self, x_hat: np.ndarray, y_hat: np.ndarray, period: int

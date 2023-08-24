@@ -1,11 +1,3 @@
-"""This module contains the model class for the LSTM model."""
-from keras import activations
-from keras import backend
-from keras import constraints
-from keras import initializers
-from keras import regularizers
-from keras.engine.input_spec import InputSpec
-
 import os
 import logging
 import numpy as np
@@ -13,21 +5,19 @@ from typing import List
 import tensorflow as tf
 from pandas import DataFrame
 import matplotlib.pyplot as plt
-from keras.optimizers import Adam
+from tensorflow.keras.optimizers import Adam
 from datetime import datetime as dt
-from keras.models import load_model
-from keras.models import Model as KerasModel
+from tensorflow.keras.models import load_model
+from tensorflow.keras.models import Model as KerasModel
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
-from keras.callbacks import (
-    ModelCheckpoint,
+from tensorflow.keras.callbacks import (
     EarlyStopping,
     TensorBoard,
     ReduceLROnPlateau,
 )
 import src.layers as layers
-
-from keras.layers import Add, LayerNormalization
+from tensorflow.keras.layers import Concatenate, LayerNormalization, Input
 import numpy as np
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
@@ -37,14 +27,14 @@ class Branch:
     def __init__(
         self,
         _input: np.ndarray,
-        hidden_neurons,
+        transformer_neurons,
         lstm_neurons,
         dense_neurons,
         attention_heads,
         dropout_rate,
     ):
         self.input = _input
-        self.transformer_neurons = hidden_neurons
+        self.transformer_neurons = transformer_neurons
         self.lstm_neurons = lstm_neurons
         self.dense_neurons = dense_neurons
         self.attention_heads = attention_heads
@@ -64,6 +54,34 @@ class Architecture:
 class ResetStatesCallback(tf.keras.callbacks.Callback):
     def on_epoch_end(self, epoch, logs=None):
         self.model.reset_states()
+
+class ModelCheckpoint(tf.keras.callbacks.Callback):
+    def __init__(self, filepath, save_best_only=True):
+        super(ModelCheckpoint, self).__init__()
+        self.filepath = filepath
+        self.best_score = float('inf')  # Initialize with a high value
+        self.save_best_only = save_best_only
+
+    def on_epoch_end(self, epoch, logs=None):
+        val_loss = logs.get('val_loss')
+        val_mape = logs.get('val_mape')
+
+        # Scale the metrics
+        scaled_loss = val_loss
+        scaled_mape = val_mape / 100.0  # Scale down the mape value by dividing by a factor
+
+        # Define the combined score (you can use any formula that suits your needs)
+        combined_score = scaled_loss + scaled_mape
+
+        # Check if the combined score is better than the best score seen so far
+        if combined_score < self.best_score:
+            self.best_score = combined_score
+            print(f"Combined score improved to {combined_score:.4f}. Save model.")
+        if self.save_best_only:
+            self.model.save(self.filepath)
+        else:
+            filepath = self.filepath + f"_{epoch:04d}_{combined_score:.4f}"
+            self.model.save(filepath)  # Save the model in .keras format plus epoch number and combined score
 
 
 class Model:
@@ -152,37 +170,33 @@ class Model:
         branches = []
         for branch in architecture.branches:
             input_shape = (branch.input.shape[1], branch.input.shape[2])
-            _input = layers.Input(shape=input_shape)
+            _input = Input(shape=input_shape)
             _branch = layers.Branch(
                 branch.transformer_neurons,
                 branch.lstm_neurons,
                 branch.dense_neurons,
                 branch.attention_heads,
-                branch.dropout_rate,
-                self._y_train.shape[1],
+                branch.dropout_rate
             )(_input)
             branches.append(_branch)
             inputs.append(_input)
         # Summation layer
-        summation = Add()(branches)
+        summation = Concatenate()(branches)
         # Layer normalization
         summation = LayerNormalization()(summation)
         # Main branch after the summation
-        #TODO: If thransformer block needs to be added here, than branch should return a tensor of shape (samples, time_steps_out, features), currently it returns a tensor of shape (None, time_steps_out)
-        # main_branch = layers.Branch(
-        #     architecture.main_branch.transformer_neurons,
-        #     architecture.main_branch.lstm_neurons,
-        #     architecture.main_branch.dense_neurons,
-        #     architecture.main_branch.attention_heads,
-        #     architecture.main_branch.dropout_rate,
-        #     self._y_train.shape[1],
-        # )(summation)
-        # Output layer
+        main_branch = layers.Branch(
+            architecture.main_branch.transformer_neurons,
+            architecture.main_branch.lstm_neurons,
+            architecture.main_branch.dense_neurons,
+            architecture.main_branch.attention_heads,
+            architecture.main_branch.dropout_rate
+        )(summation)
         output = layers.Output(
             architecture.output.hidden_neurons,
             architecture.output.dropout_rate,
             self._y_train.shape[1],
-        )(summation)
+        )(main_branch)
         # Build the model
         model = KerasModel(inputs=inputs, outputs=output)
         return model
@@ -238,6 +252,7 @@ class Model:
         else:
             model = self._build(architecture)
             model.compile(loss=loss_fct, optimizer=optimizer, metrics=["mape"])
+        print(f"Tensorflow version: {tf.__version__}")
         model.summary(expand_nested=True)
         # Plot the model
         try:
@@ -258,10 +273,12 @@ class Model:
 
     def fit(
         self,
-        epochs=100,
+        epochs=1000,
         batch_size=32,
-        patience=40,
+        patience=250,
+        patience_lr_schedule=100,
         validation_split=0.1,
+        strategy=None,
     ) -> DataFrame:
         """Compile and fit the model.
 
@@ -291,17 +308,13 @@ class Model:
             return
         reset_states = ResetStatesCallback()
         model_checkpoint = ModelCheckpoint(
-            filepath=f"{self._path}/checkpoints/{self._name}_train.h5",
-            monitor="val_loss",
-            save_best_only=True,
-            save_weights_only=False,
-            verbose=1,
+            filepath=f"{self._path}/checkpoints/{self._name}"
         )
         early_stopping = EarlyStopping(
             monitor="val_loss", patience=patience, mode="min", verbose=1
         )
         tensorboard = TensorBoard(log_dir=f"{self._path}/tensorboard/{self._name}")
-        lr_scheduler = ReduceLROnPlateau(factor=0.5, patience=30, min_lr=0.000001)
+        lr_scheduler = ReduceLROnPlateau(factor=0.5, patience=patience_lr_schedule, min_lr=1e-10)
         # Split the data
         X_train = []
         X_val = []
@@ -316,24 +329,43 @@ class Model:
         )
         # Fit the model
         try:
-            fit = self._model.fit(
-                X_train,
-                y_train,
-                epochs=epochs,
-                batch_size=batch_size,
-                validation_data=(X_val, y_val),
-                validation_split=validation_split,
-                callbacks=[
-                    tensorboard,
-                    model_checkpoint,
-                    early_stopping,
-                    reset_states,
-                    lr_scheduler,
-                ],
-                shuffle=False,
-            )
+            if strategy is not None and hasattr(strategy, "scope"):
+                with strategy.scope():
+                    fit = self._model.fit(
+                        X_train,
+                        y_train,
+                        epochs=epochs,
+                        batch_size=batch_size,
+                        validation_data=(X_val, y_val),
+                        validation_split=validation_split,
+                        callbacks=[
+                            tensorboard,
+                            model_checkpoint,
+                            early_stopping,
+                            reset_states,
+                            lr_scheduler,
+                        ],
+                        shuffle=False,
+                    )
+            else:
+                fit = self._model.fit(
+                    X_train,
+                    y_train,
+                    epochs=epochs,
+                    batch_size=batch_size,
+                    validation_data=(X_val, y_val),
+                    validation_split=validation_split,
+                    callbacks=[
+                        tensorboard,
+                        model_checkpoint,
+                        early_stopping,
+                        reset_states,
+                        lr_scheduler,
+                    ],
+                    shuffle=False,
+                )
             # Load the best weights
-            self._model.load_weights(f"{self._path}/checkpoints/{self._name}_train.h5")
+            self._model.load_weights(f"{self._path}/checkpoints/{self._name}")
             self._model = self._model
             self._plot_fit_history(fit)
             # Convert the fit history to dataframe
@@ -346,11 +378,10 @@ class Model:
             logging.error(e)
         return fit
 
+    #TODO: move functionality for x_train and x_test into utilizer
     def predict(
         self,
         x_hat: np.ndarray,
-        x_train: np.ndarray = np.array([]),
-        x_test: np.ndarray = np.array([]),
         scaler: StandardScaler = None,
         from_saved_model=False,
     ) -> np.ndarray:
@@ -361,12 +392,16 @@ class Model:
         :remarks:   • If from_saved_model is False, "compile_and_fit()" must be called first.
                     • The predicted values are scaled back to the original scale if a scaler is given.
         """
-        y_train = None
-        y_test = None
-        path = f"{self._path}/checkpoints/{self._name}_train.h5"
+        path = f"{self._path}/checkpoints/{self._name}"
         # Get the model
         if from_saved_model:
-            prediction_model: tf.keras.Model = load_model(path)
+            prediction_model: tf.keras.Model = load_model(path, custom_objects={
+        'LSTM': tf.keras.layers.LSTM,
+        'TransformerBlock': layers.TransformerBlock,
+        'TransformerLSTMBlock': layers.TransformerLSTMBlock,
+        'Branch': layers.Branch,
+        'Output': layers.Output
+    })
             print(f"Loaded model from: {path}")
         else:
             # Check if the model has been fitted
@@ -375,51 +410,13 @@ class Model:
                     "The model has not been fitted yet, plase call compile_and_fit() first."
                 )
             prediction_model = self._model
-        # Prepare the input
-        print(f"x_train samples: {x_train.shape[0]}")
-        print(f"x_test samples: {x_test.shape[0]}")
-        print(f"x_hat samples: {x_hat.shape[0]}")
-        # BUG: wrong vstacking
-        if x_train.shape[0] > 0:
-            x = np.vstack((x_train, x_test))
-            x = np.vstack((x, x_hat))
-        else:
-            if x_test.shape[0] > 0:
-                x = np.vstack((x_test, x_hat))
-            else:
-                x = x_hat
-        # Predict the output
-        print(f"Predicting {x.shape[0]} samples with {x.shape[1]} timesteps.")
-        y_hat = []
-        for i in range(0, len(x), self._batch_size):
-            x_batch = x[i : i + self._batch_size]
-            y_batch = prediction_model.predict(
-                x_batch, batch_size=self._batch_size, verbose=0
-            ).flatten()
-            y_hat.append(y_batch)
-        # Extract the predicted values
-        # When x_train was given, we need to extract x_train from the prediction,
-        # this will be done by taking the last x_train.shape[0] samples from the prediction.
-        if x_train is not None:
-            y_train = y_hat[-x_train.shape[0] :]
-            # Drop the extracted from the list
-            y_hat = y_hat[: -x_train.shape[0]]
-            y_train = np.array(y_train).flatten()
-        # Extract also the test data if given and drop it from the list.
-        if x_test is not None:
-            y_test = y_hat[-x_test.shape[0] :]
-            y_hat = y_hat[: -x_test.shape[0]]
-            y_test = np.array(y_test).flatten()
-        # Flatten the list
+
+        y_hat = prediction_model.predict(x_hat).flatten()
         y_hat = np.array(y_hat).flatten()
 
         # Scale the output back to the original scale
         if scaler is not None:
             y_hat = self._inverse_transform(scaler, y_hat)
-            if x_train is not None:
-                y_train = self._inverse_transform(scaler, y_train)
-            if x_test is not None:
-                y_test = self._inverse_transform(scaler, y_test)
 
         # Return the predicted values, based on the given input
-        return y_train, y_test, y_hat
+        return y_hat

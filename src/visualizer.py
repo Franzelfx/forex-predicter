@@ -40,7 +40,9 @@ class Visualizer:
                 shift_len = len(test_actual)
             # Plot the test prediction
             if(isinstance(test_predict, np.ndarray)):
-                plt.plot(test_predict, label="Test Prediction")
+                # reduce test predict to 2x len(hat)
+                test_predict = test_predict[-2*len(hat):]
+                plt.plot(test_predict, label="Input")
                 shift_len = len(test_predict)
             # Then we have to shift the prediction
             # by the length of the input to the right
@@ -66,6 +68,8 @@ class Visualizer:
             if test_actual is not None:
                 df["actual"] = test_actual
             if test_predict is not None:
-                df["test_prediction"] = test_predict
+                # reindexing to match the length of the input
+                df = df.reindex(range(len(test_predict)))
+                df["input"] = test_predict
             df.to_csv(f"{path}.csv", index=False, )
             print(f"Saved data to {path}.csv")
