@@ -348,7 +348,7 @@ class Composer:
         """Predict with the model."""
         model = self.model
         utilizer = Utilizer(model, self.preprocessed)
-        y_hat = utilizer.predict(box_pts=15)
+        y_hat = utilizer.predict(box_pts=3)
         visualizer = Visualizer(self._processing.pair)
         path = os.path.join(MODEL_PATH, "model_predictions")
         x_target = utilizer.x_target
