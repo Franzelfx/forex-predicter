@@ -1,0 +1,54 @@
+{
+  "PROCESSING": {
+    "PAIR": "X:XRPUSD",
+    "INTERVAL": 60,
+    "START_DATE": "2018-01-01",
+    "STEPS_IN": 240,
+    "STEPS_OUT": 24,
+    "TEST_LENGTH": 264,
+    "EPOCHS": 1000,
+    "BATCH_SIZE": 4,
+    "LEARNING_RATE": 0.0001,
+    "VALIDATION_SPLIT": 0.01,
+    "PATIENCE": 50,
+    "PATIENCE_LR_SCHEDULE": 25,
+    "TARGET_FEATURE": "c"
+  },
+  "BRANCHES": {
+    "X:XRPUSD": {
+      "INDICATORS": ["ATR", "BOLLINGER", "MA5", "MA25", "VoRSI"],
+      "NODES": {
+        "TRANSFORMER": [256, 256, 128],
+        "LSTM": [256, 256, 128],
+        "DENSE": [256, 256, 128],
+        "ATTENTION_HEADS": [4, 4, 4],
+        "DROPOUT": [0.2, 0.2, 0.2]
+      }
+    },
+    "X:BTCUSD": {
+      "INDICATORS": ["ATR", "BOLLINGER", "MA5", "MA25", "VoRSI"],
+      "NODES": {
+        "TRANSFORMER": [256, 256, 128],
+        "LSTM": [256, 256, 128],
+        "DENSE": [256, 256, 256],
+        "ATTENTION_HEADS": [4, 4, 4],
+        "DROPOUT": [0.2, 0.2, 0.2]
+      }
+    }
+  },
+  "MAIN_BRANCH": {
+    "NODES": {
+      "TRANSFORMER": [128, 128, 128],
+      "LSTM": [128, 128, 128],
+      "DENSE": [128, 128, 128],
+      "ATTENTION_HEADS": [4, 4, 4],
+      "DROPOUT": [0.1, 0.1, 0.1]
+    }
+  },
+  "OUTPUT": {
+    "NODES": {
+      "DENSE": [128, 64, 24],
+      "DROPOUT": [0.05, 0.05, 0.05]
+    }
+  }
+}
