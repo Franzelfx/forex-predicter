@@ -18,31 +18,21 @@
     "X:ETHUSD": {
       "INDICATORS": ["ATR", "BOLLINGER", "MA5", "MA25", "VoRSI"],
       "NODES": {
-        "TRANSFORMER": [256, 256, 256],
-        "LSTM": [256, 256, 256],
-        "DENSE": [256, 256, 256],
-        "ATTENTION_HEADS": [4, 4, 4],
-        "DROPOUT": [0.2, 0.2, 0.2]
+        "TRANSFORMER": [256, 256, 256, 256],
+        "LSTM": [256, 256, 256, 256],
+        "DENSE": [256, 256, 256, 256],
+        "ATTENTION_HEADS": [4, 4, 4, 4],
+        "DROPOUT": [0.2, 0.2, 0.2, 0.2]
       }
     },
     "X:BTCUSD": {
       "INDICATORS": ["ATR", "BOLLINGER", "MA5", "MA25", "VoRSI"],
       "NODES": {
-        "TRANSFORMER": [256, 256, 256],
-        "LSTM": [256, 256, 256],
-        "DENSE": [256, 256, 256],
-        "ATTENTION_HEADS": [4, 4, 4],
-        "DROPOUT": [0.2, 0.2, 0.2]
-      }
-    },
-    "X:XRPUSD": {
-      "INDICATORS": ["ATR", "BOLLINGER", "MA5", "MA25", "VoRSI"],
-      "NODES": {
-        "TRANSFORMER": [256, 256, 256],
-        "LSTM": [256, 256, 256],
-        "DENSE": [256, 256, 256],
-        "ATTENTION_HEADS": [4, 4, 4],
-        "DROPOUT": [0.2, 0.2, 0.2]
+        "TRANSFORMER": [256, 256, 256, 256],
+        "LSTM": [256, 256, 256, 256],
+        "DENSE": [256, 256, 256, 256],
+        "ATTENTION_HEADS": [4, 4, 4, 4],
+        "DROPOUT": [0.2, 0.2, 0.2, 0.2]
       }
     }
   },
