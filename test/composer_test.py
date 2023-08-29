@@ -10,12 +10,13 @@ class Test_Composer(unittest.TestCase):
     @remarks This is some unit test for the Composer class.
     """
 
-    def __init__(self, methodName: str = ..., pair: str = None, fetch: bool = False, predict: bool = False) -> None:
+    def __init__(self, methodName: str = ..., pair: str = None, fetch: bool = False, predict: bool = False, box_pts: int = 10) -> None:
         """Initialize the testbench."""
         super().__init__(methodName)
         self.composer = Composer(pair)
         self.fetch = fetch
         self.predict = predict
+        self.box_pts = box_pts
 
     def test_composer(self):
         """Test the composer."""
@@ -27,14 +28,14 @@ class Test_Composer(unittest.TestCase):
         self.composer.preprocess()
         self.composer.compile()
         if(self.predict == True):
-            self.composer.predict()
+            self.composer.predict(box_pts=self.box_pts)
         else:
             self.composer.fit()
 
 
-def __main__(pair, fetch, predict):
+def __main__(pair, fetch, predict, box_pts):
     suite = unittest.TestSuite()
-    suite.addTest(Test_Composer('test_composer', pair, fetch, predict))
+    suite.addTest(Test_Composer('test_composer', pair, fetch, predict, box_pts))
     runner = unittest.TextTestRunner()
     runner.run(suite)
 
@@ -43,5 +44,6 @@ if __name__ == '__main__':
     parser.add_argument('--pair', type=str, help='Pair for the Composer class')
     parser.add_argument('--fetch', type=lambda x: (str(x).lower() == 'true'), default=False, help='Fetch status for the Composer class')
     parser.add_argument('--predict', type=lambda x: (str(x).lower() == 'true'), default=False, help='Predict status for the Composer class')
+    parser.add_argument('--box_pts', type=int, default=10, help='Box points for the Composer class prediction')
     args = parser.parse_args()
-    __main__(args.pair, args.fetch, args.predict)
+    __main__(args.pair, args.fetch, args.predict, args.box_pts)

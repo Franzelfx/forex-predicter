@@ -344,11 +344,11 @@ class Composer:
             patience_lr_schedule=self._processing.patience_lr_schedule,
         )
 
-    def predict(self):
+    def predict(self, box_pts=3):
         """Predict with the model."""
         model = self.model
         utilizer = Utilizer(model, self.preprocessed)
-        y_hat = utilizer.predict(box_pts=3)
+        y_hat = utilizer.predict(box_pts=box_pts)
         visualizer = Visualizer(self._processing.pair)
         path = os.path.join(MODEL_PATH, "model_predictions")
         x_target = utilizer.x_target
