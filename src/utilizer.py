@@ -64,8 +64,8 @@ class Utilizer:
         # Substract the difference
         y_hat = y_hat - self._diff(y_hat, self._target_preprocessor.last_known_y)
         # Smooth the data
-        #if box_pts > 0:
-        #    y_hat = 
+        if box_pts > 0:
+            y_hat = self._concat_moving_average(x_hat, y_hat, box_pts)
         # Concat y_train and y_test
         return y_hat
 
