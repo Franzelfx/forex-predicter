@@ -216,6 +216,14 @@ class Composer:
             )
 
         return synced_dataframes
+    
+    def _drop_time_columns(self, dataframes):
+        for i, df in enumerate(dataframes):
+            for column in df.columns:
+                if column.startswith("t_df"):
+                    df.drop(column, axis=1, inplace=True)
+            dataframes[i] = df
+        return dataframes
 
 
     def aquire(self, api_key: str = None, api_type: str = None, from_file=False, save=True):
@@ -246,8 +254,8 @@ class Composer:
             pairs.append(pair)
         # Sync the dataframes
         pairs = self._synchronize_dataframes(pairs)
-        self.pairs = pairs
-        self.pair_names = pair_names
+        # Remove all time columns (pattern is t_df1, t_df2, t_df3, ...)
+        pairs = self._drop_time_columns(pairs)
         return pairs
 
     def calculate(self, save=False):
