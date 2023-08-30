@@ -3,7 +3,7 @@
     "PAIR": "C:CADJPY",
     "INTERVAL": 60,
     "START_DATE": "2010-01-01",
-    "STEPS_IN": 240,
+    "STEPS_IN": 48,
     "STEPS_OUT": 24,
     "TEST_LENGTH": 264,
     "EPOCHS": 1000,
@@ -18,36 +18,36 @@
     "C:CADJPY": {
       "INDICATORS": ["ATR", "BOLLINGER", "MA5", "MA25", "VoRSI"],
       "NODES": {
-        "TRANSFORMER": [256, 128],
-        "LSTM": [128, 64],
-        "DENSE": [256, 128],
-        "ATTENTION_HEADS": [2, 2],
-        "DROPOUT": [0.2, 0.2]
+        "TRANSFORMER": [64, 64, 64, 64],
+        "LSTM": [64, 64, 64, 64],
+        "DENSE": [64, 64, 64, 64],
+        "ATTENTION_HEADS": [2, 2, 2, 2],
+        "DROPOUT": [0.2, 0.2, 0.2, 0.2]
       }
     },
     "C:USDJPY": {
       "INDICATORS": ["ATR", "BOLLINGER", "MA5", "MA25", "VoRSI"],
       "NODES": {
-        "TRANSFORMER": [256, 128],
-        "LSTM": [256, 128],
-        "DENSE": [128, 64],
-        "ATTENTION_HEADS": [2, 2],
-        "DROPOUT": [0.2, 0.2]
+        "TRANSFORMER": [64, 64, 64, 64],
+        "LSTM": [64, 64, 64, 64],
+        "DENSE": [64, 64, 64, 64],
+        "ATTENTION_HEADS": [2, 2, 2, 2],
+        "DROPOUT": [0.2, 0.2, 0.2, 0.2]
       }
     }
   },
   "MAIN_BRANCH": {
     "NODES": {
-      "TRANSFORMER": [128, 128, 128],
-      "LSTM": [128, 128, 128],
-      "DENSE": [128, 128, 128],
-      "ATTENTION_HEADS": [2, 2, 2],
-      "DROPOUT": [0.1, 0.1, 0.1]
+      "TRANSFORMER": [64, 64, 64, 64],
+      "LSTM": [64, 64, 64, 64],
+      "DENSE": [64, 64, 64, 64],
+      "ATTENTION_HEADS": [2, 2, 2, 2],
+      "DROPOUT": [0.1, 0.1, 0.1, 0.1]
     }
   },
   "OUTPUT": {
     "NODES": {
-      "DENSE": [128, 64, 24],
+      "DENSE": [64, 64, 24],
       "DROPOUT": [0.05, 0.05, 0.05]
     }
   }
