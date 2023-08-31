@@ -2,21 +2,29 @@
   "PROCESSING": {
     "PAIR": "C:CADCHF",
     "INTERVAL": 60,
-    "START_DATE": "2010-01-01",
-    "STEPS_IN": 48,
+    "START_DATE": "2018-01-01",
+    "STEPS_IN": 120,
     "STEPS_OUT": 24,
-    "TEST_LENGTH": 264,
+    "TEST_LENGTH": 144,
     "EPOCHS": 1000,
-    "BATCH_SIZE": 32,
-    "LEARNING_RATE": 0.001,
-    "VALIDATION_SPLIT": 0.1,
-    "PATIENCE": 100,
+    "BATCH_SIZE": 4,
+    "LEARNING_RATE": 0.0001,
+    "VALIDATION_SPLIT": 0.01,
+    "PATIENCE": 50,
     "PATIENCE_LR_SCHEDULE": 25,
     "TARGET_FEATURE": "c"
   },
   "BRANCHES": {
     "C:CADCHF": {
-      "INDICATORS": ["ATR", "BOLLINGER", "MA5", "MA25", "VoRSI"],
+      "INDICATORS": [
+        "ATR",
+        "BOLLINGER",
+        "MA5",
+        "MA25",
+        "MA50",
+        "VoRSI",
+        "MACD"
+      ],
       "NODES": {
         "TRANSFORMER": [64, 64, 64, 64],
         "LSTM": [64, 64, 64, 64],
@@ -25,8 +33,16 @@
         "DROPOUT": [0.2, 0.2, 0.2, 0.2]
       }
     },
-    "C:EURCHF": {
-      "INDICATORS": ["ATR", "BOLLINGER", "MA5", "MA25", "VoRSI"],
+    "C:USDJPY": {
+      "INDICATORS": [
+        "ATR",
+        "BOLLINGER",
+        "MA5",
+        "MA25",
+        "MA50",
+        "VoRSI",
+        "MACD"
+      ],
       "NODES": {
         "TRANSFORMER": [64, 64, 64, 64],
         "LSTM": [64, 64, 64, 64],
@@ -38,9 +54,9 @@
   },
   "MAIN_BRANCH": {
     "NODES": {
-      "TRANSFORMER": [64, 64, 64, 64],
-      "LSTM": [64, 64, 64, 64],
-      "DENSE": [64, 64, 64, 64],
+      "TRANSFORMER": [128, 128, 128, 128],
+      "LSTM": [128, 128, 128, 128],
+      "DENSE": [128, 128, 128, 128],
       "ATTENTION_HEADS": [2, 2, 2, 2],
       "DROPOUT": [0.1, 0.1, 0.1, 0.1]
     }
