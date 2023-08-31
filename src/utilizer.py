@@ -61,13 +61,12 @@ class Utilizer:
             from_saved_model=True,
         )
         print(y_hat)
-        # Substract the difference
-        y_hat = y_hat - self._diff(y_hat, self._target_preprocessor.last_known_y)
         # Smooth the data
-        if box_pts > 0:
-            y_hat = self._concat_moving_average(
-                self._target_preprocessor.x_hat_target_inverse, y_hat, box_pts
-            )
+        # if box_pts > 0:
+        #     y_hat = self._concat_moving_average(
+        #         self._target_preprocessor.x_hat_target_inverse, y_hat, box_pts
+        #     )
+        y_hat = y_hat - self._diff(y_hat, self._target_preprocessor.last_known_y)
         return y_hat
 
     def _concat_moving_average(
