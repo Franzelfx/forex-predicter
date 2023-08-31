@@ -3,13 +3,13 @@
     "PAIR": "C:CADCHF",
     "INTERVAL": 60,
     "START_DATE": "2010-01-01",
-    "STEPS_IN": 240,
+    "STEPS_IN": 48,
     "STEPS_OUT": 24,
     "TEST_LENGTH": 264,
     "EPOCHS": 1000,
-    "BATCH_SIZE": 4,
-    "LEARNING_RATE": 0.0001,
-    "VALIDATION_SPLIT": 0.01,
+    "BATCH_SIZE": 32,
+    "LEARNING_RATE": 0.001,
+    "VALIDATION_SPLIT": 0.1,
     "PATIENCE": 100,
     "PATIENCE_LR_SCHEDULE": 25,
     "TARGET_FEATURE": "c"
@@ -18,31 +18,31 @@
     "C:CADCHF": {
       "INDICATORS": ["ATR", "BOLLINGER", "MA5", "MA25", "VoRSI"],
       "NODES": {
-        "TRANSFORMER": [256, 128, 64],
-        "LSTM": [256, 128, 64],
-        "DENSE": [256, 128, 64],
-        "ATTENTION_HEADS": [4, 4, 4],
-        "DROPOUT": [0.2, 0.2, 0.2]
+        "TRANSFORMER": [64, 64, 64, 64],
+        "LSTM": [64, 64, 64, 64],
+        "DENSE": [64, 64, 64, 64],
+        "ATTENTION_HEADS": [2, 2, 2, 2],
+        "DROPOUT": [0.2, 0.2, 0.2, 0.2]
       }
     },
     "C:EURCHF": {
       "INDICATORS": ["ATR", "BOLLINGER", "MA5", "MA25", "VoRSI"],
       "NODES": {
-        "TRANSFORMER": [256, 128, 64],
-        "LSTM": [256, 128, 64],
-        "DENSE": [256, 128, 64],
-        "ATTENTION_HEADS": [4, 4, 4],
-        "DROPOUT": [0.2, 0.2, 0.2]
+        "TRANSFORMER": [64, 64, 64, 64],
+        "LSTM": [64, 64, 64, 64],
+        "DENSE": [64, 64, 64, 64],
+        "ATTENTION_HEADS": [2, 2, 2, 2],
+        "DROPOUT": [0.2, 0.2, 0.2, 0.2]
       }
     }
   },
   "MAIN_BRANCH": {
     "NODES": {
-      "TRANSFORMER": [64, 64, 64],
-      "LSTM": [64, 64, 64],
-      "DENSE": [64, 64, 64],
-      "ATTENTION_HEADS": [4, 4, 4],
-      "DROPOUT": [0.1, 0.1, 0.1]
+      "TRANSFORMER": [64, 64, 64, 64],
+      "LSTM": [64, 64, 64, 64],
+      "DENSE": [64, 64, 64, 64],
+      "ATTENTION_HEADS": [2, 2, 2, 2],
+      "DROPOUT": [0.1, 0.1, 0.1, 0.1]
     }
   },
   "OUTPUT": {
