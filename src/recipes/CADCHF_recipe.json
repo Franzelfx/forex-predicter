@@ -7,7 +7,7 @@
     "STEPS_OUT": 24,
     "TEST_LENGTH": 144,
     "EPOCHS": 1000,
-    "BATCH_SIZE": 16,
+    "BATCH_SIZE": 4,
     "LEARNING_RATE": 0.0001,
     "VALIDATION_SPLIT": 0.01,
     "PATIENCE": 50,
@@ -26,14 +26,14 @@
         "MACD"
       ],
       "NODES": {
-        "TRANSFORMER": [16, 16, 16, 16],
-        "LSTM": [16, 16, 16, 16],
-        "DENSE": [16, 16, 16, 16],
+        "TRANSFORMER": [64, 64, 64, 64],
+        "LSTM": [64, 64, 64, 64],
+        "DENSE": [64, 64, 64, 64],
         "ATTENTION_HEADS": [2, 2, 2, 2],
         "DROPOUT": [0.2, 0.2, 0.2, 0.2]
       }
     },
-    "C:USDJPY": {
+    "C:USDCHF": {
       "INDICATORS": [
         "ATR",
         "BOLLINGER",
@@ -44,9 +44,9 @@
         "MACD"
       ],
       "NODES": {
-        "TRANSFORMER": [16, 16, 16, 16],
-        "LSTM": [16, 16, 16, 16],
-        "DENSE": [16, 16, 16, 16],
+        "TRANSFORMER": [64, 64, 64, 64],
+        "LSTM": [64, 64, 64, 64],
+        "DENSE": [64, 64, 64, 64],
         "ATTENTION_HEADS": [2, 2, 2, 2],
         "DROPOUT": [0.2, 0.2, 0.2, 0.2]
       }
@@ -54,16 +54,16 @@
   },
   "MAIN_BRANCH": {
     "NODES": {
-      "TRANSFORMER": [32, 32, 32, 32],
-      "LSTM": [32, 32, 32, 32],
-      "DENSE": [32, 32, 32, 32],
+      "TRANSFORMER": [128, 128, 128, 128],
+      "LSTM": [128, 128, 128, 128],
+      "DENSE": [128, 128, 128, 128],
       "ATTENTION_HEADS": [2, 2, 2, 2],
       "DROPOUT": [0.1, 0.1, 0.1, 0.1]
     }
   },
   "OUTPUT": {
     "NODES": {
-      "DENSE": [16, 16, 24],
+      "DENSE": [64, 64, 24],
       "DROPOUT": [0.05, 0.05, 0.05]
     }
   }
