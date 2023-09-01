@@ -52,6 +52,24 @@
       }
     }
   },
+  "C:AUDUSD": {
+    "INDICATORS": [
+      "ATR",
+      "BOLLINGER",
+      "MA5",
+      "MA25",
+      "MA50",
+      "VoRSI",
+      "MACD"
+    ],
+    "NODES": {
+      "TRANSFORMER": [256, 256, 256, 256, 256],
+      "LSTM": [64, 64, 64, 64, 64],
+      "DENSE": [256, 256, 256, 256, 256],
+      "ATTENTION_HEADS": [2, 2, 2, 2, 2],
+      "DROPOUT": [0.2, 0.2, 0.2, 0.2, 0.2]
+    }
+  },
   "MAIN_BRANCH": {
     "NODES": {
       "TRANSFORMER": [512, 512, 512, 512, 512],
