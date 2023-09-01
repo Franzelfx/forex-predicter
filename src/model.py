@@ -75,7 +75,7 @@ class ModelCheckpoint(tf.keras.callbacks.Callback):
         # Check if the combined score is better than the best score seen so far
         if combined_score < self.best_score:
             self.best_score = combined_score
-            print(f"Combined score improved to {combined_score:.4f}. Save model.")
+            print(f" Combined score improved to {combined_score:.4f}. Save model.")
         if self.save_best_only:
             self.model.save(self.filepath)
         else:
