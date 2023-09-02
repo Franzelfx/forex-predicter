@@ -98,7 +98,7 @@ class Composer:
     def __init__(self, pair_name: str):
         """Set the fundamental attributes.
 
-        @param recipe: Path to the recipe.json file.
+        @param The name of the pairs recipe to be used.
         """
         # Set the fundamental attributes to default values
         self._processing = None
@@ -226,7 +226,7 @@ class Composer:
         return dataframes
 
 
-    def aquire(self, api_key: str = None, api_type: str = None, from_file=False, save=True):
+    def aquire(self, api_key: str = None, api_type: str = None, from_file=False, save=True, interval: int = None):
         """Aquire the data for al pairs."""
         if api_key is None:
             api_key = self._base.api_key
@@ -245,7 +245,7 @@ class Composer:
             # Aquire the data
             pair = aquirer.get(
                 pair,
-                time_base=self._processing.interval,
+                time_base=self._processing.interval if interval is None else interval,
                 start=self._processing.start_date,
                 from_file=from_file,
                 save=save,
