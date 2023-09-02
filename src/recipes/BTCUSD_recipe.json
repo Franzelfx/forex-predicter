@@ -27,13 +27,13 @@
       ],
       "NODES": {
         "TRANSFORMER": [128, 128, 128, 128],
-        "LSTM": [64, 64, 64, 64],
+        "LSTM": [32, 32, 32, 32],
         "DENSE": [128, 128, 128, 128],
         "ATTENTION_HEADS": [2, 2, 2, 2],
         "DROPOUT": [0.2, 0.2, 0.2, 0.2]
       }
     },
-    "X:XRPUSD": {
+    "X:ETHUSD": {
       "INDICATORS": [
         "ATR",
         "BOLLINGER",
@@ -45,7 +45,7 @@
       ],
       "NODES": {
         "TRANSFORMER": [128, 128, 128, 128],
-        "LSTM": [64, 64, 64, 64],
+        "LSTM": [32, 32, 32, 32],
         "DENSE": [128, 128, 128, 128],
         "ATTENTION_HEADS": [2, 2, 2, 2],
         "DROPOUT": [0.2, 0.2, 0.2, 0.2]
@@ -55,7 +55,7 @@
   "MAIN_BRANCH": {
     "NODES": {
       "TRANSFORMER": [256, 256, 256, 256],
-      "LSTM": [64, 64, 64, 64],
+      "LSTM": [32, 32, 32, 32],
       "DENSE": [256, 256, 256, 256],
       "ATTENTION_HEADS": [2, 2, 2, 2],
       "DROPOUT": [0.1, 0.1, 0.1, 0.1]
@@ -64,7 +64,7 @@
   "OUTPUT": {
     "NODES": {
       "DENSE": [128, 128, 24],
-      "DROPOUT": [0.05, 0.05, 0.05]
+      "DROPOUT": [0.00, 0.00, 0.00]
     }
   }
 }
