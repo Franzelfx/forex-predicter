@@ -4,7 +4,7 @@
     "INTERVAL": 60,
     "START_DATE": "2018-01-01",
     "STEPS_IN": 120,
-    "STEPS_OUT": 24,
+    "STEPS_OUT": 12,
     "TEST_LENGTH": 144,
     "EPOCHS": 1000,
     "BATCH_SIZE": 4,
@@ -26,9 +26,9 @@
         "MACD"
       ],
       "NODES": {
-        "TRANSFORMER": [128, 128, 128, 128],
+        "TRANSFORMER": [64, 64, 64, 64],
         "LSTM": [32, 32, 32, 32],
-        "DENSE": [128, 128, 128, 128],
+        "DENSE": [64, 64, 64, 64],
         "ATTENTION_HEADS": [2, 2, 2, 2],
         "DROPOUT": [0.2, 0.2, 0.2, 0.2]
       }
@@ -44,9 +44,9 @@
         "MACD"
       ],
       "NODES": {
-        "TRANSFORMER": [128, 128, 128, 128],
+        "TRANSFORMER": [64, 64, 64, 64],
         "LSTM": [32, 32, 32, 32],
-        "DENSE": [128, 128, 128, 128],
+        "DENSE": [64, 64, 64, 64],
         "ATTENTION_HEADS": [2, 2, 2, 2],
         "DROPOUT": [0.2, 0.2, 0.2, 0.2]
       }
@@ -63,7 +63,7 @@
   },
   "OUTPUT": {
     "NODES": {
-      "DENSE": [128, 128, 24],
+      "DENSE": [64, 64, 24],
       "DROPOUT": [0.00, 0.00, 0.00]
     }
   }
