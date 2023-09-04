@@ -4,7 +4,7 @@
     "INTERVAL": 60,
     "START_DATE": "2018-01-01",
     "STEPS_IN": 120,
-    "STEPS_OUT": 6,
+    "STEPS_OUT": 24,
     "TEST_LENGTH": 144,
     "EPOCHS": 1000,
     "BATCH_SIZE": 4,
