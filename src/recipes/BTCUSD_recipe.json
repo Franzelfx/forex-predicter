@@ -4,7 +4,7 @@
     "INTERVAL": 60,
     "START_DATE": "2018-01-01",
     "STEPS_IN": 120,
-    "STEPS_OUT": 12,
+    "STEPS_OUT": 24,
     "TEST_LENGTH": 132,
     "EPOCHS": 250,
     "BATCH_SIZE": 4,
@@ -26,11 +26,11 @@
         "MACD"
       ],
       "NODES": {
-        "TRANSFORMER": [64, 64, 64, 64, 64],
-        "LSTM": [32, 32, 32, 32, 32],
-        "DENSE": [64, 64, 64, 64, 64],
-        "ATTENTION_HEADS": [2, 2, 2, 2, 2],
-        "DROPOUT": [0.2, 0.2, 0.2, 0.2, 0.2]
+        "TRANSFORMER": [64, 64, 64, 64],
+        "LSTM": [64, 64, 64, 64],
+        "DENSE": [64, 64, 64, 64],
+        "ATTENTION_HEADS": [2, 2, 2, 2],
+        "DROPOUT": [0.2, 0.2, 0.2, 0.2]
       }
     },
     "X:ETHUSD": {
@@ -44,27 +44,45 @@
         "MACD"
       ],
       "NODES": {
-        "TRANSFORMER": [64, 64, 64, 64, 64],
-        "LSTM": [32, 32, 32, 32, 32],
-        "DENSE": [64, 64, 64, 64, 64],
-        "ATTENTION_HEADS": [2, 2, 2, 2, 2],
-        "DROPOUT": [0.2, 0.2, 0.2, 0.2, 0.2]
+        "TRANSFORMER": [64, 64, 64, 64],
+        "LSTM": [64, 64, 64, 64],
+        "DENSE": [64, 64, 64, 64],
+        "ATTENTION_HEADS": [2, 2, 2, 2],
+        "DROPOUT": [0.2, 0.2, 0.2, 0.2]
+      }
+    },
+    "C:XAUUSD":{
+      "INDICATORS": [
+        "ATR",
+        "BOLLINGER",
+        "MA5",
+        "MA25",
+        "MA50",
+        "VoRSI",
+        "MACD"
+      ],
+      "NODES": {
+        "TRANSFORMER": [64, 64, 64, 64],
+        "LSTM": [64, 64, 64, 64],
+        "DENSE": [64, 64, 64, 64],
+        "ATTENTION_HEADS": [2, 2, 2, 2],
+        "DROPOUT": [0.2, 0.2, 0.2, 0.2]
       }
     }
   },
   "MAIN_BRANCH": {
     "NODES": {
-      "TRANSFORMER": [128, 128, 128, 128, 128],
-      "LSTM": [32, 32, 32, 32, 32],
-      "DENSE": [128, 128, 128, 128, 128],
-      "ATTENTION_HEADS": [2, 2, 2, 2, 2],
-      "DROPOUT": [0.1, 0.1, 0.1, 0.1, 0.1]
+      "TRANSFORMER": [64, 64, 64, 64],
+      "LSTM": [64, 64, 64, 64],
+      "DENSE": [64, 64, 64, 64],
+      "ATTENTION_HEADS": [2, 2, 2, 2],
+      "DROPOUT": [0.1, 0.1, 0.1, 0.1]
     }
   },
   "OUTPUT": {
     "NODES": {
-      "DENSE": [128, 128, 64, 64, 12],
-      "DROPOUT": [0.00, 0.00, 0.00, 0.00, 0.00]
+      "DENSE": [64, 64, 24],
+      "DROPOUT": [0.00, 0.00, 0.00]
     }
   }
 }
