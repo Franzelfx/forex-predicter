@@ -143,17 +143,17 @@ class Data_Aquirer:
                 data = self._request(pair, time_base, start, end)
         else:
             data = self._request(pair, time_base, start, end)
+        # Remove all weekends
+        data.drop_duplicates(subset=["t"], inplace=True)
+        print("Remove all weekends, len before: ", len(data), end=" ")
+        data = self.remove_rows_smaller_than(5, data, 'n')
+        print("len after: ", len(data))
         if save:
             pair = pair.split(":")[1] if ":" in pair else pair
             print(f"Save data to {self._path}/{pair}_{time_base}.csv")
             data.to_csv(f"{self._path}/{pair}_{time_base}.csv", index=False)
             # Print column count
             print(f"Dataset has {len(data.columns)} columns.")
-        # Remove all weekends
-        data.drop_duplicates(subset=["t"], inplace=True)
-        print("Remove all weekends, len before: ", len(data), end=" ")
-        data = self.remove_rows_smaller_than(5, data, 'n')
-        print("len after: ", len(data))
         return data
 
     def remove_rows_smaller_than(self, offset: int, data: pd.DataFrame, column: str) -> pd.DataFrame:
