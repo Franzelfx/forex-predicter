@@ -6,7 +6,7 @@
     "STEPS_IN": 120,
     "STEPS_OUT": 24,
     "TEST_LENGTH": 144,
-    "EPOCHS": 1000,
+    "EPOCHS": 250,
     "BATCH_SIZE": 4,
     "LEARNING_RATE": 0.0001,
     "VALIDATION_SPLIT": 0.01,
@@ -76,13 +76,13 @@
       "LSTM": [64, 64, 64, 64, 64],
       "DENSE": [256, 256, 256, 256, 256],
       "ATTENTION_HEADS": [2, 2, 2, 2, 2],
-      "DROPOUT": [0.1, 0.1, 0.1, 0.1, 0.1]
+      "DROPOUT": [0.05, 0.05, 0.0, 0.0, 0.0]
     }
   },
   "OUTPUT": {
     "NODES": {
       "DENSE": [256, 128, 64, 24],
-      "DROPOUT": [0.05, 0.05, 0.05, 0.05]
+      "DROPOUT": [0.0, 0.0, 0.0, 0.0]
     }
   }
 }
