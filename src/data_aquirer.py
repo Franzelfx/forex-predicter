@@ -110,23 +110,10 @@ class Data_Aquirer:
         start: str = "2009-01-01",
         end: str = date.today().strftime("%Y-%m-%d"),
         save: bool = False,
-        from_file = None,
+        from_file=None,
     ):
-        """Get the data from the API or from the csv file.
-
-        @param pair: The pair to get the data for (e.g. 'EURUSD').
-        @param time_base: The interval in minutes (e.g. 15min, 5min etc.).
-        @param start: The start date for the data yyyy-mm-dd (e.g. 2020-01-01).
-        @param end: The end date for the data yyyy-mm-dd (e.g. 2022-05-26).
-        @param save: If the data should be saved to a csv file.
-        @param from_file: If the data should be fetched from the csv file.
-
-        @return: The data as pandas dataframe.
-        """
         self._time_base = time_base
-        # if date.today().weekday() in (6, 7):  # Check if today is weekend
-        #     end = self.get_last_friday().strftime("%Y-%m-%d")
-        #    print("It's weekend...")
+
         if from_file is not None and from_file != "" and from_file != "false":
             csv_pair_name = pair.split(":")[1] if ":" in pair else ""
             try:
@@ -143,17 +130,28 @@ class Data_Aquirer:
                 data = self._request(pair, time_base, start, end)
         else:
             data = self._request(pair, time_base, start, end)
-        # Remove all weekends
+
+        # Convert all data in the 't' column to Timestamps
+        data['t'] = pd.to_datetime(data['t'])
+        
+        # Remove duplicates
         data.drop_duplicates(subset=["t"], inplace=True)
+        
+        # Filter out the weekends
         print("Remove all weekends, len before: ", len(data), end=" ")
-        data = self.remove_rows_smaller_than(5, data, 'n')
+        data = data[data['t'].dt.weekday < 5]
+
+        # Sort the data by time
+        data.sort_values(by="t", inplace=True)
+
         print("len after: ", len(data))
+
         if save:
             pair = pair.split(":")[1] if ":" in pair else pair
             print(f"Save data to {self._path}/{pair}_{time_base}.csv")
             data.to_csv(f"{self._path}/{pair}_{time_base}.csv", index=False)
-            # Print column count
             print(f"Dataset has {len(data.columns)} columns.")
+
         return data
 
     def remove_rows_smaller_than(self, offset: int, data: pd.DataFrame, column: str) -> pd.DataFrame:
