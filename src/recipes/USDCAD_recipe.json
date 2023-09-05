@@ -3,28 +3,20 @@
     "PAIR": "C:USDCAD",
     "INTERVAL": 60,
     "START_DATE": "2010-01-01",
-    "STEPS_IN": 120,
+    "STEPS_IN": 48,
     "STEPS_OUT": 24,
-    "TEST_LENGTH": 144,
-    "EPOCHS": 1000,
+    "TEST_LENGTH": 72,
+    "EPOCHS": 250,
     "BATCH_SIZE": 4,
     "LEARNING_RATE": 0.0001,
     "VALIDATION_SPLIT": 0.01,
-    "PATIENCE": 50,
+    "PATIENCE": 100,
     "PATIENCE_LR_SCHEDULE": 25,
     "TARGET_FEATURE": "c"
   },
   "BRANCHES": {
     "C:USDCAD": {
-      "INDICATORS": [
-        "ATR",
-        "BOLLINGER",
-        "MA5",
-        "MA25",
-        "MA50",
-        "VoRSI",
-        "MACD"
-      ],
+      "INDICATORS": ["ATR", "BOLLINGER", "MA5", "MA25", "VoRSI"],
       "NODES": {
         "TRANSFORMER": [128, 128, 128, 128, 128],
         "LSTM": [64, 64, 64, 64, 64],
@@ -34,15 +26,7 @@
       }
     },
     "C:AUDUSD": {
-      "INDICATORS": [
-        "ATR",
-        "BOLLINGER",
-        "MA5",
-        "MA25",
-        "MA50",
-        "VoRSI",
-        "MACD"
-      ],
+      "INDICATORS": ["ATR", "BOLLINGER", "MA5", "MA25", "VoRSI"],
       "NODES": {
         "TRANSFORMER": [128, 128, 128, 128, 128],
         "LSTM": [64, 64, 64, 64, 64],
