@@ -2,7 +2,7 @@
   "PROCESSING": {
     "PAIR": "X:ETHUSD",
     "INTERVAL": 60,
-    "START_DATE": "2018-01-01",
+    "START_DATE": "2010-01-01",
     "STEPS_IN": 120,
     "STEPS_OUT": 24,
     "TEST_LENGTH": 144,
