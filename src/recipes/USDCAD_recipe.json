@@ -2,7 +2,7 @@
   "PROCESSING": {
     "PAIR": "C:USDCAD",
     "INTERVAL": 60,
-    "START_DATE": "2010-01-01",
+    "START_DATE": "2018-01-01",
     "STEPS_IN": 48,
     "STEPS_OUT": 24,
     "TEST_LENGTH": 72,
