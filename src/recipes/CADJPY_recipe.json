@@ -18,9 +18,9 @@
     "C:CADJPY": {
       "INDICATORS": ["ATR", "BOLLINGER", "MA5", "MA25", "VoRSI"],
       "NODES": {
-        "TRANSFORMER": [64, 64, 64, 64],
-        "LSTM": [64, 64, 64, 64],
-        "DENSE": [64, 64, 64, 64],
+        "TRANSFORMER": [48, 64, 64, 64],
+        "LSTM": [48, 64, 64, 64],
+        "DENSE": [48, 64, 64, 64],
         "ATTENTION_HEADS": [2, 2, 2, 2],
         "DROPOUT": [0.2, 0.2, 0.2, 0.2]
       }
