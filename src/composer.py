@@ -254,8 +254,6 @@ class Composer:
             pairs.append(pair)
         # Sync the dataframes
         pairs = self._synchronize_dataframes(pairs)
-        # Remove all time columns (pattern is t_df1, t_df2, t_df3, ...)
-        pairs = self._drop_time_columns(pairs)
         self.pairs = pairs
         self.pair_names = pair_names
         return pairs
