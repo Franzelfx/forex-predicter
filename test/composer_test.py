@@ -1,10 +1,9 @@
 """Testbench (unit test) for the Data_Aquirer class."""
 import unittest
 import argparse
+import tensorflow as tf
 from config_tb import *
 from src.composer import Composer
-# Use distributed training (mirrored strategy)
-from tensorflow.distribute import MirroredStrategy
 
 class Test_Composer(unittest.TestCase):
     """Test the Composer class.
@@ -32,7 +31,7 @@ class Test_Composer(unittest.TestCase):
         self.composer.calculate()
         self.composer.preprocess()
         if self.strategy == 'mirrored':
-            mirrored_strategy = MirroredStrategy()
+            mirrored_strategy = tf.distribute.MirroredStrategy()
             self.composer.build(strategy=mirrored_strategy)
         else:
             self.composer.build()
@@ -44,7 +43,7 @@ class Test_Composer(unittest.TestCase):
 
 def __main__(pair, fetch, predict, box_pts, interval, strategy):
     suite = unittest.TestSuite()
-    suite.addTest(Test_Composer('test_composer', pair, fetch, predict, box_pts, interval))
+    suite.addTest(Test_Composer('test_composer', pair, fetch, predict, box_pts, interval, strategy))
     runner = unittest.TextTestRunner()
     runner.run(suite)
 
