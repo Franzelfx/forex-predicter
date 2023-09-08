@@ -242,7 +242,7 @@ class Output(tf.keras.layers.Layer):
         self.output_layer = Dense(output_neurons, activation="linear")
 
         for neurons, dropout in zip(self.neurons_dense, self.dropout_rate):
-            dense_layer = Dense(neurons, activation="relu")
+            dense_layer = Dense(neurons, activation="linear")
             dropout_layer = Dropout(dropout)
             self.dense_layers.append(dense_layer)
             self.dropout_layers.append(dropout_layer)
