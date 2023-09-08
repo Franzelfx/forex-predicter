@@ -6,9 +6,9 @@
     "STEPS_IN": 48,
     "STEPS_OUT": 24,
     "TEST_LENGTH": 72,
-    "EPOCHS": 250,
-    "BATCH_SIZE": 32,
-    "LEARNING_RATE": 0.001,
+    "EPOCHS": 1000,
+    "BATCH_SIZE": 16,
+    "LEARNING_RATE": 0.0001,
     "VALIDATION_SPLIT": 0.01,
     "PATIENCE": 100,
     "PATIENCE_LR_SCHEDULE": 25,
@@ -18,37 +18,37 @@
     "C:USDCAD": {
       "INDICATORS": ["ATR", "BOLLINGER", "MA5", "MA25", "VoRSI"],
       "NODES": {
-        "TRANSFORMER": [48, 64, 64, 64],
-        "LSTM": [48, 64, 64, 64],
-        "DENSE": [48, 64, 64, 64],
-        "ATTENTION_HEADS": [2, 2, 2, 2],
-        "DROPOUT": [0.2, 0.2, 0.2, 0.2]
+        "TRANSFORMER": [48, 64, 64],
+        "LSTM": [48, 64, 64],
+        "DENSE": [48, 64, 64],
+        "ATTENTION_HEADS": [2, 2, 2],
+        "DROPOUT": [0.2, 0.2, 0.2]
       }
     },
     "C:AUDUSD": {
       "INDICATORS": ["ATR", "BOLLINGER", "MA5", "MA25", "VoRSI"],
       "NODES": {
-        "TRANSFORMER": [64, 64, 64, 64],
-        "LSTM": [64, 64, 64, 64],
-        "DENSE": [64, 64, 64, 64],
-        "ATTENTION_HEADS": [2, 2, 2, 2],
-        "DROPOUT": [0.2, 0.2, 0.2, 0.2]
+        "TRANSFORMER": [48, 64, 64],
+        "LSTM": [48, 64, 64],
+        "DENSE": [48, 64, 64],
+        "ATTENTION_HEADS": [2, 2, 2],
+        "DROPOUT": [0.2, 0.2, 0.2]
       }
     }
   },
   "MAIN_BRANCH": {
     "NODES": {
-      "TRANSFORMER": [64, 64, 64, 64],
-      "LSTM": [64, 64, 64, 64],
-      "DENSE": [64, 64, 64, 64],
-      "ATTENTION_HEADS": [2, 2, 2, 2],
-      "DROPOUT": [0.2, 0.2, 0.2, 0.2]
+      "TRANSFORMER": [128, 128, 128],
+      "LSTM": [64, 64, 64],
+      "DENSE": [128, 128, 128],
+      "ATTENTION_HEADS": [2, 2, 2],
+      "DROPOUT": [0.2, 0.2, 0.2]
     }
   },
   "OUTPUT": {
     "NODES": {
-      "DENSE": [64, 64, 24],
-      "DROPOUT": [0.0, 0.0, 0.0]
+      "DENSE": [128, 64, 32, 24],
+      "DROPOUT": [0.0, 0.0, 0.0, 0.0]
     }
   }
 }
