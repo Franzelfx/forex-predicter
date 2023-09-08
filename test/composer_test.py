@@ -32,7 +32,7 @@ class Test_Composer(unittest.TestCase):
         self.composer.preprocess()
         if self.strategy == 'mirrored':
             mirrored_strategy = tf.distribute.MirroredStrategy()
-            self.composer.build(strategy=mirrored_strategy)
+            self.composer.compile(strategy=mirrored_strategy)
         else:
             self.composer.build()
         if(self.predict == True):
