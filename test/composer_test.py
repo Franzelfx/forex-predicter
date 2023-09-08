@@ -34,7 +34,7 @@ class Test_Composer(unittest.TestCase):
             mirrored_strategy = tf.distribute.MirroredStrategy()
             self.composer.compile(strategy=mirrored_strategy)
         else:
-            self.composer.build()
+            self.composer.compile()
         if(self.predict == True):
             self.composer.predict(box_pts=self.box_pts)
         else:
