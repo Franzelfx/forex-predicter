@@ -10,6 +10,7 @@ from tensorflow.keras.layers import (
     LayerNormalization,
     GlobalAveragePooling1D,
 )
+from tensorflow.keras.layers import LeakyReLU
 
 @tf.keras.utils.register_keras_serializable()
 class TransformerBlock(tf.keras.layers.Layer):
@@ -19,18 +20,16 @@ class TransformerBlock(tf.keras.layers.Layer):
         self.attention_heads = attention_heads
         self.dropout_rate = dropout_rate
 
-        self.dense_1 = Dense(hidden_neurons, activation='tanh')
-        self.dense_2 = Dense(hidden_neurons, activation='tanh')
-        self.dense_3 = Dense(hidden_neurons, activation='tanh')
+        self.dense_1 = Dense(hidden_neurons, activation=LeakyReLU())
+        self.dense_2 = Dense(hidden_neurons, activation=LeakyReLU())
+        self.dense_3 = Dense(hidden_neurons, activation=LeakyReLU())
         self.multihead_attention = MultiHeadAttention(attention_heads, hidden_neurons)
         self.dropout_attention = Dropout(dropout_rate)
         self.concat_attention = Concatenate()
         self.layer_norm_1 = LayerNormalization()
         
         # Feed forward layers
-        self.dense_ffn_1 = Dense(hidden_neurons, activation='tanh')
-        self.dense_ffn_2 = Dense(hidden_neurons, activation='tanh')
-        self.dense_ffn_3 = Dense(hidden_neurons, activation='tanh')
+        self.dense_ffn_1 = Dense(hidden_neurons, activation=LeakyReLU())
 
         self.dropout_ffn = Dropout(dropout_rate)
         self.concat_ffn = Concatenate()
@@ -47,10 +46,8 @@ class TransformerBlock(tf.keras.layers.Layer):
         norm_attention = self.layer_norm_1(residual_attention)
 
         feed_forward_1 = self.dense_ffn_1(norm_attention)
-        feed_forward_2 = self.dense_ffn_2(feed_forward_1)
-        feed_forward_3 = self.dense_ffn_3(feed_forward_2)
 
-        dropout_ffn = self.dropout_ffn(feed_forward_3)
+        dropout_ffn = self.dropout_ffn(feed_forward_1)
         residual_ffn = self.concat_ffn([norm_attention, dropout_ffn])
         norm_ffn = self.layer_norm_2(residual_ffn)
 
@@ -91,7 +88,7 @@ class TransformerLSTMBlock(tf.keras.layers.Layer):
             neurons_transformer, attention_heads, dropout_rate
         )
         self.lstm_layer = LSTM(neurons_lstm, return_sequences=True)
-        self.lstm_match = Dense(neurons_lstm, activation="tanh")
+        self.lstm_match = Dense(neurons_lstm, activation=LeakyReLU())
         self.concat = Concatenate()
 
     def call(self, input_tensor):
@@ -243,10 +240,10 @@ class Output(tf.keras.layers.Layer):
         self.dense_layers = []
         self.dropout_layers = []
         self.gap = GlobalAveragePooling1D()
-        self.output_layer = Dense(output_neurons, activation="tanh")
+        self.output_layer = Dense(output_neurons, activation="softmax")
 
         for neurons, dropout in zip(self.neurons_dense, self.dropout_rate):
-            dense_layer = Dense(neurons, activation="tanh")
+            dense_layer = Dense(neurons, activation=LeakyReLU())
             dropout_layer = Dropout(dropout)
             self.dense_layers.append(dense_layer)
             self.dropout_layers.append(dropout_layer)
