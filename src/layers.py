@@ -239,7 +239,7 @@ class Output(tf.keras.layers.Layer):
         self.dense_layers = []
         self.dropout_layers = []
         self.gap = GlobalAveragePooling1D()
-        self.output_layer = Dense(output_neurons, activation="softmax")
+        self.output_layer = Dense(output_neurons, activation="linear")
 
         for neurons, dropout in zip(self.neurons_dense, self.dropout_rate):
             dense_layer = Dense(neurons, activation="relu")
