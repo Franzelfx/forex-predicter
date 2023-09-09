@@ -10,6 +10,7 @@ from dataclasses import dataclass
 from src.model import Architecture
 from src.visualizer import Visualizer
 from src.indicators import Indicators
+from datetime import datetime, timedelta
 from src.preprocessor import Preprocessor
 from src.data_aquirer import Data_Aquirer
 from src.model import Branch as ModelBranch
@@ -242,11 +243,15 @@ class Composer:
         for pair in pair_names:
             # Create a data_aquirer object for each pair
             aquirer = Data_Aquirer(PATH_PAIRS, api_key)
+            # Recalculate the end time, if today is a weekend day (only for pair with C: in name)
+            if pair.startswith("C:"):
+                end_time = self.reconfigure_end_time(datetime.today())
             # Aquire the data
             pair = aquirer.get(
                 pair,
                 time_base=self._processing.interval if interval is None else interval,
                 start=self._processing.start_date,
+                end=end_time,
                 from_file=from_file,
                 save=save,
             )
@@ -283,6 +288,25 @@ class Composer:
             indicators.append(data)
         self.indicators = indicators
         return indicators
+    
+    def reconfigure_end_time(self, end_time):
+        """Reconfigure the end time, if today is a weekend day."""
+        # Get the current time
+        now = datetime.now()
+        # Get the current day
+        day = now.strftime("%A")
+        # If the current day is Saturday
+        if day == "Saturday":
+            # Subtract 1 day from the end time
+            print("Today is Saturday, subtracting 1 day from end time")
+            end_time = end_time - timedelta(days=1)
+        # If the current day is Sunday
+        elif day == "Sunday":
+            # Subtract 2 days from the end time
+            print("Today is Sunday, subtracting 2 days from end time")
+            end_time = end_time - timedelta(days=2)
+        # Return end time as string and in the correct format (same as input (end_time)
+        return end_time.strftime("%Y-%m-%d")
 
     def preprocess(self):
         """Preprocess the data."""
