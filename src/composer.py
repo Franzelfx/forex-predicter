@@ -246,6 +246,8 @@ class Composer:
             # Recalculate the end time, if today is a weekend day (only for pair with C: in name)
             if pair.startswith("C:"):
                 end_time = self.reconfigure_end_time(datetime.today())
+            else:
+                end_time = datetime.today().strftime("%Y-%m-%d")
             # Aquire the data
             pair = aquirer.get(
                 pair,
