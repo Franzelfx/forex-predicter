@@ -1,0 +1,84 @@
+{
+  "PROCESSING": {
+    "PAIR": "C:GBPUSD",
+    "INTERVAL": 60,
+    "START_DATE": "2018-01-01",
+    "STEPS_IN": 48,
+    "STEPS_OUT": 24,
+    "TEST_LENGTH": 72,
+    "EPOCHS": 1000,
+    "BATCH_SIZE": 16,
+    "LEARNING_RATE": 0.0001,
+    "VALIDATION_SPLIT": 0.01,
+    "PATIENCE": 100,
+    "PATIENCE_LR_SCHEDULE": 25,
+    "TARGET_FEATURE": "c"
+  },
+  "BRANCHES": {
+    "C:GBPUSD": {
+      "INDICATORS": ["ATR", "BOLLINGER", "MA5", "MA25", "VoRSI"],
+      "NODES": {
+        "TRANSFORMER": [48, 64, 64],
+        "LSTM": [48, 64, 64],
+        "DENSE": [48, 64, 64],
+        "ATTENTION_HEADS": [2, 2, 2],
+        "DROPOUT": [0.2, 0.2, 0.2]
+      }
+    },
+    "C:EURUSD": {
+      "INDICATORS": ["ATR", "BOLLINGER", "MA5", "MA25", "VoRSI"],
+      "NODES": {
+        "TRANSFORMER": [48, 64, 64],
+        "LSTM": [48, 64, 64],
+        "DENSE": [48, 64, 64],
+        "ATTENTION_HEADS": [2, 2, 2],
+        "DROPOUT": [0.2, 0.2, 0.2]
+      }
+    },
+    "C:NZDUSD": {
+      "INDICATORS": ["ATR", "BOLLINGER", "MA5", "MA25", "VoRSI"],
+      "NODES": {
+        "TRANSFORMER": [48, 64, 64],
+        "LSTM": [48, 64, 64],
+        "DENSE": [48, 64, 64],
+        "ATTENTION_HEADS": [2, 2, 2],
+        "DROPOUT": [0.2, 0.2, 0.2]
+      }
+    },
+    "C:USDJPY": {
+      "INDICATORS": ["ATR", "BOLLINGER", "MA5", "MA25", "VoRSI"],
+      "NODES": {
+        "TRANSFORMER": [48, 64, 64],
+        "LSTM": [48, 64, 64],
+        "DENSE": [48, 64, 64],
+        "ATTENTION_HEADS": [2, 2, 2],
+        "DROPOUT": [0.2, 0.2, 0.2]
+      }
+    },
+    "C:USDCHF": {
+      "INDICATORS": ["ATR", "BOLLINGER", "MA5", "MA25", "VoRSI"],
+      "NODES": {
+        "TRANSFORMER": [48, 64, 64],
+        "LSTM": [48, 64, 64],
+        "DENSE": [48, 64, 64],
+        "ATTENTION_HEADS": [2, 2, 2],
+        "DROPOUT": [0.2, 0.2, 0.2]
+      }
+    }
+  },
+  "MAIN_BRANCH": {
+    "NODES": {
+      "TRANSFORMER": [480, 256, 128],
+      "LSTM": [240, 128, 96],
+      "DENSE": [480, 256, 128],
+      "ATTENTION_HEADS": [2, 2, 2],
+      "DROPOUT": [0.2, 0.2, 0.2]
+    }
+  },
+  "OUTPUT": {
+    "NODES": {
+      "DENSE": [128, 64, 32, 24],
+      "DROPOUT": [0.0, 0.0, 0.0, 0.0]
+    }
+  }
+}
