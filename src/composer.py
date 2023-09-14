@@ -227,7 +227,7 @@ class Composer:
         return dataframes
 
 
-    def aquire(self, api_key: str = None, api_type: str = None, from_file=False, save=True, interval: int = None):
+    def aquire(self, api_key: str = None, api_type: str = None, from_file=False, save=True, interval: int = None, no_request=False):
         """Aquire the data for al pairs."""
         if api_key is None:
             api_key = self._base.api_key
@@ -256,6 +256,7 @@ class Composer:
                 end=end_time,
                 from_file=from_file,
                 save=save,
+                no_request=no_request,
             )
             # Append the dataframes to the pairs list
             pairs.append(pair)

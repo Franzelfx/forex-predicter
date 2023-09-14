@@ -111,6 +111,7 @@ class Data_Aquirer:
         end: str = date.today().strftime("%Y-%m-%d"),
         save: bool = False,
         from_file=None,
+        no_request=False,
     ):
         self._time_base = time_base
 
@@ -122,8 +123,9 @@ class Data_Aquirer:
                 recent_date = data["t"].iloc[-1].split(" ")[0]
                 if recent_date == date.today().strftime("%Y-%m-%d"):
                     recent_date = (date.today() - timedelta(days=1)).strftime("%Y-%m-%d")
-                request = self._request(pair, time_base, recent_date, end)
-                data = pd.concat([data, request]).drop_duplicates(subset=["t"], keep='last')
+                if not no_request:
+                    request = self._request(pair, time_base, recent_date, end)
+                    data = pd.concat([data, request]).drop_duplicates(subset=["t"], keep='last')
             except FileNotFoundError:
                 print(f"No data for {pair} with {time_base} minutes interval found.")
                 print("Getting data from API...")

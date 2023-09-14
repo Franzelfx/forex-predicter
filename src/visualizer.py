@@ -47,9 +47,9 @@ class Visualizer:
             # to get the correct time
             plt.plot(range(shift_len, shift_len + len(hat)), hat, label="Prediction")
             # Add a trendline
-            #z = np.polyfit(range(shift_len, shift_len + len(hat)), hat, 1)
-            #p = np.poly1d(z)
-            #plt.plot(range(shift_len, shift_len + len(hat)), p(range(shift_len, shift_len + len(hat))), 'r--', label="Trendline")
+            z = np.polyfit(range(shift_len, shift_len + len(hat)), hat, 1)
+            p = np.poly1d(z)
+            plt.plot(range(shift_len, shift_len + len(hat)), p(range(shift_len, shift_len + len(hat))), 'r--', label="Trendline")
         else:
             if hat is not None:
                 plt.plot(hat, label="Ahead Prediction")
