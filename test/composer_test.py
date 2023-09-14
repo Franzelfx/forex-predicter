@@ -50,8 +50,8 @@ def __main__(pair, fetch, predict, box_pts, interval, strategy):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Get pair')
     parser.add_argument('--pair', type=str, help='Pair for the Composer class')
-    parser.add_argument('--fetch', type=lambda x: (str(x).lower() == 'true'), default=False, help='Fetch status for the Composer class (if False, use data from file)')
-    parser.add_argument('--predict', type=lambda x: (str(x).lower() == 'true'), default=False, help='Predict status for the Composer class (if False, fit the model))')
+    parser.add_argument('--fetch', action='store_true', default=False, help='Fetch status for the Composer class (if False, use data from file)')
+    parser.add_argument('--predict', action='store_true', default=False, help='Predict status for the Composer class (if False, fit the model))')
     parser.add_argument('--box_pts', type=int, default=2, help='Box points for the Composer class prediction (to smooth the predicted data)')
     parser.add_argument('--interval', type=int, default=None, help='Interval for the pair data (in minutes)')
     parser.add_argument('--strategy', type=str, default=False, help='Strategy to train the model')
