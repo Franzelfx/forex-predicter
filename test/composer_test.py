@@ -1,6 +1,7 @@
 """Testbench (unit test) for the Data_Aquirer class."""
 import unittest
 import argparse
+import numpy as np
 import tensorflow as tf
 from config_tb import *
 from src.composer import Composer
@@ -20,6 +21,10 @@ class Test_Composer(unittest.TestCase):
         self.box_pts = box_pts
         self.interval = interval
         self.strategy = strategy
+        # Eleminate randomness
+        np.random.seed(42)
+        tf.random.set_seed(42)
+
 
     def test_composer(self):
         """Test the composer."""

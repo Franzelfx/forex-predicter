@@ -1,4 +1,3 @@
-"""Visualize the results of the model."""
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -7,7 +6,6 @@ from datetime import datetime as dt
 class Visualizer:
     """Visualize the results of the model."""
 
-    #      date, time, time iterations, etc.
     def __init__(self, target: str, dark_mode: bool = True):
         """Initialize the visualizer."""
         if ":" in target:
@@ -15,7 +13,7 @@ class Visualizer:
         self.pair = target
         self.dark_mode = dark_mode
 
-    def plot_prediction(self, path, hat:np.ndarray, test_actual:np.ndarray=None, test_predict:np.ndarray=None, save_csv=True, extra_info="", time_base=None):
+    def plot_prediction(self, path, hat: np.ndarray, test_actual: np.ndarray = None, test_predict: np.ndarray = None, save_csv=True, extra_info="", time_base=None):
         """Plot the prediction."""
         date = dt.now().strftime("%Y-%m-%d_%H-%M-%S")
         if extra_info != "":
@@ -48,9 +46,17 @@ class Visualizer:
             # by the length of the input to the right
             # to get the correct time
             plt.plot(range(shift_len, shift_len + len(hat)), hat, label="Prediction")
+            # Add a trendline
+            #z = np.polyfit(range(shift_len, shift_len + len(hat)), hat, 1)
+            #p = np.poly1d(z)
+            #plt.plot(range(shift_len, shift_len + len(hat)), p(range(shift_len, shift_len + len(hat))), 'r--', label="Trendline")
         else:
             if hat is not None:
                 plt.plot(hat, label="Ahead Prediction")
+                # Add a trendline
+                z = np.polyfit(range(len(hat)), hat, 1)
+                p = np.poly1d(z)
+                plt.plot(range(len(hat)), p(range(len(hat))), 'r--', label="Trendline")
         plt.legend()
         plt.title(f"Prediction for {self.pair}")
         plt.xlabel(f"Time ({ time_base if time_base is not None else '' })")
