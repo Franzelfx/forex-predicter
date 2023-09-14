@@ -16,7 +16,7 @@
   },
   "BRANCHES": {
     "C:CADJPY": {
-      "INDICATORS": ["ATR", "BOLLINGER", "MA5", "MA25", "VoRSI"],
+      "INDICATORS": ["MA5", "MA25", "MA50"],
       "NODES": {
         "TRANSFORMER": [48, 64, 64],
         "LSTM": [48, 64, 64],
@@ -26,7 +26,7 @@
       }
     },
     "C:USDJPY": {
-      "INDICATORS": ["ATR", "BOLLINGER", "MA5", "MA25", "VoRSI"],
+      "INDICATORS": ["MA5", "MA25", "MA50"],
       "NODES": {
         "TRANSFORMER": [48, 64, 64],
         "LSTM": [48, 64, 64],
