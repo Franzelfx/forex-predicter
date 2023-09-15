@@ -2,8 +2,8 @@
   "PROCESSING": {
     "PAIR": "C:CADJPY",
     "INTERVAL": 15,
-    "START_DATE": "2018-01-01",
-    "STEPS_IN": 256,
+    "START_DATE": "2010-01-01",
+    "STEPS_IN": 2880,
     "STEPS_OUT": 96,
     "TEST_LENGTH": 328,
     "EPOCHS": 1000,
@@ -18,9 +18,9 @@
     "C:CADJPY": {
       "INDICATORS": ["MA5", "MA25", "MA50"],
       "NODES": {
-        "TRANSFORMER": [256, 128, 128],
+        "TRANSFORMER": [128, 128, 128],
         "LSTM": [128, 64, 64],
-        "DENSE": [256, 128, 128],
+        "DENSE": [128, 128, 128],
         "ATTENTION_HEADS": [2, 2, 2],
         "DROPOUT": [0.2, 0.2, 0.2]
       }
@@ -28,9 +28,9 @@
     "C:USDJPY": {
       "INDICATORS": ["MA5", "MA25", "MA50"],
       "NODES": {
-        "TRANSFORMER": [256, 128, 128],
+        "TRANSFORMER": [128, 128, 128],
         "LSTM": [128, 64, 64],
-        "DENSE": [256, 128, 128],
+        "DENSE": [128, 128, 128],
         "ATTENTION_HEADS": [2, 2, 2],
         "DROPOUT": [0.2, 0.2, 0.2]
       }
