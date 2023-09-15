@@ -86,7 +86,7 @@ class TransformerLSTMBlock(tf.keras.layers.Layer):
         self.transformer_block = TransformerBlock(
             neurons_transformer, attention_heads, dropout_rate
         )
-        self.lstm_layer = LSTM(neurons_lstm, return_sequences=True)
+        self.lstm_layer = LSTM(neurons_lstm, return_sequences=True, recurrent_dropout=0.2)
         self.lstm_match = Dense(neurons_lstm, activation="relu")
         self.concat = Concatenate()
 
