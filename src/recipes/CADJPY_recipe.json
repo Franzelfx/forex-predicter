@@ -7,7 +7,7 @@
     "STEPS_OUT": 96,
     "TEST_LENGTH": 328,
     "EPOCHS": 1000,
-    "BATCH_SIZE": 4,
+    "BATCH_SIZE": 8,
     "LEARNING_RATE": 0.0001,
     "VALIDATION_SPLIT": 0.1,
     "PATIENCE": 100,
@@ -19,7 +19,7 @@
       "INDICATORS": ["MA5", "MA25", "MA50"],
       "NODES": {
         "TRANSFORMER": [256, 128, 128],
-        "LSTM": [256, 128, 128],
+        "LSTM": [128, 64, 64],
         "DENSE": [256, 128, 128],
         "ATTENTION_HEADS": [2, 2, 2],
         "DROPOUT": [0.2, 0.2, 0.2]
@@ -29,7 +29,7 @@
       "INDICATORS": ["MA5", "MA25", "MA50"],
       "NODES": {
         "TRANSFORMER": [256, 128, 128],
-        "LSTM": [256, 128, 128],
+        "LSTM": [128, 64, 64],
         "DENSE": [256, 128, 128],
         "ATTENTION_HEADS": [2, 2, 2],
         "DROPOUT": [0.2, 0.2, 0.2]
