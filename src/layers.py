@@ -86,15 +86,25 @@ class TransformerLSTMBlock(tf.keras.layers.Layer):
         self.transformer_block = TransformerBlock(
             neurons_transformer, attention_heads, dropout_rate
         )
-        self.lstm_layer = LSTM(neurons_lstm, return_sequences=True, recurrent_dropout=0.2)
+        
+        if neurons_lstm > 0:
+            self.lstm_layer = LSTM(neurons_lstm, return_sequences=True, recurrent_dropout=0.2)
+        else:
+            self.lstm_layer = None
+        
         self.lstm_match = Dense(neurons_lstm, activation="relu")
         self.concat = Concatenate()
 
     def call(self, input_tensor):
         transformer = self.transformer_block(input_tensor)
-        lstm = self.lstm_layer(transformer)
-        lstm_match = self.lstm_match(lstm)
-        concat = self.concat([transformer, lstm_match])
+        
+        if self.lstm_layer is not None:
+            lstm = self.lstm_layer(transformer)
+            lstm_match = self.lstm_match(lstm)
+            concat = self.concat([transformer, lstm_match])
+        else:
+            concat = transformer
+        
         return concat
 
     def get_config(self):
