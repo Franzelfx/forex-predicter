@@ -19,7 +19,7 @@
       "INDICATORS": ["ATR", "BOLLINGER", "MA5", "MA25", "VoRSI"],
       "NODES": {
         "TRANSFORMER": [48, 64, 64],
-        "LSTM": [48, 64, 64],
+        "LSTM": [24, 32, 32],
         "DENSE": [48, 64, 64],
         "ATTENTION_HEADS": [2, 2, 2],
         "DROPOUT": [0.2, 0.2, 0.2]
@@ -29,7 +29,7 @@
       "INDICATORS": ["ATR", "BOLLINGER", "MA5", "MA25", "VoRSI"],
       "NODES": {
         "TRANSFORMER": [48, 64, 64],
-        "LSTM": [48, 64, 64],
+        "LSTM": [24, 32, 32],
         "DENSE": [48, 64, 64],
         "ATTENTION_HEADS": [2, 2, 2],
         "DROPOUT": [0.2, 0.2, 0.2]
@@ -39,7 +39,7 @@
       "INDICATORS": ["ATR", "BOLLINGER", "MA5", "MA25", "VoRSI"],
       "NODES": {
         "TRANSFORMER": [48, 64, 64],
-        "LSTM": [48, 64, 64],
+        "LSTM": [24, 32, 32],
         "DENSE": [48, 64, 64],
         "ATTENTION_HEADS": [2, 2, 2],
         "DROPOUT": [0.2, 0.2, 0.2]
@@ -49,7 +49,7 @@
   "MAIN_BRANCH": {
     "NODES": {
       "TRANSFORMER": [128, 128, 128],
-      "LSTM": [64, 64, 64],
+      "LSTM": [32, 32, 32],
       "DENSE": [128, 128, 128],
       "ATTENTION_HEADS": [2, 2, 2],
       "DROPOUT": [0.2, 0.2, 0.2]
