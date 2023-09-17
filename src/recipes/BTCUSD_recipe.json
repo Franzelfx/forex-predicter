@@ -2,21 +2,29 @@
   "PROCESSING": {
     "PAIR": "X:BTCUSD",
     "INTERVAL": 60,
-    "START_DATE": "2018-01-01",
+    "START_DATE": "2010-01-01",
     "STEPS_IN": 48,
     "STEPS_OUT": 24,
     "TEST_LENGTH": 72,
     "EPOCHS": 1000,
     "BATCH_SIZE": 16,
     "LEARNING_RATE": 0.0001,
-    "VALIDATION_SPLIT": 0.01,
+    "VALIDATION_SPLIT": 0.1,
     "PATIENCE": 100,
     "PATIENCE_LR_SCHEDULE": 25,
     "TARGET_FEATURE": "c"
   },
   "BRANCHES": {
     "X:BTCUSD": {
-      "INDICATORS": ["ATR", "BOLLINGER", "MA5", "MA25", "VoRSI"],
+      "INDICATORS": [
+        "ATR",
+        "BOLLINGER",
+        "MA5",
+        "MA25",
+        "MA50",
+        "MA200",
+        "VoRSI"
+      ],
       "NODES": {
         "TRANSFORMER": [48, 64, 64],
         "LSTM": [0, 0, 0],
@@ -26,7 +34,15 @@
       }
     },
     "X:ETHUSD": {
-      "INDICATORS": ["ATR", "BOLLINGER", "MA5", "MA25", "VoRSI"],
+      "INDICATORS": [
+        "ATR",
+        "BOLLINGER",
+        "MA5",
+        "MA25",
+        "MA50",
+        "MA200",
+        "VoRSI"
+      ],
       "NODES": {
         "TRANSFORMER": [48, 64, 64],
         "LSTM": [0, 0, 0],
@@ -36,7 +52,15 @@
       }
     },
     "C:XAUUSD":{
-      "INDICATORS": ["ATR", "BOLLINGER", "MA5", "MA25", "VoRSI"],
+      "INDICATORS": [
+        "ATR",
+        "BOLLINGER",
+        "MA5",
+        "MA25",
+        "MA50",
+        "MA200",
+        "VoRSI"
+      ],
       "NODES": {
         "TRANSFORMER": [48, 64, 64],
         "LSTM": [0, 0, 0],
@@ -57,8 +81,8 @@
   },
   "OUTPUT": {
     "NODES": {
-      "DENSE": [128, 64, 32, 24],
-      "DROPOUT": [0.0, 0.0, 0.0, 0.0]
+      "DENSE": [24, 24],
+      "DROPOUT": [0.0, 0.0]
     }
   }
 }

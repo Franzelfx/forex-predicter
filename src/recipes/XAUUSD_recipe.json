@@ -2,7 +2,7 @@
   "PROCESSING": {
     "PAIR": "C:XAUUSD",
     "INTERVAL": 60,
-    "START_DATE": "2018-01-01",
+    "START_DATE": "2010-01-01",
     "STEPS_IN": 48,
     "STEPS_OUT": 24,
     "TEST_LENGTH": 72,
@@ -16,20 +16,36 @@
   },
   "BRANCHES": {
     "C:XAUUSD": {
-      "INDICATORS": ["ATR", "BOLLINGER", "MA5", "MA25", "VoRSI"],
+      "INDICATORS": [
+        "ATR",
+        "BOLLINGER",
+        "MA5",
+        "MA25",
+        "MA50",
+        "MA200",
+        "VoRSI"
+      ],
       "NODES": {
         "TRANSFORMER": [48, 64, 64],
-        "LSTM": [48, 64, 64],
+        "LSTM": [0, 0, 0],
         "DENSE": [48, 64, 64],
         "ATTENTION_HEADS": [2, 2, 2],
         "DROPOUT": [0.2, 0.2, 0.2]
       }
     },
     "C:XAGUSD": {
-      "INDICATORS": ["ATR", "BOLLINGER", "MA5", "MA25", "VoRSI"],
+      "INDICATORS": [
+        "ATR",
+        "BOLLINGER",
+        "MA5",
+        "MA25",
+        "MA50",
+        "MA200",
+        "VoRSI"
+      ],
       "NODES": {
         "TRANSFORMER": [48, 64, 64],
-        "LSTM": [48, 64, 64],
+        "LSTM": [0, 0, 0],
         "DENSE": [48, 64, 64],
         "ATTENTION_HEADS": [2, 2, 2],
         "DROPOUT": [0.2, 0.2, 0.2]
@@ -38,17 +54,17 @@
   },
   "MAIN_BRANCH": {
     "NODES": {
-      "TRANSFORMER": [128, 128, 128],
-      "LSTM": [64, 64, 64],
-      "DENSE": [128, 128, 128],
+      "TRANSFORMER": [128, 64, 32, 24, 24],
+      "LSTM": [0, 0, 0, 0, 0],
+      "DENSE": [128, 64, 32, 24, 24],
       "ATTENTION_HEADS": [2, 2, 2],
       "DROPOUT": [0.2, 0.2, 0.2]
     }
   },
   "OUTPUT": {
     "NODES": {
-      "DENSE": [128, 64, 32, 24],
-      "DROPOUT": [0.0, 0.0, 0.0, 0.0]
+      "DENSE": [24, 24],
+      "DROPOUT": [0.0, 0.0]
     }
   }
 }

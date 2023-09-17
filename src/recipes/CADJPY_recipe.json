@@ -1,13 +1,13 @@
 {
   "PROCESSING": {
     "PAIR": "C:CADJPY",
-    "INTERVAL": 15,
+    "INTERVAL": 60,
     "START_DATE": "2010-01-01",
     "STEPS_IN": 48,
     "STEPS_OUT": 24,
-    "TEST_LENGTH": 328,
+    "TEST_LENGTH": 72,
     "EPOCHS": 1000,
-    "BATCH_SIZE": 8,
+    "BATCH_SIZE": 16,
     "LEARNING_RATE": 0.0001,
     "VALIDATION_SPLIT": 0.1,
     "PATIENCE": 100,
