@@ -57,8 +57,8 @@
       "TRANSFORMER": [128, 64, 32, 24, 24],
       "LSTM": [0, 0, 0, 0, 0],
       "DENSE": [128, 64, 32, 24, 24],
-      "ATTENTION_HEADS": [2, 2, 2],
-      "DROPOUT": [0.2, 0.2, 0.2]
+      "ATTENTION_HEADS": [2, 2, 2, 2, 2],
+      "DROPOUT": [0.2, 0.2, 0.2, 0.2, 0.2]
     }
   },
   "OUTPUT": {
