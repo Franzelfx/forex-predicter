@@ -63,4 +63,19 @@ if __name__ == '__main__':
     parser.add_argument('--strategy', type=str, default=False, help='Strategy to train the model')
     parser.add_argument('--no_request', action='store_true', default=False, help='No request for the Composer class (if True, use data from file)')
     args = parser.parse_args()
-    __main__(args.pair, args.fetch, args.predict, args.box_pts, args.interval, args.strategy, args.no_request)
+
+    # If no pair is specified, iterate over all JSON files in src/recipes
+    if args.pair is None:
+        recipe_files = os.listdir('src/recipes')
+
+        for recipe_file in recipe_files:
+            if recipe_file.endswith('_recipe.json'):
+                pair = recipe_file.replace('_recipe.json', '')
+
+                if pair not in ['BTCUSD', 'ETHUSD']:
+                    prefix = 'C:' if pair[0] != 'X' else 'X:'
+                    pair = prefix + pair
+                
+                __main__(pair, args.fetch, args.predict, args.box_pts, args.interval, args.strategy, args.no_request)
+    else:
+        __main__(args.pair, args.fetch, args.predict, args.box_pts, args.interval, args.strategy, args.no_request)
