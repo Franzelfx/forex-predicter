@@ -1,6 +1,6 @@
 {
   "PROCESSING": {
-    "PAIR": "C:CADJPY",
+    "PAIR": "C:CADCHF",
     "INTERVAL": 60,
     "START_DATE": "2018-01-01",
     "STEPS_IN": 48,
@@ -15,7 +15,7 @@
     "TARGET_FEATURE": "c"
   },
   "BRANCHES": {
-    "C:CADJPY": {
+    "C:CADCHF": {
       "INDICATORS": [
         "ATR",
         "BOLLINGER",
@@ -33,7 +33,7 @@
         "DROPOUT": [0.2, 0.2, 0.2]
       }
     },
-    "C:USDJPY": {
+    "C:GBPCAD": {
       "INDICATORS": [
         "ATR",
         "BOLLINGER",

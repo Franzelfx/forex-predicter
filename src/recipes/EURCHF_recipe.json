@@ -1,6 +1,6 @@
 {
   "PROCESSING": {
-    "PAIR": "C:GBPUSD",
+    "PAIR": "C:EURCHF",
     "INTERVAL": 60,
     "START_DATE": "2018-01-01",
     "STEPS_IN": 48,
@@ -15,7 +15,7 @@
     "TARGET_FEATURE": "c"
   },
   "BRANCHES": {
-    "C:GBPUSD": {
+    "C:EURCHF": {
       "INDICATORS": [
         "ATR",
         "BOLLINGER",
@@ -51,7 +51,43 @@
         "DROPOUT": [0.2, 0.2, 0.2]
       }
     },
-    "C:USDJPY": {
+    "C:NZDUSD": {
+      "INDICATORS": [
+        "ATR",
+        "BOLLINGER",
+        "MA5",
+        "MA25",
+        "MA50",
+        "MA200",
+        "VoRSI"
+      ],
+      "NODES": {
+        "TRANSFORMER": [48, 64, 64],
+        "LSTM": [0, 0, 0],
+        "DENSE": [48, 64, 64],
+        "ATTENTION_HEADS": [2, 2, 2],
+        "DROPOUT": [0.2, 0.2, 0.2]
+      }
+    },
+    "C:USDCAD": {
+      "INDICATORS": [
+        "ATR",
+        "BOLLINGER",
+        "MA5",
+        "MA25",
+        "MA50",
+        "MA200",
+        "VoRSI"
+      ],
+      "NODES": {
+        "TRANSFORMER": [48, 64, 64],
+        "LSTM": [0, 0, 0],
+        "DENSE": [48, 64, 64],
+        "ATTENTION_HEADS": [2, 2, 2],
+        "DROPOUT": [0.2, 0.2, 0.2]
+      }
+    },
+    "C:USDCHF": {
       "INDICATORS": [
         "ATR",
         "BOLLINGER",
@@ -72,11 +108,11 @@
   },
   "MAIN_BRANCH": {
     "NODES": {
-      "TRANSFORMER": [192, 128, 64, 32, 24],
-      "LSTM": [0, 0, 0, 0, 0],
-      "DENSE": [192, 128, 64, 32, 24],
-      "ATTENTION_HEADS": [2, 2, 2, 2, 2],
-      "DROPOUT": [0.2, 0.2, 0.2, 0.2, 0.2]
+      "TRANSFORMER": [320, 256, 128, 64, 32, 24],
+      "LSTM": [0, 0, 0, 0, 0, 0],
+      "DENSE": [320, 256, 128, 64, 32, 24],
+      "ATTENTION_HEADS": [2, 2, 2, 2, 2, 2],
+      "DROPOUT": [0.2, 0.2, 0.2, 0.2, 0.2, 0.2]
     }
   },
   "OUTPUT": {
