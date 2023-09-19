@@ -26,11 +26,11 @@
         "VoRSI"
       ],
       "NODES": {
-        "TRANSFORMER": [128, 64, 64],
-        "LSTM": [64, 32, 32],
-        "DENSE": [128, 64, 64],
-        "ATTENTION_HEADS": [2, 2, 2],
-        "DROPOUT": [0.2, 0.2, 0.2]
+        "TRANSFORMER": [128, 64],
+        "LSTM": [64, 32],
+        "DENSE": [128, 64],
+        "ATTENTION_HEADS": [2, 2],
+        "DROPOUT": [0.2, 0.2]
       }
     },
     "C:GBPUSD": {
@@ -44,11 +44,11 @@
         "VoRSI"
       ],
       "NODES": {
-        "TRANSFORMER": [128, 64, 64],
-        "LSTM": [64, 32, 32],
-        "DENSE": [128, 64, 64],
-        "ATTENTION_HEADS": [2, 2, 2],
-        "DROPOUT": [0.2, 0.2, 0.2]
+        "TRANSFORMER": [128, 64],
+        "LSTM": [64, 32],
+        "DENSE": [128, 64],
+        "ATTENTION_HEADS": [2, 2],
+        "DROPOUT": [0.2, 0.2]
       }
     },
     "C:USDCHF": {
@@ -62,21 +62,21 @@
         "VoRSI"
       ],
       "NODES": {
-        "TRANSFORMER": [128, 64, 64],
-        "LSTM": [64, 32, 32],
-        "DENSE": [128, 64, 64],
-        "ATTENTION_HEADS": [2, 2, 2],
-        "DROPOUT": [0.2, 0.2, 0.2]
+        "TRANSFORMER": [128, 64],
+        "LSTM": [64, 32],
+        "DENSE": [128, 64],
+        "ATTENTION_HEADS": [2, 2],
+        "DROPOUT": [0.2, 0.2]
       }
     }
   },
   "MAIN_BRANCH": {
     "NODES": {
-      "TRANSFORMER": [128, 64, 32, 24],
-      "LSTM": [64, 32, 32, 24],
-      "DENSE": [128, 64, 32, 24],
-      "ATTENTION_HEADS": [2, 2, 2, 2],
-      "DROPOUT": [0.2, 0.2, 0.2, 0.2]
+      "TRANSFORMER": [128, 64, 24],
+      "LSTM": [0, 0, 0],
+      "DENSE": [128, 64, 24],
+      "ATTENTION_HEADS": [2, 2, 2],
+      "DROPOUT": [0.2, 0.2, 0.2]
     }
   },
   "OUTPUT": {
