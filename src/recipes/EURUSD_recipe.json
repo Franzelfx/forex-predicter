@@ -3,7 +3,7 @@
     "PAIR": "C:EURUSD",
     "INTERVAL": 60,
     "START_DATE": "2018-01-01",
-    "STEPS_IN": 48,
+    "STEPS_IN": 128,
     "STEPS_OUT": 24,
     "TEST_LENGTH": 72,
     "EPOCHS": 1000,
@@ -26,9 +26,9 @@
         "VoRSI"
       ],
       "NODES": {
-        "TRANSFORMER": [48, 48, 48],
+        "TRANSFORMER": [128, 64, 64],
         "LSTM": [0, 0, 0],
-        "DENSE": [48, 48, 48],
+        "DENSE": [128, 64, 64],
         "ATTENTION_HEADS": [2, 2, 2],
         "DROPOUT": [0.2, 0.2, 0.2]
       }
@@ -44,9 +44,9 @@
         "VoRSI"
       ],
       "NODES": {
-        "TRANSFORMER": [48, 48, 48],
+        "TRANSFORMER": [128, 64, 64],
         "LSTM": [0, 0, 0],
-        "DENSE": [48, 48, 48],
+        "DENSE": [128, 64, 64],
         "ATTENTION_HEADS": [2, 2, 2],
         "DROPOUT": [0.2, 0.2, 0.2]
       }
@@ -62,9 +62,9 @@
         "VoRSI"
       ],
       "NODES": {
-        "TRANSFORMER": [48, 48, 48],
+        "TRANSFORMER": [128, 64, 64],
         "LSTM": [0, 0, 0],
-        "DENSE": [48, 48, 48],
+        "DENSE": [128, 64, 64],
         "ATTENTION_HEADS": [2, 2, 2],
         "DROPOUT": [0.2, 0.2, 0.2]
       }
