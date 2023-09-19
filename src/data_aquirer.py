@@ -121,10 +121,17 @@ class Data_Aquirer:
                 data = pd.read_csv(f"{self._path}/{csv_pair_name}_{time_base}.csv")
                 print(f"Got data from {self._path}/{csv_pair_name}_{time_base}.csv")
                 recent_date = data["t"].iloc[-1].split(" ")[0]
+                first_date = data["t"].iloc[0].split(" ")[0]
                 if recent_date == date.today().strftime("%Y-%m-%d"):
                     recent_date = (date.today() - timedelta(days=1)).strftime("%Y-%m-%d")
                 if not no_request:
-                    request = self._request(pair, time_base, recent_date, end)
+                    if first_date != start:
+                        print(
+                            f"First date is {first_date} instead of {start}, requesting all data from API..."
+                        )
+                        request = self._request(pair, time_base, start, end)
+                    else:
+                        request = self._request(pair, time_base, recent_date, end)
                     data = pd.concat([data, request]).drop_duplicates(subset=["t"], keep='last')
             except FileNotFoundError:
                 print(f"No data for {pair} with {time_base} minutes interval found.")
