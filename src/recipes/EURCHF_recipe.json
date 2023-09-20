@@ -2,7 +2,7 @@
   "PROCESSING": {
     "PAIR": "C:EURCHF",
     "INTERVAL": 60,
-    "START_DATE": "2018-01-01",
+    "START_DATE": "2010-01-01",
     "STEPS_IN": 48,
     "STEPS_OUT": 24,
     "TEST_LENGTH": 72,
@@ -108,11 +108,11 @@
   },
   "MAIN_BRANCH": {
     "NODES": {
-      "TRANSFORMER": [240, 128, 64, 32, 24],
-      "LSTM": [0, 0, 0, 0, 0],
-      "DENSE": [240, 128, 64, 32, 24],
-      "ATTENTION_HEADS": [2, 2, 2, 2, 2],
-      "DROPOUT": [0.2, 0.2, 0.2, 0.2, 0.2]
+      "TRANSFORMER": [128, 64, 24],
+      "LSTM": [0, 0, 0],
+      "DENSE": [128, 64, 24],
+      "ATTENTION_HEADS": [2, 2, 2],
+      "DROPOUT": [0.2, 0.2, 0.2]
     }
   },
   "OUTPUT": {
