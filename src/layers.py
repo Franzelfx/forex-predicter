@@ -19,20 +19,22 @@ class TransformerBlock(tf.keras.layers.Layer):
         self.attention_heads = attention_heads
         self.dropout_rate = dropout_rate
 
-        self.dense_1 = Dense(hidden_neurons, activation="relu")
-        self.dense_2 = Dense(hidden_neurons, activation="relu")
-        self.dense_3 = Dense(hidden_neurons, activation="relu")
-        self.multihead_attention = MultiHeadAttention(attention_heads, hidden_neurons)
-        self.dropout_attention = Dropout(dropout_rate)
+    def build(self, input_shape):
+        self.dense_1 = Dense(self.hidden_neurons, activation="relu")
+        self.dense_2 = Dense(self.hidden_neurons, activation="relu")
+        self.dense_3 = Dense(self.hidden_neurons, activation="relu")
+        self.multihead_attention = MultiHeadAttention(self.attention_heads, self.hidden_neurons)
+        self.dropout_attention = Dropout(self.dropout_rate)
         self.concat_attention = Concatenate()
         self.layer_norm_1 = LayerNormalization()
         
         # Feed forward layers
-        self.dense_ffn_1 = Dense(hidden_neurons, activation="relu")
-
-        self.dropout_ffn = Dropout(dropout_rate)
+        self.dense_ffn_1 = Dense(self.hidden_neurons, activation="relu")
+        self.dropout_ffn = Dropout(self.dropout_rate)
         self.concat_ffn = Concatenate()
         self.layer_norm_2 = LayerNormalization()
+        
+        super().build(input_shape)
 
     def call(self, input_tensor):
         input_matched_1 = self.dense_1(input_tensor)
@@ -65,6 +67,7 @@ class TransformerBlock(tf.keras.layers.Layer):
     def from_config(cls, config):
         return cls(**config)
 
+
 @tf.keras.utils.register_keras_serializable()
 class TransformerLSTMBlock(tf.keras.layers.Layer):
     def __init__(
@@ -83,17 +86,20 @@ class TransformerLSTMBlock(tf.keras.layers.Layer):
         self.attention_heads = attention_heads
         self.dropout_rate = dropout_rate
 
+    def build(self, input_shape):
         self.transformer_block = TransformerBlock(
-            neurons_transformer, attention_heads, dropout_rate
+            self.neurons_transformer, self.attention_heads, self.dropout_rate
         )
         
-        if neurons_lstm > 0:
-            self.lstm_layer = LSTM(neurons_lstm, return_sequences=True, recurrent_dropout=0.2)
+        if self.neurons_lstm > 0:
+            self.lstm_layer = LSTM(self.neurons_lstm, return_sequences=True)
         else:
             self.lstm_layer = None
         
-        self.lstm_match = Dense(neurons_lstm, activation="relu")
+        self.lstm_match = Dense(self.neurons_lstm, activation="relu")
         self.concat = Concatenate()
+        
+        super().build(input_shape)
 
     def call(self, input_tensor):
         transformer = self.transformer_block(input_tensor)
@@ -122,6 +128,7 @@ class TransformerLSTMBlock(tf.keras.layers.Layer):
     def from_config(cls, config):
         return cls(**config)
 
+
 @tf.keras.utils.register_keras_serializable()
 class Branch(tf.keras.layers.Layer):
     def __init__(
@@ -140,30 +147,6 @@ class Branch(tf.keras.layers.Layer):
         self.neurons_dense = neurons_dense
         self.attention_heads = attention_heads
         self.dropout_rate = dropout_rate
-
-        # Build the layers within the branch
-        self.transformer_layers = []
-        for (
-            neurons_transformer,
-            neurons_lstm,
-            neurons_dense,
-            attention_heads,
-            dropout_rate,
-        ) in zip(
-            self.neurons_transformer,
-            self.neurons_lstm,
-            self.neurons_dense,
-            self.attention_heads,
-            self.dropout_rate,
-        ):
-            transformer_block = TransformerLSTMBlock(
-                neurons_transformer,
-                neurons_lstm,
-                neurons_dense,
-                attention_heads,
-                dropout_rate,
-            )
-            self.transformer_layers.append(transformer_block)
 
     def build(self, input_shape):
         dtype = tf.as_dtype(self.dtype or tf.keras.backend.floatx())
@@ -246,23 +229,23 @@ class Output(tf.keras.layers.Layer):
         self.neurons_dense = neurons_dense
         self.dropout_rate = dropout_rate
         self.output_neurons = output_neurons
-        self.dense_layers = []
-        self.dropout_layers = []
-        self.gap = GlobalAveragePooling1D()
-        self.output_layer = Dense(output_neurons, activation="linear")
 
-        for neurons, dropout in zip(self.neurons_dense, self.dropout_rate):
-            dense_layer = Dense(neurons, activation="linear")
-            dropout_layer = Dropout(dropout)
-            self.dense_layers.append(dense_layer)
-            self.dropout_layers.append(dropout_layer)
+    def build(self, input_shape):
+        self.dense_layers = [Dense(neurons, activation="linear") for neurons in self.neurons_dense]
+        self.dropout_layers = [Dropout(rate) for rate in self.dropout_rate]
+        
+        self.gap = GlobalAveragePooling1D()
+        self.output_layer = Dense(self.output_neurons, activation="linear")
+
+        super().build(input_shape)
 
     def call(self, inputs, **kwargs):
-        x = inputs
-        x = self.gap(x)
+        x = self.gap(inputs)
+        
         for dense_layer, dropout_layer in zip(self.dense_layers, self.dropout_layers):
             x = dense_layer(x)
             x = dropout_layer(x)
+            
         x = self.output_layer(x)
         return x
 
@@ -278,4 +261,5 @@ class Output(tf.keras.layers.Layer):
     @classmethod
     def from_config(cls, config):
         return cls(**config)
+
 
