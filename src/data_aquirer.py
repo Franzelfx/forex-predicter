@@ -112,6 +112,7 @@ class Data_Aquirer:
         save: bool = False,
         from_file=None,
         no_request=False,
+        ignore_start=False,
     ):
         self._time_base = time_base
 
@@ -125,7 +126,7 @@ class Data_Aquirer:
                 if recent_date == date.today().strftime("%Y-%m-%d"):
                     recent_date = (date.today() - timedelta(days=1)).strftime("%Y-%m-%d")
                 if not no_request:
-                    if first_date != start:
+                    if first_date != start and not ignore_start:
                         print(
                             f"First date is {first_date} instead of {start}, requesting all data from API..."
                         )

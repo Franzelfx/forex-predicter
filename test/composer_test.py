@@ -33,7 +33,9 @@ class Test_Composer(unittest.TestCase):
             from_file = True
         self.composer.summary()
         print(self.interval)
-        self.composer.aquire(from_file=from_file, interval=self.interval, no_request=self.no_request)
+        # If we want to predict, we don't care about the beginning of the data
+        ignore_start = self.predict
+        self.composer.aquire(from_file=from_file, interval=self.interval, no_request=self.no_request, ignore_start=ignore_start)
         self.composer.calculate()
         self.composer.preprocess()
         if self.strategy == 'mirrored':
@@ -58,7 +60,7 @@ if __name__ == '__main__':
     parser.add_argument('--pair', type=str, help='Pair for the Composer class')
     parser.add_argument('--fetch', action='store_true', default=False, help='Fetch status for the Composer class (if False, use data from file)')
     parser.add_argument('--predict', action='store_true', default=False, help='Predict status for the Composer class (if False, fit the model))')
-    parser.add_argument('--box_pts', type=int, default=2, help='Box points for the Composer class prediction (to smooth the predicted data)')
+    parser.add_argument('--box_pts', type=int, default=5, help='Box points for the Composer class prediction (to smooth the predicted data)')
     parser.add_argument('--interval', type=int, default=None, help='Interval for the pair data (in minutes)')
     parser.add_argument('--strategy', type=str, default=False, help='Strategy to train the model')
     parser.add_argument('--no_request', action='store_true', default=False, help='No request for the Composer class (if True, use data from file)')
