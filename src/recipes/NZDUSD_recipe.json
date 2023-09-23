@@ -1,0 +1,70 @@
+{
+  "PROCESSING": {
+    "PAIR": "C:NZDUSD",
+    "INTERVAL": 60,
+    "START_DATE": "2010-01-01",
+    "STEPS_IN": 48,
+    "STEPS_OUT": 24,
+    "TEST_LENGTH": 72,
+    "EPOCHS": 1000,
+    "BATCH_SIZE": 16,
+    "LEARNING_RATE": 0.0001,
+    "VALIDATION_SPLIT": 0.05,
+    "PATIENCE": 100,
+    "PATIENCE_LR_SCHEDULE": 25,
+    "TARGET_FEATURE": "c"
+  },
+  "BRANCHES": {
+    "C:NZDUSD": {
+      "INDICATORS": [
+        "ATR",
+        "BOLLINGER",
+        "MA5",
+        "MA25",
+        "MA50",
+        "MA200",
+        "VoRSI"
+      ],
+      "NODES": {
+        "TRANSFORMER": [48, 48],
+        "LSTM": [32, 32],
+        "DENSE": [48, 48],
+        "ATTENTION_HEADS": [2, 2],
+        "DROPOUT": [0.2, 0.2]
+      }
+    },
+    "C:AUDUSD": {
+      "INDICATORS": [
+        "ATR",
+        "BOLLINGER",
+        "MA5",
+        "MA25",
+        "MA50",
+        "MA200",
+        "VoRSI"
+      ],
+      "NODES": {
+        "TRANSFORMER": [48, 48],
+        "LSTM": [32, 32],
+        "DENSE": [48, 48],
+        "ATTENTION_HEADS": [2, 2],
+        "DROPOUT": [0.2, 0.2]
+      }
+    }
+  },
+  "MAIN_BRANCH": {
+    "NODES": {
+      "TRANSFORMER": [128, 64, 24],
+      "LSTM": [0, 0, 0],
+      "DENSE": [128, 64, 24],
+      "ATTENTION_HEADS": [2, 2, 2],
+      "DROPOUT": [0.2, 0.2, 0.2]
+    }
+  },
+  "OUTPUT": {
+    "NODES": {
+      "DENSE": [24, 24],
+      "DROPOUT": [0.0, 0.0]
+    }
+  }
+}
