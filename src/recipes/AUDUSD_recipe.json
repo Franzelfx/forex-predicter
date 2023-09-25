@@ -26,9 +26,9 @@
         "VoRSI"
       ],
       "NODES": {
-        "TRANSFORMER": [48, 48],
-        "LSTM": [32, 32],
-        "DENSE": [48, 48],
+        "TRANSFORMER": [48, 64],
+        "LSTM": [32, 64],
+        "DENSE": [48, 64],
         "ATTENTION_HEADS": [2, 2],
         "DROPOUT": [0.2, 0.2]
       }
@@ -44,9 +44,9 @@
         "VoRSI"
       ],
       "NODES": {
-        "TRANSFORMER": [48, 48],
-        "LSTM": [32, 32],
-        "DENSE": [48, 48],
+        "TRANSFORMER": [48, 64],
+        "LSTM": [32, 64],
+        "DENSE": [48, 64],
         "ATTENTION_HEADS": [2, 2],
         "DROPOUT": [0.2, 0.2]
       }
@@ -54,11 +54,11 @@
   },
   "MAIN_BRANCH": {
     "NODES": {
-      "TRANSFORMER": [128, 64, 24],
-      "LSTM": [0, 0, 0],
-      "DENSE": [128, 64, 24],
-      "ATTENTION_HEADS": [2, 2, 2],
-      "DROPOUT": [0.2, 0.2, 0.2]
+      "TRANSFORMER": [128, 128, 64, 64, 32],
+      "LSTM": [32, 16, 16, 0, 0],
+      "DENSE": [128, 128, 64, 64, 32],
+      "ATTENTION_HEADS": [2, 2, 2, 2, 2],
+      "DROPOUT": [0.2, 0.1, 0.0, 0.0, 0.0]
     }
   },
   "OUTPUT": {
