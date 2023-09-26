@@ -381,6 +381,7 @@ class Model:
     def predict(
         self,
         x_hat: np.ndarray,
+        x_test: np.ndarray,
         scaler: StandardScaler = None,
         from_saved_model=False,
     ) -> np.ndarray:
@@ -412,10 +413,32 @@ class Model:
 
         y_hat = prediction_model.predict(x_hat).flatten()
         y_hat = np.array(y_hat).flatten()
+        y_test = prediction_model.predict(x_test).flatten()
+        y_test = np.array(y_test).flatten()
 
         # Scale the output back to the original scale
         if scaler is not None:
             y_hat = self._inverse_transform(scaler, y_hat)
+            y_test = self._inverse_transform(scaler, y_test)
 
         # Return the predicted values, based on the given input
-        return y_hat
+        return y_hat, y_test
+    
+    def predict_with_uncertainty(self, x_hat: np.ndarray, n_iter=100):
+        """Predict with uncertainty."""
+        # Check if model is compiled
+        if self._model is None:
+            raise ValueError("Model is not compiled yet, please compile the model first.")
+        
+        # Initialize results array
+        all_preds = np.zeros((n_iter, x_hat.shape[0], self._y_train.shape[1]))
+        
+        for i in range(n_iter):
+            predictions = self._model(x_hat, training=True)  # Enable dropout during inference
+            all_preds[i] = predictions.numpy()
+        
+        avg_pred = all_preds.mean(axis=0)
+        variance = all_preds.var(axis=0)
+        
+        return avg_pred, variance
+

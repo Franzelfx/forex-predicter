@@ -227,7 +227,7 @@ class Composer:
         return dataframes
 
 
-    def aquire(self, api_key: str = None, api_type: str = None, from_file=False, save=True, interval: int = None, no_request=False, ignore_start=False):
+    def aquire(self, api_key: str = None, api_type: str = None, from_file=False, save=True, interval: int = None, no_request=False, ignore_start=False, end_time=None):
         """Aquire the data for al pairs."""
         if api_key is None:
             api_key = self._base.api_key
@@ -244,9 +244,9 @@ class Composer:
             # Create a data_aquirer object for each pair
             aquirer = Data_Aquirer(PATH_PAIRS, api_key)
             # Recalculate the end time, if today is a weekend day (only for pair with C: in name)
-            if pair.startswith("C:"):
+            if pair.startswith("C:") and end_time is None:
                 end_time = self.reconfigure_end_time(datetime.today())
-            else:
+            elif end_time is None:
                 end_time = datetime.today().strftime("%Y-%m-%d")
             # Aquire the data
             pair = aquirer.get(
@@ -384,10 +384,12 @@ class Composer:
         """Predict with the model."""
         model = self.model
         utilizer = Utilizer(model, self.preprocessed)
-        y_hat = utilizer.predict(box_pts=box_pts)
+        x_target = utilizer.x_target
+        y_hat, y_test = utilizer.predict(box_pts=box_pts)
+        mape = utilizer.evaluate(x_target, y_test)
+        print(f"Test MAPE: {mape}")
         visualizer = Visualizer(self._processing.pair)
         path = os.path.join(MODEL_PATH, "model_predictions")
-        x_target = utilizer.x_target
         visualizer.plot_prediction(
-            path, y_hat, test_predict=x_target, time_base=self._processing.interval
+            path, y_hat, test_predict=y_test, time_base=self._processing.interval, test_actual=x_target
         )

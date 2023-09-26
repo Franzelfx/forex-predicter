@@ -19,44 +19,37 @@ class Visualizer:
         if extra_info != "":
             extra_info = f"_{extra_info}"
         path = f"{path}/{self.pair}_prediction{extra_info}"
+
         # Clear the plot
         plt.cla()
         plt.clf()
-        shift_len = 0
+
         # Set style
         if self.dark_mode:
             plt.style.use('dark_background')
         else:
             plt.style.use('default')
+
         # Set line width
         plt.rcParams['lines.linewidth'] = 1
-        # Check if we have test data
-        if (isinstance(test_actual, np.ndarray) or isinstance(test_predict, np.ndarray)):
-            # Plot the test data
-            if(isinstance(test_actual, np.ndarray)):
-                plt.plot(test_actual, label="Actual")
-                shift_len = len(test_actual)
-            # Plot the test prediction
-            if(isinstance(test_predict, np.ndarray)):
-                # reduce test predict to 2x len(hat)
-                test_predict = test_predict[-2*len(hat):]
-                plt.plot(test_predict, label="Input")
-                shift_len = len(test_predict)
-            # Then we have to shift the prediction
-            # by the length of the input to the right
-            # to get the correct time
-            plt.plot(range(shift_len, shift_len + len(hat)), hat, label="Prediction")
-            # Add a trendline
-            z = np.polyfit(range(shift_len, shift_len + len(hat)), hat, 1)
+
+        # Plot the test data
+        if test_actual is not None:
+            plt.plot(test_actual, label="Actual")
+
+        # Plot the test prediction
+        if test_predict is not None:
+            plt.plot(range(len(test_actual) - len(test_predict), len(test_actual)), test_predict, label="Test")
+
+        # Plot the hat prediction
+        if hat is not None:
+            plt.plot(range(len(test_actual), len(test_actual) + len(hat)), hat, label="Prediction")
+
+            # Add a trendline for hat
+            z = np.polyfit(range(len(test_actual), len(test_actual) + len(hat)), hat, 1)
             p = np.poly1d(z)
-            plt.plot(range(shift_len, shift_len + len(hat)), p(range(shift_len, shift_len + len(hat))), 'r--', label="Trendline")
-        else:
-            if hat is not None:
-                plt.plot(hat, label="Ahead Prediction")
-                # Add a trendline
-                z = np.polyfit(range(len(hat)), hat, 1)
-                p = np.poly1d(z)
-                plt.plot(range(len(hat)), p(range(len(hat))), 'r--', label="Trendline")
+            plt.plot(range(len(test_actual), len(test_actual) + len(hat)), p(range(len(test_actual), len(test_actual) + len(hat))), 'r--', label="Trendline")
+
         plt.legend()
         plt.title(f"Prediction for {self.pair}")
         plt.xlabel(f"Time ({ time_base if time_base is not None else '' })")
@@ -64,18 +57,17 @@ class Visualizer:
         # Set title (pair name and date)
         plt.title(f"{self.pair} {date}")
         plt.grid()
+
         # Save the plot
         plt.savefig(f"{path}.png", dpi=600)
         print(f"Saved plot to {path}.png")
+
         # Save raw data as csv
         if save_csv:
-            path = f"{path}"
             df = pd.DataFrame({"prediction": hat})
             if test_actual is not None:
-                df["actual"] = test_actual
+                df["actual"] = test_actual[-len(hat):]  # align the lengths for simplicity in DataFrame
             if test_predict is not None:
-                # reindexing to match the length of the input
-                df = df.reindex(range(len(test_predict)))
-                df["input"] = test_predict
-            df.to_csv(f"{path}.csv", index=False, )
+                df["test"] = test_predict[-len(hat):]  # align the lengths
+            df.to_csv(f"{path}.csv", index=False)
             print(f"Saved data to {path}.csv")

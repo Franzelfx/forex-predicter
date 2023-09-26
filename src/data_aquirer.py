@@ -143,7 +143,7 @@ class Data_Aquirer:
 
         # Convert all data in the 't' column to Timestamps
         data['t'] = pd.to_datetime(data['t'])
-        
+
         # Remove duplicates
         data.drop_duplicates(subset=["t"], inplace=True)
         
@@ -155,6 +155,10 @@ class Data_Aquirer:
         data.sort_values(by="t", inplace=True)
 
         print("len after: ", len(data))
+
+        # Remove all values which are over the end time
+        if end is not None:
+            data = data[data["t"] < end]
 
         if save:
             pair = pair.split(":")[1] if ":" in pair else pair

@@ -27,7 +27,7 @@
       ],
       "NODES": {
         "TRANSFORMER": [48, 48],
-        "LSTM": [32, 32],
+        "LSTM": [0, 0],
         "DENSE": [48, 48],
         "ATTENTION_HEADS": [2, 2],
         "DROPOUT": [0.2, 0.2]
@@ -45,7 +45,7 @@
       ],
       "NODES": {
         "TRANSFORMER": [48, 48],
-        "LSTM": [32, 32],
+        "LSTM": [0, 0],
         "DENSE": [48, 48],
         "ATTENTION_HEADS": [2, 2],
         "DROPOUT": [0.2, 0.2]
@@ -63,7 +63,7 @@
       ],
       "NODES": {
         "TRANSFORMER": [48, 48],
-        "LSTM": [32, 32],
+        "LSTM": [0, 0],
         "DENSE": [48, 48],
         "ATTENTION_HEADS": [2, 2],
         "DROPOUT": [0.2, 0.2]

@@ -12,7 +12,7 @@ class Test_Composer(unittest.TestCase):
     @remarks This is some unit test for the Composer class.
     """
 
-    def __init__(self, methodName: str = ..., pair: str = None, fetch: bool = False, predict: bool = False, box_pts: int = 10, interval: int = None, strategy: str = 'mirrored', no_request: bool = False):
+    def __init__(self, methodName: str = ..., pair: str = None, fetch: bool = False, predict: bool = False, box_pts: int = 10, interval: int = None, strategy: str = 'mirrored', no_request: bool = False, end_time: str = None):
         """Initialize the testbench."""
         super().__init__(methodName)
         self.composer = Composer(pair)
@@ -22,6 +22,7 @@ class Test_Composer(unittest.TestCase):
         self.interval = interval
         self.strategy = strategy
         self.no_request = no_request
+        self.end_time = end_time
         # Eleminate randomness
         np.random.seed(42)
         tf.random.set_seed(42)
@@ -35,7 +36,7 @@ class Test_Composer(unittest.TestCase):
         print(self.interval)
         # If we want to predict, we don't care about the beginning of the data
         ignore_start = self.predict
-        self.composer.aquire(from_file=from_file, interval=self.interval, no_request=self.no_request, ignore_start=ignore_start)
+        self.composer.aquire(from_file=from_file, interval=self.interval, no_request=self.no_request, ignore_start=ignore_start, end_time=self.end_time)
         self.composer.calculate()
         self.composer.preprocess()
         if self.strategy == 'mirrored':
@@ -49,9 +50,9 @@ class Test_Composer(unittest.TestCase):
             self.composer.fit()
 
 
-def __main__(pair, fetch, predict, box_pts, interval, strategy, no_request):
+def __main__(pair, fetch, predict, box_pts, interval, strategy, no_request, end_time):
     suite = unittest.TestSuite()
-    suite.addTest(Test_Composer('test_composer', pair, fetch, predict, box_pts, interval, strategy, no_request))
+    suite.addTest(Test_Composer('test_composer', pair, fetch, predict, box_pts, interval, strategy, no_request, end_time))
     runner = unittest.TextTestRunner()
     runner.run(suite)
 
@@ -64,6 +65,7 @@ if __name__ == '__main__':
     parser.add_argument('--interval', type=int, default=None, help='Interval for the pair data (in minutes)')
     parser.add_argument('--strategy', type=str, default=False, help='Strategy to train the model')
     parser.add_argument('--no_request', action='store_true', default=False, help='No request for the Composer class (if True, use data from file)')
+    parser.add_argument('--end', type=str, default=None, help='End time for data acquisition in yyyy-mm-dd format')
     args = parser.parse_args()
 
     # If no pair is specified, iterate over all JSON files in src/recipes
@@ -78,6 +80,6 @@ if __name__ == '__main__':
                     prefix = 'C:' if pair[0] != 'X' else 'X:'
                     pair = prefix + pair
                 
-                __main__(pair, args.fetch, args.predict, args.box_pts, args.interval, args.strategy, args.no_request)
+                __main__(pair, args.fetch, args.predict, args.box_pts, args.interval, args.strategy, args.no_request, args.end)
     else:
-        __main__(args.pair, args.fetch, args.predict, args.box_pts, args.interval, args.strategy, args.no_request)
+        __main__(args.pair, args.fetch, args.predict, args.box_pts, args.interval, args.strategy, args.no_request, args.end)

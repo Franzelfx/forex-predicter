@@ -41,6 +41,19 @@ class Utilizer:
         @return The target x values.
         """
         return self._target_preprocessor.x_hat_target_inverse
+    
+    def evaluate(self, x_target, y_test) -> float:
+        """Calculate the MAPE of x_target (actual values) and y_test (predicted values).
+
+        Returns:
+            float: MAPE of the model.
+        """
+        # Adjusting x_target to match the length of y_test
+        x_target_adjusted = x_target[-len(y_test):]
+        
+        ape = np.abs((x_target_adjusted - y_test) / x_target_adjusted)
+        return np.mean(ape) * 100
+
 
     def predict(self, box_pts=0) -> tuple[np.ndarray, np.ndarray]:
         """Get test and hat prediction.
@@ -50,24 +63,32 @@ class Utilizer:
         # Predict the values
         # Predict the values for each sequence
         x_hat = []
+        x_test = []
         if isinstance(self._preprocessor, list):
             for preprocessor in self._preprocessor:
                 x_hat.append(preprocessor.x_hat)
+                x_test.append(preprocessor.x_test)
         else:
             x_hat = self._preprocessor.x_hat
-        y_hat = self._model.predict(
-            x_hat,
-            scaler=self._target_scaler,
-            from_saved_model=True,
-        )
+            x_test = self._preprocessor.x_test
+        # Predict the values 
+        # Check if x_hat and x_test are the same
+        if np.array_equal(x_hat, x_test):
+            print("x_hat and x_test are the same")
+        y_hat, y_test = self._model.predict(x_hat, x_test, self._target_scaler, from_saved_model=True)
+        # Inverse the scaling
         y_hat = y_hat - self._diff(y_hat, self._target_preprocessor.last_known_y)
+        y_test = y_test - self._diff(y_test, self._target_preprocessor.last_known_y)
         # Smooth the data
         if box_pts > 0:
              y_hat = self._concat_moving_average(
                  self._target_preprocessor.x_hat_target_inverse, y_hat, box_pts
              )
+             y_test = self._concat_moving_average(
+                    self._target_preprocessor.x_test_target_inverse, y_test, box_pts
+                )
         print(y_hat)
-        return y_hat
+        return y_hat, y_test
 
     def _concat_moving_average(
         self, x_hat: np.ndarray, y_hat: np.ndarray, period: int
