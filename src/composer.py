@@ -328,6 +328,7 @@ class Composer:
             preprocessed.append(preprocessor)
         self.preprocessed = preprocessed
         self.target_preprocessed = preprocessed[0]
+        print(self.target_preprocessed.summary())
         return preprocessed
 
     def compile(self, strategy=None):
@@ -384,12 +385,26 @@ class Composer:
         """Predict with the model."""
         model = self.model
         utilizer = Utilizer(model, self.preprocessed)
-        x_target = utilizer.x_target
-        y_hat, y_test = utilizer.predict(box_pts=box_pts)
-        mape = utilizer.evaluate(x_target, y_test)
-        print(f"Test MAPE: {mape}")
+        y_test, y_hat = utilizer.predict(box_pts=box_pts, test=True)
         visualizer = Visualizer(self._processing.pair)
         path = os.path.join(MODEL_PATH, "model_predictions")
+        # test_actual is the actual values of the test data and the actual value 
+        print(y_test)
+        print(y_hat)
+        x_test = self.target_preprocessed.x_test_target_inverse
+        y_test_actual = self.target_preprocessed.y_test_inverse
+        # Conatenate the x_test and y_test_actual in a way that after each x_test sequence, the corresponding y_test_actual value is appended
+        x_hat = self.target_preprocessed.x_hat_target_inverse
+        n = self._processing.steps_in
+        m = self._processing.steps_out
         visualizer.plot_prediction(
-            path, y_hat, test_predict=y_test, time_base=self._processing.interval, test_actual=x_target
+            path=path, 
+            x_test=x_test, 
+            y_test=y_test, 
+            y_test_actual=y_test_actual, 
+            y_hat=y_hat, 
+            x_hat=x_hat,
+            n=n, 
+            m=m, 
+            save_csv=False
         )

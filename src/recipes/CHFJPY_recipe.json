@@ -5,7 +5,7 @@
     "START_DATE": "2010-01-01",
     "STEPS_IN": 96,
     "STEPS_OUT": 129,
-    "TEST_LENGTH": 288,
+    "TEST_LENGTH": 864,
     "EPOCHS": 1000,
     "BATCH_SIZE": 16,
     "LEARNING_RATE": 0.0001,

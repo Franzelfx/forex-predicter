@@ -65,6 +65,8 @@ class Preprocessor:
         self._test_data = None  # Input is a pandas dataframe, output is a numpy array
         self._scaler = dict  # A dict of scalers for each feature
 
+        self._hat_length = time_steps_out
+
         # Data and target
         if self._target is not None and self._target not in data.columns:
             raise ValueError(
@@ -442,16 +444,21 @@ class Preprocessor:
             )
         return data
 
-    def _split_train_test(
-        self, data: pd.DataFrame, test_split: float, test_length: int
-    ) -> tuple:
+    def _split_train_test(self, data: pd.DataFrame, test_split: float, test_length: int) -> tuple:
         """Split the data into train and test set."""
+
+        # Adjust the length of data after extracting hat_sample
+        data = data[:-self._hat_length]
+
         if test_split is not None:
             train_size = int(len(data) * (1 - test_split))
         else:
             train_size = len(data) - test_length
+
         train_data = data[:train_size]
         test_data = data[train_size:]
+
+        # Return train_data and test_data
         return train_data, test_data
 
     def _scale_data(self, data: pd.DataFrame) -> pd.DataFrame:

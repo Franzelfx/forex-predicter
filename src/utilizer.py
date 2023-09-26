@@ -55,7 +55,7 @@ class Utilizer:
         return np.mean(ape) * 100
 
 
-    def predict(self, box_pts=0) -> tuple[np.ndarray, np.ndarray]:
+    def predict(self, box_pts=0, test=False) -> tuple[np.ndarray, np.ndarray]:
         """Get test and hat prediction.
 
         @return Tuple of test and hat prediction.
@@ -72,23 +72,20 @@ class Utilizer:
             x_hat = self._preprocessor.x_hat
             x_test = self._preprocessor.x_test
         # Predict the values 
-        # Check if x_hat and x_test are the same
-        if np.array_equal(x_hat, x_test):
-            print("x_hat and x_test are the same")
-        y_hat, y_test = self._model.predict(x_hat, x_test, self._target_scaler, from_saved_model=True)
+        y_test, y_hat = self._model.predict(x_hat, self._target_scaler, from_saved_model=True, x_test=x_test if test else None)
         # Inverse the scaling
         y_hat = y_hat - self._diff(y_hat, self._target_preprocessor.last_known_y)
-        y_test = y_test - self._diff(y_test, self._target_preprocessor.last_known_y)
+        #y_test = (y_test - self._diff(y_test, self._target_preprocessor.last_known_y) if test else None)
         # Smooth the data
         if box_pts > 0:
              y_hat = self._concat_moving_average(
                  self._target_preprocessor.x_hat_target_inverse, y_hat, box_pts
              )
-             y_test = self._concat_moving_average(
-                    self._target_preprocessor.x_test_target_inverse, y_test, box_pts
-                )
-        print(y_hat)
-        return y_hat, y_test
+             if test:
+                    y_test = self._concat_moving_average(
+                        self._target_preprocessor.x_test_target_inverse, y_test, box_pts
+                    )
+        return y_test, y_hat
 
     def _concat_moving_average(
         self, x_hat: np.ndarray, y_hat: np.ndarray, period: int

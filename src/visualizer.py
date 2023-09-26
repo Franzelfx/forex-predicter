@@ -13,8 +13,7 @@ class Visualizer:
         self.pair = target
         self.dark_mode = dark_mode
 
-    def plot_prediction(self, path, hat: np.ndarray, test_actual: np.ndarray = None, test_predict: np.ndarray = None, save_csv=True, extra_info="", time_base=None):
-        """Plot the prediction."""
+    def plot_prediction(self, path, x_test, x_hat, y_test, y_test_actual, y_hat, n, m, save_csv=True, extra_info="", time_base=None):
         date = dt.now().strftime("%Y-%m-%d_%H-%M-%S")
         if extra_info != "":
             extra_info = f"_{extra_info}"
@@ -33,41 +32,38 @@ class Visualizer:
         # Set line width
         plt.rcParams['lines.linewidth'] = 1
 
-        # Plot the test data
-        if test_actual is not None:
-            plt.plot(test_actual, label="Actual")
+        x_splits = [x_test[i:i+n] for i in range(0, len(x_test), n)]
+        y_splits = [y_test[i:i+m] for i in range(0, len(y_test), m)]
+        y_splits_actual = [y_test_actual[i:i+m] for i in range(0, len(y_test_actual), m)]
 
-        # Plot the test prediction
-        if test_predict is not None:
-            plt.plot(range(len(test_actual) - len(test_predict), len(test_actual)), test_predict, label="Test")
+        position = 0  # starting position for plotting
 
-        # Plot the hat prediction
-        if hat is not None:
-            plt.plot(range(len(test_actual), len(test_actual) + len(hat)), hat, label="Prediction")
+        for x, y, y_act in zip(x_splits, y_splits, y_splits_actual):
+            # Plot the x sequence
+            plt.plot(range(position, position + len(x)), x, color='cornflowerblue', label='x_test' if position == 0 else "")
+            position += len(x)
 
-            # Add a trendline for hat
-            z = np.polyfit(range(len(test_actual), len(test_actual) + len(hat)), hat, 1)
-            p = np.poly1d(z)
-            plt.plot(range(len(test_actual), len(test_actual) + len(hat)), p(range(len(test_actual), len(test_actual) + len(hat))), 'r--', label="Trendline")
+            # Plot the y sequence
+            plt.plot(range(position, position + len(y)), y, color='lightcoral', label='y_test' if position == len(x) else "")
+            # Optionally, plot y_test_actual if provided
+            plt.plot(range(position, position + len(y_act)), y_act, linestyle='dashed', color='orange', label='y_test_actual' if position == len(x) else "")
+            position += len(y)
+            
+        # Add x_hat to the end if it exists
+        if x_hat is not None:
+            plt.plot(range(position, position + len(x_hat)), x_hat, color='mediumseagreen', label="x_hat")
+            position += len(x_hat)
+            
+        # Add y_hat to the end if it exists
+        if y_hat is not None:
+            plt.plot(range(position, position + len(y_hat)), y_hat, color='orchid', label="y_hat")
 
         plt.legend()
-        plt.title(f"Prediction for {self.pair}")
+        plt.title(f"Prediction for {self.pair} on {date}")
         plt.xlabel(f"Time ({ time_base if time_base is not None else '' })")
         plt.ylabel("Value")
-        # Set title (pair name and date)
-        plt.title(f"{self.pair} {date}")
         plt.grid()
 
         # Save the plot
         plt.savefig(f"{path}.png", dpi=600)
         print(f"Saved plot to {path}.png")
-
-        # Save raw data as csv
-        if save_csv:
-            df = pd.DataFrame({"prediction": hat})
-            if test_actual is not None:
-                df["actual"] = test_actual[-len(hat):]  # align the lengths for simplicity in DataFrame
-            if test_predict is not None:
-                df["test"] = test_predict[-len(hat):]  # align the lengths
-            df.to_csv(f"{path}.csv", index=False)
-            print(f"Saved data to {path}.csv")
