@@ -376,6 +376,17 @@ class Model:
             print(e)
             logging.error(e)
         return fit
+    
+    def load_model(self, path) -> tf.keras.Model:
+        model = load_model(path, custom_objects={
+        'LSTM': tf.keras.layers.LSTM,
+        'TransformerBlock': layers.TransformerBlock,
+        'TransformerLSTMBlock': layers.TransformerLSTMBlock,
+        'Branch': layers.Branch,
+        'Output': layers.Output
+    })
+        return model
+
 
     #TODO: move functionality for x_train and x_test into utilizer
     def predict(
@@ -395,13 +406,7 @@ class Model:
         path = f"{self._path}/checkpoints/{self._name}"
         # Get the model
         if from_saved_model:
-            prediction_model: tf.keras.Model = load_model(path, custom_objects={
-        'LSTM': tf.keras.layers.LSTM,
-        'TransformerBlock': layers.TransformerBlock,
-        'TransformerLSTMBlock': layers.TransformerLSTMBlock,
-        'Branch': layers.Branch,
-        'Output': layers.Output
-    })
+            prediction_model: tf.keras.Model = self.load_model(path)
             print(f"Loaded model from: {path}")
         else:
             # Check if the model has been fitted
@@ -413,6 +418,9 @@ class Model:
 
         y_hat = prediction_model.predict(x_hat).flatten()
         y_hat = np.array(y_hat).flatten()
+        if from_saved_model:
+            prediction_model = self.load_model(path)
+            print(f"Loaded model from: {path}")
         y_test = prediction_model.predict(x_test).flatten()
         y_test = np.array(y_test).flatten()
 

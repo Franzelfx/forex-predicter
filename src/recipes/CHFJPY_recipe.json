@@ -1,11 +1,11 @@
 {
   "PROCESSING": {
     "PAIR": "C:CHFJPY",
-    "INTERVAL": 60,
+    "INTERVAL": 15,
     "START_DATE": "2010-01-01",
-    "STEPS_IN": 48,
-    "STEPS_OUT": 24,
-    "TEST_LENGTH": 72,
+    "STEPS_IN": 96,
+    "STEPS_OUT": 129,
+    "TEST_LENGTH": 288,
     "EPOCHS": 1000,
     "BATCH_SIZE": 16,
     "LEARNING_RATE": 0.0001,
@@ -26,11 +26,11 @@
         "VoRSI"
       ],
       "NODES": {
-        "TRANSFORMER": [48, 48],
-        "LSTM": [0, 0],
-        "DENSE": [48, 48],
-        "ATTENTION_HEADS": [2, 2],
-        "DROPOUT": [0.2, 0.2]
+        "TRANSFORMER": [96, 96, 96],
+        "LSTM": [96, 32, 32],
+        "DENSE": [96, 96, 96],
+        "ATTENTION_HEADS": [2, 2, 2],
+        "DROPOUT": [0.2, 0.2, 0.2]
       }
     },
     "C:GBPJPY": {
@@ -44,11 +44,11 @@
         "VoRSI"
       ],
       "NODES": {
-        "TRANSFORMER": [48, 48],
-        "LSTM": [0, 0],
-        "DENSE": [48, 48],
-        "ATTENTION_HEADS": [2, 2],
-        "DROPOUT": [0.2, 0.2]
+        "TRANSFORMER": [96, 96, 96],
+        "LSTM": [96, 32, 32],
+        "DENSE": [96, 96, 96],
+        "ATTENTION_HEADS": [2, 2, 2],
+        "DROPOUT": [0.2, 0.2, 0.2]
       }
     },
     "C:GBPCAD": {
@@ -62,21 +62,21 @@
         "VoRSI"
       ],
       "NODES": {
-        "TRANSFORMER": [48, 48],
-        "LSTM": [0, 0],
-        "DENSE": [48, 48],
-        "ATTENTION_HEADS": [2, 2],
-        "DROPOUT": [0.2, 0.2]
+        "TRANSFORMER": [96, 96, 96],
+        "LSTM": [96, 32, 32],
+        "DENSE": [96, 96, 96],
+        "ATTENTION_HEADS": [2, 2, 2],
+        "DROPOUT": [0.2, 0.2, 0.2]
       }
     }
   },
   "MAIN_BRANCH": {
     "NODES": {
-      "TRANSFORMER": [128, 64, 24],
-      "LSTM": [0, 0, 0],
-      "DENSE": [128, 64, 24],
-      "ATTENTION_HEADS": [2, 2, 2],
-      "DROPOUT": [0.2, 0.2, 0.2]
+      "TRANSFORMER": [288, 128, 128, 96, 96],
+      "LSTM": [288, 64, 32, 0, 0, 0, 0],
+      "DENSE": [288, 128, 128, 96, 96],
+      "ATTENTION_HEADS": [2, 2, 2, 2, 2],
+      "DROPOUT": [0.2, 0.1, 0.0, 0.0, 0.0]
     }
   },
   "OUTPUT": {
