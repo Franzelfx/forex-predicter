@@ -381,11 +381,11 @@ class Composer:
             patience_lr_schedule=self._processing.patience_lr_schedule,
         )
 
-    def predict(self, box_pts=3):
+    def predict(self, box_pts=3, test=False):
         """Predict with the model."""
         model = self.model
         utilizer = Utilizer(model, self.preprocessed)
-        y_test, y_hat = utilizer.predict(box_pts=box_pts, test=True)
+        y_test, y_hat = utilizer.predict(box_pts=box_pts, test=test)
         visualizer = Visualizer(self._processing.pair)
         path = os.path.join(MODEL_PATH, "model_predictions")
         # test_actual is the actual values of the test data and the actual value 
