@@ -31,12 +31,16 @@ class Visualizer:
             plt.style.use('default')
 
         # Set line width
-        plt.rcParams['lines.linewidth'] = 0.75
+        plt.rcParams['lines.linewidth'] = 1
 
         x_splits = [x_test[i:i+n] for i in range(0, len(x_test), n)] if x_test is not None else []
-
         y_splits = [y_test[i:i+m] for i in range(0, len(y_test), m)] if y_test is not None else []
-        y_splits_actual = [y_test_actual[i:i+m] for i in range(0, len(y_test_actual), m)] if y_test_actual is not None else []
+
+        # Remove the last sample of y_test_actual
+        if y_test_actual is not None:
+            y_splits_actual = [y_test_actual[i:i+m] for i in range(0, len(y_test_actual)-1, m)]
+        else:
+            y_splits_actual = []
 
         position = 0  # starting position for plotting
 
@@ -54,15 +58,20 @@ class Visualizer:
                 plt.plot(range(position, position + len(y_act)), y_act, linestyle='dashed', color='orange', label='y_test_actual' if position == len(x) else "")
                 position += len(y_act)
 
-        # Add x_hat to the end if it exists
+        # Shift x_hat and y_hat by n steps to the left
+        shift = -m
+
+        # Add x_hat to the plot if it exists
         if x_hat is not None:
-            plt.plot(range(position, position + len(x_hat)), x_hat, color='mediumseagreen', label="x_hat")
+            plt.plot(range(position + shift, position + shift + len(x_hat)), x_hat, color='mediumseagreen', label="x_hat")
             position += len(x_hat)
 
-        # Add y_hat to the end if it exists
+        # Add y_hat to the plot if it exists
         if y_hat is not None:
-            plt.plot(range(position, position + len(y_hat)), y_hat, color='orchid', label="y_hat")
-            x_vals = np.array(range(position, position + len(y_hat)))
+            plt.plot(range(position + shift, position + shift + len(y_hat)), y_hat, color='orchid', label="y_hat")
+
+            # Plotting the trendline for y_hat
+            x_vals = np.array(range(position + shift, position + shift + len(y_hat)))
             m, b = np.polyfit(x_vals, y_hat, 1)  # m is slope, b is y-intercept
             plt.plot(x_vals, m * x_vals + b, 'r--')  # <- Red dashed trendline
 
