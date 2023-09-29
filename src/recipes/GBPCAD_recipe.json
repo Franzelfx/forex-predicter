@@ -2,10 +2,10 @@
   "PROCESSING": {
     "PAIR": "C:GBPCAD",
     "INTERVAL": 60,
-    "START_DATE": "2010-01-01",
+    "START_DATE": "2018-01-01",
     "STEPS_IN": 48,
     "STEPS_OUT": 24,
-    "TEST_LENGTH": 72,
+    "TEST_LENGTH": 216,
     "EPOCHS": 1000,
     "BATCH_SIZE": 16,
     "LEARNING_RATE": 0.0001,
@@ -26,11 +26,11 @@
         "VoRSI"
       ],
       "NODES": {
-        "TRANSFORMER": [48, 48],
-        "LSTM": [32, 32],
-        "DENSE": [48, 48],
-        "ATTENTION_HEADS": [2, 2],
-        "DROPOUT": [0.2, 0.2]
+        "TRANSFORMER": [48, 48, 48],
+        "LSTM": [24, 24, 24],
+        "DENSE": [108, 108, 108],
+        "ATTENTION_HEADS": [2, 2, 2],
+        "DROPOUT": [0.2, 0.2, 0.2]
       }
     },
     "C:EURCAD": {
@@ -44,21 +44,21 @@
         "VoRSI"
       ],
       "NODES": {
-        "TRANSFORMER": [48, 48],
-        "LSTM": [32, 32],
-        "DENSE": [48, 48],
-        "ATTENTION_HEADS": [2, 2],
-        "DROPOUT": [0.2, 0.2]
+        "TRANSFORMER": [48, 48, 48],
+        "LSTM": [24, 24, 24],
+        "DENSE": [108, 108, 108],
+        "ATTENTION_HEADS": [2, 2, 2],
+        "DROPOUT": [0.2, 0.2, 0.2]
       }
     }
   },
   "MAIN_BRANCH": {
     "NODES": {
-      "TRANSFORMER": [128, 64, 24],
-      "LSTM": [0, 0, 0],
-      "DENSE": [128, 64, 24],
-      "ATTENTION_HEADS": [2, 2, 2],
-      "DROPOUT": [0.2, 0.2, 0.2]
+      "TRANSFORMER": [216, 216, 128, 64, 32, 24, 24],
+      "LSTM": [0, 0, 0, 0, 0, 0, 0],
+      "DENSE": [216, 216, 128, 64, 32, 24, 24],
+      "ATTENTION_HEADS": [2, 2, 2, 2, 2, 2, 2],
+      "DROPOUT": [0.2, 0.1, 0.0, 0.0, 0.0]
     }
   },
   "OUTPUT": {
