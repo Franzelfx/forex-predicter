@@ -69,6 +69,8 @@ if __name__ == '__main__':
     parser.add_argument('--test', action='store_true', default=False, help='Run with test data')
     parser.add_argument('--end', type=str, default=None, help='End time for data acquisition in yyyy-mm-dd format')
     args = parser.parse_args()
+    if args.end is None:
+        args.end = date.today().strftime("%Y-%m-%d")
 
     # If no pair is specified, iterate over all JSON files in src/recipes
     if args.pair is None:
