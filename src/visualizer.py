@@ -59,7 +59,7 @@ class Visualizer:
                 position += len(y_act)
 
         # Shift x_hat and y_hat by n steps to the left
-        shift = -m
+        shift = -n
 
         # Add x_hat to the plot if it exists
         if x_hat is not None:
