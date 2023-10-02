@@ -1,5 +1,5 @@
+import csv
 import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
 from itertools import zip_longest
 from datetime import datetime as dt
@@ -14,11 +14,11 @@ class Visualizer:
         self.pair = target
         self.dark_mode = dark_mode
 
-    def plot_prediction(self, path, x_test, x_hat, y_test, y_test_actual, y_hat, n, m, save_csv=True, extra_info="", time_base=None):
-        date = dt.now().strftime("%Y-%m-%d_%H-%M-%S")
+    def plot_prediction(self, path, x_test, x_hat, y_test, y_test_actual, y_hat, n, m, save_csv=True, extra_info="", time_base=None, end_time=None):
         if extra_info != "":
             extra_info = f"_{extra_info}"
-        path = f"{path}/{self.pair}_prediction{extra_info}"
+        png_path = f"{path}/{self.pair}_prediction{extra_info}"
+        csv_path = f"{path}/csv/{self.pair}_prediction{extra_info}.csv"
 
         # Clear the plot
         plt.cla()
@@ -58,8 +58,8 @@ class Visualizer:
                 plt.plot(range(position, position + len(y_act)), y_act, linestyle='dashed', color='orange', label='y_test_actual' if position == len(x) else "")
                 position += len(y_act)
 
-        # Shift x_hat and y_hat by n steps to the left
-        shift = -n
+        # Shift x_hat and y_hat by n and m respectively
+        shift = -n + m
 
         # Add x_hat to the plot if it exists
         if x_hat is not None:
@@ -73,14 +73,35 @@ class Visualizer:
             # Plotting the trendline for y_hat
             x_vals = np.array(range(position + shift, position + shift + len(y_hat)))
             m, b = np.polyfit(x_vals, y_hat, 1)  # m is slope, b is y-intercept
-            plt.plot(x_vals, m * x_vals + b, 'r--')  # <- Red dashed trendline
+            plt.plot(x_vals, m * x_vals + b, 'r--', label="y_hat trend")
 
+        # Add the legend, title, and labels
         plt.legend()
-        plt.title(f"Prediction for {self.pair} on {date}")
-        plt.xlabel(f"Time ({ time_base if time_base is not None else '' })")
+        plt.title(f"Prediction for {self.pair} on {end_time if end_time is not None else dt.now().strftime('%Y-%m-%d-%H-%M-%S')}")
+        plt.xlabel(f"Timebase { time_base if time_base is not None else '' } minutes")
         plt.ylabel("Value")
         plt.grid()
 
         # Save the plot
-        plt.savefig(f"{path}.png", dpi=600)
-        print(f"Saved plot to {path}.png")
+        plt.savefig(f"{png_path}.png", dpi=600)
+        print(f"Saved plot to {png_path}.png")
+
+        if save_csv:
+            # Combine all the sequences into a list of rows for CSV
+            max_len = max(map(len, [x_test or [], x_hat or [], y_test or [], y_test_actual or [], y_hat or []]))
+            rows = [["x_test", "x_hat", "y_test", "y_test_actual", "y_hat"]]
+            for i in range(max_len):
+                row = [
+                    x_test[i] if x_test and i < len(x_test) else '',
+                    x_hat[i] if x_hat and i < len(x_hat) else '',
+                    y_test[i] if y_test and i < len(y_test) else '',
+                    y_test_actual[i] if y_test_actual and i < len(y_test_actual) else '',
+                    y_hat[i] if y_hat and i < len(y_hat) else ''
+                ]
+                rows.append(row)
+
+            # Write to CSV
+            with open(csv_path, 'w', newline='') as file:
+                writer = csv.writer(file)
+                writer.writerows(rows)
+            print(f"Saved CSV to {csv_path}")

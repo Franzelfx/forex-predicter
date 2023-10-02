@@ -107,6 +107,7 @@ class Composer:
         self._main_branch = None
         self._output = None
         self._training = None
+        self._date_time = None
 
         # If ":" is in the pair_name, use string after ":"
         if ":" in pair_name:
@@ -132,6 +133,11 @@ class Composer:
             self._branches[name] = Branch(name, attributes)
         self._main_branch = MainBranch(recipe["MAIN_BRANCH"])
         self._output = Output(recipe)
+
+    @property
+    def end_time(self):
+        return self._end_time if self._end_time is not None else datetime.today().strftime("%Y-%m-%d")
+
 
     def _model_branches(self) -> str:
         """Return the model tree of the attributes."""
@@ -229,6 +235,7 @@ class Composer:
 
     def aquire(self, api_key: str = None, api_type: str = None, from_file=False, save=True, interval: int = None, no_request=False, ignore_start=False, end_time=None):
         """Aquire the data for al pairs."""
+        self._end_time = end_time
         if api_key is None:
             api_key = self._base.api_key
         if api_type is None:
@@ -406,5 +413,7 @@ class Composer:
             x_hat=x_hat,
             n=n, 
             m=m, 
-            save_csv=False
+            save_csv=False,
+            end_time=self.end_time,
+            time_base=self._processing.interval,
         )
