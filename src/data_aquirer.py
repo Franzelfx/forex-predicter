@@ -157,7 +157,8 @@ class Data_Aquirer:
         print("len after: ", len(data))
 
         # Remove all values which are over the end time
-        if end is not None and end is not datetime.today().strftime("%Y-%m-%d"):
+        if end != datetime.today().strftime("%Y-%m-%d"):
+            print(f"Remove all values after {end}")
             data = data[data["t"] < end]
 
         if save:
