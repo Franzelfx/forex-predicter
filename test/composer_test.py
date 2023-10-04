@@ -2,7 +2,6 @@
 import unittest
 import argparse
 import numpy as np
-import tensorflow as tf
 from config_tb import *
 from src.composer import Composer
 
@@ -24,13 +23,13 @@ class Test_Composer(unittest.TestCase):
         self.no_request = no_request
         self.end_time = end_time
         self.test = test
-        # Eleminate randomness
-        np.random.seed(42)
-        tf.random.set_seed(42)
-
 
     def test_composer(self):
         """Test the composer."""
+        import tensorflow as tf
+        # Eleminate randomness
+        np.random.seed(42)
+        tf.random.set_seed(42)
         if self.fetch == False:
             from_file = True
         self.composer.summary()
@@ -68,9 +67,15 @@ if __name__ == '__main__':
     parser.add_argument('--no_request', action='store_true', default=False, help='No request for the Composer class (if True, use data from file)')
     parser.add_argument('--test', action='store_true', default=False, help='Run with test data')
     parser.add_argument('--end', type=str, default=None, help='End time for data acquisition in yyyy-mm-dd format')
+    parser.add_argument('--gpu', type=str, default=None, help='GPU to use for training')
     args = parser.parse_args()
+
     if args.end is None:
         args.end = date.today().strftime("%Y-%m-%d")
+
+    if args.gpu is not None:
+        os.environ["CUDA_VISIBLE_DEVICES"] = str(args.gpu)
+        print(f'Using GPU {args.gpu}')
 
     # If no pair is specified, iterate over all JSON files in src/recipes
     if args.pair is None:
