@@ -7,6 +7,7 @@ from pandas import DataFrame
 import matplotlib.pyplot as plt
 from tensorflow.keras.optimizers import Adam
 from datetime import datetime as dt
+from tensorflow.keras.metrics import MeanAbsoluteError, MeanSquaredError
 from tensorflow.keras.models import load_model
 from tensorflow.keras.models import Model as KerasModel
 from sklearn.preprocessing import StandardScaler
@@ -243,14 +244,20 @@ class Model:
         """Compile the model."""
         self._architecture = architecture
         optimizer = Adam(learning_rate=learning_rate)
+        # Metrics
+        mae = MeanAbsoluteError(name='mae')
+        mse = MeanSquaredError(name='mse')
+        metrics_list = ["mape", mae, mse] 
+
         # Check if multiple GPUs are available
         if strategy is not None and hasattr(strategy, "scope"):
             with strategy.scope():
                 model = self._build(architecture)
-                model.compile(loss=loss_fct, optimizer=optimizer, metrics=["mape"])
+                model.compile(loss=loss_fct, optimizer=optimizer, metrics=metrics_list)
         else:
             model = self._build(architecture)
-            model.compile(loss=loss_fct, optimizer=optimizer, metrics=["mape"])
+            model.compile(loss=loss_fct, optimizer=optimizer, metrics=metrics_list)
+
         print(f"Tensorflow version: {tf.__version__}")
         model.summary(expand_nested=True)
         # Plot the model
