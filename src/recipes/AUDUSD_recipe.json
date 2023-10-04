@@ -54,9 +54,9 @@
   },
   "MAIN_BRANCH": {
     "NODES": {
-      "TRANSFORMER": [128, 128],
+      "TRANSFORMER": [128, 96],
       "LSTM": [64, 64],
-      "DENSE": [128, 128],
+      "DENSE": [128, 96],
       "ATTENTION_HEADS": [2, 2],
       "DROPOUT": [0.2, 0.2]
     }
