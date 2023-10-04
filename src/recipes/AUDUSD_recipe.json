@@ -1,13 +1,13 @@
 {
   "PROCESSING": {
     "PAIR": "C:AUDUSD",
-    "INTERVAL": 15,
+    "INTERVAL": 5,
     "START_DATE": "2018-01-01",
-    "STEPS_IN": 120,
-    "STEPS_OUT": 24,
-    "TEST_LENGTH": 144,
+    "STEPS_IN": 480,
+    "STEPS_OUT": 96,
+    "TEST_LENGTH": 576,
     "EPOCHS": 1000,
-    "BATCH_SIZE": 16,
+    "BATCH_SIZE": 4,
     "LEARNING_RATE": 0.0001,
     "VALIDATION_SPLIT": 0.05,
     "PATIENCE": 100,
@@ -26,9 +26,9 @@
         "VoRSI"
       ],
       "NODES": {
-        "TRANSFORMER": [120, 120, 120, 120],
-        "LSTM": [120, 120, 120, 120],
-        "DENSE": [120, 120, 120, 120],
+        "TRANSFORMER": [480, 480, 480, 480],
+        "LSTM": [128, 128, 128, 128],
+        "DENSE": [480, 480, 480, 480],
         "ATTENTION_HEADS": [2, 2, 2, 2],
         "DROPOUT": [0.2, 0.2, 0.2, 0.2]
       }
@@ -44,9 +44,9 @@
         "VoRSI"
       ],
       "NODES": {
-        "TRANSFORMER": [120, 120, 120, 120],
-        "LSTM": [120, 120, 120, 120],
-        "DENSE": [120, 120, 120, 120],
+        "TRANSFORMER": [480, 480, 480, 480],
+        "LSTM": [128, 128, 128, 128],
+        "DENSE": [480, 480, 480, 480],
         "ATTENTION_HEADS": [2, 2, 2, 2],
         "DROPOUT": [0.2, 0.2, 0.2, 0.2]
       }
@@ -54,16 +54,16 @@
   },
   "MAIN_BRANCH": {
     "NODES": {
-      "TRANSFORMER": [360, 360, 256, 128, 64, 32, 24],
+      "TRANSFORMER": [960, 760, 560, 360, 260, 96, 96],
       "LSTM": [64, 64, 32, 0, 0, 0, 0],
-      "DENSE": [360, 360, 256, 128, 64, 32, 24],
+      "DENSE": [960, 760, 560, 360, 260, 96, 96],
       "ATTENTION_HEADS": [2, 2, 2, 2, 2, 2, 2],
       "DROPOUT": [0.2, 0.1, 0.0, 0.0, 0.0]
     }
   },
   "OUTPUT": {
     "NODES": {
-      "DENSE": [24, 24],
+      "DENSE": [96, 96],
       "DROPOUT": [0.0, 0.0]
     }
   }
