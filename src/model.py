@@ -139,8 +139,6 @@ class Model:
         # Model structure variables
         self._architecture = None
         self._model = None
-        # Set the GPU memory growth to enable dynamic memory allocation
-        self.set_gpu()
 
     @property
     def steps_ahead(self) -> int:
