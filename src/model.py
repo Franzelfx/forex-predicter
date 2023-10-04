@@ -149,19 +149,15 @@ class Model:
 
         # Retrieve memory details for all GPUs
         memory_info = [tf.config.experimental.get_memory_info(gpu.name.split(':')[-2] + ':' + gpu.name.split(':')[-1]) for gpu in gpus]
-        
-        # Calculate free memory for each GPU
-        for info in memory_info:
-            print(info.keys())
 
-        free_memory = [info['free_bytes'] for info in memory_info]
-        
-        # Get GPU with the most free memory
-        best_gpu = gpus[free_memory.index(max(free_memory))]
+        # Find the index of the GPU with the least 'current' memory usage
+        min_memory_index = min(enumerate(memory_info), key=lambda x: x[1]['current'])[0]
+        best_gpu = gpus[min_memory_index]
+
         if best_gpu:
             tf.config.experimental.set_visible_devices(best_gpu, 'GPU')
             tf.config.experimental.set_memory_growth(best_gpu, True)
-            print(f"Using {best_gpu}")
+            print(f"Using {best_gpu.name}")
         else:
             print("No available GPUs")
 
