@@ -148,7 +148,7 @@ class Model:
             return None
 
         # Retrieve memory details for all GPUs
-        memory_info = [tf.config.experimental.get_memory_info(gpu) for gpu in gpus]
+        memory_info = [tf.config.experimental.get_memory_info(gpu.name) for gpu in gpus]
         
         # Calculate free memory for each GPU
         free_memory = [info['free_bytes'] for info in memory_info]
