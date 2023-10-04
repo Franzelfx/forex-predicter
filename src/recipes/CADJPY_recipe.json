@@ -67,7 +67,7 @@
   },
   "OUTPUT": {
     "NODES": {
-      "DENSE": [24, 24],
+      "DENSE": [96, 96],
       "DROPOUT": [0.0, 0.0]
     }
   }
