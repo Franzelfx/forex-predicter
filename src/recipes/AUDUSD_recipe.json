@@ -12,7 +12,7 @@
     "VALIDATION_SPLIT": 0.05,
     "PATIENCE": 100,
     "PATIENCE_LR_SCHEDULE": 25,
-    "TARGET_FEATURE": "MA5"
+    "TARGET_FEATURE": "c"
   },
   "BRANCHES": {
     "C:AUDUSD": {
@@ -55,7 +55,7 @@
   "MAIN_BRANCH": {
     "NODES": {
       "TRANSFORMER": [960, 480, 240, 120, 96],
-      "LSTM": 128, 64, 32, 0, 0],
+      "LSTM": [128, 64, 32, 0, 0],
       "DENSE": [960, 480, 240, 120, 96],
       "ATTENTION_HEADS": [2, 2, 2, 2, 2],
       "DROPOUT": [0.1, 0.1, 0.0, 0.0, 0.0]
