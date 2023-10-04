@@ -1,8 +1,8 @@
 {
   "PROCESSING": {
     "PAIR": "C:CADCHF",
-    "INTERVAL": 1,
-    "START_DATE": "2018-01-01",
+    "INTERVAL": 15,
+    "START_DATE": "2015-01-01",
     "STEPS_IN": 480,
     "STEPS_OUT": 96,
     "TEST_LENGTH": 576,
