@@ -139,6 +139,28 @@ class Model:
         # Model structure variables
         self._architecture = None
         self._model = None
+        # Set the GPU memory growth to enable dynamic memory allocation
+        self.set_gpu()
+
+    def set_gpu(self):
+        gpus = tf.config.experimental.list_physical_devices('GPU')
+        if not gpus:
+            return None
+
+        # Retrieve memory details for all GPUs
+        memory_info = [tf.config.experimental.get_memory_info(gpu) for gpu in gpus]
+        
+        # Calculate free memory for each GPU
+        free_memory = [info['free_bytes'] for info in memory_info]
+        
+        # Get GPU with the most free memory
+        best_gpu = gpus[free_memory.index(max(free_memory))]
+        if best_gpu:
+            tf.config.experimental.set_visible_devices(best_gpu, 'GPU')
+            tf.config.experimental.set_memory_growth(best_gpu, True)
+            print(f"Using {best_gpu}")
+        else:
+            print("No available GPUs")
 
     @property
     def steps_ahead(self) -> int:
