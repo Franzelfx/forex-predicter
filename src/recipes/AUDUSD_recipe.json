@@ -3,9 +3,9 @@
     "PAIR": "C:AUDUSD",
     "INTERVAL": 15,
     "START_DATE": "2015-01-01",
-    "STEPS_IN": 480,
+    "STEPS_IN": 96,
     "STEPS_OUT": 96,
-    "TEST_LENGTH": 576,
+    "TEST_LENGTH": 192,
     "EPOCHS": 1000,
     "BATCH_SIZE": 16,
     "LEARNING_RATE": 0.0001,
@@ -26,9 +26,9 @@
         "VoRSI"
       ],
       "NODES": {
-        "TRANSFORMER": [128, 128],
-        "LSTM": [64, 64],
-        "DENSE": [128, 128],
+        "TRANSFORMER": [96, 96],
+        "LSTM": [96, 96],
+        "DENSE": [192, 192],
         "ATTENTION_HEADS": [2, 2],
         "DROPOUT": [0.2, 0.2]
       }
@@ -44,9 +44,9 @@
         "VoRSI"
       ],
       "NODES": {
-        "TRANSFORMER": [128, 128],
-        "LSTM": [64, 64],
-        "DENSE": [128, 128],
+        "TRANSFORMER": [96, 96],
+        "LSTM": [96, 96],
+        "DENSE": [192, 192],
         "ATTENTION_HEADS": [2, 2],
         "DROPOUT": [0.2, 0.2]
       }
@@ -54,11 +54,11 @@
   },
   "MAIN_BRANCH": {
     "NODES": {
-      "TRANSFORMER": [128, 96],
-      "LSTM": [64, 64],
-      "DENSE": [128, 96],
+      "TRANSFORMER": [192, 192],
+      "LSTM": [192, 192],
+      "DENSE": [384, 384],
       "ATTENTION_HEADS": [2, 2],
-      "DROPOUT": [0.2, 0.2]
+      "DROPOUT": [0.0, 0.0]
     }
   },
   "OUTPUT": {
