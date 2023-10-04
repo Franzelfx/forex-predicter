@@ -151,6 +151,7 @@ class Model:
         memory_info = [tf.config.experimental.get_memory_info(gpu.name.split(':')[-2] + ':' + gpu.name.split(':')[-1]) for gpu in gpus]
         
         # Calculate free memory for each GPU
+        print(memory_info.keys())
         free_memory = [info['free_bytes'] for info in memory_info]
         
         # Get GPU with the most free memory
