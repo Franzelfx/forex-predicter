@@ -1,7 +1,7 @@
 {
   "PROCESSING": {
     "PAIR": "C:AUDUSD",
-    "INTERVAL": 5,
+    "INTERVAL": 1,
     "START_DATE": "2018-01-01",
     "STEPS_IN": 480,
     "STEPS_OUT": 96,
@@ -26,9 +26,9 @@
         "VoRSI"
       ],
       "NODES": {
-        "TRANSFORMER": [480, 480],
-        "LSTM": [128, 128],
-        "DENSE": [480, 480],
+        "TRANSFORMER": [128, 128],
+        "LSTM": [64, 64],
+        "DENSE": [128, 128],
         "ATTENTION_HEADS": [2, 2],
         "DROPOUT": [0.2, 0.2]
       }
@@ -44,9 +44,9 @@
         "VoRSI"
       ],
       "NODES": {
-        "TRANSFORMER": [480, 480],
-        "LSTM": [128, 128],
-        "DENSE": [480, 480],
+        "TRANSFORMER": [128, 128],
+        "LSTM": [64, 64],
+        "DENSE": [128, 128],
         "ATTENTION_HEADS": [2, 2],
         "DROPOUT": [0.2, 0.2]
       }
@@ -54,11 +54,11 @@
   },
   "MAIN_BRANCH": {
     "NODES": {
-      "TRANSFORMER": [960, 480, 240, 120, 96],
-      "LSTM": [128, 64, 32, 0, 0],
-      "DENSE": [960, 480, 240, 120, 96],
-      "ATTENTION_HEADS": [2, 2, 2, 2, 2],
-      "DROPOUT": [0.1, 0.1, 0.0, 0.0, 0.0]
+      "TRANSFORMER": [128, 128],
+      "LSTM": [64, 64],
+      "DENSE": [128, 128],
+      "ATTENTION_HEADS": [2, 2],
+      "DROPOUT": [0.2, 0.2]
     }
   },
   "OUTPUT": {

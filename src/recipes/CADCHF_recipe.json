@@ -1,13 +1,13 @@
 {
   "PROCESSING": {
     "PAIR": "C:CADCHF",
-    "INTERVAL": 5,
+    "INTERVAL": 1,
     "START_DATE": "2018-01-01",
     "STEPS_IN": 480,
     "STEPS_OUT": 96,
     "TEST_LENGTH": 576,
     "EPOCHS": 1000,
-    "BATCH_SIZE": 4,
+    "BATCH_SIZE": 16,
     "LEARNING_RATE": 0.0001,
     "VALIDATION_SPLIT": 0.05,
     "PATIENCE": 100,
