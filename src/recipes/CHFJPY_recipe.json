@@ -50,7 +50,8 @@
         "ATTENTION_HEADS": [2, 2],
         "DROPOUT": [0.2, 0.2]
       }
-    },
+    }
+  },
   "MAIN_BRANCH": {
     "NODES": {
       "TRANSFORMER": [192, 96],
