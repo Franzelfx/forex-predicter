@@ -18,9 +18,9 @@
     "C:CADJPY": {
       "INDICATORS": ["MA50", "VoRSI"],
       "NODES": {
-        "TRANSFORMER": [96, 48],
-        "LSTM": [96, 48],
-        "DENSE": [192, 96],
+        "TRANSFORMER": [96, 96],
+        "LSTM": [96, 96],
+        "DENSE": [192, 192],
         "ATTENTION_HEADS": [2, 2],
         "DROPOUT": [0.2, 0.2]
       }
@@ -28,9 +28,9 @@
     "C:USDJPY": {
       "INDICATORS": ["MA50", "VoRSI"],
       "NODES": {
-        "TRANSFORMER": [96, 48],
-        "LSTM": [96, 48],
-        "DENSE": [192, 96],
+        "TRANSFORMER": [96, 96],
+        "LSTM": [96, 96],
+        "DENSE": [192, 192],
         "ATTENTION_HEADS": [2, 2],
         "DROPOUT": [0.2, 0.2]
       }
@@ -38,9 +38,9 @@
     "C:EURCAD": {
       "INDICATORS": ["MA50", "VoRSI"],
       "NODES": {
-        "TRANSFORMER": [96, 48],
-        "LSTM": [96, 48],
-        "DENSE": [192, 96],
+        "TRANSFORMER": [96, 96],
+        "LSTM": [96, 96],
+        "DENSE": [192, 192],
         "ATTENTION_HEADS": [2, 2],
         "DROPOUT": [0.2, 0.2]
       }
@@ -48,9 +48,9 @@
     "C:GBPCAD": {
       "INDICATORS": ["MA50", "VoRSI"],
       "NODES": {
-        "TRANSFORMER": [96, 48],
-        "LSTM": [96, 48],
-        "DENSE": [192, 96],
+        "TRANSFORMER": [96, 96],
+        "LSTM": [96, 96],
+        "DENSE": [192, 192],
         "ATTENTION_HEADS": [2, 2],
         "DROPOUT": [0.2, 0.2]
       }
@@ -58,9 +58,9 @@
   },
   "MAIN_BRANCH": {
     "NODES": {
-      "TRANSFORMER": [96, 24],
-      "LSTM": [96, 24],
-      "DENSE": [192, 48],
+      "TRANSFORMER": [384, 96],
+      "LSTM": [384, 24],
+      "DENSE": [768, 192],
       "ATTENTION_HEADS": [4, 4],
       "DROPOUT": [0.0, 0.0]
     }
