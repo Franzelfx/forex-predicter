@@ -1,6 +1,6 @@
 {
   "PROCESSING": {
-    "PAIR": "C:AUDUSD",
+    "PAIR": "C:EURCHF",
     "INTERVAL": 15,
     "START_DATE": "2015-01-01",
     "STEPS_IN": 96,
@@ -15,7 +15,7 @@
     "TARGET_FEATURE": "c"
   },
   "BRANCHES": {
-    "C:AUDUSD": {
+    "C:EURCHF": {
       "INDICATORS": [
         "ATR",
         "BOLLINGER",
@@ -33,7 +33,7 @@
         "DROPOUT": [0.2, 0.2]
       }
     },
-    "C:NZDUSD": {
+    "C:EURGBP": {
       "INDICATORS": [
         "ATR",
         "BOLLINGER",
