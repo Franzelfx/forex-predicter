@@ -2,7 +2,7 @@
   "PROCESSING": {
     "PAIR": "C:CHFJPY",
     "INTERVAL": 15,
-    "START_DATE": "2020-01-01",
+    "START_DATE": "2010-01-01",
     "STEPS_IN": 96,
     "STEPS_OUT": 96,
     "TEST_LENGTH": 192,
@@ -40,11 +40,11 @@
         "PLUS_DM"
       ],
       "NODES": {
-        "TRANSFORMER": [96, 96],
-        "LSTM": [96, 96],
-        "DENSE": [192, 192],
-        "ATTENTION_HEADS": [2, 2],
-        "DROPOUT": [0.2, 0.2]
+        "TRANSFORMER": [96, 96, 96],
+        "LSTM": [96, 96, 96],
+        "DENSE": [192, 192, 192],
+        "ATTENTION_HEADS": [2, 2, 2],
+        "DROPOUT": [0.2, 0.2, 0.2]
       }
     },
     "C:GBPJPY": {
@@ -72,11 +72,11 @@
         "PLUS_DM"
       ],
       "NODES": {
-        "TRANSFORMER": [96, 96],
-        "LSTM": [96, 96],
-        "DENSE": [192, 192],
-        "ATTENTION_HEADS": [2, 2],
-        "DROPOUT": [0.2, 0.2]
+        "TRANSFORMER": [96, 96, 96],
+        "LSTM": [96, 96, 96],
+        "DENSE": [192, 192, 192],
+        "ATTENTION_HEADS": [2, 2, 2],
+        "DROPOUT": [0.2, 0.2, 0.2]
       }
     }
   },
