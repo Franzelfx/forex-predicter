@@ -54,7 +54,6 @@ class Utilizer:
         ape = np.abs((x_target_adjusted - y_test) / x_target_adjusted)
         return np.mean(ape) * 100
 
-
     def predict(self, box_pts=0, test=False) -> tuple[np.ndarray, np.ndarray]:
         """Get test and hat prediction.
 
@@ -75,7 +74,7 @@ class Utilizer:
         y_test, y_hat = self._model.predict(x_hat, self._target_scaler, from_saved_model=True, x_test=x_test if test else None)
         # Inverse the scaling
         y_hat = y_hat - self._diff(y_hat, self._target_preprocessor.last_known_y)
-        #y_test = (y_test - self._diff(y_test, self._target_preprocessor.last_known_y) if test else None)
+        y_test = (y_test - self._diff(y_test, self._target_preprocessor.last_known_y) if test else None)
         # Smooth the data
         if box_pts > 0:
              y_hat = self._concat_moving_average(
@@ -85,6 +84,8 @@ class Utilizer:
                     y_test = self._concat_moving_average(
                         self._target_preprocessor.x_test_target_inverse, y_test, box_pts
                     )
+        # Calculate confidence score
+        print(f"Confidence score: {self._model.confidence(x_hat)} %")
         return y_test, y_hat
 
     def _concat_moving_average(

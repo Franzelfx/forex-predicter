@@ -394,13 +394,11 @@ class Model:
     })
         return model
 
-
-    #TODO: move functionality for x_train and x_test into utilizer
     def predict(
     self,
     x_hat: np.ndarray,
     scaler: StandardScaler = None,
-    from_saved_model=False,
+    from_saved_model=True,
     x_test: np.ndarray = None,
     ) -> np.ndarray:
         """Predict the output for the given input.
@@ -440,4 +438,68 @@ class Model:
                 y_test = self._inverse_transform(scaler, y_test)
         # Return the predicted values, based on the given input
         return y_test, y_hat
+    
+    def confidence(
+        self,
+        x_input,
+        num_samples=100,
+        from_saved_model=True,
+    ):
+        """
+        Calculate prediction uncertainty using Monte Carlo Dropout and return confidence percentage.
+
+        Parameters:
+        - model: The compiled Keras model with dropout layers.
+        - x_input: The input data for predictions (numpy array).
+        - num_samples: Number of Monte Carlo samples to generate.
+        - from_saved_model: Whether to load the model from a saved file (True) or use the provided model (False).
+        - std_bound: The upper bound for standard deviation beyond which confidence is 0%.
+
+        Returns:
+        - mean_predictions: Mean predictions across Monte Carlo samples.
+        - confidence_percent: Confidence in predictions as a percentage.
+        """
+
+        path = f"{self._path}/checkpoints/{self._name}"
+
+        if from_saved_model:
+            # Load the model from a saved file
+            prediction_model = load_model(path, custom_objects={
+                'LSTM': tf.keras.layers.LSTM,
+                'TransformerBlock': layers.TransformerBlock,
+                'TransformerLSTMBlock': layers.TransformerLSTMBlock,
+                'Branch': layers.Branch,
+                'Output': layers.Output
+            })
+        else:
+            # Check if the model has been compiled
+            if self._model is None:
+                raise ValueError("The model must be compiled first.")
+
+            prediction_model = self._model
+
+        # Initialize arrays to store predictions from Monte Carlo samples
+        predictions = []
+
+        # Generate predictions using Monte Carlo Dropout
+        for _ in range(num_samples):
+            predictions.append(prediction_model.predict(x_input))
+
+        # Calculate mean and standard deviation of predictions
+        std_predictions = np.std(predictions, axis=0)
+
+        # Dynamic scaling using median (or mean) of the std_predictions
+        median_std = np.median(std_predictions)
+
+        # Guard against division by zero
+        if median_std == 0:
+            median_std = 1e-10  # small constant to avoid division by zero
+
+        confidence_percent = np.clip(100 * (1 - (std_predictions / median_std)), 0, 100)
+
+        # Calculate mean of confidence across all samples as 2 decimal percentage
+        confidence_percent = np.mean(confidence_percent)
+        confidence_percent = np.round(confidence_percent, 2)
+
+        return confidence_percent
 
