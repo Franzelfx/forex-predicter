@@ -75,9 +75,18 @@ class Visualizer:
             m, b = np.polyfit(x_vals, y_hat, 1)  # m is slope, b is y-intercept
             plt.plot(x_vals, m * x_vals + b, 'r--', label="y_hat trend")
 
+                # Get the end time, use the current time if not provided, add always the hours and minutes, if not provided
+        if end_time is None:
+            end_time = dt.now().strftime("%Y-%m-%d-%H-%M-%S")
+        else:
+            # Ensure end_time has hours, minutes, and seconds
+            if len(end_time.split('-')) < 6:
+                # Append the current hours, minutes, and seconds if they're not provided
+                end_time += dt.now().strftime("-%H-%M-%S")
+
         # Add the legend, title, and labels
         plt.legend()
-        plt.title(f"Prediction for {self.pair} on {end_time if end_time is not None else dt.now().strftime('%Y-%m-%d-%H-%M-%S')}")
+        plt.title(f"Prediction for {self.pair} on {end_time}")
         plt.xlabel(f"Timebase { time_base if time_base is not None else '' } minutes")
         plt.ylabel("Value")
         plt.grid()

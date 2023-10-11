@@ -442,7 +442,7 @@ class Model:
     def confidence(
         self,
         x_input,
-        num_samples=100,
+        num_samples=10,
         from_saved_model=True,
     ):
         """

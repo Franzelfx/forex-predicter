@@ -236,7 +236,7 @@ class Composer:
     def aquire(self, api_key: str = None, api_type: str = None, from_file=False, save=True, interval: int = None, no_request=False, ignore_start=False, end_time=None):
         """Aquire the data for al pairs."""
         self._end_time = end_time
-        self._interval = interval
+        self._interval = interval if interval is not None else self._processing.interval
         if api_key is None:
             api_key = self._base.api_key
         if api_type is None:
