@@ -1,13 +1,13 @@
 {
   "PROCESSING": {
-    "PAIR": "C:EURCHF",
-    "INTERVAL": 15,
-    "START_DATE": "2015-01-01",
+    "PAIR": "C:EURAUD",
+    "INTERVAL": 5,
+    "START_DATE": "2010-01-01",
     "STEPS_IN": 96,
     "STEPS_OUT": 96,
     "TEST_LENGTH": 192,
     "EPOCHS": 1000,
-    "BATCH_SIZE": 16,
+    "BATCH_SIZE": 32,
     "LEARNING_RATE": 0.0001,
     "VALIDATION_SPLIT": 0.05,
     "PATIENCE": 100,
@@ -15,7 +15,7 @@
     "TARGET_FEATURE": "c"
   },
   "BRANCHES": {
-    "C:EURCHF": {
+    "C:EURAUD": {
       "INDICATORS": [
         "ATR",
         "BOLLINGER",
@@ -40,14 +40,14 @@
         "PLUS_DM"
       ],
       "NODES": {
-        "TRANSFORMER": [96, 96, 96],
-        "LSTM": [96, 96, 96],
-        "DENSE": [192, 192, 192],
-        "ATTENTION_HEADS": [8, 8, 8],
-        "DROPOUT": [0.2, 0.2, 0.2]
+        "TRANSFORMER": [96, 96, 96, 96],
+        "LSTM": [96, 96, 96, 96],
+        "DENSE": [192, 192, 192, 192],
+        "ATTENTION_HEADS": [32, 32, 32, 32],
+        "DROPOUT": [0.2, 0.2, 0.2, 0.2]
       }
     },
-    "C:EURGBP": {
+    "C:GBPAUD": {
       "INDICATORS": [
         "ATR",
         "BOLLINGER",
@@ -72,11 +72,11 @@
         "PLUS_DM"
       ],
       "NODES": {
-        "TRANSFORMER": [96, 96, 96],
-        "LSTM": [96, 96, 96],
-        "DENSE": [192, 192, 192],
-        "ATTENTION_HEADS": [8, 8, 8],
-        "DROPOUT": [0.2, 0.2, 0.2]
+        "TRANSFORMER": [96, 96, 96, 96],
+        "LSTM": [96, 96, 96, 96],
+        "DENSE": [192, 192, 192, 192],
+        "ATTENTION_HEADS": [32, 32, 32, 32],
+        "DROPOUT": [0.2, 0.2, 0.2, 0.2]
       }
     }
   },
@@ -85,7 +85,7 @@
       "TRANSFORMER": [192, 192, 96, 96, 96],
       "LSTM": [192, 192, 96, 96, 96],
       "DENSE": [384, 384, 192, 192, 192],
-      "ATTENTION_HEADS": [8, 8, 8, 8, 8],
+      "ATTENTION_HEADS": [32, 32, 32, 32, 32],
       "DROPOUT": [0.2, 0.1, 0.0, 0.0, 0.0]
     }
   },
