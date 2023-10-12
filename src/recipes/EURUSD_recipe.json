@@ -7,7 +7,7 @@
     "STEPS_OUT": 96,
     "TEST_LENGTH": 192,
     "EPOCHS": 1000,
-    "BATCH_SIZE": 16,
+    "BATCH_SIZE": 8,
     "LEARNING_RATE": 0.0001,
     "VALIDATION_SPLIT": 0.01,
     "PATIENCE": 100,
