@@ -7,9 +7,9 @@
     "STEPS_OUT": 96,
     "TEST_LENGTH": 192,
     "EPOCHS": 1000,
-    "BATCH_SIZE": 16,
+    "BATCH_SIZE": 8,
     "LEARNING_RATE": 0.0001,
-    "VALIDATION_SPLIT": 0.05,
+    "VALIDATION_SPLIT": 0.01,
     "PATIENCE": 100,
     "PATIENCE_LR_SCHEDULE": 25,
     "TARGET_FEATURE": "c"
@@ -43,7 +43,7 @@
         "TRANSFORMER": [96, 96, 96, 96],
         "LSTM": [96, 96, 96, 96],
         "DENSE": [192, 192, 192, 192],
-        "ATTENTION_HEADS": [32, 32, 32, 32],
+        "ATTENTION_HEADS": [64, 64, 64, 64],
         "DROPOUT": [0.2, 0.2, 0.2, 0.2]
       }
     },
@@ -75,7 +75,7 @@
         "TRANSFORMER": [96, 96, 96, 96],
         "LSTM": [96, 96, 96, 96],
         "DENSE": [192, 192, 192, 192],
-        "ATTENTION_HEADS": [32, 32, 32, 32],
+        "ATTENTION_HEADS": [64, 64, 64, 64],
         "DROPOUT": [0.2, 0.2, 0.2, 0.2]
       }
     }
@@ -85,7 +85,7 @@
       "TRANSFORMER": [192, 192, 96, 96, 96],
       "LSTM": [192, 192, 96, 96, 96],
       "DENSE": [384, 384, 192, 192, 192],
-      "ATTENTION_HEADS": [32, 32, 32, 32, 32],
+      "ATTENTION_HEADS": [64, 64, 64, 64, 64],
       "DROPOUT": [0.2, 0.1, 0.0, 0.0, 0.0]
     }
   },
