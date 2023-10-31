@@ -181,9 +181,13 @@ class Model:
             branches.append(_branch)
             inputs.append(_input)
         # Summation layer
-        summation = Concatenate()(branches)
+        if len(branches) > 1:
+            summation = Concatenate()(branches)
         # Layer normalization
-        summation = LayerNormalization()(summation)
+        if len(branches) > 1:
+            summation = LayerNormalization()(summation)
+        else:
+            summation = LayerNormalization()(branches[0])
         # Main branch after the summation
         main_branch = layers.Branch(
             architecture.main_branch.transformer_neurons,
