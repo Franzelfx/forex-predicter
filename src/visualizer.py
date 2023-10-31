@@ -55,27 +55,24 @@ class Visualizer:
                 position += len(y)
             if y_act is not None:
                 # Optionally, plot y_test_actual if provided
-                plt.plot(range(position, position + len(y_act)), y_act, linestyle='dashed', color='orange', label='y_test_actual' if position == len(x) else "")
+                plt.plot(range(position - 24, position + len(y_act) - 24), y_act, linestyle='dashed', color='orange', label='y_test_actual' if position == len(x) else "")
                 position += len(y_act)
-
-        # Shift x_hat and y_hat by n and m respectively
-        shift = -n + m
 
         # Add x_hat to the plot if it exists
         if x_hat is not None:
-            plt.plot(range(position + shift, position + shift + len(x_hat)), x_hat, color='mediumseagreen', label="x_hat")
+            plt.plot(range(position, position + len(x_hat)), x_hat, color='mediumseagreen', label="x_hat")
             position += len(x_hat)
 
         # Add y_hat to the plot if it exists
         if y_hat is not None:
-            plt.plot(range(position + shift, position + shift + len(y_hat)), y_hat, color='orchid', label="y_hat")
+            plt.plot(range(position, position + len(y_hat)), y_hat, color='orchid', label="y_hat")
 
             # Plotting the trendline for y_hat
-            x_vals = np.array(range(position + shift, position + shift + len(y_hat)))
+            x_vals = np.array(range(position - len(y_hat), position))
             m, b = np.polyfit(x_vals, y_hat, 1)  # m is slope, b is y-intercept
             plt.plot(x_vals, m * x_vals + b, 'r--', label="y_hat trend")
 
-                # Get the end time, use the current time if not provided, add always the hours and minutes, if not provided
+        # Get the end time, use the current time if not provided
         if end_time is None:
             end_time = dt.now().strftime("%Y-%m-%d-%H-%M-%S")
         else:
