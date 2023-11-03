@@ -26,6 +26,7 @@ class Preprocessor:
         test_split: float = None,
         scale: bool = True,
         shift: int = None,
+        overlap: int = 0,
     ):
         """Set the fundamental attributes.
 
@@ -51,7 +52,8 @@ class Preprocessor:
         # Data and target
         self._data = data
         self._target = target
-        # The time steps
+        # The time steps and overlap
+        self._overlap = overlap
         self._time_steps_in = time_steps_in
         self._time_steps_out = time_steps_out
         # The test length
@@ -124,18 +126,19 @@ class Preprocessor:
         self._train_data, self._test_data = self._split_train_test(
             self._data, self._test_split, self._test_length
         )
-        # TODO: Create samples function
         # Split the train data into sequences
         self._x_train, self._y_train = self._create_samples(
             self._train_data,
             self._time_steps_in,
             self._time_steps_out,
+            self._overlap,
         )
         # Split the test data into sequences
         self._x_test, self._y_test = self._create_samples(
             self._test_data,
             self._time_steps_in,
             self._time_steps_out,
+            self._overlap,
         )
 
     def summary(self) -> None:
@@ -483,12 +486,14 @@ class Preprocessor:
         input_sequence: pd.DataFrame,
         steps_in: int,
         steps_out: int,
+        overlap: int,
     ) -> tuple[np.ndarray, np.ndarray]:
         """Create samples of x and y.
 
         @param input_sequence: The input sequence.
         @param steps_in: The number of time steps fed into the network.
         @param steps_out: The number of time steps the network predicts.
+        @param overlap: The number of time steps that each sample will overlap.
 
         @return: A tuple of x and y samples.
 
@@ -499,19 +504,19 @@ class Preprocessor:
         x = []
         y = []
         iterator = 0
-        # x is simply a sliding window of length steps_in
-        # y is a sliding window of length steps_out
-        # with an offset of steps_in
+        step_size = steps_in - overlap  # Calculate the non-overlapping step size
+
+        if step_size < 1:
+            raise ValueError("Overlap must be less than steps_in to progress the iterator.")
+
         while iterator + steps_in + steps_out <= len(input_sequence):
-            x.append(input_sequence[iterator : iterator + steps_in].values)
-            if self.target is not None:
+            x.append(input_sequence.iloc[iterator : iterator + steps_in].values)
+            if self._target is not None:
                 y.append(
-                    input_sequence[iterator + steps_in : iterator + steps_in + steps_out][
+                    input_sequence.iloc[iterator + steps_in : iterator + steps_in + steps_out][
                         self._target
                     ].values
                 )
-            if self._shift is None:
-                iterator += steps_in + steps_out  # Move iterator by steps_in + steps_out
-            else:
-                iterator += self._shift
+            iterator += step_size  # Move iterator by the non-overlapping step size
+
         return np.array(x), np.array(y)

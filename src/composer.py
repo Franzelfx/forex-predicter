@@ -47,6 +47,7 @@ class Processing:
         self.start_date = processing_sec["START_DATE"]
         self.steps_in = processing_sec["STEPS_IN"]
         self.steps_out = processing_sec["STEPS_OUT"]
+        self.overlap = processing_sec["OVERLAP"]
         self.test_length = processing_sec["TEST_LENGTH"]
         # Training
         self.epochs = processing_sec["EPOCHS"]
@@ -329,6 +330,7 @@ class Composer:
                 time_steps_out=self._processing.steps_out,
                 test_length=self._processing.test_length,
                 target=self._processing.target_feature,
+                overlap=self._processing.overlap,
             )
             # Append the dataframes to the preprocessed list
             preprocessed.append(preprocessor)
