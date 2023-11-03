@@ -147,9 +147,10 @@ class Data_Aquirer:
         # Remove duplicates
         data.drop_duplicates(subset=["t"], inplace=True)
         
-        # Filter out the weekends
-        print("Remove all weekends, len before: ", len(data), end=" ")
-        data = data[data['t'].dt.weekday < 5]
+        # Filter out the weekends if pair has "C:" in it
+        if "C:" in pair:
+            print("Remove all weekends, len before: ", len(data), end=" ")
+            data = data[data['t'].dt.weekday < 5]
 
         # Sort the data by time
         data.sort_values(by="t", inplace=True)

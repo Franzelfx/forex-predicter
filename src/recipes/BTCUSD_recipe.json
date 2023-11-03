@@ -3,7 +3,7 @@
     "PAIR": "X:BTCUSD",
     "INTERVAL": 5,
     "START_DATE": "2010-01-01",
-    "STEPS_IN": 96,
+    "STEPS_IN": 48,
     "STEPS_OUT": 24,
     "TEST_LENGTH": 120,
     "EPOCHS": 1000,
@@ -40,21 +40,21 @@
         "PLUS_DM"
       ],
       "NODES": {
-        "TRANSFORMER": [96, 96],
-        "LSTM": [32, 32],
-        "DENSE": [128, 128],
-        "ATTENTION_HEADS": [64, 64],
-        "DROPOUT": [0.2, 0.2]
+        "TRANSFORMER": [48, 48, 48, 48],
+        "LSTM": [48, 48, 48, 48],
+        "DENSE": [96, 96, 96, 96],
+        "ATTENTION_HEADS": [64, 64, 64, 64],
+        "DROPOUT": [0.2, 0.2, 0.2, 0.2]
       }
     }
   },
   "MAIN_BRANCH": {
     "NODES": {
-      "TRANSFORMER": [96, 96],
-      "LSTM": [32, 32],
-      "DENSE": [128, 128],
-      "ATTENTION_HEADS": [64, 64],
-      "DROPOUT": [0.0, 0.0]
+      "TRANSFORMER": [48, 48, 24, 24],
+      "LSTM": [48, 48, 24, 24],
+      "DENSE": [96, 96, 48, 48],
+      "ATTENTION_HEADS": [64, 64, 64, 64],
+      "DROPOUT": [0.2, 0.1, 0.0, 0.0]
     }
   },
   "OUTPUT": {
