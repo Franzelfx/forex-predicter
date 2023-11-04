@@ -140,6 +140,8 @@ class Preprocessor:
             self._time_steps_out,
             self._overlap,
         )
+        if self._y_test is None:
+            raise ValueError("y_test is None. (May be caused by overlap > time_steps_in) or (May be caused by test_split > 0.5) or (May be caused by test_length < time_steps_in + time_steps_out)")
 
     def summary(self) -> None:
         """Print a summary of the preprocessor."""
@@ -480,6 +482,10 @@ class Preprocessor:
         # Save the scaler
         self._scaler = scaler
         return data
+    
+    def _mirror_sequence(self, sequence: pd.DataFrame) -> pd.DataFrame:
+        """Mirror the sequence."""
+        return sequence.iloc[::-1].reset_index(drop=True)
 
     def _create_samples(
         self,
@@ -488,7 +494,7 @@ class Preprocessor:
         steps_out: int,
         overlap: int,
     ) -> tuple[np.ndarray, np.ndarray]:
-        """Create samples of x and y.
+        """Create samples from the input sequence.
 
         @param input_sequence: The input sequence.
         @param steps_in: The number of time steps fed into the network.
@@ -496,27 +502,30 @@ class Preprocessor:
         @param overlap: The number of time steps that each sample will overlap.
 
         @return: A tuple of x and y samples.
-
-        @remarks: The x samples are of shape (samples, time_steps, features).
-                  The y samples are of shape (samples, time_steps).
-                  After every sample of x there is a sample of y.
         """
         x = []
         y = []
-        iterator = 0
         step_size = steps_in - overlap  # Calculate the non-overlapping step size
 
         if step_size < 1:
             raise ValueError("Overlap must be less than steps_in to progress the iterator.")
 
-        while iterator + steps_in + steps_out <= len(input_sequence):
-            x.append(input_sequence.iloc[iterator : iterator + steps_in].values)
-            if self._target is not None:
-                y.append(
-                    input_sequence.iloc[iterator + steps_in : iterator + steps_in + steps_out][
-                        self._target
-                    ].values
-                )
-            iterator += step_size  # Move iterator by the non-overlapping step size
+        # Calculate the total number of samples that can fit into the input sequence
+        total_samples = (len(input_sequence) - steps_out) // step_size
 
-        return np.array(x), np.array(y)
+        # Calculate the length of the sequence that will be used
+        usable_length = total_samples * step_size + steps_out
+
+        # Trim the input_sequence to the usable_length from the end
+        trimmed_sequence = input_sequence.iloc[-usable_length:]
+
+        # Create the samples
+        for start in range(0, len(trimmed_sequence) - steps_in - steps_out + 1, step_size):
+            x_sample = trimmed_sequence.iloc[start: start + steps_in].values
+            y_sample = trimmed_sequence.iloc[start + steps_in: start + steps_in + steps_out].values
+
+            x.append(x_sample)
+            if self._target is not None:
+                y.append(y_sample)
+
+        return np.array(x), (np.array(y) if self._target is not None else np.array([]))
