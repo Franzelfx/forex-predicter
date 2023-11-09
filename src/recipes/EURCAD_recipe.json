@@ -1,17 +1,17 @@
 {
   "PROCESSING": {
     "PAIR": "C:EURCAD",
-    "INTERVAL": 60,
+    "INTERVAL": 5,
     "START_DATE": "2010-01-01",
     "STEPS_IN": 96,
-    "STEPS_OUT": 24,
+    "STEPS_OUT": 48,
     "TEST_LENGTH": 120,
     "EPOCHS": 1000,
     "BATCH_SIZE": 8,
     "LEARNING_RATE": 0.0001,
     "VALIDATION_SPLIT": 0.01,
-    "PATIENCE": 100,
-    "PATIENCE_LR_SCHEDULE": 25,
+    "PATIENCE": 200,
+    "PATIENCE_LR_SCHEDULE": 50,
     "TARGET_FEATURE": "c"
   },
   "BRANCHES": {
@@ -82,16 +82,16 @@
   },
   "MAIN_BRANCH": {
     "NODES": {
-      "TRANSFORMER": [192, 192, 96, 24, 24],
-      "LSTM": [192, 192, 96, 24, 24],
-      "DENSE": [384, 384, 192, 48, 48],
+      "TRANSFORMER": [192, 192, 96, 48, 48],
+      "LSTM": [192, 192, 96, 48, 48],
+      "DENSE": [384, 384, 192, 96, 96],
       "ATTENTION_HEADS": [64, 64, 64, 64, 64],
       "DROPOUT": [0.2, 0.1, 0.0, 0.0, 0.0]
     }
   },
   "OUTPUT": {
     "NODES": {
-      "DENSE": [24, 24],
+      "DENSE": [48, 48],
       "DROPOUT": [0.0, 0.0]
     }
   }
