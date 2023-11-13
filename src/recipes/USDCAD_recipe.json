@@ -6,7 +6,7 @@
     "STEPS_IN": 100,
     "STEPS_OUT": 32,
     "OVERLAP": 32,
-    "TEST_LENGTH": 124,
+    "TEST_LENGTH": 132,
     "EPOCHS": 1000,
     "BATCH_SIZE": 16,
     "LEARNING_RATE": 0.0001,
