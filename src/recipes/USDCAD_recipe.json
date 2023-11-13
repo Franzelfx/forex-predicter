@@ -42,8 +42,8 @@
       ],
       "NODES": {
         "TRANSFORMER": [100, 100],
-        "LSTM": [96, 96],
-        "DENSE": [196, 196],
+        "LSTM": [100, 100],
+        "DENSE": [200, 200],
         "ATTENTION_HEADS": [32, 32],
         "DROPOUT": [0.25, 0.25]
       }
