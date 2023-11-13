@@ -1,17 +1,18 @@
 {
   "PROCESSING": {
     "PAIR": "C:USDCAD",
-    "INTERVAL": 60,
+    "INTERVAL": 5,
     "START_DATE": "2010-01-01",
-    "STEPS_IN": 96,
+    "STEPS_IN": 100,
     "STEPS_OUT": 24,
-    "TEST_LENGTH": 120,
+    "OVERLAP": 48,
+    "TEST_LENGTH": 124,
     "EPOCHS": 1000,
-    "BATCH_SIZE": 8,
+    "BATCH_SIZE": 16,
     "LEARNING_RATE": 0.0001,
     "VALIDATION_SPLIT": 0.01,
-    "PATIENCE": 100,
-    "PATIENCE_LR_SCHEDULE": 25,
+    "PATIENCE": 150,
+    "PATIENCE_LR_SCHEDULE": 50,
     "TARGET_FEATURE": "c"
   },
   "BRANCHES": {
@@ -40,59 +41,27 @@
         "PLUS_DM"
       ],
       "NODES": {
-        "TRANSFORMER": [96, 96, 96, 96],
-        "LSTM": [96, 96, 96, 96],
-        "DENSE": [192, 192, 192, 192],
-        "ATTENTION_HEADS": [64, 64, 64, 64],
-        "DROPOUT": [0.2, 0.2, 0.2, 0.2]
-      }
-    },
-    "C:USDJPY": {
-      "INDICATORS": [
-        "ATR",
-        "BOLLINGER",
-        "MA5",
-        "MA25",
-        "MA50",
-        "MA200",
-        "MACD",
-        "OBV",
-        "RSI",
-        "STOCHASTIC",
-        "VoRSI",
-        "HT_TRENDLINE",
-        "HT_TRENDMODE",
-        "HT_DCPERIOD",
-        "HT_DCPHASE",
-        "HT_PHASOR",
-        "HT_SINE",
-        "MFI",
-        "MOM",
-        "PLUS_DI",
-        "PLUS_DM"
-      ],
-      "NODES": {
-        "TRANSFORMER": [96, 96, 96, 96],
-        "LSTM": [96, 96, 96, 96],
-        "DENSE": [192, 192, 192, 192],
-        "ATTENTION_HEADS": [64, 64, 64, 64],
-        "DROPOUT": [0.2, 0.2, 0.2, 0.2]
+        "TRANSFORMER": [100, 100],
+        "LSTM": [96, 96],
+        "DENSE": [196, 196],
+        "ATTENTION_HEADS": [32, 32],
+        "DROPOUT": [0.25, 0.25]
       }
     }
   },
   "MAIN_BRANCH": {
     "NODES": {
-      "TRANSFORMER": [192, 192, 96, 24, 24],
-      "LSTM": [192, 192, 96, 24, 24],
-      "DENSE": [384, 384, 192, 48, 48],
-      "ATTENTION_HEADS": [64, 64, 64, 64, 64],
-      "DROPOUT": [0.2, 0.1, 0.0, 0.0, 0.0]
+      "TRANSFORMER": [75, 50, 24],
+      "LSTM": [75, 50, 24],
+      "DENSE": [150, 100, 50],
+      "ATTENTION_HEADS": [32, 32, 32],
+      "DROPOUT": [0.2, 0.1, 0.0]
     }
   },
   "OUTPUT": {
     "NODES": {
-      "DENSE": [24, 24],
-      "DROPOUT": [0.0, 0.0]
+      "DENSE": [24],
+      "DROPOUT": [0.0]
     }
   }
 }
