@@ -1,6 +1,6 @@
 {
   "PROCESSING": {
-    "PAIR": "C:EURCHF",
+    "PAIR": "C:EURCAD",
     "INTERVAL": 5,
     "START_DATE": "2010-01-01",
     "STEPS_IN": 96,
@@ -16,7 +16,7 @@
     "TARGET_FEATURE": "c"
   },
   "BRANCHES": {
-    "C:EURCHF": {
+    "C:EURCAD": {
       "INDICATORS": [
         "ATR",
         "BOLLINGER",
