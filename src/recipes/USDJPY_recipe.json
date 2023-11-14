@@ -1,22 +1,22 @@
 {
   "PROCESSING": {
     "PAIR": "C:USDJPY",
-    "INTERVAL": 5,
+    "INTERVAL": 15,
     "START_DATE": "2010-01-01",
-    "STEPS_IN": 100,
+    "STEPS_IN": 64,
     "STEPS_OUT": 32,
     "OVERLAP": 32,
     "TEST_LENGTH": 132,
-    "EPOCHS": 1000,
+    "EPOCHS": 640,
     "BATCH_SIZE": 16,
-    "LEARNING_RATE": 0.001,
+    "LEARNING_RATE": 0.0005,
     "VALIDATION_SPLIT": 0.01,
     "PATIENCE": 250,
-    "PATIENCE_LR_SCHEDULE": 100,
+    "PATIENCE_LR_SCHEDULE": 64,
     "TARGET_FEATURE": "c"
   },
   "BRANCHES": {
-    "C:USDJPY": {
+    "C:USDCAD": {
       "INDICATORS": [
         "ATR",
         "BOLLINGER",
@@ -41,8 +41,8 @@
         "PLUS_DM"
       ],
       "NODES": {
-        "TRANSFORMER": [100, 100],
-        "LSTM": [100, 100],
+        "TRANSFORMER": [64, 64],
+        "LSTM": [64, 64],
         "DENSE": [200, 200],
         "ATTENTION_HEADS": [32, 32],
         "DROPOUT": [0.25, 0.25]
@@ -51,9 +51,9 @@
   },
   "MAIN_BRANCH": {
     "NODES": {
-      "TRANSFORMER": [75, 50, 32],
-      "LSTM": [75, 50, 32],
-      "DENSE": [150, 100, 64],
+      "TRANSFORMER": [64, 64, 32],
+      "LSTM": [64, 64, 32],
+      "DENSE": [128, 128, 64],
       "ATTENTION_HEADS": [32, 32, 32],
       "DROPOUT": [0.2, 0.1, 0.0]
     }
