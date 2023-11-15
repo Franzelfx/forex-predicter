@@ -1,4 +1,5 @@
 import os
+import math
 import logging
 import numpy as np
 from typing import List
@@ -23,6 +24,7 @@ import numpy as np
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 
+
 class Branch:
     def __init__(
         self,
@@ -40,10 +42,12 @@ class Branch:
         self.attention_heads = attention_heads
         self.dropout_rate = dropout_rate
 
+
 class Output:
     def __init__(self, hidden_neurons, dropout_rate):
         self.hidden_neurons = hidden_neurons
         self.dropout_rate = dropout_rate
+
 
 class Architecture:
     def __init__(self, branches: List[Branch], main_branch: Branch, output: Output):
@@ -51,24 +55,67 @@ class Architecture:
         self.main_branch: Branch = main_branch
         self.output: Output = output
 
+
 class ResetStatesCallback(tf.keras.callbacks.Callback):
     def on_epoch_end(self, epoch, logs=None):
         self.model.reset_states()
+
+
+class CustomLRScheduler(tf.keras.callbacks.Callback):
+    def __init__(
+        self,
+        warmup_epochs = 10,
+        initial_lr = 0.0001,
+        max_lr = 0.0005,
+        final_lr = 0.00001,
+        total_epochs = 1000,
+        cosine_frequency = 10,
+    ):
+        super(CustomLRScheduler, self).__init__()
+        self.warmup_epochs = warmup_epochs
+        self.initial_lr = initial_lr
+        self.max_lr = max_lr
+        self.final_lr = final_lr
+        self.total_epochs = total_epochs
+        self.cosine_frequency = cosine_frequency
+
+    def on_epoch_begin(self, epoch, logs=None):
+        if epoch < self.warmup_epochs:
+            lr = (
+                self.initial_lr
+                + (self.max_lr - self.initial_lr) / self.warmup_epochs * epoch
+            )
+        else:
+            decayed_lr = self.final_lr + 0.5 * (self.max_lr - self.final_lr) * (
+                1
+                + math.cos(
+                    math.pi
+                    * self.cosine_frequency
+                    * (epoch - self.warmup_epochs)
+                    / (self.total_epochs - self.warmup_epochs)
+                )
+            )
+            lr = max(decayed_lr, self.final_lr)
+
+        tf.keras.backend.set_value(self.model.optimizer.lr, lr)
+
 
 class ModelCheckpoint(tf.keras.callbacks.Callback):
     def __init__(self, filepath, save_best_only=True):
         super(ModelCheckpoint, self).__init__()
         self.filepath = filepath
-        self.best_score = float('inf')  # Initialize with a high value
+        self.best_score = float("inf")  # Initialize with a high value
         self.save_best_only = save_best_only
 
     def on_epoch_end(self, epoch, logs=None):
-        val_loss = logs.get('val_loss')
-        val_mape = logs.get('val_mape')
+        val_loss = logs.get("val_loss")
+        val_mape = logs.get("val_mape")
 
         # Scale the metrics
         scaled_loss = val_loss
-        scaled_mape = val_mape / 100.0  # Scale down the mape value by dividing by a factor
+        scaled_mape = (
+            val_mape / 100.0
+        )  # Scale down the mape value by dividing by a factor
 
         # Define the combined score (you can use any formula that suits your needs)
         combined_score = scaled_loss + scaled_mape
@@ -81,7 +128,7 @@ class ModelCheckpoint(tf.keras.callbacks.Callback):
             self.model.save(self.filepath)
         else:
             filepath = self.filepath + f"_{epoch:04d}_{combined_score:.4f}"
-            self.model.save(filepath)  # Save the model in .keras format plus epoch number and combined score
+            self.model.save(filepath)  # Save the model in .keras format
 
 
 class Model:
@@ -176,7 +223,7 @@ class Model:
                 branch.lstm_neurons,
                 branch.dense_neurons,
                 branch.attention_heads,
-                branch.dropout_rate
+                branch.dropout_rate,
             )(_input)
             branches.append(_branch)
             inputs.append(_input)
@@ -194,7 +241,7 @@ class Model:
             architecture.main_branch.lstm_neurons,
             architecture.main_branch.dense_neurons,
             architecture.main_branch.attention_heads,
-            architecture.main_branch.dropout_rate
+            architecture.main_branch.dropout_rate,
         )(summation)
         output = layers.Output(
             architecture.output.hidden_neurons,
@@ -249,9 +296,9 @@ class Model:
         self._architecture = architecture
         optimizer = Adam(learning_rate=learning_rate)
         # Metrics
-        mae = MeanAbsoluteError(name='mae')
-        mse = MeanSquaredError(name='mse')
-        metrics_list = ["mape", mae, mse] 
+        mae = MeanAbsoluteError(name="mae")
+        mse = MeanSquaredError(name="mse")
+        metrics_list = ["mape", mae, mse]
 
         # Check if multiple GPUs are available
         if strategy is not None and hasattr(strategy, "scope"):
@@ -324,7 +371,11 @@ class Model:
             monitor="val_loss", patience=patience, mode="min", verbose=1
         )
         tensorboard = TensorBoard(log_dir=f"{self._path}/tensorboard/{self._name}")
-        lr_scheduler = ReduceLROnPlateau(factor=0.5, patience=patience_lr_schedule, min_lr=1e-10)
+        # lr_scheduler = ReduceLROnPlateau(
+        #    factor=0.5, patience=patience_lr_schedule, min_lr=1e-10
+        # )
+        # TODO: pass the parameters to the scheduler
+        lr_scheduler = CustomLRScheduler()
         # Split the data
         X_train = []
         X_val = []
@@ -387,23 +438,26 @@ class Model:
             print(e)
             logging.error(e)
         return fit
-    
+
     def load_model(self, path) -> tf.keras.Model:
-        model = load_model(path, custom_objects={
-        'LSTM': tf.keras.layers.LSTM,
-        'TransformerBlock': layers.TransformerBlock,
-        'TransformerLSTMBlock': layers.TransformerLSTMBlock,
-        'Branch': layers.Branch,
-        'Output': layers.Output
-    })
+        model = load_model(
+            path,
+            custom_objects={
+                "LSTM": tf.keras.layers.LSTM,
+                "TransformerBlock": layers.TransformerBlock,
+                "TransformerLSTMBlock": layers.TransformerLSTMBlock,
+                "Branch": layers.Branch,
+                "Output": layers.Output,
+            },
+        )
         return model
 
     def predict(
-    self,
-    x_hat: np.ndarray,
-    scaler: StandardScaler = None,
-    from_saved_model=True,
-    x_test: np.ndarray = None,
+        self,
+        x_hat: np.ndarray,
+        scaler: StandardScaler = None,
+        from_saved_model=True,
+        x_test: np.ndarray = None,
     ) -> np.ndarray:
         """Predict the output for the given input.
         :param np.ndarray x_input: The input data for the prediction as numpy array with shape (samples, time_steps, features).
@@ -413,7 +467,7 @@ class Model:
                     • The predicted values are scaled back to the original scale if a scaler is given.
         """
         path = f"{self._path}/checkpoints/{self._name}"
-        
+
         # Get the model
         if from_saved_model:
             prediction_model: tf.keras.Model = self.load_model(path)
@@ -442,7 +496,7 @@ class Model:
                 y_test = self._inverse_transform(scaler, y_test)
         # Return the predicted values, based on the given input
         return y_test, y_hat
-    
+
     def confidence(
         self,
         x_input,
@@ -468,13 +522,16 @@ class Model:
 
         if from_saved_model:
             # Load the model from a saved file
-            prediction_model = load_model(path, custom_objects={
-                'LSTM': tf.keras.layers.LSTM,
-                'TransformerBlock': layers.TransformerBlock,
-                'TransformerLSTMBlock': layers.TransformerLSTMBlock,
-                'Branch': layers.Branch,
-                'Output': layers.Output
-            })
+            prediction_model = load_model(
+                path,
+                custom_objects={
+                    "LSTM": tf.keras.layers.LSTM,
+                    "TransformerBlock": layers.TransformerBlock,
+                    "TransformerLSTMBlock": layers.TransformerLSTMBlock,
+                    "Branch": layers.Branch,
+                    "Output": layers.Output,
+                },
+            )
         else:
             # Check if the model has been compiled
             if self._model is None:
@@ -506,4 +563,3 @@ class Model:
         confidence_percent = np.round(confidence_percent, 2)
 
         return confidence_percent
-
