@@ -24,7 +24,6 @@ import numpy as np
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 
-
 class Branch:
     def __init__(
         self,
@@ -62,22 +61,17 @@ class ResetStatesCallback(tf.keras.callbacks.Callback):
 
 
 class CustomLRScheduler(tf.keras.callbacks.Callback):
-    def __init__(
-        self,
-        warmup_epochs = 10,
-        initial_lr = 0.0001,
-        max_lr = 0.0005,
-        final_lr = 0.00001,
-        total_epochs = 1000,
-        cosine_frequency = 10,
-    ):
+    def __init__(self, max_lr, patience, patience_lr_schedule, log_dir):
         super(CustomLRScheduler, self).__init__()
-        self.warmup_epochs = warmup_epochs
-        self.initial_lr = initial_lr
         self.max_lr = max_lr
-        self.final_lr = final_lr
-        self.total_epochs = total_epochs
-        self.cosine_frequency = cosine_frequency
+        self.patience = patience
+        self.patience_lr_schedule = patience_lr_schedule
+        self.initial_lr = max_lr / 10
+        self.warmup_epochs = patience_lr_schedule
+        self.total_epochs = patience
+        self.cosine_frequency = 1 / self.total_epochs
+        self.log_dir = log_dir
+        self.lr_writer = tf.summary.create_file_writer(log_dir + "/lr")
 
     def on_epoch_begin(self, epoch, logs=None):
         if epoch < self.warmup_epochs:
@@ -86,18 +80,24 @@ class CustomLRScheduler(tf.keras.callbacks.Callback):
                 + (self.max_lr - self.initial_lr) / self.warmup_epochs * epoch
             )
         else:
-            decayed_lr = self.final_lr + 0.5 * (self.max_lr - self.final_lr) * (
-                1
-                + math.cos(
-                    math.pi
-                    * self.cosine_frequency
-                    * (epoch - self.warmup_epochs)
-                    / (self.total_epochs - self.warmup_epochs)
+            decayed_lr = (
+                0.5
+                * (self.max_lr - self.initial_lr)
+                * (
+                    1
+                    + math.cos(
+                        math.pi * self.cosine_frequency * (epoch - self.warmup_epochs)
+                    )
                 )
             )
-            lr = max(decayed_lr, self.final_lr)
+            lr = self.initial_lr + decayed_lr
 
         tf.keras.backend.set_value(self.model.optimizer.lr, lr)
+
+        # Log the learning rate
+        with self.lr_writer.as_default():
+            tf.summary.scalar("learning_rate", lr, step=epoch)
+            self.lr_writer.flush()
 
 
 class ModelCheckpoint(tf.keras.callbacks.Callback):
@@ -294,6 +294,7 @@ class Model:
     ):
         """Compile the model."""
         self._architecture = architecture
+        self._learning_rate = learning_rate
         optimizer = Adam(learning_rate=learning_rate)
         # Metrics
         mae = MeanAbsoluteError(name="mae")
@@ -371,11 +372,12 @@ class Model:
             monitor="val_loss", patience=patience, mode="min", verbose=1
         )
         tensorboard = TensorBoard(log_dir=f"{self._path}/tensorboard/{self._name}")
-        # lr_scheduler = ReduceLROnPlateau(
-        #    factor=0.5, patience=patience_lr_schedule, min_lr=1e-10
-        # )
-        # TODO: pass the parameters to the scheduler
-        lr_scheduler = CustomLRScheduler()
+        lr_scheduler = CustomLRScheduler(
+            max_lr=self._learning_rate,
+            patience=patience,
+            patience_lr_schedule=patience_lr_schedule,
+            log_dir=f"{self._path}/tensorboard/{self._name}",
+        )
         # Split the data
         X_train = []
         X_val = []
