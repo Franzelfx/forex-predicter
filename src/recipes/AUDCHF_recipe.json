@@ -9,10 +9,10 @@
     "TEST_LENGTH": 96,
     "EPOCHS": 1000,
     "BATCH_SIZE": 16,
-    "LEARNING_RATE": 0.00005,
+    "LEARNING_RATE": 0.0001,
     "VALIDATION_SPLIT": 0.01,
     "PATIENCE": 200,
-    "PATIENCE_LR_SCHEDULE": 75,
+    "PATIENCE_LR_SCHEDULE": 50,
     "TARGET_FEATURE": "c"
   },
   "BRANCHES": {
@@ -41,11 +41,11 @@
         "PLUS_DM"
       ],
       "NODES": {
-        "TRANSFORMER": [64, 64],
-        "LSTM": [64, 64],
-        "DENSE": [200, 200],
-        "ATTENTION_HEADS": [32, 32],
-        "DROPOUT": [0.25, 0.25]
+        "TRANSFORMER": [64, 64, 64],
+        "LSTM": [64, 64, 64],
+        "DENSE": [128, 128, 128],
+        "ATTENTION_HEADS": [32, 32, 32],
+        "DROPOUT": [0.25, 0.25, 0.25]
       }
     }
   },

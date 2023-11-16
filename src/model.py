@@ -81,15 +81,9 @@ class CustomLRScheduler(tf.keras.callbacks.Callback):
             )
         else:
             decayed_lr = (
-                0.5
-                * (self.max_lr - self.initial_lr)
-                * (
-                    1
-                    + math.cos(
-                        math.pi * self.cosine_frequency * (epoch - self.warmup_epochs)
-                    )
-                )
-            )
+                self.cosine_amplitude_factor * (self.max_lr - self.initial_lr) * 
+                (1 + math.cos(math.pi * epoch / self.total_epochs))
+            ) / 2
             lr = self.initial_lr + decayed_lr
 
         tf.keras.backend.set_value(self.model.optimizer.lr, lr)
