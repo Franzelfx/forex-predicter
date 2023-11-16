@@ -24,6 +24,7 @@ import numpy as np
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 
+
 class Branch:
     def __init__(
         self,
@@ -61,7 +62,9 @@ class ResetStatesCallback(tf.keras.callbacks.Callback):
 
 
 class CustomLRScheduler(tf.keras.callbacks.Callback):
-    def __init__(self, max_lr, patience, patience_lr_schedule, log_dir):
+    def __init__(
+        self, max_lr, patience, patience_lr_schedule, log_dir, monitor="val_loss"
+    ):
         super(CustomLRScheduler, self).__init__()
         self.max_lr = max_lr
         self.patience = patience
@@ -72,6 +75,17 @@ class CustomLRScheduler(tf.keras.callbacks.Callback):
         self.cosine_frequency = 1 / self.total_epochs
         self.log_dir = log_dir
         self.lr_writer = tf.summary.create_file_writer(log_dir + "/lr")
+        self.monitor = monitor
+        self.best_score = None
+        self.no_improvement_epochs = 0
+
+    def on_epoch_end(self, epoch, logs=None):
+        current_score = logs.get(self.monitor)
+        if self.best_score is None or current_score < self.best_score:
+            self.best_score = current_score
+            self.no_improvement_epochs = 0
+        else:
+            self.no_improvement_epochs += 1
 
     def on_epoch_begin(self, epoch, logs=None):
         if epoch < self.warmup_epochs:
@@ -79,12 +93,15 @@ class CustomLRScheduler(tf.keras.callbacks.Callback):
                 self.initial_lr
                 + (self.max_lr - self.initial_lr) / self.warmup_epochs * epoch
             )
-        else:
+        elif self.no_improvement_epochs >= self.patience_lr_schedule:
             decayed_lr = (
-                (self.max_lr / 4) * (self.max_lr - self.initial_lr) * 
-                (1 + math.cos(math.pi * epoch / self.total_epochs))
+                (self.max_lr / 4)
+                * (self.max_lr - self.initial_lr)
+                * (1 + math.cos(math.pi * epoch / self.total_epochs))
             ) / 2
             lr = self.initial_lr + decayed_lr
+        else:
+            lr = tf.keras.backend.get_value(self.model.optimizer.lr)
 
         tf.keras.backend.set_value(self.model.optimizer.lr, lr)
 
