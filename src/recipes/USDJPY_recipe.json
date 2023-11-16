@@ -16,7 +16,7 @@
     "TARGET_FEATURE": "c"
   },
   "BRANCHES": {
-    "C:USDCAD": {
+    "C:USDJPY": {
       "INDICATORS": [
         "ATR",
         "BOLLINGER",
