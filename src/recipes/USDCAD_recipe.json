@@ -1,18 +1,18 @@
 {
   "PROCESSING": {
     "PAIR": "C:USDCAD",
-    "INTERVAL": 15,
+    "INTERVAL": 5,
     "START_DATE": "2010-01-01",
     "STEPS_IN": 64,
     "STEPS_OUT": 32,
     "OVERLAP": 32,
-    "TEST_LENGTH": 132,
-    "EPOCHS": 640,
+    "TEST_LENGTH": 96,
+    "EPOCHS": 1000,
     "BATCH_SIZE": 16,
-    "LEARNING_RATE": 0.00005,
+    "LEARNING_RATE": 0.0001,
     "VALIDATION_SPLIT": 0.01,
-    "PATIENCE": 250,
-    "PATIENCE_LR_SCHEDULE": 64,
+    "PATIENCE": 200,
+    "PATIENCE_LR_SCHEDULE": 50,
     "TARGET_FEATURE": "c"
   },
   "BRANCHES": {
@@ -41,19 +41,83 @@
         "PLUS_DM"
       ],
       "NODES": {
-        "TRANSFORMER": [64, 64],
-        "LSTM": [64, 64],
-        "DENSE": [200, 200],
-        "ATTENTION_HEADS": [32, 32],
-        "DROPOUT": [0.25, 0.25]
+        "TRANSFORMER": [64, 32, 32],
+        "LSTM": [64, 32, 32],
+        "DENSE": [128, 64, 64],
+        "ATTENTION_HEADS": [32, 32, 32],
+        "DROPOUT": [0.25, 0.25, 0.25]
+      }
+    },
+    "C:USDJPY": {
+      "INDICATORS": [
+        "ATR",
+        "BOLLINGER",
+        "MA5",
+        "MA25",
+        "MA50",
+        "MA200",
+        "MACD",
+        "OBV",
+        "RSI",
+        "STOCHASTIC",
+        "VoRSI",
+        "HT_TRENDLINE",
+        "HT_TRENDMODE",
+        "HT_DCPERIOD",
+        "HT_DCPHASE",
+        "HT_PHASOR",
+        "HT_SINE",
+        "MFI",
+        "MOM",
+        "PLUS_DI",
+        "PLUS_DM"
+      ],
+      "NODES": {
+        "TRANSFORMER": [64, 32, 32],
+        "LSTM": [64, 32, 32],
+        "DENSE": [128, 64, 64],
+        "ATTENTION_HEADS": [32, 32, 32],
+        "DROPOUT": [0.25, 0.25, 0.25]
+      }
+    },
+    "C:EURCAD": {
+      "INDICATORS": [
+        "ATR",
+        "BOLLINGER",
+        "MA5",
+        "MA25",
+        "MA50",
+        "MA200",
+        "MACD",
+        "OBV",
+        "RSI",
+        "STOCHASTIC",
+        "VoRSI",
+        "HT_TRENDLINE",
+        "HT_TRENDMODE",
+        "HT_DCPERIOD",
+        "HT_DCPHASE",
+        "HT_PHASOR",
+        "HT_SINE",
+        "MFI",
+        "MOM",
+        "PLUS_DI",
+        "PLUS_DM"
+      ],
+      "NODES": {
+        "TRANSFORMER": [64, 32, 32],
+        "LSTM": [64, 32, 32],
+        "DENSE": [128, 64, 64],
+        "ATTENTION_HEADS": [32, 32, 32],
+        "DROPOUT": [0.25, 0.25, 0.25]
       }
     }
   },
   "MAIN_BRANCH": {
     "NODES": {
-      "TRANSFORMER": [64, 64, 32],
-      "LSTM": [64, 64, 32],
-      "DENSE": [128, 128, 64],
+      "TRANSFORMER": [96, 64, 32],
+      "LSTM": [96, 64, 32],
+      "DENSE": [192, 128, 64],
       "ATTENTION_HEADS": [32, 32, 32],
       "DROPOUT": [0.2, 0.1, 0.0]
     }
