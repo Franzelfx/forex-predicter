@@ -1,7 +1,7 @@
 {
   "PROCESSING": {
     "PAIR": "C:USDJPY",
-    "INTERVAL": 1,
+    "INTERVAL": 5,
     "START_DATE": "2010-01-01",
     "STEPS_IN": 64,
     "STEPS_OUT": 32,
