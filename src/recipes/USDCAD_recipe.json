@@ -1,8 +1,8 @@
 {
   "PROCESSING": {
     "PAIR": "C:USDCAD",
-    "INTERVAL": 5,
-    "START_DATE": "2010-01-01",
+    "INTERVAL": 1,
+    "START_DATE": "2015-01-01",
     "STEPS_IN": 64,
     "STEPS_OUT": 32,
     "OVERLAP": 32,
@@ -18,27 +18,10 @@
   "BRANCHES": {
     "C:USDCAD": {
       "INDICATORS": [
-        "ATR",
-        "BOLLINGER",
         "MA5",
         "MA25",
         "MA50",
-        "MA200",
-        "MACD",
-        "OBV",
-        "RSI",
-        "STOCHASTIC",
-        "VoRSI",
-        "HT_TRENDLINE",
-        "HT_TRENDMODE",
-        "HT_DCPERIOD",
-        "HT_DCPHASE",
-        "HT_PHASOR",
-        "HT_SINE",
-        "MFI",
-        "MOM",
-        "PLUS_DI",
-        "PLUS_DM"
+        "MA200"
       ],
       "NODES": {
         "TRANSFORMER": [64, 32, 32],
@@ -50,27 +33,10 @@
     },
     "C:USDJPY": {
       "INDICATORS": [
-        "ATR",
-        "BOLLINGER",
         "MA5",
         "MA25",
         "MA50",
-        "MA200",
-        "MACD",
-        "OBV",
-        "RSI",
-        "STOCHASTIC",
-        "VoRSI",
-        "HT_TRENDLINE",
-        "HT_TRENDMODE",
-        "HT_DCPERIOD",
-        "HT_DCPHASE",
-        "HT_PHASOR",
-        "HT_SINE",
-        "MFI",
-        "MOM",
-        "PLUS_DI",
-        "PLUS_DM"
+        "MA200"
       ],
       "NODES": {
         "TRANSFORMER": [64, 32, 32],
@@ -82,27 +48,10 @@
     },
     "C:EURCAD": {
       "INDICATORS": [
-        "ATR",
-        "BOLLINGER",
         "MA5",
         "MA25",
         "MA50",
-        "MA200",
-        "MACD",
-        "OBV",
-        "RSI",
-        "STOCHASTIC",
-        "VoRSI",
-        "HT_TRENDLINE",
-        "HT_TRENDMODE",
-        "HT_DCPERIOD",
-        "HT_DCPHASE",
-        "HT_PHASOR",
-        "HT_SINE",
-        "MFI",
-        "MOM",
-        "PLUS_DI",
-        "PLUS_DM"
+        "MA200"
       ],
       "NODES": {
         "TRANSFORMER": [64, 32, 32],
