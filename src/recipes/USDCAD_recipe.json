@@ -1,8 +1,8 @@
 {
   "PROCESSING": {
     "PAIR": "C:USDCAD",
-    "INTERVAL": 60,
-    "START_DATE": "2015-01-01",
+    "INTERVAL": 15,
+    "START_DATE": "2010-01-01",
     "STEPS_IN": 64,
     "STEPS_OUT": 32,
     "OVERLAP": 32,
