@@ -1,12 +1,12 @@
 {
   "PROCESSING": {
     "PAIR": "C:USDJPY",
-    "INTERVAL": 60,
+    "INTERVAL": 30,
     "START_DATE": "2010-01-01",
-    "STEPS_IN": 64,
-    "STEPS_OUT": 32,
-    "OVERLAP": 32,
-    "TEST_LENGTH": 96,
+    "STEPS_IN": 92,
+    "STEPS_OUT": 48,
+    "OVERLAP": 48,
+    "TEST_LENGTH": 140,
     "EPOCHS": 1000,
     "BATCH_SIZE": 16,
     "LEARNING_RATE": 0.0001,
@@ -211,16 +211,16 @@
   },
   "MAIN_BRANCH": {
     "NODES": {
-      "TRANSFORMER": [96, 64, 32],
-      "LSTM": [96, 64, 32],
-      "DENSE": [192, 128, 32],
+      "TRANSFORMER": [96, 64, 48],
+      "LSTM": [96, 64, 48],
+      "DENSE": [192, 128, 48],
       "ATTENTION_HEADS": [32, 32, 32],
       "DROPOUT": [0.0, 0.0, 0.0]
     }
   },
   "OUTPUT": {
     "NODES": {
-      "DENSE": [32],
+      "DENSE": [48],
       "DROPOUT": [0.0]
     }
   }
