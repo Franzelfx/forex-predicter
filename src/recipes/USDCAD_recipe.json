@@ -18,10 +18,27 @@
   "BRANCHES": {
     "C:USDCAD": {
       "INDICATORS": [
+        "ATR",
+        "BOLLINGER",
         "MA5",
         "MA25",
         "MA50",
-        "MA200"
+        "MA200",
+        "MACD",
+        "OBV",
+        "RSI",
+        "STOCHASTIC",
+        "VoRSI",
+        "HT_TRENDLINE",
+        "HT_TRENDMODE",
+        "HT_DCPERIOD",
+        "HT_DCPHASE",
+        "HT_PHASOR",
+        "HT_SINE",
+        "MFI",
+        "MOM",
+        "PLUS_DI",
+        "PLUS_DM"
       ],
       "NODES": {
         "TRANSFORMER": [64, 32, 32],
@@ -33,10 +50,27 @@
     },
     "C:USDJPY": {
       "INDICATORS": [
+        "ATR",
+        "BOLLINGER",
         "MA5",
         "MA25",
         "MA50",
-        "MA200"
+        "MA200",
+        "MACD",
+        "OBV",
+        "RSI",
+        "STOCHASTIC",
+        "VoRSI",
+        "HT_TRENDLINE",
+        "HT_TRENDMODE",
+        "HT_DCPERIOD",
+        "HT_DCPHASE",
+        "HT_PHASOR",
+        "HT_SINE",
+        "MFI",
+        "MOM",
+        "PLUS_DI",
+        "PLUS_DM"
       ],
       "NODES": {
         "TRANSFORMER": [64, 32, 32],
@@ -48,10 +82,27 @@
     },
     "C:EURCAD": {
       "INDICATORS": [
+        "ATR",
+        "BOLLINGER",
         "MA5",
         "MA25",
         "MA50",
-        "MA200"
+        "MA200",
+        "MACD",
+        "OBV",
+        "RSI",
+        "STOCHASTIC",
+        "VoRSI",
+        "HT_TRENDLINE",
+        "HT_TRENDMODE",
+        "HT_DCPERIOD",
+        "HT_DCPHASE",
+        "HT_PHASOR",
+        "HT_SINE",
+        "MFI",
+        "MOM",
+        "PLUS_DI",
+        "PLUS_DM"
       ],
       "NODES": {
         "TRANSFORMER": [64, 32, 32],
