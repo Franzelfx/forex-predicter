@@ -414,7 +414,7 @@ class Composer:
             y_test_actual=y_test_actual,
             n=n, 
             m=m, 
-            save_csv=False,
+            save_json=True,
             end_time=self.end_time,
             time_base=self._interval
         )

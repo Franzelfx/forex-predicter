@@ -1,4 +1,4 @@
-import csv
+import json
 import numpy as np
 import matplotlib.pyplot as plt
 from itertools import zip_longest
@@ -25,7 +25,7 @@ class Visualizer:
         y_hat,
         n,
         m,
-        save_csv=True,
+        save_json=False,
         extra_info="",
         time_base=None,
         end_time=None,
@@ -33,7 +33,7 @@ class Visualizer:
         if extra_info != "":
             extra_info = f"_{extra_info}"
         png_path = f"{path}/{self.pair}_prediction{extra_info}"
-        csv_path = f"{path}/csv/{self.pair}_prediction{extra_info}.csv"
+        json_path = f"{path}/json/{self.pair}_prediction{extra_info}.json"
 
         # Clear the plot
         plt.cla()
@@ -85,16 +85,6 @@ class Visualizer:
                     label="y_test" if position == len(x) else "",
                 )
                 position += len(y)
-            # if y_act is not None:
-            #     # Plot the actual y sequence (if exists)
-            #     plt.plot(
-            #         range(position, position + len(y_act)),
-            #         y_act,
-            #         color="gold",
-            #         linestyle="--",
-            #         label="y_test_actual" if position == len(x) + len(y) else "",
-            #     )
-            #     position += len(y_act)  # Update position
 
         # Add x_hat to the plot if it exists
         if x_hat is not None:
@@ -140,35 +130,22 @@ class Visualizer:
         plt.savefig(f"{png_path}.png", dpi=600)
         print(f"Saved plot to {png_path}.png")
 
-        if save_csv:
-            # Combine all the sequences into a list of rows for CSV
-            max_len = max(
-                map(
-                    len,
-                    [
-                        x_test or [],
-                        x_hat or [],
-                        y_test or [],
-                        y_test_actual or [],
-                        y_hat or [],
-                    ],
-                )
-            )
-            rows = [["x_test", "x_hat", "y_test", "y_test_actual", "y_hat"]]
-            for i in range(max_len):
-                row = [
-                    x_test[i] if x_test and i < len(x_test) else "",
-                    x_hat[i] if x_hat and i < len(x_hat) else "",
-                    y_test[i] if y_test and i < len(y_test) else "",
-                    y_test_actual[i]
-                    if y_test_actual and i < len(y_test_actual)
-                    else "",
-                    y_hat[i] if y_hat and i < len(y_hat) else "",
-                ]
-                rows.append(row)
+        if save_json:
+            # Create a dictionary to store the data
+            data_dict = {
+                "x_test": x_test.tolist() if x_test is not None else None,
+                "x_hat": x_hat.tolist() if x_hat is not None else None,
+                "y_test": y_test.tolist() if y_test is not None else None,
+                "y_hat": y_hat.tolist() if y_hat is not None else None,
+                "n": n,
+                "m": m,
+                "extra_info": extra_info,
+                "time_base": time_base,
+                "end_time": end_time,
+            }
 
-            # Write to CSV
-            with open(csv_path, "w", newline="") as file:
-                writer = csv.writer(file)
-                writer.writerows(rows)
-            print(f"Saved CSV to {csv_path}")
+            # Write to JSON file
+            with open(json_path, "w") as file:
+                json.dump(data_dict, file, indent=4)
+
+            print(f"Saved data to {json_path}")
