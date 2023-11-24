@@ -46,7 +46,7 @@ class Visualizer:
             plt.style.use("default")
 
         # Set line width
-        plt.rcParams["lines.linewidth"] = 1
+        plt.rcParams["lines.linewidth"] = 0.5
 
         x_splits = (
             [x_test[i : i + n] for i in range(0, len(x_test), n)]

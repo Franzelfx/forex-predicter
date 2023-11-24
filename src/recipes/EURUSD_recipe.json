@@ -1,14 +1,14 @@
 {
   "PROCESSING": {
     "PAIR": "C:EURUSD",
-    "INTERVAL": 15,
-    "START_DATE": "2010-01-01",
-    "STEPS_IN": 64,
-    "STEPS_OUT": 32,
-    "OVERLAP": 32,
-    "TEST_LENGTH": 96,
+    "INTERVAL": 30,
+    "START_DATE": "2000-01-01",
+    "STEPS_IN": 92,
+    "STEPS_OUT": 48,
+    "OVERLAP": 48,
+    "TEST_LENGTH": 140,
     "EPOCHS": 1000,
-    "BATCH_SIZE": 16,
+    "BATCH_SIZE": 8,
     "LEARNING_RATE": 0.0001,
     "VALIDATION_SPLIT": 0.01,
     "PATIENCE": 200,
@@ -41,10 +41,10 @@
         "PLUS_DM"
       ],
       "NODES": {
-        "TRANSFORMER": [64, 64, 32],
-        "LSTM": [64, 64, 32],
-        "DENSE": [128, 128, 64],
-        "ATTENTION_HEADS": [32, 32, 32],
+        "TRANSFORMER": [64, 32, 16],
+        "LSTM": [64, 32, 16],
+        "DENSE": [128, 64, 32],
+        "ATTENTION_HEADS": [16, 16, 16],
         "DROPOUT": [0.25, 0.25, 0.25]
       }
     },
@@ -73,26 +73,154 @@
         "PLUS_DM"
       ],
       "NODES": {
-        "TRANSFORMER": [64, 64, 32],
-        "LSTM": [64, 64, 32],
-        "DENSE": [128, 128, 64],
-        "ATTENTION_HEADS": [32, 32, 32],
+        "TRANSFORMER": [64, 32, 16],
+        "LSTM": [64, 32, 16],
+        "DENSE": [128, 64, 32],
+        "ATTENTION_HEADS": [16, 16, 16],
+        "DROPOUT": [0.25, 0.25, 0.25]
+      }
+    },
+    "C:EURJPY": {
+      "INDICATORS": [
+        "ATR",
+        "BOLLINGER",
+        "MA5",
+        "MA25",
+        "MA50",
+        "MA200",
+        "MACD",
+        "OBV",
+        "RSI",
+        "STOCHASTIC",
+        "VoRSI",
+        "HT_TRENDLINE",
+        "HT_TRENDMODE",
+        "HT_DCPERIOD",
+        "HT_DCPHASE",
+        "HT_PHASOR",
+        "HT_SINE",
+        "MFI",
+        "MOM",
+        "PLUS_DI",
+        "PLUS_DM"
+      ],
+      "NODES": {
+        "TRANSFORMER": [64, 32, 16],
+        "LSTM": [64, 32, 16],
+        "DENSE": [128, 64, 32],
+        "ATTENTION_HEADS": [16, 16, 16],
+        "DROPOUT": [0.25, 0.25, 0.25]
+      }
+    },
+    "C:GBPJPY": {
+      "INDICATORS": [
+        "ATR",
+        "BOLLINGER",
+        "MA5",
+        "MA25",
+        "MA50",
+        "MA200",
+        "MACD",
+        "OBV",
+        "RSI",
+        "STOCHASTIC",
+        "VoRSI",
+        "HT_TRENDLINE",
+        "HT_TRENDMODE",
+        "HT_DCPERIOD",
+        "HT_DCPHASE",
+        "HT_PHASOR",
+        "HT_SINE",
+        "MFI",
+        "MOM",
+        "PLUS_DI",
+        "PLUS_DM"
+      ],
+      "NODES": {
+        "TRANSFORMER": [64, 32, 16],
+        "LSTM": [64, 32, 16],
+        "DENSE": [128, 64, 32],
+        "ATTENTION_HEADS": [16, 16, 16],
+        "DROPOUT": [0.25, 0.25, 0.25]
+      }
+    },
+    "C:AUDJPY": {
+      "INDICATORS": [
+        "ATR",
+        "BOLLINGER",
+        "MA5",
+        "MA25",
+        "MA50",
+        "MA200",
+        "MACD",
+        "OBV",
+        "RSI",
+        "STOCHASTIC",
+        "VoRSI",
+        "HT_TRENDLINE",
+        "HT_TRENDMODE",
+        "HT_DCPERIOD",
+        "HT_DCPHASE",
+        "HT_PHASOR",
+        "HT_SINE",
+        "MFI",
+        "MOM",
+        "PLUS_DI",
+        "PLUS_DM"
+      ],
+      "NODES": {
+        "TRANSFORMER": [64, 32, 16],
+        "LSTM": [64, 32, 16],
+        "DENSE": [128, 64, 32],
+        "ATTENTION_HEADS": [16, 16, 16],
+        "DROPOUT": [0.25, 0.25, 0.25]
+      }
+    },
+    "C:GBPCAD": {
+      "INDICATORS": [
+        "ATR",
+        "BOLLINGER",
+        "MA5",
+        "MA25",
+        "MA50",
+        "MA200",
+        "MACD",
+        "OBV",
+        "RSI",
+        "STOCHASTIC",
+        "VoRSI",
+        "HT_TRENDLINE",
+        "HT_TRENDMODE",
+        "HT_DCPERIOD",
+        "HT_DCPHASE",
+        "HT_PHASOR",
+        "HT_SINE",
+        "MFI",
+        "MOM",
+        "PLUS_DI",
+        "PLUS_DM"
+      ],
+      "NODES": {
+        "TRANSFORMER": [64, 32, 16],
+        "LSTM": [64, 32, 16],
+        "DENSE": [128, 64, 32],
+        "ATTENTION_HEADS": [16, 16, 16],
         "DROPOUT": [0.25, 0.25, 0.25]
       }
     }
   },
   "MAIN_BRANCH": {
     "NODES": {
-      "TRANSFORMER": [64, 64, 32],
-      "LSTM": [64, 64, 32],
-      "DENSE": [128, 128, 64],
+      "TRANSFORMER": [96, 64, 48],
+      "LSTM": [96, 64, 48],
+      "DENSE": [192, 128, 48],
       "ATTENTION_HEADS": [32, 32, 32],
-      "DROPOUT": [0.2, 0.1, 0.0]
+      "DROPOUT": [0.0, 0.0, 0.0]
     }
   },
   "OUTPUT": {
     "NODES": {
-      "DENSE": [32],
+      "DENSE": [48],
       "DROPOUT": [0.0]
     }
   }
