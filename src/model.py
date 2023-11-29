@@ -494,7 +494,7 @@ class Model:
             prediction_model = self._model
         # Predict the test values
         if x_test is not None:
-            y_test = prediction_model.predict(x_test)
+            y_test = prediction_model.predict(x_test, use_multiprocessing=True, workers=8)
             prediction_model.reset_states()
         else:
             y_test = None
