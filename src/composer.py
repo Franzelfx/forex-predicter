@@ -110,6 +110,14 @@ class Composer:
         self._training = None
         self._date_time = None
 
+        # Set the pair and model attributes
+        self._pairs = None
+        self._pair_names = None
+        self._indicators = None
+        self._preprocessed = None
+        self._y_test = None
+        self._y_hat = None
+
         # If ":" is in the pair_name, use string after ":"
         if ":" in pair_name:
             pair_name = pair_name.split(":")[1]
@@ -137,9 +145,37 @@ class Composer:
 
     @property
     def end_time(self):
-        return self._end_time if self._end_time is not None else datetime.today().strftime("%Y-%m-%d")
+        return (
+            self._end_time
+            if self._end_time is not None
+            else datetime.today().strftime("%Y-%m-%d")
+        )
 
+    @property
+    def target_candles(self):
+        return self._pairs[0]
 
+    @property
+    def target_indicators(self):
+        return self._branches[self._processing.pair].indicators
+
+    @property
+    def x_test(self):
+        return self.target_preprocessed.x_test_target_inverse
+
+    @property
+    def y_test(self):
+        return self._y_test
+
+    @property
+    def x_hat(self):
+        return self.target_preprocessed.x_hat_target_inverse
+
+    @property
+    def y_hat(self):
+        return self._y_hat
+
+    @property
     def _model_branches(self) -> str:
         """Return the model tree of the attributes."""
         header = []
@@ -160,6 +196,7 @@ class Composer:
 
         return tabulate(table, headers=header, tablefmt="rst")
 
+    @property
     def _model_main_branch(self) -> str:
         """Return the model tree of the attributes."""
         header = ["MAIN BRANCH"]
@@ -175,6 +212,7 @@ class Composer:
 
         return tabulate(table, headers=header, tablefmt="rst")
 
+    @property
     def _model_output(self) -> str:
         """Return the model tree of the attributes."""
         header = ["OUTPUT"]
@@ -192,9 +230,9 @@ class Composer:
 
     def summary(self):
         """Print the summary of the attributes."""
-        print(self._model_branches())
-        print(self._model_main_branch())
-        print(self._model_output())
+        print(self._model_branches)
+        print(self._model_main_branch)
+        print(self._model_output)
 
     def _synchronize_dataframes(self, dataframes, column_to_sync="t"):
         # Create a list to hold all synchronized dataframes
@@ -204,12 +242,14 @@ class Composer:
         synced_df = dataframes[0]
 
         # Loop through the rest of the dataframes
-        for i, df in enumerate(dataframes[1:], start=1):  
+        for i, df in enumerate(dataframes[1:], start=1):
             # Generate unique suffixes for each merge
-            suffixes = ('_df{}'.format(i), '_df{}'.format(i + 1))
+            suffixes = ("_df{}".format(i), "_df{}".format(i + 1))
 
             # Merge on the column_to_sync with an inner join
-            synced_df = pd.merge(synced_df, df, how="inner", on=column_to_sync, suffixes=suffixes)
+            synced_df = pd.merge(
+                synced_df, df, how="inner", on=column_to_sync, suffixes=suffixes
+            )
 
         # Now we have a dataframe that contains rows with 't' values
         # that appear in all original dataframes. Next, we need to
@@ -218,13 +258,15 @@ class Composer:
         # Loop through the original dataframes again
         for i, df in enumerate(dataframes, start=1):
             # For each dataframe, keep only the rows that exist in synced_df
-            df.columns = df.columns.str.replace('_df{}'.format(i), '')  # Remove suffixes for final synced dataframes
+            df.columns = df.columns.str.replace(
+                "_df{}".format(i), ""
+            )  # Remove suffixes for final synced dataframes
             synced_dataframes.append(
                 df[df[column_to_sync].isin(synced_df[column_to_sync])]
             )
 
         return synced_dataframes
-    
+
     def _drop_time_columns(self, dataframes):
         for i, df in enumerate(dataframes):
             for column in df.columns:
@@ -233,8 +275,17 @@ class Composer:
             dataframes[i] = df
         return dataframes
 
-
-    def aquire(self, api_key: str = None, api_type: str = None, from_file=False, save=True, interval: int = None, no_request=False, ignore_start=False, end_time=None):
+    def aquire(
+        self,
+        api_key: str = None,
+        api_type: str = None,
+        from_file=False,
+        save=True,
+        interval: int = None,
+        no_request=False,
+        ignore_start=False,
+        end_time=None,
+    ):
         """Aquire the data for al pairs."""
         self._end_time = end_time
         self._interval = interval if interval is not None else self._processing.interval
@@ -246,7 +297,7 @@ class Composer:
         # (branch names are the same as the pair names) first pair is the main pair
         pairs = []
         pair_names = []
-        #pair_names.append(self._processing.pair)
+        # pair_names.append(self._processing.pair)
         for branch in self._branches:
             pair_names.append(branch)
         for pair in pair_names:
@@ -264,42 +315,45 @@ class Composer:
                 from_file=from_file,
                 save=save,
                 no_request=no_request,
-                ignore_start=ignore_start
+                ignore_start=ignore_start,
             )
             # Append the dataframes to the pairs list
             pairs.append(pair)
         # Sync the dataframes
         pairs = self._synchronize_dataframes(pairs)
-        self.pairs = pairs
-        self.pair_names = pair_names
+        self._pairs = pairs
+        self._pair_names = pair_names
         return pairs
 
     def calculate(self, save=False):
         """Calculate the indicators."""
         indicators = []
-        for i, pair_name in enumerate(self.pair_names):
+        for i, pair_name in enumerate(self._pair_names):
             # Create an indicator object for each pair
             # Indicator takes name of pair, dataframes of the pair, and the indicators of the pair as input
             if pair_name in self._branches:
                 indicator = Indicators(
                     PATH_INDICATORS,
                     self._branches[pair_name].name,
-                    self.pairs[i],
+                    self._pairs[i],
                     self._branches[pair_name].indicators,
                 )
             else:
                 # If pair is main pair, calculate indicators differently, as it may not have a corresponding branch in _branches.
                 indicator = Indicators(
-                    PATH_INDICATORS, pair_name, self.pairs[i], self.main_pair_indicators
+                    PATH_INDICATORS,
+                    pair_name,
+                    self._pairs[i],
+                    self.main_pair_indicators,
                 )
 
             # Calculate the indicators
             data = indicator.calculate(save=save)
             # Append the dataframes to the indicators list
             indicators.append(data)
-        self.indicators = indicators
+        self._indicators = indicators
         return indicators
-    
+
     def reconfigure_end_time(self, end_time):
         """Reconfigure the end time, if today is a weekend day."""
         # Get the current time
@@ -325,7 +379,7 @@ class Composer:
         for i, _ in enumerate(self._branches):
             # Create a preprocessor object for each pair
             preprocessor = Preprocessor(
-                self.indicators[i],
+                self._indicators[i],
                 time_steps_in=self._processing.steps_in,
                 time_steps_out=self._processing.steps_out,
                 test_length=self._processing.test_length,
@@ -334,7 +388,7 @@ class Composer:
             )
             # Append the dataframes to the preprocessed list
             preprocessed.append(preprocessor)
-        self.preprocessed = preprocessed
+        self._preprocessed = preprocessed
         self.target_preprocessed = preprocessed[0]
         print(self.target_preprocessed.summary())
         return preprocessed
@@ -349,10 +403,10 @@ class Composer:
         branches = []
         i = 0
         for branch in self._branches:
-            if isinstance(self.preprocessed[i].x_train, np.ndarray):
+            if isinstance(self._preprocessed[i].x_train, np.ndarray):
                 branches.append(
                     ModelBranch(
-                        self.preprocessed[i].x_train,
+                        self._preprocessed[i].x_train,
                         self._branches[branch].nodes["TRANSFORMER"],
                         self._branches[branch].nodes["LSTM"],
                         self._branches[branch].nodes["DENSE"],
@@ -392,29 +446,74 @@ class Composer:
     def predict(self, box_pts=3, test=False):
         """Predict with the model."""
         model = self.model
-        utilizer = Utilizer(model, self.preprocessed)
-        y_test, y_hat = utilizer.predict(box_pts=box_pts, test=test)
+        utilizer = Utilizer(model, self._preprocessed)
+        self._y_test, self._y_hat = utilizer.predict(box_pts=box_pts, test=test)
         visualizer = Visualizer(self._processing.pair)
         path = os.path.join(MODEL_PATH, "model_predictions")
-        # test_actual is the actual values of the test data and the actual value 
-        print(y_test)
-        print(y_hat)
-        x_test = self.target_preprocessed.x_test_target_inverse
-        y_test_actual = self.target_preprocessed.y_test_inverse
-        # Conatenate the x_test and y_test_actual in a way that after each x_test sequence, the corresponding y_test_actual value is appended
-        x_hat = self.target_preprocessed.x_hat_target_inverse
         n = self._processing.steps_in
         m = self._processing.steps_out
         visualizer.plot_prediction(
-            path=path, 
-            x_test=x_test, 
-            y_test=y_test, 
-            y_hat=y_hat, 
-            x_hat=x_hat,
-            y_test_actual=y_test_actual,
-            n=n, 
-            m=m, 
-            save_json=True,
+            path=path,
+            x_test=self.x_test,
+            y_test=self._y_test,
+            x_hat=self.x_hat,
+            y_hat=self._y_hat,
+            n=n,
+            m=m,
             end_time=self.end_time,
-            time_base=self._interval
+            time_base=self._interval,
         )
+
+
+    def dump(self, path=None, bars=1000):
+        """Dump all data to a file."""
+        # Create a dictionary to hold all data
+        data = {}
+        # Create a path to the JSON file
+        path = os.path.join(MODEL_PATH, "model_predictions")
+        path = os.path.join(path, "json")
+        if ":" in self._processing.pair:
+            self._processing.pair = self._processing.pair.split(":")[1]
+        path = os.path.join(path, f"{self._processing.pair}_dump.json")
+        # Add the fundamental attributes
+        data["base"] = self._base.__dict__
+        data["processing"] = self._processing.__dict__
+        data["branches"] = {}
+        for branch in self._branches:
+            data["branches"][branch] = self._branches[branch].__dict__
+        data["main_branch"] = self._main_branch.__dict__
+        data["output"] = self._output.__dict__
+        # Add predictions
+        data["predictions"] = {}
+        data["predictions"]["y_test"] = self._y_test.tolist()
+        data["predictions"]["y_hat"] = self._y_hat.tolist()
+
+        # Convert end_time to Unix timestamp if it's a Timestamp object
+        if isinstance(self.end_time, pd.Timestamp):
+            data["processing"]["end_time"] = self.end_time.timestamp()
+        else:
+            data["processing"]["end_time"] = self.end_time
+
+        data["processing"]["interval"] = self._interval
+        # Add the pair data only for the target pair (first pair)
+        # and only the last given bars (default 1000) (pair values and indicators)
+        data["pairs"] = {}
+        data["pairs"][self._processing.pair] = {}
+        values_dict = self._pairs[0].tail(bars).to_dict()
+
+        # Convert the timestamps in the "t" column of the values dictionary to Unix time numbers
+        if "t" in values_dict:
+            values_dict["t"] = [
+                x.timestamp() if isinstance(x, pd.Timestamp) else x
+                for x in values_dict["t"]
+            ]
+
+        data["pairs"][self._processing.pair]["values"] = values_dict
+
+        data["pairs"][self._processing.pair]["indicators"] = (
+            self._indicators[0].tail(bars).to_dict()
+        )
+        # Dump the data to a JSON file
+        with open(path, "w") as file:
+            json.dump(data, file, indent=4)
+

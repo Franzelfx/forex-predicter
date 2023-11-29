@@ -18,13 +18,13 @@ class Visualizer:
     def plot_prediction(
         self,
         path,
+        n,
+        m,
         x_test,
         x_hat,
         y_test,
-        y_test_actual,
-        y_hat,
-        n,
-        m,
+        y_test_actual = None,
+        y_hat=None,
         save_json=False,
         extra_info="",
         time_base=None,
@@ -149,3 +149,4 @@ class Visualizer:
                 json.dump(data_dict, file, indent=4)
 
             print(f"Saved data to {json_path}")
+
