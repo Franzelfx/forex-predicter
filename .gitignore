@@ -9,3 +9,4 @@ venv/
 *_build*/
 *_modules*/
 .VSCodeCounter
+.src/model_predictions/json/

@@ -46,7 +46,7 @@ class Test_Composer(unittest.TestCase):
             self.composer.compile()
         if(self.predict == True):
             self.composer.predict(box_pts=self.box_pts, test=self.test)
-            #self.composer.dump()
+            self.composer.dump()
         else:
             self.composer.fit()
 

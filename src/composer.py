@@ -464,55 +464,60 @@ class Composer:
             time_base=self._interval,
         )
 
+    def convert_timestamp(self, item):
+        """
+        Convert Timestamp items to a serializable format.
+        """
+        if isinstance(item, pd.Timestamp):
+            return item.strftime("%Y-%m-%d %H:%M:%S")
+        elif isinstance(item, dict):
+            return {key: self.convert_timestamp(val) for key, val in item.items()}
+        elif isinstance(item, list):
+            return [self.convert_timestamp(elem) for elem in item]
+        else:
+            return item
 
     def dump(self, path=None, bars=1000):
         """Dump all data to a file."""
-        # Create a dictionary to hold all data
         data = {}
-        # Create a path to the JSON file
         path = os.path.join(MODEL_PATH, "model_predictions")
         path = os.path.join(path, "json")
         if ":" in self._processing.pair:
             self._processing.pair = self._processing.pair.split(":")[1]
         path = os.path.join(path, f"{self._processing.pair}_dump.json")
-        # Add the fundamental attributes
-        data["base"] = self._base.__dict__
-        data["processing"] = self._processing.__dict__
-        data["branches"] = {}
-        for branch in self._branches:
-            data["branches"][branch] = self._branches[branch].__dict__
-        data["main_branch"] = self._main_branch.__dict__
-        data["output"] = self._output.__dict__
-        # Add predictions
-        data["predictions"] = {}
-        data["predictions"]["y_test"] = self._y_test.tolist()
-        data["predictions"]["y_hat"] = self._y_hat.tolist()
 
-        # Convert end_time to Unix timestamp if it's a Timestamp object
-        if isinstance(self.end_time, pd.Timestamp):
-            data["processing"]["end_time"] = self.end_time.timestamp()
-        else:
-            data["processing"]["end_time"] = self.end_time
+        # Convert all the attributes to a dictionary
+        data["base"] = self.convert_timestamp(self._base.__dict__)
+        data["processing"] = self.convert_timestamp(self._processing.__dict__)
+        data["branches"] = {
+            branch: self.convert_timestamp(self._branches[branch].__dict__)
+            for branch in self._branches
+        }
+        data["main_branch"] = self.convert_timestamp(self._main_branch.__dict__)
+        data["output"] = self.convert_timestamp(self._output.__dict__)
+        data["predictions"] = {
+            "y_test": self._y_test.tolist(),
+            "y_hat": self._y_hat.tolist(),
+        }
 
         data["processing"]["interval"] = self._interval
-        # Add the pair data only for the target pair (first pair)
-        # and only the last given bars (default 1000) (pair values and indicators)
+
+        # Process pair data
         data["pairs"] = {}
         data["pairs"][self._processing.pair] = {}
-        values_dict = self._pairs[0].tail(bars).to_dict()
+        
+        # Using `to_dict('list')` to get a dictionary of lists
+        values_dict = self._pairs[0].tail(bars).to_dict('list')
 
-        # Convert the timestamps in the "t" column of the values dictionary to Unix time numbers
-        if "t" in values_dict:
-            values_dict["t"] = [
-                x.timestamp() if isinstance(x, pd.Timestamp) else x
-                for x in values_dict["t"]
-            ]
+        # Convert timestamps in the 't' column
+        if 't' in values_dict:
+            values_dict['t'] = [self.convert_timestamp(timestamp) for timestamp in values_dict['t']]
 
         data["pairs"][self._processing.pair]["values"] = values_dict
-
-        data["pairs"][self._processing.pair]["indicators"] = (
-            self._indicators[0].tail(bars).to_dict()
+        data["pairs"][self._processing.pair]["indicators"] = self.convert_timestamp(
+            self._indicators[0].tail(bars).to_dict('list')
         )
+
         # Dump the data to a JSON file
         with open(path, "w") as file:
             json.dump(data, file, indent=4)
