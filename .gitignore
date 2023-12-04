@@ -1,0 +1,12 @@
+# Ignore common temporary and generated files
+__pycache__/
+*.png
+tensorboard/
+venv/
+*.vscode/
+*.csv
+*.log
+*_build*/
+*_modules*/
+.VSCodeCounter
+*dump*
