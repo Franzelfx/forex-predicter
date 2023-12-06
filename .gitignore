@@ -1,6 +1,7 @@
 # Ignore common temporary and generated files
 __pycache__/
 *.png
+!doc/*.png
 tensorboard/
 venv/
 *.vscode/
