@@ -36,6 +36,8 @@ async def read_dumps():
     # Remove the .json extension
     files = [f[:-5] for f in files]
     files = [f[:-5] if f.endswith("_dump") else f for f in files]
+    # Sort files by name
+    files.sort()
     return files
 
 
