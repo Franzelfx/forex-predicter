@@ -465,9 +465,7 @@ class Composer:
         )
 
     def convert_timestamp(self, item):
-        """
-        Convert Timestamp items to a serializable format.
-        """
+        print(f"Converting item: {item}")  # Debugging print statement
         if isinstance(item, pd.Timestamp):
             return item.strftime("%Y-%m-%d %H:%M:%S")
         elif isinstance(item, dict):
@@ -479,46 +477,162 @@ class Composer:
 
     def dump(self, path=None, bars=1000):
         """Dump all data to a file."""
-        data = {}
-        path = os.path.join(MODEL_PATH, "model_predictions")
-        path = os.path.join(path, "json")
+        file_path = self._prepare_file_path()
+        data = self._prepare_data_to_dump(bars)
+
+        # Check if the dump file already exists
+        if os.path.isfile(file_path):
+            existing_data = self._read_existing_data(file_path)
+            updated_data = self._update_data_with_new_predictions(data, existing_data)
+            self._write_to_file(file_path, updated_data)
+        else:
+            initial_data = self._prepare_initial_data(data, bars)
+            self._write_to_file(file_path, initial_data)
+
+    def _prepare_file_path(self):
+        """Prepare the file path for dumping data."""
+        path = os.path.join(MODEL_PATH, "model_predictions", "json")
         if ":" in self._processing.pair:
             self._processing.pair = self._processing.pair.split(":")[1]
-        path = os.path.join(path, f"{self._processing.pair}_dump.json")
+        return os.path.join(path, f"{self._processing.pair}_dump.json")
 
-        # Convert all the attributes to a dictionary
-        data["base"] = self.convert_timestamp(self._base.__dict__)
-        data["processing"] = self.convert_timestamp(self._processing.__dict__)
-        data["branches"] = {
-            branch: self.convert_timestamp(self._branches[branch].__dict__)
-            for branch in self._branches
+    def _prepare_data_to_dump(self, bars):
+        """Prepare the data structure for dumping."""
+        data = {
+            "confidence": self._utilizer.confidence,
+            "processing": {"interval": self._interval},
         }
-        data["main_branch"] = self.convert_timestamp(self._main_branch.__dict__)
-        data["output"] = self.convert_timestamp(self._output.__dict__)
-        data["predictions"] = {
-            "y_test": self._y_test.tolist(),
-            "y_hat": self._y_hat.tolist(),
-        }
-        data["confidence"] = self._utilizer.confidence
-        data["processing"]["interval"] = self._interval
 
         # Process pair data
-        data["pairs"] = {}
-        data["pairs"][self._processing.pair] = {}
-        
-        # Using `to_dict('list')` to get a dictionary of lists
-        values_dict = self._pairs[0].tail(bars).to_dict('list')
+        pair_values = self._pairs[0].tail(bars)
 
-        # Convert timestamps in the 't' column
-        if 't' in values_dict:
-            values_dict['t'] = [self.convert_timestamp(timestamp) for timestamp in values_dict['t']]
+        # Convert 't' column to datetime if it's not already
+        if not isinstance(pair_values["t"], pd.DatetimeIndex):
+            pair_values["t"] = pd.to_datetime(pair_values["t"])
 
-        data["pairs"][self._processing.pair]["values"] = values_dict
-        data["pairs"][self._processing.pair]["indicators"] = self.convert_timestamp(
-            self._indicators[0].tail(bars).to_dict('list')
+        # Get the last timestamp
+        last_timestamp = pair_values["t"].iloc[-1]
+
+        # Debugging: Print the last timestamp
+        print("Last timestamp in pair_values:", last_timestamp)
+        # Prepare pair data values
+        # Prepare pair data values
+        data["pairs"] = {
+            self._processing.pair: {
+                "values": [
+                    {
+                        "time": row["t"].strftime("%Y-%m-%d %H:%M:%S"),
+                        "open": row["o"],
+                        "high": row["h"],
+                        "low": row["l"],
+                        "close": row["c"],
+                    }
+                    for index, row in pair_values.iterrows()
+                ]
+            }
+        }
+
+        # Prepare predictions data
+        data["predictions"] = []
+        for i, prediction in enumerate(self._y_hat):
+            future_timestamp = last_timestamp + timedelta(
+                minutes=self._interval * (i + 1)
+            )
+            future_timestamp_str = future_timestamp.strftime("%Y-%m-%d %H:%M:%S")
+            data["predictions"].append({"t": future_timestamp_str, "y_hat": prediction})
+
+        return data
+
+    def _read_existing_data(self, file_path):
+        """Read existing data from the file."""
+        with open(file_path, "r") as file:
+            return json.load(file)
+
+
+    def _update_data_with_new_predictions(self, new_data, existing_data):
+        """
+        Update existing data by overriding old predictions and pair values with new ones.
+        Old predictions and pair values that do not overlap with the new ones are retained.
+        """
+        # Update predictions
+        existing_predictions = pd.DataFrame(existing_data["predictions"])
+        new_predictions = pd.DataFrame(new_data["predictions"])
+
+        # Determine the earliest timestamp in the new predictions
+        earliest_new_prediction_timestamp = pd.to_datetime(new_predictions["t"]).min()
+
+        # Filter out old predictions that overlap with new ones
+        old_predictions = existing_predictions[
+            pd.to_datetime(existing_predictions["t"]) < earliest_new_prediction_timestamp
+        ]
+
+        # Combine old predictions with new ones
+        updated_predictions = pd.concat([old_predictions, new_predictions]).reset_index(
+            drop=True
         )
 
-        # Dump the data to a JSON file
-        with open(path, "w") as file:
-            json.dump(data, file, indent=4)
+        # Update predictions in the existing data
+        existing_data["predictions"] = updated_predictions.to_dict(orient="records")
 
+        # Update pair values
+        existing_pair_values = pd.DataFrame(
+            existing_data["pairs"][self._processing.pair]["values"]
+        )
+        new_pair_values = pd.DataFrame(new_data["pairs"][self._processing.pair]["values"])
+
+        # Determine the last timestamp in the new pair values
+        last_new_pair_timestamp = pd.to_datetime(new_pair_values["time"]).max()
+
+        # Filter out old pair values that overlap with new ones
+        old_pair_values = existing_pair_values[
+            pd.to_datetime(existing_pair_values["time"]) <= last_new_pair_timestamp
+        ]
+
+        # Combine old pair values with new ones
+        updated_pair_values = pd.concat([old_pair_values, new_pair_values]).reset_index(
+            drop=True
+        )
+
+        # Update pair values in the existing data
+        existing_data["pairs"][self._processing.pair][
+            "values"
+        ] = updated_pair_values.to_dict(orient="records")
+
+        return existing_data
+
+    def _prepare_initial_data(self, data, bars):
+        """Prepare initial data if dump file does not exist."""
+        timestamps = self._pairs[0]["t"].tail(bars).tolist()
+        datetime_objects = [ts.to_pydatetime() for ts in timestamps]
+        last_timestamp = datetime_objects[-1]
+
+        print("Last timestamp in initial data:", last_timestamp)
+
+        data["predictions"] = []
+        for i in range(len(self._y_hat)):
+            # Convert the interval from minutes to a timedelta
+            interval_timedelta = timedelta(minutes=self._interval * (i + 1))
+
+            # Add the timedelta to the last_timestamp
+            future_timestamp = last_timestamp + interval_timedelta
+            future_timestamp_str = future_timestamp.strftime("%Y-%m-%d %H:%M:%S")
+            prediction = self._y_hat[i]
+
+            # Add each prediction as a JSON object
+            data["predictions"].append({"t": future_timestamp_str, "y_hat": prediction})
+
+        return data
+
+    def _write_to_file(self, file_path, data):
+        """Write data to a JSON file."""
+
+        def default_converter(o):
+            """Convert numpy types to Python types for JSON serialization."""
+            if isinstance(o, np.float32):
+                return float(o)
+            raise TypeError(
+                f"Object of type {o.__class__.__name__} is not JSON serializable"
+            )
+
+        with open(file_path, "w") as file:
+            json.dump(data, file, indent=4, default=default_converter)
