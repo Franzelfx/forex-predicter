@@ -547,7 +547,35 @@ class Composer:
         """Read existing data from the file."""
         with open(file_path, "r") as file:
             return json.load(file)
+        
+    def _get_common_comma_position(self, existing_data):
+        comma_positions = []
 
+        for record in existing_data:
+            number_str = str(record['y_hat'])
+            comma_position = number_str.find(',')
+            if comma_position != -1:
+                comma_positions.append(comma_position)
+
+        if not comma_positions:
+            return None
+
+        # Find the most common comma position
+        most_common_position = max(set(comma_positions), key=comma_positions.count)
+        return most_common_position
+
+    def _format_number(self, number, comma_position):
+        number_str = f"{number:,}"
+        if comma_position is not None and number_str.find(',') != comma_position:
+            # Adjust formatting based on the most common comma position
+            # This part can be complex depending on how you want to handle the formatting
+            # For example, you may need to add or remove digits, or handle edge cases
+            pass
+        return number_str
+
+    def _update_new_data_formatting(self, new_data, comma_position):
+        for record in new_data:
+            record['y_hat'] = self._format_number(record['y_hat'], comma_position)
 
     def _update_data_with_new_predictions(self, new_data, existing_data):
         """
@@ -587,6 +615,12 @@ class Composer:
         old_pair_values = existing_pair_values[
             pd.to_datetime(existing_pair_values["time"]) <= last_new_pair_timestamp
         ]
+
+        # Get the most common comma position from existing data
+        common_comma_position = self._get_common_comma_position(existing_data["predictions"])
+
+        # Format new data accordingly
+        self._update_new_data_formatting(new_data["predictions"], common_comma_position)
 
         # Combine old pair values with new ones
         updated_pair_values = pd.concat([old_pair_values, new_pair_values]).reset_index(

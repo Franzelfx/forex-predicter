@@ -80,7 +80,7 @@ if __name__ == '__main__':
 
     # If no pair is specified, iterate over all JSON files in src/recipes
     if args.pair is None:
-        recipe_files = os.listdir('./src/recipes')
+        recipe_files = os.listdir('../src/recipes')
 
         for recipe_file in recipe_files:
             if recipe_file.endswith('_recipe.json'):
