@@ -83,13 +83,17 @@ if __name__ == '__main__':
         recipe_files = os.listdir('../src/recipes')
 
         for recipe_file in recipe_files:
-            if recipe_file.endswith('_recipe.json'):
-                pair = recipe_file.replace('_recipe.json', '')
+            try:
+                if recipe_file.endswith('_recipe.json'):
+                    pair = recipe_file.replace('_recipe.json', '')
 
-                if pair not in ['BTCUSD', 'ETHUSD']:
-                    prefix = 'C:' if pair[0] != 'X' else 'X:'
-                    pair = prefix + pair
-                
-                __main__(pair, args.fetch, args.predict, args.box_pts, args.interval, args.strategy, args.no_request, args.end, args.test)
+                    if pair not in ['BTCUSD', 'ETHUSD']:
+                        prefix = 'C:' if pair[0] != 'X' else 'X:'
+                        pair = prefix + pair
+                    
+                    __main__(pair, args.fetch, args.predict, args.box_pts, args.interval, args.strategy, args.no_request, args.end, args.test)
+            except Exception as e:
+                print(f'Error while processing {recipe_file}: {e}')
+                continue
     else:
         __main__(args.pair, args.fetch, args.predict, args.box_pts, args.interval, args.strategy, args.no_request, args.end, args.test)
