@@ -4,6 +4,7 @@ from os.path import isfile, join
 import json
 from fastapi import HTTPException
 from datetime import datetime, timedelta, timezone
+from fastapi import Body
 
 
 router = APIRouter()
@@ -128,3 +129,41 @@ async def read_prediction_close(pair: str):
         return response_data
     except KeyError as e:
         raise HTTPException(status_code=404, detail=f"{e.args[0]} not found in file")
+
+@router.put("/update_prediction_times")
+async def update_prediction_times(new_times: list = Body(...)):
+    # Validate the input
+    if not all(isinstance(time, str) for time in new_times):
+        raise HTTPException(status_code=400, detail="Invalid input format")
+
+    # Validate the time format (hh:mm:ss)
+    for time in new_times:
+        try:
+            datetime.strptime(time, "%H:%M:%S")
+        except ValueError:
+            raise HTTPException(status_code=400, detail="Invalid time format. Please use hh:mm:ss")
+
+    # Path to your app_config.json file
+    config_file_path = "app_config.json"
+
+    try:
+        # Verify and read the current configuration
+        with open(config_file_path, "r") as file:
+            try:
+                config = json.load(file)
+            except json.JSONDecodeError:
+                # If the JSON file is invalid, don't proceed with the update
+                raise HTTPException(status_code=500, detail="Current configuration file is invalid. Update aborted.")
+
+        # Update the DEFAULT_PREDICTION_DATETIMES field
+        config["DEFAULT_PREDICTION_DATETIMES"] = new_times
+
+        # Write the updated configuration back to the file
+        with open(config_file_path, "w") as file:
+            json.dump(config, file, indent=4)
+
+        return {"message": "Prediction times updated successfully"}
+
+    except Exception as e:
+        # Handle any exceptions (e.g., file not found, JSON errors)
+        raise HTTPException(status_code=500, detail=str(e))

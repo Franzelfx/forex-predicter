@@ -1,0 +1,19 @@
+{
+    "AQUIRE_FROM_FILE": true,
+    "DEFAULT_PREDICTION_DATETIMES": [
+        "08:00:00",
+        "20:00:00"
+    ],
+    "PREDICT_CRYPTO": false,
+    "CRYPTO_PAIRS": [
+        "BTCUSD",
+        "ETHUSD"
+    ],
+    "CRYPTO_PREFIX": "X:",
+    "PREDICT_FOREX": true,
+    "FOREX_PAIRS": [
+        "*"
+    ],
+    "FOREX_PREFIX": "C:",
+    "DEFAULT_GPU": 0
+}

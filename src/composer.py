@@ -443,7 +443,7 @@ class Composer:
             patience_lr_schedule=self._processing.patience_lr_schedule,
         )
 
-    def predict(self, box_pts=3, test=False):
+    def predict(self, box_pts=0, test=False):
         """Predict with the model."""
         model = self.model
         self._utilizer = Utilizer(model, self._preprocessed)
