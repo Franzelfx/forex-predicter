@@ -12,7 +12,7 @@ router = APIRouter()
 
 @router.get("/recipes")
 async def read_recipes():
-    folder_path = "recipes"
+    folder_path = "src/recipes"
     files = [
         f
         for f in listdir(folder_path)
