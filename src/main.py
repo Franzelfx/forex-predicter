@@ -29,7 +29,7 @@ def pairs_to_predict(config: dict):
     # and set the prefix to "FOREEX_PREFIX", else get the pairs from the
     # FOREX_PAIRS list and set the prefix to "FOREX_PREFIX"
     if config["FOREX_PAIRS"][0] == "*":
-        recipe_files = os.listdir('recipes')
+        recipe_files = os.listdir('src/recipes')
         pairs = [recipe_file.replace('_recipe.json', '') for recipe_file in recipe_files if recipe_file.endswith('_recipe.json')]
         prefix = config["FOREX_PREFIX"]
     else:
