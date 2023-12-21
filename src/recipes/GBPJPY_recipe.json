@@ -1,15 +1,15 @@
 {
   "PROCESSING": {
     "PAIR": "C:GBPJPY",
-    "INTERVAL": 30,
+    "INTERVAL": 15,
     "START_DATE": "2010-01-01",
     "STEPS_IN": 72,
     "STEPS_OUT": 48,
     "OVERLAP": 48,
     "TEST_LENGTH": 120,
     "EPOCHS": 1000,
-    "BATCH_SIZE": 8,
-    "LEARNING_RATE": 0.0001,
+    "BATCH_SIZE": 16,
+    "LEARNING_RATE": 0.0005,
     "VALIDATION_SPLIT": 0.01,
     "PATIENCE": 200,
     "PATIENCE_LR_SCHEDULE": 50,
@@ -45,71 +45,7 @@
         "LSTM": [72, 64, 32],
         "DENSE": [144, 128, 64],
         "ATTENTION_HEADS": [32, 32, 32],
-        "DROPOUT": [0.25, 0.25, 0.25]
-      }
-    },
-    "C:EURUSD": {
-      "INDICATORS": [
-        "ATR",
-        "BOLLINGER",
-        "MA5",
-        "MA25",
-        "MA50",
-        "MA200",
-        "MACD",
-        "OBV",
-        "RSI",
-        "STOCHASTIC",
-        "VoRSI",
-        "HT_TRENDLINE",
-        "HT_TRENDMODE",
-        "HT_DCPERIOD",
-        "HT_DCPHASE",
-        "HT_PHASOR",
-        "HT_SINE",
-        "MFI",
-        "MOM",
-        "PLUS_DI",
-        "PLUS_DM"
-      ],
-      "NODES": {
-        "TRANSFORMER": [72, 64, 32],
-        "LSTM": [72, 64, 32],
-        "DENSE": [144, 128, 64],
-        "ATTENTION_HEADS": [32, 32, 32],
-        "DROPOUT": [0.25, 0.25, 0.25]
-      }
-    },
-    "C:GBPCAD": {
-      "INDICATORS": [
-        "ATR",
-        "BOLLINGER",
-        "MA5",
-        "MA25",
-        "MA50",
-        "MA200",
-        "MACD",
-        "OBV",
-        "RSI",
-        "STOCHASTIC",
-        "VoRSI",
-        "HT_TRENDLINE",
-        "HT_TRENDMODE",
-        "HT_DCPERIOD",
-        "HT_DCPHASE",
-        "HT_PHASOR",
-        "HT_SINE",
-        "MFI",
-        "MOM",
-        "PLUS_DI",
-        "PLUS_DM"
-      ],
-      "NODES": {
-        "TRANSFORMER": [72, 64, 32],
-        "LSTM": [72, 64, 32],
-        "DENSE": [144, 128, 64],
-        "ATTENTION_HEADS": [32, 32, 32],
-        "DROPOUT": [0.25, 0.25, 0.25]
+        "DROPOUT": [0.25, 0.35, 0.25]
       }
     },
     "C:EURJPY": {
@@ -141,81 +77,17 @@
         "LSTM": [72, 64, 32],
         "DENSE": [144, 128, 64],
         "ATTENTION_HEADS": [32, 32, 32],
-        "DROPOUT": [0.25, 0.25, 0.25]
-      }
-    },
-    "C:AUDJPY": {
-      "INDICATORS": [
-        "ATR",
-        "BOLLINGER",
-        "MA5",
-        "MA25",
-        "MA50",
-        "MA200",
-        "MACD",
-        "OBV",
-        "RSI",
-        "STOCHASTIC",
-        "VoRSI",
-        "HT_TRENDLINE",
-        "HT_TRENDMODE",
-        "HT_DCPERIOD",
-        "HT_DCPHASE",
-        "HT_PHASOR",
-        "HT_SINE",
-        "MFI",
-        "MOM",
-        "PLUS_DI",
-        "PLUS_DM"
-      ],
-      "NODES": {
-        "TRANSFORMER": [72, 64, 32],
-        "LSTM": [72, 64, 32],
-        "DENSE": [144, 128, 64],
-        "ATTENTION_HEADS": [32, 32, 32],
-        "DROPOUT": [0.25, 0.25, 0.25]
-      }
-    },
-    "C:GBPUSD": {
-      "INDICATORS": [
-        "ATR",
-        "BOLLINGER",
-        "MA5",
-        "MA25",
-        "MA50",
-        "MA200",
-        "MACD",
-        "OBV",
-        "RSI",
-        "STOCHASTIC",
-        "VoRSI",
-        "HT_TRENDLINE",
-        "HT_TRENDMODE",
-        "HT_DCPERIOD",
-        "HT_DCPHASE",
-        "HT_PHASOR",
-        "HT_SINE",
-        "MFI",
-        "MOM",
-        "PLUS_DI",
-        "PLUS_DM"
-      ],
-      "NODES": {
-        "TRANSFORMER": [72, 64, 32],
-        "LSTM": [72, 64, 32],
-        "DENSE": [144, 128, 64],
-        "ATTENTION_HEADS": [32, 32, 32],
-        "DROPOUT": [0.25, 0.25, 0.25]
+        "DROPOUT": [0.25, 0.35, 0.25]
       }
     }
   },
   "MAIN_BRANCH": {
     "NODES": {
-      "TRANSFORMER": [128, 64, 48],
-      "LSTM": [128, 64, 48],
-      "DENSE": [256, 128, 96],
+      "TRANSFORMER": [64, 48, 48],
+      "LSTM": [64, 48, 48],
+      "DENSE": [128, 96, 96],
       "ATTENTION_HEADS": [32, 32, 32],
-      "DROPOUT": [0.25, 0.25, 0.0]
+      "DROPOUT": [0.4, 0.25, 0.0]
     }
   },
   "OUTPUT": {
