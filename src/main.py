@@ -67,7 +67,7 @@ def composer_inferenz(pair_name: str, from_file=True):
     # The composer class routine for inferenz
     composer = Composer(pair_name)
     composer.summary()
-    composer.aquire(from_file=from_file)
+    composer.aquire(from_file=from_file, ignore_start=True)
     composer.calculate()
     composer.preprocess()
     composer.compile()
@@ -93,4 +93,4 @@ for time in config["DEFAULT_PREDICTION_DATETIMES"]:
 scheduler.start()
 
 if __name__ == '__main__':
-    print("Pairs to predict: ", pairs_to_predict(get_config()))
+    run_main_task()

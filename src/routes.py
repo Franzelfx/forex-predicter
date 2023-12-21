@@ -5,7 +5,7 @@ import json
 from fastapi import HTTPException
 from datetime import datetime, timedelta, timezone
 from fastapi import Body
-
+from typing import Optional
 
 router = APIRouter()
 
@@ -166,4 +166,15 @@ async def update_prediction_times(new_times: list = Body(...)):
 
     except Exception as e:
         # Handle any exceptions (e.g., file not found, JSON errors)
+        raise HTTPException(status_code=500, detail=str(e))
+    
+@router.post("/inferenz")
+async def inferenz(pair: Optional[str] = None, gpu: Optional[int] = None):
+    from src.main import main
+    try:
+        # Assuming 'main' is the function from your provided script
+        # This will execute the main task for the specified pair and GPU (if provided)
+        main(pair_name=pair, gpu=gpu)
+        return {"message": f"Inferenz done for pair: {pair}"}
+    except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
