@@ -28,7 +28,7 @@ async def read_recipes():
 
 @router.get("/dumps")
 async def read_dumps():
-    folder_path = "model_predictions/json"
+    folder_path = "src/model_predictions/json"
     files = [
         f
         for f in listdir(folder_path)
@@ -44,7 +44,7 @@ async def read_dumps():
 
 @router.get("/confidence/{pair}")
 async def read_confidence(pair: str):
-    file_path = f"model_predictions/json/{pair}_dump.json"
+    file_path = f"src/model_predictions/json/{pair}_dump.json"
     if not isfile(file_path):
         raise HTTPException(status_code=404, detail="File not found")
 
@@ -63,7 +63,7 @@ async def read_confidence(pair: str):
 
 @router.get("/bars/{pair}/{bars}")
 async def read_model_predictions(pair: str, bars: int = 100):
-    file_path = f"model_predictions/json/{pair}_dump.json"
+    file_path = f"src/model_predictions/json/{pair}_dump.json"
     if not isfile(file_path):
         raise HTTPException(status_code=404, detail="File not found")
 
@@ -106,7 +106,7 @@ async def read_model_predictions(pair: str, bars: int = 100):
 
 @router.get("/prediction/{pair}")
 async def read_prediction_close(pair: str):
-    file_path = f"model_predictions/json/{pair}_dump.json"
+    file_path = f"src/model_predictions/json/{pair}_dump.json"
     if not isfile(file_path):
         raise HTTPException(status_code=404, detail="File not found")
 
