@@ -4,7 +4,8 @@ import requests
 import pandas as pd
 from datetime import datetime as date
 from datetime import datetime, timedelta
-
+# Logging
+from src.logger import logger as loguru
 
 class Data_Aquirer:
     """Used to get the data eigther from the API or from the csv file.
@@ -56,7 +57,7 @@ class Data_Aquirer:
     def _request(self, pair: str, time_base: int, start: str, end: str) -> pd.DataFrame:
         """Do a repeated request with the given parameters."""
         # Get data as long as the last date is not the end date of the previous day
-        print(
+        loguru.info(
             f"Aquiring data for {pair} with {time_base} minutes interval from {start} to {end}"
         )
         data = pd.DataFrame()
@@ -69,12 +70,12 @@ class Data_Aquirer:
         # The last request is the start date on first iteration
         last = start
         iteration_counter = 0
-        print(f"Call API ", end="", flush=True)
+        loguru.info(f"Call API ", end="", flush=True)
         while datetime.strptime(last, self._time_format) < datetime.strptime(
             end, self._time_format
         ):
             # Get the data from the API
-            print(".", end="", flush=True)
+            loguru.info(".", end="", flush=True)
             url = f"https://api.polygon.io/v2/aggs/ticker/{pair}/range/{time_base}/minute/{last}/{end}?adjusted=true&sort=asc&limit=50000&apiKey={self._api_key}"
             response = requests.get(url)
             response = response.json()
@@ -95,12 +96,12 @@ class Data_Aquirer:
             iteration_counter += 1
         # Set the time column as index
         if len(data_return) != 0:
-            print(f"\nDone! (after {iteration_counter} requests).")
-            print(
+            loguru.info(f"\nDone! (after {iteration_counter} requests).")
+            loguru.info(
                 f"Got {len(data_return)} data points with {data_return.memory_usage().sum() / 1024**2:.2f} MB memory usage."
             )
         else:
-            print(f"\nEverything up to date.")
+            loguru.info(f"\nEverything up to date.")
         return data_return
 
     def get(
@@ -120,14 +121,14 @@ class Data_Aquirer:
             csv_pair_name = pair.split(":")[1] if ":" in pair else ""
             try:
                 data = pd.read_csv(f"{self._path}/{csv_pair_name}_{time_base}.csv")
-                print(f"Got data from {self._path}/{csv_pair_name}_{time_base}.csv")
+                loguru.info(f"Got data from {self._path}/{csv_pair_name}_{time_base}.csv")
                 recent_date = data["t"].iloc[-1].split(" ")[0]
                 first_date = data["t"].iloc[0].split(" ")[0]
                 if recent_date == date.today().strftime("%Y-%m-%d"):
                     recent_date = (date.today() - timedelta(days=1)).strftime("%Y-%m-%d")
                 if not no_request:
                     if first_date != start and not ignore_start:
-                        print(
+                        loguru.info(
                             f"First date is {first_date} instead of {start}, requesting all data from API..."
                         )
                         request = self._request(pair, time_base, start, end)
@@ -135,8 +136,8 @@ class Data_Aquirer:
                         request = self._request(pair, time_base, recent_date, end)
                     data = pd.concat([data, request]).drop_duplicates(subset=["t"], keep='last')
             except FileNotFoundError:
-                print(f"No data for {pair} with {time_base} minutes interval found.")
-                print("Getting data from API...")
+                loguru.info(f"No data for {pair} with {time_base} minutes interval found.")
+                loguru.info("Getting data from API...")
                 data = self._request(pair, time_base, start, end)
         else:
             data = self._request(pair, time_base, start, end)
@@ -149,24 +150,24 @@ class Data_Aquirer:
         
         # Filter out the weekends if pair has "C:" in it
         if "C:" in pair:
-            print("Remove all weekends, len before: ", len(data), end=" ")
+            loguru.info("Remove all weekends, len before: ", len(data), end=" ")
             data = data[data['t'].dt.weekday < 5]
 
         # Sort the data by time
         data.sort_values(by="t", inplace=True)
 
-        print("len after: ", len(data))
+        loguru.info("len after: ", len(data))
 
         # Remove all values which are over the end time
         if end != datetime.today().strftime("%Y-%m-%d"):
-            print(f"Remove all values after {end}")
+            loguru.info(f"Remove all values after {end}")
             data = data[data["t"] < end]
 
         if save:
             pair = pair.split(":")[1] if ":" in pair else pair
-            print(f"Save data to {self._path}/{pair}_{time_base}.csv")
+            loguru.info(f"Save data to {self._path}/{pair}_{time_base}.csv")
             data.to_csv(f"{self._path}/{pair}_{time_base}.csv", index=False)
-            print(f"Dataset has {len(data.columns)} columns.")
+            loguru.info(f"Dataset has {len(data.columns)} columns.")
 
         return data
 

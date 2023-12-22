@@ -15,6 +15,8 @@ from src.preprocessor import Preprocessor
 from src.data_aquirer import Data_Aquirer
 from src.model import Branch as ModelBranch
 from src.model import Output as ModelOutput
+# Logger
+from src.logger import logger as loguru
 
 PATH = os.path.abspath(os.path.dirname(__file__))
 PATH_RECIPES = os.path.abspath(os.path.join(PATH, "recipes"))
@@ -229,10 +231,10 @@ class Composer:
         return tabulate(table, headers=header, tablefmt="rst")
 
     def summary(self):
-        """Print the summary of the attributes."""
-        print(self._model_branches)
-        print(self._model_main_branch)
-        print(self._model_output)
+        """loguru.info the summary of the attributes."""
+        loguru.info(self._model_branches)
+        loguru.info(self._model_main_branch)
+        loguru.info(self._model_output)
 
     def _synchronize_dataframes(self, dataframes, column_to_sync="t"):
         # Create a list to hold all synchronized dataframes
@@ -363,12 +365,12 @@ class Composer:
         # If the current day is Saturday
         if day == "Saturday":
             # Subtract 1 day from the end time
-            print("Today is Saturday, subtracting 1 day from end time")
+            loguru.info("Today is Saturday, subtracting 1 day from end time")
             end_time = end_time - timedelta(days=1)
         # If the current day is Sunday
         elif day == "Sunday":
             # Subtract 2 days from the end time
-            print("Today is Sunday, subtracting 2 days from end time")
+            loguru.info("Today is Sunday, subtracting 2 days from end time")
             end_time = end_time - timedelta(days=2)
         # Return end time as string and in the correct format (same as input (end_time)
         return end_time.strftime("%Y-%m-%d")
@@ -390,7 +392,7 @@ class Composer:
             preprocessed.append(preprocessor)
         self._preprocessed = preprocessed
         self.target_preprocessed = preprocessed[0]
-        print(self.target_preprocessed.summary())
+        loguru.info(self.target_preprocessed.summary())
         return preprocessed
 
     def compile(self, strategy=None):
@@ -465,7 +467,7 @@ class Composer:
         )
 
     def convert_timestamp(self, item):
-        print(f"Converting item: {item}")  # Debugging print statement
+        loguru.info(f"Converting item: {item}")  # Debugging loguru.info statement
         if isinstance(item, pd.Timestamp):
             return item.strftime("%Y-%m-%d %H:%M:%S")
         elif isinstance(item, dict):
@@ -513,8 +515,8 @@ class Composer:
         # Get the last timestamp
         last_timestamp = pair_values["t"].iloc[-1]
 
-        # Debugging: Print the last timestamp
-        print("Last timestamp in pair_values:", last_timestamp)
+        # Debugging: loguru.info the last timestamp
+        loguru.info("Last timestamp in pair_values:", last_timestamp)
         # Prepare pair data values
         # Prepare pair data values
         data["pairs"] = {
@@ -640,7 +642,7 @@ class Composer:
         datetime_objects = [ts.to_pydatetime() for ts in timestamps]
         last_timestamp = datetime_objects[-1]
 
-        print("Last timestamp in initial data:", last_timestamp)
+        loguru.info("Last timestamp in initial data:", last_timestamp)
 
         data["predictions"] = []
         for i in range(len(self._y_hat)):

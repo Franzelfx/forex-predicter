@@ -1,10 +1,10 @@
 """The utilizer module, to use the trained model to predict."""
 import numpy as np
 from typing import List
-from logging import warning
 from src.preprocessor import Preprocessor
 from src.model import Model as ModelPreTrained
-
+# Logging
+from src.logger import logger as loguru
 
 class Utilizer:
     """The utilizer class, to use the trained model to predict."""
@@ -94,7 +94,7 @@ class Utilizer:
                     )
         # Calculate confidence score
         self._confidence = self._model.confidence(x_hat)
-        print(f"Confidence score: {self._confidence} %")
+        loguru.info(f"Confidence score: {self._confidence} %")
         return y_test, y_hat
 
     def _concat_moving_average(

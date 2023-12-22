@@ -2,7 +2,8 @@
 import pandas as pd
 from logging import warning
 import talib.abstract as talib
-
+# Logging
+from src.logger import logger as loguru
 
 class Indicators:
     """Used to calculate indicators from the data and add them to the dataframe.
@@ -81,8 +82,8 @@ class Indicators:
             )
 
     def summary(self):
-        """Print a summary of the indicators."""
-        print(self._data.head(5))
+        """loguru.info a summary of the indicators."""
+        loguru.info(self._data.head(5))
 
     @property
     def data(self) -> pd.DataFrame:
@@ -118,7 +119,7 @@ class Indicators:
     ) -> pd.DataFrame:
         """Calculate the indicators and add them to the dataframe."""
         # Calculate the indicators
-        print(
+        loguru.info(
             f"calculate {len(self._requested)} Indicators with {self._data.memory_usage().sum() / 1024**2:.2f} MB of data, please wait..."
         )
         if "ATR" in self._available:

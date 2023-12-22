@@ -4,6 +4,7 @@ from pytz import utc
 from fastapi import FastAPI
 from src.routes import router
 from src.composer import Composer
+from src.logger import logger as loguru
 from fastapi.middleware.cors import CORSMiddleware
 from apscheduler.schedulers.background import BackgroundScheduler
 
@@ -48,7 +49,7 @@ def main(pair_name: str = None, gpu: int = None):
     config = get_config()
     gpu = config["DEFAULT_GPU"] if gpu is None else gpu
     os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu)
-    print(f'Using GPU {gpu}')
+    loguru.info(f'Using GPU {gpu}')
     from_file = config["AQUIRE_FROM_FILE"]
     if pair_name is None:
         pairs = pairs_to_predict(config)
@@ -59,7 +60,7 @@ def main(pair_name: str = None, gpu: int = None):
         try:
             composer_inferenz(pair, from_file=from_file)
         except Exception as e:
-            print(f'Error while processing {pair}: {e}')
+            loguru.error(f'Error while predicting {pair}: {e}')
             continue
 
 # Function to run the composer class for inferenz
@@ -76,8 +77,11 @@ def composer_inferenz(pair_name: str, from_file=True):
 
 # Function to run the main task
 def run_main_task():
-    print("Executing main task...")
-    main()  # Call your main function here
+    try:
+        loguru.info('Starting main task')
+        main()  # Call your main function here
+    except Exception as e:
+        loguru.error(f'Error while running main task: {e}')
 
 # Get the config to find out when to run the task
 config = get_config()

@@ -21,6 +21,8 @@ from tensorflow.keras.callbacks import (
 import src.layers as layers
 from tensorflow.keras.layers import Concatenate, LayerNormalization, Input
 import numpy as np
+# Logging
+from src.logger import logger as loguru
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 
@@ -134,7 +136,7 @@ class ModelCheckpoint(tf.keras.callbacks.Callback):
         # Check if the combined score is better than the best score seen so far
         if combined_score < self.best_score:
             self.best_score = combined_score
-            print(f" Combined score improved to {combined_score:.4f}. Save model.")
+            loguru.info(f" Combined score improved to {combined_score:.4f}. Save model.")
         if self.save_best_only:
             self.model.save(self.filepath)
         else:
@@ -321,7 +323,7 @@ class Model:
             model = self._build(architecture)
             model.compile(loss=loss_fct, optimizer=optimizer, metrics=metrics_list)
 
-        print(f"Tensorflow version: {tf.__version__}")
+        loguru.info(f"Tensorflow version: {tf.__version__}")
         model.summary(expand_nested=True)
         # Plot the model
         try:
@@ -335,8 +337,8 @@ class Model:
                 dpi=300,
             )
         except Exception as e:
-            # Print exception with traceback
-            print(e)
+            # loguru.info exception with traceback
+            loguru.info(e)
             logging.error(e)
         self._model = model
 
@@ -373,7 +375,7 @@ class Model:
         """
         # Say how much GPU's are available
         if self._model is None:
-            print("Model is not compiled yet, please compile the model first.")
+            loguru.warning("Model is not compiled yet, please compile the model first.")
             return
         reset_states = ResetStatesCallback()
         model_checkpoint = ModelCheckpoint(
@@ -448,8 +450,7 @@ class Model:
             fit.to_csv(f"{self._path}/fit_history/{self._name}.csv", index=False)
         except Exception as e:
             # Print exception with traceback
-            print(e)
-            logging.error(e)
+            loguru.error(e)
         return fit
 
     def load_model(self, path) -> tf.keras.Model:
@@ -484,7 +485,7 @@ class Model:
         # Get the model
         if from_saved_model:
             prediction_model: tf.keras.Model = self.load_model(path)
-            print(f"Loaded model from: {path}")
+            loguru.info(f"Loaded model from: {path}")
         else:
             # Check if the model has been fitted
             if self._model is None:

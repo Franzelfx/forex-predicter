@@ -3,7 +3,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from itertools import zip_longest
 from datetime import datetime as dt
-
+# Logging
+from src.logger import logger as loguru
 
 class Visualizer:
     """Visualize the results of the model."""
@@ -128,7 +129,7 @@ class Visualizer:
 
         # Save the plot
         plt.savefig(f"{png_path}.png", dpi=600)
-        print(f"Saved plot to {png_path}.png")
+        loguru.info(f"Saved plot to {png_path}.png")
 
         if save_json:
             # Create a dictionary to store the data
@@ -148,5 +149,5 @@ class Visualizer:
             with open(json_path, "w") as file:
                 json.dump(data_dict, file, indent=4)
 
-            print(f"Saved data to {json_path}")
+            loguru.info(f"Saved data to {json_path}")
 
