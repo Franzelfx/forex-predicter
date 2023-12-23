@@ -11,7 +11,7 @@ router = APIRouter()
 
 
 @router.get("/recipes")
-async def read_recipes():
+async def get_recipe_names():
     folder_path = "src/recipes"
     files = [
         f
@@ -24,6 +24,19 @@ async def read_recipes():
     # Exclude recipe with "BASE" in the name
     files = [f for f in files if "BASE" not in f]
     return files
+
+@router.get("/recipe/{pair}")
+async def get_recipe(pair: str):
+    file_path = f"src/recipes/{pair}_recipe.json"
+    if not isfile(file_path):
+        raise HTTPException(status_code=404, detail="File not found")
+
+    with open(file_path, "r") as file:
+        data = json.load(file)
+    try:
+        return data
+    except KeyError as e:
+        raise HTTPException(status_code=404, detail=f"{e.args[0]} not found in file")
 
 
 @router.get("/dumps")
