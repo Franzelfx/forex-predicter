@@ -1,8 +1,8 @@
 """Testbench (unit test) for the Data_Aquirer class."""
 import unittest
 import argparse
-import numpy as np
 from config_tb import *
+import tensorflow as tf
 
 class Test_Composer(unittest.TestCase):
     """Test the Composer class.
@@ -72,7 +72,7 @@ if __name__ == '__main__':
 
     if args.gpu is not None:
         os.environ["CUDA_VISIBLE_DEVICES"] = str(args.gpu)
-        import tensorflow as tf
+        tf.config.set_visible_devices(str(args.gpu), 'GPU')
         print(f'Using GPU {tf.config.list_physical_devices("GPU")}')
 
     # If no pair is specified, iterate over all JSON files in src/recipes
