@@ -72,6 +72,7 @@ if __name__ == '__main__':
 
     if args.gpu is not None:
         os.environ["CUDA_VISIBLE_DEVICES"] = str(args.gpu)
+        print(f'Avaliable GPUs: {tf.config.list_physical_devices("GPU")}')
         tf.config.set_visible_devices(str(args.gpu), 'GPU')
         print(f'Using GPU {tf.config.list_physical_devices("GPU")}')
 
