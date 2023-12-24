@@ -3,7 +3,6 @@ import unittest
 import argparse
 import numpy as np
 from config_tb import *
-from src.composer import Composer
 
 class Test_Composer(unittest.TestCase):
     """Test the Composer class.
@@ -13,6 +12,7 @@ class Test_Composer(unittest.TestCase):
 
     def __init__(self, methodName: str = ..., pair: str = None, fetch: bool = False, predict: bool = False, box_pts: int = 10, interval: int = None, strategy: str = 'mirrored', no_request: bool = False, end_time: str = None, test: bool = False):
         """Initialize the testbench."""
+        from src.composer import Composer
         super().__init__(methodName)
         self.composer = Composer(pair)
         self.fetch = fetch
@@ -75,8 +75,9 @@ if __name__ == '__main__':
         args.end = date.today().strftime("%Y-%m-%d")
 
     if args.gpu is not None:
+        import tensorflow as tf
         os.environ["CUDA_VISIBLE_DEVICES"] = str(args.gpu)
-        print(f'Using GPU {args.gpu}')
+        print(f'Using GPU {tf.config.list_physical_devices("GPU")}')
 
     # If no pair is specified, iterate over all JSON files in src/recipes
     if args.pair is None:
