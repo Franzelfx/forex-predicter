@@ -1,14 +1,14 @@
 {
   "PROCESSING": {
     "PAIR": "C:AUDJPY",
-    "INTERVAL": 30,
+    "INTERVAL": 5,
     "START_DATE": "2010-01-01",
-    "STEPS_IN": 72,
-    "STEPS_OUT": 48,
+    "STEPS_IN": 864,
+    "STEPS_OUT": 288,
     "OVERLAP": 48,
     "TEST_LENGTH": 120,
     "EPOCHS": 1000,
-    "BATCH_SIZE": 8,
+    "BATCH_SIZE": 16,
     "LEARNING_RATE": 0.0005,
     "VALIDATION_SPLIT": 0.01,
     "PATIENCE": 250,
@@ -41,11 +41,11 @@
         "PLUS_DM"
       ],
       "NODES": {
-        "TRANSFORMER": [72, 64, 32],
-        "LSTM": [48, 32, 32],
-        "DENSE": [120, 96, 64],
-        "ATTENTION_HEADS": [32, 32, 32],
-        "DROPOUT": [0.25, 0.35, 0.25]
+        "TRANSFORMER": [256, 128, 64],
+        "LSTM": [128, 64, 32],
+        "DENSE": [384, 192, 96],
+        "ATTENTION_HEADS": [4, 8, 16],
+        "DROPOUT": [0.0, 0.0, 0.0]
       }
     },
     "C:NZDJPY": {
@@ -73,26 +73,26 @@
         "PLUS_DM"
       ],
       "NODES": {
-        "TRANSFORMER": [72, 64, 32],
-        "LSTM": [48, 32, 32],
-        "DENSE": [120, 96, 64],
-        "ATTENTION_HEADS": [32, 32, 32],
-        "DROPOUT": [0.25, 0.35, 0.25]
+        "TRANSFORMER": [256, 128, 64],
+        "LSTM": [128, 64, 32],
+        "DENSE": [384, 192, 96],
+        "ATTENTION_HEADS": [4, 8, 16],
+        "DROPOUT": [0.0, 0.0, 0.0]
       }
     }
   },
   "MAIN_BRANCH": {
     "NODES": {
-      "TRANSFORMER": [72, 64, 32],
-      "LSTM": [48, 32, 32],
-      "DENSE": [120, 96, 64],
-      "ATTENTION_HEADS": [32, 32, 32],
-      "DROPOUT": [0.25, 0.35, 0.25]
+      "TRANSFORMER": [128, 288],
+      "LSTM": [0, 0],
+      "DENSE": [128, 64],
+      "ATTENTION_HEADS": [16, 16],
+      "DROPOUT": [0.35, 0.0]
     }
   },
   "OUTPUT": {
     "NODES": {
-      "DENSE": [48],
+      "DENSE": [288],
       "DROPOUT": [0.0]
     }
   }

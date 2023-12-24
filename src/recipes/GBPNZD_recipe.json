@@ -3,7 +3,7 @@
     "PAIR": "C:GBPNZD",
     "INTERVAL": 5,
     "START_DATE": "2010-01-01",
-    "STEPS_IN": 864,
+    "STEPS_IN": 576,
     "STEPS_OUT": 288,
     "OVERLAP": 48,
     "TEST_LENGTH": 120,
@@ -44,7 +44,7 @@
         "TRANSFORMER": [256, 128, 64],
         "LSTM": [128, 64, 32],
         "DENSE": [384, 192, 96],
-        "ATTENTION_HEADS": [16, 16, 16],
+        "ATTENTION_HEADS": [4, 8, 16],
         "DROPOUT": [0.0, 0.0, 0.0]
       }
     },
@@ -76,7 +76,7 @@
         "TRANSFORMER": [256, 128, 64],
         "LSTM": [128, 64, 32],
         "DENSE": [384, 192, 96],
-        "ATTENTION_HEADS": [16, 16, 16],
+        "ATTENTION_HEADS": [4, 8, 16],
         "DROPOUT": [0.0, 0.0, 0.0]
       }
     }
@@ -86,7 +86,7 @@
       "TRANSFORMER": [128, 288],
       "LSTM": [0, 0],
       "DENSE": [128, 64],
-      "ATTENTION_HEADS": [32, 32],
+      "ATTENTION_HEADS": [16, 16],
       "DROPOUT": [0.35, 0.0]
     }
   },
