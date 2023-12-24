@@ -25,11 +25,7 @@ class Test_Composer(unittest.TestCase):
         self.test = test
 
     def test_composer(self):
-        """Test the composer."""
-        import tensorflow as tf
         # Eleminate randomness
-        np.random.seed(42)
-        tf.random.set_seed(42)
         if self.fetch == False:
             from_file = True
         self.composer.summary()
