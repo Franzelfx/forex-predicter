@@ -75,8 +75,8 @@ if __name__ == '__main__':
         args.end = date.today().strftime("%Y-%m-%d")
 
     if args.gpu is not None:
-        import tensorflow as tf
         os.environ["CUDA_VISIBLE_DEVICES"] = str(args.gpu)
+        import tensorflow as tf
         print(f'Using GPU {tf.config.list_physical_devices("GPU")}')
 
     # If no pair is specified, iterate over all JSON files in src/recipes
