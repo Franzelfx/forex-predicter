@@ -477,7 +477,7 @@ class Composer:
         else:
             return item
 
-    def dump(self, path=None, bars=1000):
+    def dump(self, path=None, bars=2000):
         """Dump all data to a file."""
         file_path = self._prepare_file_path()
         data = self._prepare_data_to_dump(bars)
