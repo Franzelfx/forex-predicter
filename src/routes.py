@@ -4,14 +4,15 @@ from os.path import isfile, join
 import json
 from fastapi import HTTPException
 from datetime import datetime, timedelta, timezone
-
+from fastapi import Body
+from typing import Optional
 
 router = APIRouter()
 
 
 @router.get("/recipes")
-async def read_recipes():
-    folder_path = "recipes"
+async def get_recipe_names():
+    folder_path = "src/recipes"
     files = [
         f
         for f in listdir(folder_path)
@@ -24,10 +25,23 @@ async def read_recipes():
     files = [f for f in files if "BASE" not in f]
     return files
 
+@router.get("/recipe/{pair}")
+async def get_recipe(pair: str):
+    file_path = f"src/recipes/{pair}_recipe.json"
+    if not isfile(file_path):
+        raise HTTPException(status_code=404, detail="File not found")
+
+    with open(file_path, "r") as file:
+        data = json.load(file)
+    try:
+        return data
+    except KeyError as e:
+        raise HTTPException(status_code=404, detail=f"{e.args[0]} not found in file")
+
 
 @router.get("/dumps")
 async def read_dumps():
-    folder_path = "model_predictions/json"
+    folder_path = "src/model_predictions/json"
     files = [
         f
         for f in listdir(folder_path)
@@ -36,12 +50,14 @@ async def read_dumps():
     # Remove the .json extension
     files = [f[:-5] for f in files]
     files = [f[:-5] if f.endswith("_dump") else f for f in files]
+    # Sort files by name
+    files.sort()
     return files
 
 
 @router.get("/confidence/{pair}")
 async def read_confidence(pair: str):
-    file_path = f"model_predictions/json/{pair}_dump.json"
+    file_path = f"src/model_predictions/json/{pair}_dump.json"
     if not isfile(file_path):
         raise HTTPException(status_code=404, detail="File not found")
 
@@ -60,7 +76,7 @@ async def read_confidence(pair: str):
 
 @router.get("/bars/{pair}/{bars}")
 async def read_model_predictions(pair: str, bars: int = 100):
-    file_path = f"model_predictions/json/{pair}_dump.json"
+    file_path = f"src/model_predictions/json/{pair}_dump.json"
     if not isfile(file_path):
         raise HTTPException(status_code=404, detail="File not found")
 
@@ -103,7 +119,7 @@ async def read_model_predictions(pair: str, bars: int = 100):
 
 @router.get("/prediction/{pair}")
 async def read_prediction_close(pair: str):
-    file_path = f"model_predictions/json/{pair}_dump.json"
+    file_path = f"src/model_predictions/json/{pair}_dump.json"
     if not isfile(file_path):
         raise HTTPException(status_code=404, detail="File not found")
 
@@ -126,3 +142,52 @@ async def read_prediction_close(pair: str):
         return response_data
     except KeyError as e:
         raise HTTPException(status_code=404, detail=f"{e.args[0]} not found in file")
+
+@router.put("/update_prediction_times")
+async def update_prediction_times(new_times: list = Body(...)):
+    # Validate the input
+    if not all(isinstance(time, str) for time in new_times):
+        raise HTTPException(status_code=400, detail="Invalid input format")
+
+    # Validate the time format (hh:mm:ss)
+    for time in new_times:
+        try:
+            datetime.strptime(time, "%H:%M:%S")
+        except ValueError:
+            raise HTTPException(status_code=400, detail="Invalid time format. Please use hh:mm:ss")
+
+    # Path to your app_config.json file
+    config_file_path = "app_config.json"
+
+    try:
+        # Verify and read the current configuration
+        with open(config_file_path, "r") as file:
+            try:
+                config = json.load(file)
+            except json.JSONDecodeError:
+                # If the JSON file is invalid, don't proceed with the update
+                raise HTTPException(status_code=500, detail="Current configuration file is invalid. Update aborted.")
+
+        # Update the DEFAULT_PREDICTION_DATETIMES field
+        config["DEFAULT_PREDICTION_DATETIMES"] = new_times
+
+        # Write the updated configuration back to the file
+        with open(config_file_path, "w") as file:
+            json.dump(config, file, indent=4)
+
+        return {"message": "Prediction times updated successfully"}
+
+    except Exception as e:
+        # Handle any exceptions (e.g., file not found, JSON errors)
+        raise HTTPException(status_code=500, detail=str(e))
+    
+@router.post("/inferenz")
+async def inferenz(pair: Optional[str] = None, gpu: Optional[int] = None):
+    from src.main import main
+    try:
+        # Assuming 'main' is the function from your provided script
+        # This will execute the main task for the specified pair and GPU (if provided)
+        main(pair_name=pair, gpu=gpu)
+        return {"message": f"Inferenz done for pair: {pair}"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

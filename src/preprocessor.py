@@ -5,7 +5,8 @@ from logging import warning
 from tabulate import tabulate
 pd.options.mode.chained_assignment = None  # default='warn'
 from sklearn.preprocessing import StandardScaler
-
+# Logging
+from src.logger import logger as loguru
 
 class Preprocessor:
     """Used to preprocess the data for RNNs.
@@ -144,10 +145,10 @@ class Preprocessor:
             raise ValueError("y_test is None. (May be caused by overlap > time_steps_in) or (May be caused by test_split > 0.5) or (May be caused by test_length < time_steps_in + time_steps_out)")
 
     def summary(self) -> None:
-        """Print a summary of the preprocessor."""
-        print("Preprocessor:")
-        print(self._data.head(5))
-        print(self.__str__())
+        """loguru.info a summary of the preprocessor."""
+        loguru.info("Preprocessor:")
+        loguru.info(self._data.head(5))
+        loguru.info(self.__str__())
 
     def __str__(self) -> str:
         """Return the string representation of the preprocessor."""

@@ -1,9 +1,8 @@
 """Testbench (unit test) for the Data_Aquirer class."""
 import unittest
 import argparse
-import numpy as np
 from config_tb import *
-from src.composer import Composer
+import tensorflow as tf
 
 class Test_Composer(unittest.TestCase):
     """Test the Composer class.
@@ -13,6 +12,7 @@ class Test_Composer(unittest.TestCase):
 
     def __init__(self, methodName: str = ..., pair: str = None, fetch: bool = False, predict: bool = False, box_pts: int = 10, interval: int = None, strategy: str = 'mirrored', no_request: bool = False, end_time: str = None, test: bool = False):
         """Initialize the testbench."""
+        from src.composer import Composer
         super().__init__(methodName)
         self.composer = Composer(pair)
         self.fetch = fetch
@@ -25,11 +25,7 @@ class Test_Composer(unittest.TestCase):
         self.test = test
 
     def test_composer(self):
-        """Test the composer."""
-        import tensorflow as tf
         # Eleminate randomness
-        np.random.seed(42)
-        tf.random.set_seed(42)
         if self.fetch == False:
             from_file = True
         self.composer.summary()
@@ -76,20 +72,26 @@ if __name__ == '__main__':
 
     if args.gpu is not None:
         os.environ["CUDA_VISIBLE_DEVICES"] = str(args.gpu)
-        print(f'Using GPU {args.gpu}')
+        print(f'Avaliable GPUs: {tf.config.list_physical_devices("GPU")}')
+        tf.config.set_visible_devices(str(args.gpu), 'GPU')
+        print(f'Using GPU {tf.config.list_physical_devices("GPU")}')
 
     # If no pair is specified, iterate over all JSON files in src/recipes
     if args.pair is None:
-        recipe_files = os.listdir('./src/recipes')
+        recipe_files = os.listdir('../src/recipes')
 
         for recipe_file in recipe_files:
-            if recipe_file.endswith('_recipe.json'):
-                pair = recipe_file.replace('_recipe.json', '')
+            try:
+                if recipe_file.endswith('_recipe.json'):
+                    pair = recipe_file.replace('_recipe.json', '')
 
-                if pair not in ['BTCUSD', 'ETHUSD']:
-                    prefix = 'C:' if pair[0] != 'X' else 'X:'
-                    pair = prefix + pair
-                
-                __main__(pair, args.fetch, args.predict, args.box_pts, args.interval, args.strategy, args.no_request, args.end, args.test)
+                    if pair not in ['BTCUSD', 'ETHUSD']:
+                        prefix = 'C:' if pair[0] != 'X' else 'X:'
+                        pair = prefix + pair
+                    
+                    __main__(pair, args.fetch, args.predict, args.box_pts, args.interval, args.strategy, args.no_request, args.end, args.test)
+            except Exception as e:
+                print(f'Error while processing {recipe_file}: {e}')
+                continue
     else:
         __main__(args.pair, args.fetch, args.predict, args.box_pts, args.interval, args.strategy, args.no_request, args.end, args.test)

@@ -1,6 +1,6 @@
 {
   "PROCESSING": {
-    "PAIR": "C:GBPJPY",
+    "PAIR": "C:GBPCAD",
     "INTERVAL": 15,
     "START_DATE": "2010-01-01",
     "STEPS_IN": 72,
@@ -16,7 +16,7 @@
     "TARGET_FEATURE": "c"
   },
   "BRANCHES": {
-    "C:GBPJPY": {
+    "C:GBPCAD": {
       "INDICATORS": [
         "ATR",
         "BOLLINGER",
@@ -48,7 +48,7 @@
         "DROPOUT": [0.25, 0.35, 0.25]
       }
     },
-    "C:EURJPY": {
+    "C:AUDCAD": {
       "INDICATORS": [
         "ATR",
         "BOLLINGER",

@@ -3,12 +3,12 @@
     "PAIR": "C:GBPUSD",
     "INTERVAL": 30,
     "START_DATE": "2010-01-01",
-    "STEPS_IN": 92,
+    "STEPS_IN": 72,
     "STEPS_OUT": 48,
     "OVERLAP": 48,
-    "TEST_LENGTH": 140,
+    "TEST_LENGTH": 120,
     "EPOCHS": 1000,
-    "BATCH_SIZE": 16,
+    "BATCH_SIZE": 8,
     "LEARNING_RATE": 0.0001,
     "VALIDATION_SPLIT": 0.01,
     "PATIENCE": 200,
@@ -41,11 +41,11 @@
         "PLUS_DM"
       ],
       "NODES": {
-        "TRANSFORMER": [64, 32, 16],
-        "LSTM": [64, 32, 16],
-        "DENSE": [128, 64, 32],
-        "ATTENTION_HEADS": [16, 16, 16],
-        "DROPOUT": [0.1, 0.1, 0.1]
+        "TRANSFORMER": [72, 64, 32],
+        "LSTM": [72, 64, 32],
+        "DENSE": [144, 128, 64],
+        "ATTENTION_HEADS": [32, 32, 32],
+        "DROPOUT": [0.25, 0.25, 0.25]
       }
     },
     "C:EURUSD": {
@@ -73,11 +73,11 @@
         "PLUS_DM"
       ],
       "NODES": {
-        "TRANSFORMER": [64, 32, 16],
-        "LSTM": [64, 32, 16],
-        "DENSE": [128, 64, 32],
-        "ATTENTION_HEADS": [16, 16, 16],
-        "DROPOUT": [0.1, 0.1, 0.1]
+        "TRANSFORMER": [72, 64, 32],
+        "LSTM": [72, 64, 32],
+        "DENSE": [144, 128, 64],
+        "ATTENTION_HEADS": [32, 32, 32],
+        "DROPOUT": [0.25, 0.25, 0.25]
       }
     },
     "C:AUDUSD": {
@@ -105,14 +105,14 @@
         "PLUS_DM"
       ],
       "NODES": {
-        "TRANSFORMER": [64, 32, 16],
-        "LSTM": [64, 32, 16],
-        "DENSE": [128, 64, 32],
-        "ATTENTION_HEADS": [16, 16, 16],
-        "DROPOUT": [0.1, 0.1, 0.1]
+        "TRANSFORMER": [72, 64, 32],
+        "LSTM": [72, 64, 32],
+        "DENSE": [144, 128, 64],
+        "ATTENTION_HEADS": [32, 32, 32],
+        "DROPOUT": [0.25, 0.25, 0.25]
       }
     },
-    "C:AUDJPY": {
+    "C:GBPCAD": {
       "INDICATORS": [
         "ATR",
         "BOLLINGER",
@@ -137,11 +137,11 @@
         "PLUS_DM"
       ],
       "NODES": {
-        "TRANSFORMER": [64, 32, 16],
-        "LSTM": [64, 32, 16],
-        "DENSE": [128, 64, 32],
-        "ATTENTION_HEADS": [16, 16, 16],
-        "DROPOUT": [0.1, 0.1, 0.1]
+        "TRANSFORMER": [72, 64, 32],
+        "LSTM": [72, 64, 32],
+        "DENSE": [144, 128, 64],
+        "ATTENTION_HEADS": [32, 32, 32],
+        "DROPOUT": [0.25, 0.25, 0.25]
       }
     },
     "C:NZDCAD": {
@@ -169,14 +169,14 @@
         "PLUS_DM"
       ],
       "NODES": {
-        "TRANSFORMER": [64, 32, 16],
-        "LSTM": [64, 32, 16],
-        "DENSE": [128, 64, 32],
-        "ATTENTION_HEADS": [16, 16, 16],
-        "DROPOUT": [0.1, 0.1, 0.1]
+        "TRANSFORMER": [72, 64, 32],
+        "LSTM": [72, 64, 32],
+        "DENSE": [144, 128, 64],
+        "ATTENTION_HEADS": [32, 32, 32],
+        "DROPOUT": [0.25, 0.25, 0.25]
       }
     },
-    "C:GBPJPY": {
+    "C:NZDUSD": {
       "INDICATORS": [
         "ATR",
         "BOLLINGER",
@@ -201,21 +201,21 @@
         "PLUS_DM"
       ],
       "NODES": {
-        "TRANSFORMER": [64, 32, 16],
-        "LSTM": [64, 32, 16],
-        "DENSE": [128, 64, 32],
-        "ATTENTION_HEADS": [16, 16, 16],
-        "DROPOUT": [0.1, 0.1, 0.1]
+        "TRANSFORMER": [72, 64, 32],
+        "LSTM": [72, 64, 32],
+        "DENSE": [144, 128, 64],
+        "ATTENTION_HEADS": [32, 32, 32],
+        "DROPOUT": [0.25, 0.25, 0.25]
       }
     }
   },
   "MAIN_BRANCH": {
     "NODES": {
-      "TRANSFORMER": [96, 64, 48],
-      "LSTM": [96, 64, 48],
-      "DENSE": [192, 128, 48],
+      "TRANSFORMER": [128, 64, 48],
+      "LSTM": [128, 64, 48],
+      "DENSE": [256, 128, 96],
       "ATTENTION_HEADS": [32, 32, 32],
-      "DROPOUT": [0.0, 0.0, 0.0]
+      "DROPOUT": [0.25, 0.25, 0.0]
     }
   },
   "OUTPUT": {

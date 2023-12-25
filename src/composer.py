@@ -15,6 +15,8 @@ from src.preprocessor import Preprocessor
 from src.data_aquirer import Data_Aquirer
 from src.model import Branch as ModelBranch
 from src.model import Output as ModelOutput
+# Logger
+from src.logger import logger as loguru
 
 PATH = os.path.abspath(os.path.dirname(__file__))
 PATH_RECIPES = os.path.abspath(os.path.join(PATH, "recipes"))
@@ -229,10 +231,10 @@ class Composer:
         return tabulate(table, headers=header, tablefmt="rst")
 
     def summary(self):
-        """Print the summary of the attributes."""
-        print(self._model_branches)
-        print(self._model_main_branch)
-        print(self._model_output)
+        """loguru.info the summary of the attributes."""
+        loguru.info(self._model_branches)
+        loguru.info(self._model_main_branch)
+        loguru.info(self._model_output)
 
     def _synchronize_dataframes(self, dataframes, column_to_sync="t"):
         # Create a list to hold all synchronized dataframes
@@ -363,12 +365,12 @@ class Composer:
         # If the current day is Saturday
         if day == "Saturday":
             # Subtract 1 day from the end time
-            print("Today is Saturday, subtracting 1 day from end time")
+            loguru.info("Today is Saturday, subtracting 1 day from end time")
             end_time = end_time - timedelta(days=1)
         # If the current day is Sunday
         elif day == "Sunday":
             # Subtract 2 days from the end time
-            print("Today is Sunday, subtracting 2 days from end time")
+            loguru.info("Today is Sunday, subtracting 2 days from end time")
             end_time = end_time - timedelta(days=2)
         # Return end time as string and in the correct format (same as input (end_time)
         return end_time.strftime("%Y-%m-%d")
@@ -390,7 +392,7 @@ class Composer:
             preprocessed.append(preprocessor)
         self._preprocessed = preprocessed
         self.target_preprocessed = preprocessed[0]
-        print(self.target_preprocessed.summary())
+        loguru.info(self.target_preprocessed.summary())
         return preprocessed
 
     def compile(self, strategy=None):
@@ -443,7 +445,7 @@ class Composer:
             patience_lr_schedule=self._processing.patience_lr_schedule,
         )
 
-    def predict(self, box_pts=3, test=False):
+    def predict(self, box_pts=0, test=False):
         """Predict with the model."""
         model = self.model
         self._utilizer = Utilizer(model, self._preprocessed)
@@ -465,7 +467,7 @@ class Composer:
         )
 
     def convert_timestamp(self, item):
-        print(f"Converting item: {item}")  # Debugging print statement
+        loguru.info(f"Converting item: {item}")  # Debugging loguru.info statement
         if isinstance(item, pd.Timestamp):
             return item.strftime("%Y-%m-%d %H:%M:%S")
         elif isinstance(item, dict):
@@ -475,7 +477,7 @@ class Composer:
         else:
             return item
 
-    def dump(self, path=None, bars=1000):
+    def dump(self, path=None, bars=2000):
         """Dump all data to a file."""
         file_path = self._prepare_file_path()
         data = self._prepare_data_to_dump(bars)
@@ -513,8 +515,8 @@ class Composer:
         # Get the last timestamp
         last_timestamp = pair_values["t"].iloc[-1]
 
-        # Debugging: Print the last timestamp
-        print("Last timestamp in pair_values:", last_timestamp)
+        # Debugging: loguru.info the last timestamp
+        loguru.info("Last timestamp in pair_values:", last_timestamp)
         # Prepare pair data values
         # Prepare pair data values
         data["pairs"] = {
@@ -547,7 +549,35 @@ class Composer:
         """Read existing data from the file."""
         with open(file_path, "r") as file:
             return json.load(file)
+        
+    def _get_common_comma_position(self, existing_data):
+        comma_positions = []
 
+        for record in existing_data:
+            number_str = str(record['y_hat'])
+            comma_position = number_str.find(',')
+            if comma_position != -1:
+                comma_positions.append(comma_position)
+
+        if not comma_positions:
+            return None
+
+        # Find the most common comma position
+        most_common_position = max(set(comma_positions), key=comma_positions.count)
+        return most_common_position
+
+    def _format_number(self, number, comma_position):
+        number_str = f"{number:,}"
+        if comma_position is not None and number_str.find(',') != comma_position:
+            # Adjust formatting based on the most common comma position
+            # This part can be complex depending on how you want to handle the formatting
+            # For example, you may need to add or remove digits, or handle edge cases
+            pass
+        return number_str
+
+    def _update_new_data_formatting(self, new_data, comma_position):
+        for record in new_data:
+            record['y_hat'] = self._format_number(record['y_hat'], comma_position)
 
     def _update_data_with_new_predictions(self, new_data, existing_data):
         """
@@ -588,6 +618,12 @@ class Composer:
             pd.to_datetime(existing_pair_values["time"]) <= last_new_pair_timestamp
         ]
 
+        # Get the most common comma position from existing data
+        common_comma_position = self._get_common_comma_position(existing_data["predictions"])
+
+        # Format new data accordingly
+        self._update_new_data_formatting(new_data["predictions"], common_comma_position)
+
         # Combine old pair values with new ones
         updated_pair_values = pd.concat([old_pair_values, new_pair_values]).reset_index(
             drop=True
@@ -606,7 +642,7 @@ class Composer:
         datetime_objects = [ts.to_pydatetime() for ts in timestamps]
         last_timestamp = datetime_objects[-1]
 
-        print("Last timestamp in initial data:", last_timestamp)
+        loguru.info("Last timestamp in initial data:", last_timestamp)
 
         data["predictions"] = []
         for i in range(len(self._y_hat)):
