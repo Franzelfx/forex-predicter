@@ -74,8 +74,8 @@ if __name__ == '__main__':
         gpus = tf.config.list_physical_devices('GPU')
         if gpus:
             try:
-                tf.config.set_visible_devices(gpus[args.gpu], 'GPU')
-                tf.config.experimental.set_memory_growth(gpus[args.gpu], True)
+                tf.config.set_visible_devices(gpus[int(args.gpu)], 'GPU')
+                tf.config.experimental.set_memory_growth(gpus[int(args.gpu)], True)
                 logical_gpus = tf.config.experimental.list_logical_devices('GPU')
             except RuntimeError as e:
                 print(e)
