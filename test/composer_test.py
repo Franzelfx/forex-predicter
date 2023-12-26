@@ -71,10 +71,14 @@ if __name__ == '__main__':
         args.end = date.today().strftime("%Y-%m-%d")
 
     if args.gpu is not None:
-        os.environ["CUDA_VISIBLE_DEVICES"] = str(args.gpu)
-        print(f'Avaliable GPUs: {tf.config.list_physical_devices("GPU")}')
-        tf.config.set_visible_devices(str(args.gpu), 'GPU')
-        print(f'Using GPU {tf.config.list_physical_devices("GPU")}')
+        gpus = tf.config.list_physical_devices('GPU')
+        if gpus:
+            try:
+                tf.config.set_visible_devices(gpus[args.gpu], 'GPU')
+                tf.config.experimental.set_memory_growth(gpus[args.gpu], True)
+                logical_gpus = tf.config.experimental.list_logical_devices('GPU')
+            except RuntimeError as e:
+                print(e)
 
     # If no pair is specified, iterate over all JSON files in src/recipes
     if args.pair is None:
