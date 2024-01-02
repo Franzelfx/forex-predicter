@@ -1,10 +1,10 @@
 {
   "PROCESSING": {
     "PAIR": "C:GBPCAD",
-    "INTERVAL": 15,
+    "INTERVAL": 5,
     "START_DATE": "2010-01-01",
     "STEPS_IN": 96,
-    "STEPS_OUT": 48,
+    "STEPS_OUT": 24,
     "OVERLAP": 48,
     "TEST_LENGTH": 120,
     "EPOCHS": 1000,
@@ -83,11 +83,11 @@
   },
   "MAIN_BRANCH": {
     "NODES": {
-      "TRANSFORMER": [128, 64, 48],
-      "LSTM": [0, 0, 0],
-      "DENSE": [128, 64, 48],
-      "ATTENTION_HEADS": [32, 32, 32],
-      "DROPOUT": [0.35, 0.0, 0.0]
+      "TRANSFORMER": [128, 64, 48, 24, 24],
+      "LSTM": [0, 0, 0, 0, 0],
+      "DENSE": [128, 64, 48, 24, 24],
+      "ATTENTION_HEADS": [32, 32, 32, 32, 32],
+      "DROPOUT": [0.35, 0.2, 0.0, 0.0, 0.0]
     }
   },
   "OUTPUT": {
