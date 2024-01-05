@@ -44,8 +44,8 @@
         "TRANSFORMER": [96, 64],
         "LSTM": [96, 64],
         "DENSE": [192, 128],
-        "ATTENTION_HEADS": [8, 8, 16],
-        "DROPOUT": [0.0, 0.0, 0.0]
+        "ATTENTION_HEADS": [16, 16, 16],
+        "DROPOUT": [0.2, 0.2, 0.2]
       }
     },
     "C:EURNZD": {
@@ -76,8 +76,8 @@
         "TRANSFORMER": [96, 64],
         "LSTM": [96, 64],
         "DENSE": [192, 128],
-        "ATTENTION_HEADS": [8, 8, 16],
-        "DROPOUT": [0.0, 0.0, 0.0]
+        "ATTENTION_HEADS": [16, 16, 16],
+        "DROPOUT": [0.2, 0.2, 0.2]
       }
     }
   },
@@ -86,8 +86,8 @@
       "TRANSFORMER": [128, 64, 48],
       "LSTM": [0, 0, 0],
       "DENSE": [128, 64, 48],
-      "ATTENTION_HEADS": [16, 16, 16],
-      "DROPOUT": [0.35, 0.0, 0.0]
+      "ATTENTION_HEADS": [32, 32, 32],
+      "DROPOUT": [0.35, 0.2, 0.0]
     }
   },
   "OUTPUT": {
