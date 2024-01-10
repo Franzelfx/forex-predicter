@@ -104,6 +104,9 @@ class CustomLRScheduler(tf.keras.callbacks.Callback):
             lr = self.initial_lr + decayed_lr
         else:
             lr = tf.keras.backend.get_value(self.model.optimizer.lr)
+            # Decrease by half every patience_lr_schedule epochs
+            if self.no_improvement_epochs % self.patience_lr_schedule == 0:
+                lr = lr / 2
 
         tf.keras.backend.set_value(self.model.optimizer.lr, lr)
 
