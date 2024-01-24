@@ -14,7 +14,11 @@
     "CRYPTO_PREFIX": "X:",
     "PREDICT_FOREX": true,
     "FOREX_PAIRS": [
-        "*"
+        "CADJPY",
+        "EURUSD",
+        "GBPNZD",
+        "NZDCAD",
+        "USDCAD"
     ],
     "FOREX_PREFIX": "C:",
     "DEFAULT_GPU": 0
