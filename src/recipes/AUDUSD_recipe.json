@@ -48,7 +48,7 @@
         "DROPOUT": [0.2, 0.2, 0.2]
       }
     },
-    "C:GBPUSD": {
+    "C:EURUSD": {
       "INDICATORS": [
         "ATR",
         "BOLLINGER",
@@ -81,6 +81,38 @@
       }
     }
   },
+      "C:NZDUSD": {
+      "INDICATORS": [
+        "ATR",
+        "BOLLINGER",
+        "MA5",
+        "MA25",
+        "MA50",
+        "MA200",
+        "MACD",
+        "OBV",
+        "RSI",
+        "STOCHASTIC",
+        "VoRSI",
+        "HT_TRENDLINE",
+        "HT_TRENDMODE",
+        "HT_DCPERIOD",
+        "HT_DCPHASE",
+        "HT_PHASOR",
+        "HT_SINE",
+        "MFI",
+        "MOM",
+        "PLUS_DI",
+        "PLUS_DM"
+      ],
+      "NODES": {
+        "TRANSFORMER": [96, 32],
+        "LSTM": [96, 32],
+        "DENSE": [192, 64],
+        "ATTENTION_HEADS": [16, 16, 16],
+        "DROPOUT": [0.2, 0.2, 0.2]
+      }
+    },
   "MAIN_BRANCH": {
     "NODES": {
       "TRANSFORMER": [64, 64, 48],
