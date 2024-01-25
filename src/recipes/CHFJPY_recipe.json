@@ -48,7 +48,39 @@
         "DROPOUT": [0.2, 0.2, 0.2]
       }
     },
-    "C:EURJPY": {
+    "C:CADJPY": {
+      "INDICATORS": [
+        "ATR",
+        "BOLLINGER",
+        "MA5",
+        "MA25",
+        "MA50",
+        "MA200",
+        "MACD",
+        "OBV",
+        "RSI",
+        "STOCHASTIC",
+        "VoRSI",
+        "HT_TRENDLINE",
+        "HT_TRENDMODE",
+        "HT_DCPERIOD",
+        "HT_DCPHASE",
+        "HT_PHASOR",
+        "HT_SINE",
+        "MFI",
+        "MOM",
+        "PLUS_DI",
+        "PLUS_DM"
+      ],
+      "NODES": {
+        "TRANSFORMER": [96, 32],
+        "LSTM": [96, 32],
+        "DENSE": [192, 64],
+        "ATTENTION_HEADS": [16, 16, 16],
+        "DROPOUT": [0.2, 0.2, 0.2]
+      }
+    },
+    "C:NZDJPY": {
       "INDICATORS": [
         "ATR",
         "BOLLINGER",
