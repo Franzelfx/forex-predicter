@@ -14,10 +14,7 @@
     "CRYPTO_PREFIX": "X:",
     "PREDICT_FOREX": true,
     "FOREX_PAIRS": [
-        "CADJPY",
-        "EURUSD",
-        "GBPNZD",
-        "NZDCAD",
+        "AUDUSD",
         "USDCAD"
     ],
     "FOREX_PREFIX": "C:",
