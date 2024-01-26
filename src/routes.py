@@ -41,7 +41,7 @@ async def get_recipe(pair: str):
 
 @router.get("/dumps")
 async def read_dumps():
-    folder_path = "src/model_predictions/json"
+    folder_path = "src/model_predictions/composer"
     files = [
         f
         for f in listdir(folder_path)

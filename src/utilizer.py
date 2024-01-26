@@ -94,7 +94,7 @@ class Utilizer:
                     )
         # Calculate confidence score
         self._confidence = self._model.confidence(x_hat)
-        loguru.info(f"Confidence score: {self._confidence} %")
+        loguru.info(f"Confidence score: {self.confidence}")
         return y_test, y_hat
 
     def _concat_moving_average(

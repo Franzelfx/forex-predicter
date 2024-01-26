@@ -1,10 +1,12 @@
-import json
+import os
 import numpy as np
 import matplotlib.pyplot as plt
 from itertools import zip_longest
 from datetime import datetime as dt
 # Logging
 from src.logger import logger as loguru
+
+PNG_PATH = os.path.join("src", "model_predictions", "visualizer")
 
 class Visualizer:
     """Visualize the results of the model."""
@@ -26,16 +28,12 @@ class Visualizer:
         y_test,
         y_test_actual = None,
         y_hat=None,
-        save_json=False,
         extra_info="",
         time_base=None,
         end_time=None,
     ):
         if extra_info != "":
             extra_info = f"_{extra_info}"
-        png_path = f"{path}/{self.pair}_prediction{extra_info}"
-        json_path = f"{path}/json/{self.pair}_prediction{extra_info}.json"
-
         # Clear the plot
         plt.cla()
         plt.clf()
@@ -128,26 +126,5 @@ class Visualizer:
         plt.grid()
 
         # Save the plot
-        plt.savefig(f"{png_path}.png", dpi=600)
-        loguru.info(f"Saved plot to {png_path}.png")
-
-        if save_json:
-            # Create a dictionary to store the data
-            data_dict = {
-                "x_test": x_test.tolist() if x_test is not None else None,
-                "x_hat": x_hat.tolist() if x_hat is not None else None,
-                "y_test": y_test.tolist() if y_test is not None else None,
-                "y_hat": y_hat.tolist() if y_hat is not None else None,
-                "n": n,
-                "m": m,
-                "extra_info": extra_info,
-                "time_base": time_base,
-                "end_time": end_time,
-            }
-
-            # Write to JSON file
-            with open(json_path, "w") as file:
-                json.dump(data_dict, file, indent=4)
-
-            loguru.info(f"Saved data to {json_path}")
-
+        plt.savefig(f"{PNG_PATH}.png", dpi=600)
+        loguru.info(f"Saved plot to {PNG_PATH}.png")
