@@ -76,7 +76,7 @@ async def read_confidence(pair: str):
 
 @router.get("/bars/{pair}/{bars}")
 async def read_model_predictions(pair: str, bars: int = 100):
-    file_path = f"src/model_predictions/json/{pair}_dump.json"
+    file_path = f"src/model_predictions/composer/{pair}_dump.json"
     if not isfile(file_path):
         raise HTTPException(status_code=404, detail="File not found")
 
