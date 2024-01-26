@@ -1,7 +1,7 @@
 {
   "PROCESSING": {
-    "PAIR": "C:CADJPY",
-    "INTERVAL": 15,
+    "PAIR": "C:CADJPY60",
+    "INTERVAL": 60,
     "START_DATE": "2010-01-01",
     "STEPS_IN": 96,
     "STEPS_OUT": 48,
