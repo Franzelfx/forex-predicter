@@ -1,7 +1,7 @@
 {
   "PROCESSING": {
-    "PAIR": "C:NZDCAD",
-    "INTERVAL": 15,
+    "PAIR": "C:EURUSD60",
+    "INTERVAL": 60,
     "START_DATE": "2010-01-01",
     "STEPS_IN": 96,
     "STEPS_OUT": 48,
@@ -16,7 +16,7 @@
     "TARGET_FEATURE": "c"
   },
   "BRANCHES": {
-    "C:NZDCAD": {
+    "C:EURUSD": {
       "INDICATORS": [
         "ATR",
         "BOLLINGER",
