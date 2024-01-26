@@ -455,7 +455,6 @@ class Composer:
         n = self._processing.steps_in
         m = self._processing.steps_out
         visualizer.plot_prediction(
-            path=path,
             x_test=self.x_test,
             y_test=self._y_test,
             x_hat=self.x_hat,
