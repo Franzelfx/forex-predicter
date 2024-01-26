@@ -6,7 +6,7 @@ from datetime import datetime as dt
 # Logging
 from src.logger import logger as loguru
 
-PNG_PATH = os.path.join("src", "model_predictions", "visualizer")
+PNG_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "model_predictions", "visualizer"))
 
 class Visualizer:
     """Visualize the results of the model."""
