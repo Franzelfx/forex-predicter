@@ -20,12 +20,12 @@ class Visualizer:
 
     def plot_prediction(
         self,
-        path,
         n,
         m,
         x_test,
         x_hat,
         y_test,
+        path = PNG_PATH,
         y_test_actual = None,
         y_hat=None,
         extra_info="",
@@ -126,5 +126,6 @@ class Visualizer:
         plt.grid()
 
         # Save the plot
-        plt.savefig(f"{PNG_PATH}.png", dpi=600)
-        loguru.info(f"Saved plot to {PNG_PATH}.png")
+        path = os.path.join(path, f"{self.pair}.png")
+        plt.savefig(path, bbox_inches="tight")
+        loguru.info(f"Saved plot to {path}")
