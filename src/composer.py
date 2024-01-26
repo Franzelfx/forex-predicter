@@ -493,7 +493,7 @@ class Composer:
 
     def _prepare_file_path(self):
         """Prepare the file path for dumping data."""
-        path = os.path.join(MODEL_PATH, "model_predictions", "json")
+        path = os.path.join(MODEL_PATH, "model_predictions", "composer")
         if ":" in self._processing.pair:
             self._processing.pair = self._processing.pair.split(":")[1]
         return os.path.join(path, f"{self._processing.pair}_dump.json")
