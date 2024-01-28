@@ -15,7 +15,8 @@
     "PREDICT_FOREX": true,
     "FOREX_PAIRS": [
         "AUDUSD",
-        "USDCAD"
+        "USDCAD",
+        "EURUSD"
     ],
     "FOREX_PREFIX": "C:",
     "DEFAULT_GPU": 0
