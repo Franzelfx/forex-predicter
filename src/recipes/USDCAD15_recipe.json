@@ -1,6 +1,6 @@
 {
   "PROCESSING": {
-    "PAIR": "C:USDCAD",
+    "PAIR": "C:USDCAD15",
     "INTERVAL": 15,
     "START_DATE": "2010-01-01",
     "STEPS_IN": 96,
