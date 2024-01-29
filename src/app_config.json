@@ -14,9 +14,11 @@
     "CRYPTO_PREFIX": "X:",
     "PREDICT_FOREX": true,
     "FOREX_PAIRS": [
-        "AUDUSD",
-        "USDCAD",
-        "EURUSD"
+        "AUDUSD15",
+        "AUDUSD60",
+        "EURUSD15",
+        "EURUSD60",
+        "USDCAD"
     ],
     "FOREX_PREFIX": "C:",
     "DEFAULT_GPU": 0
