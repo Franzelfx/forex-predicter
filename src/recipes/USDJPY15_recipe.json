@@ -1,6 +1,6 @@
 {
   "PROCESSING": {
-    "PAIR": "C:GBPUSD",
+    "PAIR": "C:USDJPY15",
     "INTERVAL": 15,
     "START_DATE": "2010-01-01",
     "STEPS_IN": 96,
@@ -16,7 +16,7 @@
     "TARGET_FEATURE": "c"
   },
   "BRANCHES": {
-    "C:GBPUSD": {
+    "C:USDJPY": {
       "INDICATORS": [
         "ATR",
         "BOLLINGER",
@@ -48,7 +48,7 @@
         "DROPOUT": [0.2, 0.2, 0.2]
       }
     },
-    "C:EURUSD": {
+    "C:CADJPY": {
       "INDICATORS": [
         "ATR",
         "BOLLINGER",
