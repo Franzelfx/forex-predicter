@@ -112,22 +112,28 @@ class Utilizer:
 
         # Check if either series is empty or has insufficient data
         if y_actual_series.empty or y_hat_series.empty or len(y_actual_series) < 2 or len(y_hat_series) < 2:
-            print("Insufficient data for correlation calculation.")
+            loguru.warning("Insufficient data for correlation calculation.")
             return None
 
         # Calculate correlation
         corr = y_actual_series.corr(y_hat_series)
+        loguru.info(f"Calculated correlation: {corr}")
 
         # Calculate confidence correlation
         corr_conf = corr * self._confidence
+        loguru.info(f"Calculated confidence correlation: {corr_conf}")
 
         # Save the correlation confidence, confidence, and correlation in a CSV file
         if save:
             csv_file_path = os.path.join(CSV_PATH, "corr_conf.csv")
-            with open(csv_file_path, mode='w', newline='') as file:
-                writer = csv.writer(file)
-                writer.writerow(['Correlation', 'Confidence', 'Correlation Confidence'])
-                writer.writerow([corr, self._confidence, corr_conf])
+            try:
+                with open(csv_file_path, mode='w', newline='') as file:
+                    writer = csv.writer(file)
+                    writer.writerow(['Correlation', 'Confidence', 'Correlation Confidence'])
+                    writer.writerow([corr, self._confidence, corr_conf])
+                loguru.info(f"Correlation confidence saved successfully at {csv_file_path}")
+            except Exception as e:
+                loguru.error(f"Error in saving correlation confidence: {e}")
 
         return corr_conf
 
