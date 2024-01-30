@@ -1,10 +1,15 @@
 """The utilizer module, to use the trained model to predict."""
+import os
+import csv
 import numpy as np
 from typing import List
 from src.preprocessor import Preprocessor
 from src.model import Model as ModelPreTrained
 # Logging
 from src.logger import logger as loguru
+
+PATH = os.path.abspath(os.path.dirname(__file__))
+CSV_PATH = os.path.abspath(os.path.join(PATH, "metrics"))
 
 class Utilizer:
     """The utilizer class, to use the trained model to predict."""
@@ -16,6 +21,7 @@ class Utilizer:
         @param preprocessor The preprocessor to use for prediction.
         """
         self._model = model
+        self._y_hat: np.ndarray = np.array([])
         self._confidence: float = 0.0
         self._preprocessor = preprocessor
         # Check if model is a path
@@ -96,7 +102,30 @@ class Utilizer:
         self._confidence = self._model.confidence(x_hat)
         loguru.info(f"Confidence score: {self.confidence}")
         loguru.info(f"Confidence score : {self._confidence}")
+        self._y_hat = y_hat
         return y_test, y_hat
+
+    def correlaction_confidence(self, y_actual, save=True):
+        """
+        Correlation confidence is calculated by the correlation between
+        the actual and predicted values. Furthermore, multiplying the correlation
+        by the confidence score of the model.
+        """
+        # Calculate correlation
+        corr = np.corrcoef(y_actual, self._y_hat)[0, 1]
+        # Calculate confidence correlation
+        corr_conf = corr * self._confidence
+
+        # Save the correlation confidence, confidence, and correlation in a CSV file
+        if save:
+            csv_file_path = os.path.join(CSV_PATH, "corr_conf.csv")
+            with open(csv_file_path, mode='w', newline='') as file:
+                writer = csv.writer(file)
+                writer.writerow(['Correlation', 'Confidence', 'Correlation Confidence'])
+                writer.writerow([corr, self._confidence, corr_conf])
+
+        return corr_conf
+
 
     def _concat_moving_average(
         self, x_hat: np.ndarray, y_hat: np.ndarray, period: int
