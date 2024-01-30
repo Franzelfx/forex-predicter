@@ -115,7 +115,7 @@ class Utilizer:
         corr = np.corrcoef(y_actual, self._y_hat)[0, 1]
         # Calculate confidence correlation
         corr_conf = corr * self._confidence
-
+        loguru.info("corr: {corr}")
         # Save the correlation confidence, confidence, and correlation in a CSV file
         if save:
             csv_file_path = os.path.join(CSV_PATH, "corr_conf.csv")
