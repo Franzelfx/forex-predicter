@@ -15,8 +15,10 @@
     "PREDICT_FOREX": true,
     "FOREX_PAIRS": [
         "AUDUSD15",
+        "AUDUSD30",
         "AUDUSD60",
         "EURUSD15",
+        "EURUSD30",
         "EURUSD60",
         "GBPUSD15",
         "GBPUSD60",
