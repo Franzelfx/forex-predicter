@@ -104,17 +104,22 @@ class Utilizer:
         self._y_hat = y_hat
         return y_test, y_hat
 
-    def correlaction_confidence(self, y_actual, y_test, save=True):
-        """
-        Correlation confidence is calculated by the correlation between
-        the actual and predicted values. Furthermore, multiplying the correlation
-        by the confidence score of the model.
-        """
+    def correlaction_confidence(self, y_actual, save=True):
+        # Convert to pandas Series
+        y_actual_series = pd.Series(y_actual)
+        y_hat_series = pd.Series(self._y_hat)
+
+        # Check if either series is empty or has insufficient data
+        if y_actual_series.empty or y_hat_series.empty or len(y_actual_series) < 2 or len(y_hat_series) < 2:
+            print("Insufficient data for correlation calculation.")
+            return None
+
         # Calculate correlation
-        corr = np.corrcoef(y_actual, y_test)[0, 1]
+        corr = y_actual_series.corr(y_hat_series)
+
         # Calculate confidence correlation
         corr_conf = corr * self._confidence
-        loguru.info("corr: {corr}")
+
         # Save the correlation confidence, confidence, and correlation in a CSV file
         if save:
             csv_file_path = os.path.join(CSV_PATH, "corr_conf.csv")
