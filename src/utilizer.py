@@ -2,6 +2,7 @@
 import os
 import csv
 import numpy as np
+import pandas as pd
 from typing import List
 from src.preprocessor import Preprocessor
 from src.model import Model as ModelPreTrained
