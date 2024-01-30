@@ -450,7 +450,6 @@ class Composer:
         model = self.model
         self._utilizer = Utilizer(model, self._preprocessed)
         self._y_test, self._y_hat = self._utilizer.predict(box_pts=box_pts, test=test)
-        self._utilizer.correlaction_confidence(self.target_preprocessed.y_test, self._y_test)
         visualizer = Visualizer(self._processing.pair)
         path = os.path.join(MODEL_PATH, "model_predictions")
         n = self._processing.steps_in

@@ -89,8 +89,10 @@ class Utilizer:
         # Predict the values 
         y_test, y_hat = self._model.predict(x_hat, self._target_scaler, from_saved_model=True, x_test=x_test if test else None)
         # Calculate difference for y_hat and all y_test values
-        #y_hat = y_hat - self._diff(y_hat, self._target_preprocessor.last_known_y)
-        #y_test = y_test - self._diff(y_test, self._target_preprocessor.y_test[0])
+        y_hat = y_hat - self._diff(y_hat, self._target_preprocessor.last_known_y)
+        if test:
+            y_test = y_test - self._diff(y_test, self._target_preprocessor.y_test[0])
+            self.correlaction_confidence(self._target_preprocessor.y_test_inverse, y_test)
         # Smooth the data
         if box_pts > 0:
              y_hat = self._concat_moving_average(
@@ -106,7 +108,7 @@ class Utilizer:
         self._y_hat = y_hat
         return y_test, y_hat
 
-    def correlaction_confidence(self, y_actual, y_hat, save=True):
+    def _store_correlaction_confidence(self, y_actual, y_hat):
         # Convert to pandas Series
         y_actual_series = pd.Series(y_actual.flatten())
         y_hat_series = pd.Series(y_hat.flatten())
@@ -125,16 +127,15 @@ class Utilizer:
         loguru.info(f"Calculated confidence correlation: {corr_conf}")
 
         # Save the correlation confidence, confidence, and correlation in a CSV file
-        if save:
-            csv_file_path = os.path.join(CSV_PATH, "corr_conf.csv")
-            try:
-                with open(csv_file_path, mode='w', newline='') as file:
-                    writer = csv.writer(file)
-                    writer.writerow(['Correlation', 'Confidence', 'Correlation Confidence'])
-                    writer.writerow([corr, self._confidence, corr_conf])
-                loguru.info(f"Correlation confidence saved successfully at {csv_file_path}")
-            except Exception as e:
-                loguru.error(f"Error in saving correlation confidence: {e}")
+        csv_file_path = os.path.join(CSV_PATH, "corr_conf.csv")
+        try:
+            with open(csv_file_path, mode='w', newline='') as file:
+                writer = csv.writer(file)
+                writer.writerow(['Correlation', 'Confidence', 'Correlation Confidence'])
+                writer.writerow([corr, self._confidence, corr_conf])
+            loguru.info(f"Correlation confidence saved successfully at {csv_file_path}")
+        except Exception as e:
+            loguru.error(f"Error in saving correlation confidence: {e}")
 
         return corr_conf
 
