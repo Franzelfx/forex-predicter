@@ -18,7 +18,12 @@
         "AUDUSD60",
         "EURUSD15",
         "EURUSD60",
-        "USDCAD"
+        "GBPUSD15",
+        "GBPUSD60",
+        "USDCAD15",
+        "USDCAD60",
+        "USDJPY15",
+        "USDJPY60"
     ],
     "FOREX_PREFIX": "C:",
     "DEFAULT_GPU": 0
