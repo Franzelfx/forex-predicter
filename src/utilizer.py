@@ -106,10 +106,10 @@ class Utilizer:
         self._y_hat = y_hat
         return y_test, y_hat
 
-    def correlaction_confidence(self, y_actual, save=True):
+    def correlaction_confidence(self, y_actual, y_hat, save=True):
         # Convert to pandas Series
         y_actual_series = pd.Series(y_actual.flatten())
-        y_hat_series = pd.Series(self._y_hat)
+        y_hat_series = pd.Series(y_hat.flatten())
 
         # Check if either series is empty or has insufficient data
         if y_actual_series.empty or y_hat_series.empty or len(y_actual_series) < 2 or len(y_hat_series) < 2:
