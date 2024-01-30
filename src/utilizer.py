@@ -101,18 +101,17 @@ class Utilizer:
         # Calculate confidence score
         self._confidence = self._model.confidence(x_hat)
         loguru.info(f"Confidence score: {self.confidence}")
-        loguru.info(f"Confidence score : {self._confidence}")
         self._y_hat = y_hat
         return y_test, y_hat
 
-    def correlaction_confidence(self, y_actual, save=True):
+    def correlaction_confidence(self, y_actual, y_test, save=True):
         """
         Correlation confidence is calculated by the correlation between
         the actual and predicted values. Furthermore, multiplying the correlation
         by the confidence score of the model.
         """
         # Calculate correlation
-        corr = np.corrcoef(y_actual, self._y_hat)[0, 1]
+        corr = np.corrcoef(y_actual, y_test)[0, 1]
         # Calculate confidence correlation
         corr_conf = corr * self._confidence
         loguru.info("corr: {corr}")
