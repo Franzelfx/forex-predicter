@@ -89,7 +89,7 @@ class Utilizer:
         # Predict the values 
         y_test, y_hat = self._model.predict(x_hat, self._target_scaler, from_saved_model=True, x_test=x_test if test else None)
         # Calculate difference for y_hat and all y_test values
-        y_hat = y_hat - self._diff(y_hat, self._target_preprocessor.last_known_y)
+        #y_hat = y_hat - self._diff(y_hat, self._target_preprocessor.last_known_y)
         #y_test = y_test - self._diff(y_test, self._target_preprocessor.y_test[0])
         # Smooth the data
         if box_pts > 0:
