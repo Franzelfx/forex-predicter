@@ -110,7 +110,8 @@
         "DENSE": [192, 64],
         "ATTENTION_HEADS": [16, 16, 16],
         "DROPOUT": [0.2, 0.2, 0.2]
-      },
+      }
+    },
       "C:GBPAUD": {
       "INDICATORS": [
         "ATR",
