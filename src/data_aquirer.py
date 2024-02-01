@@ -125,7 +125,7 @@ class Data_Aquirer:
                 recent_date = data["t"].iloc[-1].split(" ")[0]
                 first_date = data["t"].iloc[0].split(" ")[0]
                 if recent_date == date.today().strftime("%Y-%m-%d"):
-                    #recent_date = (date.today() - timedelta(days=1)).strftime("%Y-%m-%d")
+                    recent_date = (date.today() - timedelta(days=1)).strftime("%Y-%m-%d")
                     pass
                 if not no_request:
                     if first_date != start and not ignore_start:
@@ -160,9 +160,9 @@ class Data_Aquirer:
         loguru.info("len after: ", len(data))
 
         # Remove all values which are over the end time
-        if end != datetime.today().strftime("%Y-%m-%d"):
-            loguru.info(f"Remove all values after {end}")
-            data = data[data["t"] < end]
+        # if end != datetime.today().strftime("%Y-%m-%d"):
+        #     loguru.info(f"Remove all values after {end}")
+        #     data = data[data["t"] < end]
 
         if save:
             pair = pair.split(":")[1] if ":" in pair else pair
