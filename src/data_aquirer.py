@@ -125,7 +125,8 @@ class Data_Aquirer:
                 recent_date = data["t"].iloc[-1].split(" ")[0]
                 first_date = data["t"].iloc[0].split(" ")[0]
                 if recent_date == date.today().strftime("%Y-%m-%d"):
-                    recent_date = (date.today() - timedelta(days=1)).strftime("%Y-%m-%d")
+                    #recent_date = (date.today() - timedelta(days=1)).strftime("%Y-%m-%d")
+                    pass
                 if not no_request:
                     if first_date != start and not ignore_start:
                         loguru.info(
