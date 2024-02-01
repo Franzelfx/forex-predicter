@@ -63,25 +63,10 @@ class Data_Aquirer:
         data = pd.DataFrame()
         data_return = pd.DataFrame()
         # If the api type is basic, we only have the data until yesterday
-        end = datetime.strptime(end, self._time_format)
         if self._api_type == "basic":
-            # Convert end date to datetime object if it's not already one
-            if not isinstance(end, datetime):
-                end = datetime.strptime(end, self._time_format)
-            
-            # Check if the end date is the first day of a month
-            if end.day == 1:
-                # If the end date is the first day of the month, consider whether you need to adjust it
-                # This may depend on your specific data needs and the API's data availability
-                # For example, you might choose not to adjust the end date here to try including the first day's data
-                # Or adjust your logic to fetch data up to the last day of the previous month, then separately request the first day's data if necessary
-                pass  # Adjust this part based on your needs
-            else:
-                # For basic API types, subtract one day for all other cases
-                end = end - timedelta(days=1)
-            
-            # Convert back to string format if necessary
-            end = end.strftime(self._time_format)
+            end = datetime.strptime(end, self._time_format)
+            end = end - timedelta(days=1)
+            end = datetime.strftime(end, self._time_format)
         # The last request is the start date on first iteration
         last = start
         iteration_counter = 0
@@ -140,7 +125,8 @@ class Data_Aquirer:
                 recent_date = data["t"].iloc[-1].split(" ")[0]
                 first_date = data["t"].iloc[0].split(" ")[0]
                 if recent_date == date.today().strftime("%Y-%m-%d"):
-                    recent_date = (date.today() - timedelta(days=1)).strftime("%Y-%m-%d")
+                    #recent_date = (date.today() - timedelta(days=1)).strftime("%Y-%m-%d")
+                    pass
                 if not no_request:
                     if first_date != start and not ignore_start:
                         loguru.info(
