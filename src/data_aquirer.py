@@ -160,9 +160,9 @@ class Data_Aquirer:
         loguru.info("len after: ", len(data))
 
         # Remove all values which are over the end time
-        # if end != datetime.today().strftime("%Y-%m-%d"):
-        #     loguru.info(f"Remove all values after {end}")
-        #     data = data[data["t"] < end]
+        if end != datetime.today().strftime("%Y-%m-%d"):
+            loguru.info(f"Remove all values after {end}")
+            data = data[data["t"] < end]
 
         if save:
             pair = pair.split(":")[1] if ":" in pair else pair
