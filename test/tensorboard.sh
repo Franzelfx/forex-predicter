@@ -3,10 +3,7 @@
 source ../venv/bin/activate
 # ----------------------------
 # Directory for TensorFlow logs
-LOGDIR="./tensorboard"
-
-# Ensure the log directory exists
-mkdir -p ${LOGDIR}
+LOGDIR="/home/fabian/forex-predicter/src/tensorboard"
 
 # Running TensorBoard
 tensorboard --logdir ${LOGDIR} --bind_all
