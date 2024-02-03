@@ -104,7 +104,7 @@ class Data_Aquirer:
             loguru.info(f"\nEverything up to date.")
         return data_return
 
-   def get(
+    def get(
         self,
         pair: str,
         time_base: int = 1,
