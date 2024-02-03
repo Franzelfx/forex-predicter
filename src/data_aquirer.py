@@ -104,7 +104,7 @@ class Data_Aquirer:
             loguru.info(f"\nEverything up to date.")
         return data_return
 
-    def get(
+   def get(
         self,
         pair: str,
         time_base: int = 1,
@@ -117,6 +117,18 @@ class Data_Aquirer:
     ):
         self._time_base = time_base
 
+        # Attempt to parse end date with optional hour component
+        try:
+            end_datetime = datetime.strptime(end, "%Y-%m-%d:%H")
+        except ValueError:
+            end_datetime = datetime.strptime(end, "%Y-%m-%d")
+
+        # Attempt to parse start date with optional hour component
+        try:
+            start_datetime = datetime.strptime(start, "%Y-%m-%d:%H")
+        except ValueError:
+            start_datetime = datetime.strptime(start, "%Y-%m-%d")
+
         if from_file is not None and from_file != "" and from_file != "false":
             csv_pair_name = pair.split(":")[1] if ":" in pair else ""
             try:
@@ -126,7 +138,6 @@ class Data_Aquirer:
                 first_date = data["t"].iloc[0].split(" ")[0]
                 if recent_date == date.today().strftime("%Y-%m-%d"):
                     recent_date = (date.today() - timedelta(days=1)).strftime("%Y-%m-%d")
-                    pass
                 if not no_request:
                     if first_date != start and not ignore_start:
                         loguru.info(
@@ -151,24 +162,21 @@ class Data_Aquirer:
         
         # Filter out the weekends if pair has "C:" in it
         if "C:" in pair:
-            loguru.info("Remove all weekends, len before: ", len(data), end=" ")
+            loguru.info("Filtering out weekends")
             data = data[data['t'].dt.weekday < 5]
 
         # Sort the data by time
         data.sort_values(by="t", inplace=True)
 
-        loguru.info("len after: ", len(data))
-
-        # Remove all values which are over the end time
-        if end != datetime.today().strftime("%Y-%m-%d"):
-            loguru.info(f"Remove all values after {end}")
-            data = data[data["t"] < end]
+        # Remove all values which are over the end time, considering hour precision if specified
+        data = data[data["t"] <= end_datetime]
 
         if save:
-            pair = pair.split(":")[1] if ":" in pair else pair
-            loguru.info(f"Save data to {self._path}/{pair}_{time_base}.csv")
-            data.to_csv(f"{self._path}/{pair}_{time_base}.csv", index=False)
-            loguru.info(f"Dataset has {len(data.columns)} columns.")
+            pair_name = pair.split(":")[1] if ":" in pair else pair
+            csv_filename = f"{self._path}/{pair_name}_{time_base}.csv"
+            loguru.info(f"Saving data to {csv_filename}")
+            data.to_csv(csv_filename, index=False)
+            loguru.info(f"Data saved. Dataset has {len(data.columns)} columns.")
 
         return data
 
