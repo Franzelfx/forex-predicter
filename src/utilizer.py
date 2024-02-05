@@ -91,7 +91,7 @@ class Utilizer:
         # Calculate difference for y_hat and all y_test values
         y_hat = y_hat - self._diff(y_hat, self._target_preprocessor.last_known_y)
         if test:
-            y_test = y_test - self._diff(y_test, self._target_preprocessor.y_test[0])
+            #y_test = y_test - self._diff(y_test, self._target_preprocessor.y_test[0])
             self._store_correlaction_confidence(self._target_preprocessor.y_test_inverse, y_test)
         # Smooth the data
         if box_pts > 0:
