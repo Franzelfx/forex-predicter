@@ -1,0 +1,99 @@
+{
+  "PROCESSING": {
+    "PAIR": "C:USDCAD1L",
+    "INTERVAL": 1,
+    "START_DATE": "2010-01-01",
+    "STEPS_IN": 192,
+    "STEPS_OUT": 96,
+    "OVERLAP": 96,
+    "TEST_LENGTH": 1152,
+    "EPOCHS": 1000,
+    "BATCH_SIZE": 8,
+    "LEARNING_RATE": 0.0005,
+    "VALIDATION_SPLIT": 0.1,
+    "PATIENCE": 250,
+    "PATIENCE_LR_SCHEDULE": 25,
+    "TARGET_FEATURE": "c"
+  },
+  "BRANCHES": {
+    "C:USDCAD": {
+      "INDICATORS": [
+        "ATR",
+        "BOLLINGER",
+        "MA5",
+        "MA25",
+        "MA50",
+        "MA200",
+        "MACD",
+        "OBV",
+        "RSI",
+        "STOCHASTIC",
+        "VoRSI",
+        "HT_TRENDLINE",
+        "HT_TRENDMODE",
+        "HT_DCPERIOD",
+        "HT_DCPHASE",
+        "HT_PHASOR",
+        "HT_SINE",
+        "MFI",
+        "MOM",
+        "PLUS_DI",
+        "PLUS_DM"
+      ],
+      "NODES": {
+        "TRANSFORMER": [192, 96],
+        "LSTM": [96, 96],
+        "DENSE": [192, 192],
+        "ATTENTION_HEADS": [16, 16],
+        "DROPOUT": [0.2, 0.2]
+      }
+    },
+    "C:USDCHF": {
+      "INDICATORS": [
+        "ATR",
+        "BOLLINGER",
+        "MA5",
+        "MA25",
+        "MA50",
+        "MA200",
+        "MACD",
+        "OBV",
+        "RSI",
+        "STOCHASTIC",
+        "VoRSI",
+        "HT_TRENDLINE",
+        "HT_TRENDMODE",
+        "HT_DCPERIOD",
+        "HT_DCPHASE",
+        "HT_PHASOR",
+        "HT_SINE",
+        "MFI",
+        "MOM",
+        "PLUS_DI",
+        "PLUS_DM"
+      ],
+      "NODES": {
+        "TRANSFORMER": [192, 96],
+        "LSTM": [96, 96],
+        "DENSE": [192, 192],
+        "ATTENTION_HEADS": [16, 16],
+        "DROPOUT": [0.2, 0.2]
+      }
+    }
+  },
+  "MAIN_BRANCH": {
+    "NODES": {
+      "TRANSFORMER": [96, 96],
+      "LSTM": [0, 0],
+      "DENSE": [96, 96],
+      "ATTENTION_HEADS": [32, 32],
+      "DROPOUT": [0.35, 0.0]
+    }
+  },
+  "OUTPUT": {
+    "NODES": {
+      "DENSE": [96],
+      "DROPOUT": [0.0]
+    }
+  }
+}
