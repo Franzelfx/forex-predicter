@@ -62,7 +62,7 @@ if __name__ == '__main__':
     parser.add_argument('--box-pts', type=int, default=0, help='Box points for the Composer class prediction (to smooth the predicted data)')
     parser.add_argument('--interval', type=int, default=None, help='Interval for the pair data (in minutes)')
     parser.add_argument('--strategy', type=str, default=False, help='Strategy to train the model')
-    parser.add_argument('--no_request', action='store_true', default=False, help='No request for the Composer class (if True, use data from file)')
+    parser.add_argument('--no-request', action='store_true', default=False, help='No request for the Composer class (if True, use data from file)')
     parser.add_argument('--test', action='store_true', default=False, help='Run with test data')
     parser.add_argument('--end', type=str, default=None, help='End time for data acquisition in yyyy-mm-dd format')
     parser.add_argument('--gpu', type=str, default=None, help='GPU to use for training')
