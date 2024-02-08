@@ -345,30 +345,29 @@ class Model:
         patience_lr_schedule=100,
         validation_split=0.1,
         strategy=None,
+        continue_training=False,  # New parameter to control continuous learning
     ) -> DataFrame:
         """Compile and fit the model.
 
-        :param int hidden_neurons: The number of neurons in the hidden layers.
-        :param float dropout: The dropout factor for the dropout layers.
-        :param str activation: The activation function for the hidden layers.
         :param int epochs: The number of epochs for the training process.
-        :param float learning_rate: The learning rate for the training process.
         :param int batch_size: The batch size for the training process.
-        :param str loss: The loss function for the training process.
         :param int patience: The patience for the early stopping callback.
-        :param np.ndarray x_val: The validation input data.
-        :param np.ndarray y_val: The validation output data.
         :param float validation_split: The validation split for the training process.
+        :param continue_training: If True, continue training from the last checkpoint.
 
         :returns: The fit history.
 
-        :remarks:   • The metric for this model is fix and is the mean absolute percentage error (MAPE).
-                    • If no validation data is given, the validation split will be used.
-                    • The model is saved in the checkpoints folder.
-                    • The validation loss is saved in the fit_history folder.
-                    • The tensorboard logs are saved in the tensorboard folder.
         """
-        # Say how much GPU's are available
+        # Check if the model should continue training from the last checkpoint
+        if continue_training:
+            try:
+                # Attempt to load the last saved weights
+                self._model.load_weights(f"{self._path}/checkpoints/{self._name}")
+                loguru.info("Continuing training from the last checkpoint.")
+            except Exception as e:
+                # Handle cases where loading the weights fails (e.g., no checkpoint exists)
+                loguru.warning("Failed to load weights for continuous training. Starting from scratch.")
+        
         if self._model is None:
             loguru.warning("Model is not compiled yet, please compile the model first.")
             return
