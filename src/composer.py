@@ -438,7 +438,7 @@ class Composer:
         """Fit the model."""
         self.model.fit(
             strategy=strategy,
-            continoue_training=True,
+            continue_training=False,
             epochs=self._processing.epochs,
             patience=self._processing.patience,
             batch_size=self._processing.batch_size,
