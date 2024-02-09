@@ -434,11 +434,11 @@ class Composer:
         )
         return self.model
 
-    def fit(self, strategy=None):
+    def fit(self, strategy=None, continue_training=False):
         """Fit the model."""
         self.model.fit(
             strategy=strategy,
-            continue_training=False,
+            continue_training=continue_training,
             epochs=self._processing.epochs,
             patience=self._processing.patience,
             batch_size=self._processing.batch_size,
