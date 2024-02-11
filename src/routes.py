@@ -55,8 +55,8 @@ async def read_dumps():
     return files
 
 
-@router.get("/confidence/{pair}")
-async def read_confidence(pair: str):
+@router.get("/confidences/{pair}")
+async def read_all_confidences(pair: str):
     file_path = f"src/model_predictions/composer/{pair}_dump.json"
     if not isfile(file_path):
         raise HTTPException(status_code=404, detail="File not found")
@@ -64,14 +64,32 @@ async def read_confidence(pair: str):
     with open(file_path, "r") as file:
         data = json.load(file)
     try:
-        confidence = data["confidence"]
-        # Round to 2 decimal places, confidence is a string with % sign
-        confidence = round(float(confidence[:-2]), 2)
-        # Convert back to string and append % sign
-        confidence = str(confidence) + " %"
-        return confidence
-    except KeyError as e:
-        raise HTTPException(status_code=404, detail=f"{e.args[0]} not found in file")
+        # Extract all confidence scores from predictions
+        confidences = [prediction["confidence"] for prediction in data["predictions"]]
+        return {"confidences": confidences}
+    except KeyError:
+        raise HTTPException(
+            status_code=404, detail="Confidence information not found in file"
+        )
+
+
+@router.get("/confidence/{pair}")
+async def read_latest_confidence(pair: str):
+    file_path = f"src/model_predictions/composer/{pair}_dump.json"
+    if not isfile(file_path):
+        raise HTTPException(status_code=404, detail="File not found")
+
+    with open(file_path, "r") as file:
+        data = json.load(file)
+    try:
+        # Assuming each prediction in "predictions" includes a "confidence" key
+        # Get the most recent confidence score
+        latest_confidence = data["predictions"][-1]["confidence"]
+        return {"latest_confidence": latest_confidence}
+    except (KeyError, IndexError) as e:
+        raise HTTPException(
+            status_code=404, detail=f"Confidence information not found in file"
+        )
 
 
 @router.get("/bars/{pair}/{bars}")
@@ -180,7 +198,7 @@ async def update_prediction_times(new_times: list = Body(...)):
     except Exception as e:
         # Handle any exceptions (e.g., file not found, JSON errors)
         raise HTTPException(status_code=500, detail=str(e))
-    
+
 @router.post("/inferenz")
 async def inferenz(pair: Optional[str] = None, gpu: Optional[int] = None):
     from src.main import main

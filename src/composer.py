@@ -533,23 +533,24 @@ class Composer:
                 ]
             }
         }
-
         # Prepare predictions data
         data["predictions"] = []
-        for i, prediction in enumerate(self._y_hat):
-            future_timestamp = last_timestamp + timedelta(
-                minutes=self._interval * (i + 1)
-            )
+        for i, (prediction, confidence) in enumerate(zip(self._y_hat, self._confidences)):
+            future_timestamp = last_timestamp + timedelta(minutes=self._interval * (i + 1))
             future_timestamp_str = future_timestamp.strftime("%Y-%m-%d %H:%M:%S")
-            data["predictions"].append({"t": future_timestamp_str, "y_hat": prediction})
-
+            data["predictions"].append({
+                "t": future_timestamp_str,
+                "y_hat": prediction,
+                "confidence": round(confidence, 2)  # Round confidence to 2 decimal places
+            })
         return data
+
 
     def _read_existing_data(self, file_path):
         """Read existing data from the file."""
         with open(file_path, "r") as file:
             return json.load(file)
-        
+
     def _get_common_comma_position(self, existing_data):
         comma_positions = []
 
