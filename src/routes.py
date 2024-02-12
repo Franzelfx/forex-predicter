@@ -58,7 +58,7 @@ async def read_dumps():
 @router.get("/confidences/{pair}")
 async def read_all_confidences(pair: str):
     file_path = f"src/model_predictions/composer/{pair}_dump.json"
-    if not os.path.isfile(file_path):
+    if not isfile(file_path):
         raise HTTPException(status_code=404, detail="File not found")
 
     with open(file_path, "r") as file:
