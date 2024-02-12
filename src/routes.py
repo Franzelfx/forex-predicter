@@ -58,7 +58,7 @@ async def read_dumps():
 @router.get("/confidences/{pair}")
 async def read_all_confidences(pair: str):
     file_path = f"src/model_predictions/composer/{pair}_dump.json"
-    if not isfile(file_path):
+    if not os.path.isfile(file_path):
         raise HTTPException(status_code=404, detail="File not found")
 
     with open(file_path, "r") as file:
@@ -66,7 +66,7 @@ async def read_all_confidences(pair: str):
     try:
         # Extract all confidence scores from predictions
         confidences = [prediction["confidence"] for prediction in data["predictions"]]
-        return {"confidences": confidences}
+        return confidences
     except KeyError:
         raise HTTPException(
             status_code=404, detail="Confidence information not found in file"
@@ -85,7 +85,7 @@ async def read_latest_confidence(pair: str):
         # Assuming each prediction in "predictions" includes a "confidence" key
         # Get the most recent confidence score
         latest_confidence = data["predictions"][-1]["confidence"]
-        return {"latest_confidence": latest_confidence}
+        return latest_confidence
     except (KeyError, IndexError) as e:
         raise HTTPException(
             status_code=404, detail=f"Confidence information not found in file"
