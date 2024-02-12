@@ -119,6 +119,7 @@ class Composer:
         self._preprocessed = None
         self._y_test = None
         self._y_hat = None
+        self._confidences = []
 
         # If ":" is in the pair_name, use string after ":"
         if ":" in pair_name:
@@ -451,6 +452,8 @@ class Composer:
         model = self.model
         self._utilizer = Utilizer(model, self._preprocessed)
         self._y_test, self._y_hat = self._utilizer.predict(box_pts=box_pts, test=test)
+        for _ in range(len(self._y_hat)):
+            self._confidences.append(self._utilizer.confidence)
         visualizer = Visualizer(self._processing.pair)
         path = os.path.join(MODEL_PATH, "model_predictions")
         n = self._processing.steps_in
