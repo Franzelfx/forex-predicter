@@ -544,7 +544,7 @@ class Composer:
             data["predictions"].append({
                 "t": future_timestamp_str,
                 "y_hat": prediction,
-                "confidence": round(confidence, 2)  # Round confidence to 2 decimal places
+                "confidence": confidence,
             })
         return data
 
