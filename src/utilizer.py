@@ -56,7 +56,7 @@ class Utilizer:
 
         @return The confidence score.
         """
-        return f"{self._confidence} %"
+        return f"{round(self._confidence, 2)} %"
     
     def evaluate(self, x_target, y_test) -> float:
         """Calculate the MAPE of x_target (actual values) and y_test (predicted values).
