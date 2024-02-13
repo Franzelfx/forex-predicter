@@ -241,7 +241,7 @@ class Indicators:
         return "ATR", talib.ATR(data['h'], data['l'], data['c'], timeperiod=14)
 
 
-    def calculate_bollinger(data):
+    def calculate_bollinger(self, data):
         upper, middle, lower = talib.BBANDS(
             data["c"], timeperiod=20, nbdevup=2.0, nbdevdn=2.0, matype=0
         )
