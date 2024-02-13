@@ -240,9 +240,16 @@ class Indicators:
     def calculate_atr(self, data):
         return "ATR", talib.ATR(data['h'], data['l'], data['c'], timeperiod=14)
 
-    def calculate_bollinger(self, data):
-        upper, middle, lower = talib.BBANDS(data['c'], timeperiod=20, nbdevup=2, nbdevdn=2, matype=0)
-        return {"BOLLINGER_UPPER": upper, "BOLLINGER_MIDDLE": middle, "BOLLINGER_LOWER": lower}
+
+    def calculate_bollinger(data):
+        upper, middle, lower = talib.BBANDS(
+            data["c"], timeperiod=20, nbdevup=2.0, nbdevdn=2.0, matype=0
+        )
+        return {
+            "BOLLINGER_UPPER": upper,
+            "BOLLINGER_MIDDLE": middle,
+            "BOLLINGER_LOWER": lower,
+        }
 
     def calculate_ma(self, data, period):
         return f"MA{period}", talib.MA(data['c'], timeperiod=period, matype=0)
@@ -263,39 +270,39 @@ class Indicators:
 
     def calculate_vorsi(self, data):
         return "VoRSI", talib.RSI(data['v'], timeperiod=14)
-    
+
     def calculate_ht_trendline(self, data):
         return "HT_TRENDLINE", talib.HT_TRENDLINE(data['c'])
-    
+
     def calculate_ht_trendmode(self, data):
         return "HT_TRENDMODE", talib.HT_TRENDMODE(data['c'])
-    
+
     def calculate_ht_dcperiod(self, data):
         return "HT_DCPERIOD", talib.HT_DCPERIOD(data['c'])
-    
+
     def calculate_ht_dcphase(self, data):
         return "HT_DCPHASE", talib.HT_DCPHASE(data['c'])
-    
+
     def calculate_ht_phasor(self, data):
         inphase, quadrature = talib.HT_PHASOR(data['c'])
         return {"HT_PHASOR_INPHASE": inphase, "HT_PHASOR_QUADRATURE": quadrature}
-    
+
     def calculate_ht_sine(self, data):
         sine, leadsine = talib.HT_SINE(data['c'])
         return {"HT_SINE_SINE": sine, "HT_SINE_LEADSINE": leadsine}
-    
+
     def calculate_mfi(self, data):
         return "MFI", talib.MFI(data['h'], data['l'], data['c'], data['v'], timeperiod=14)
-    
+
     def calculate_mom(self, data):
         return "MOM", talib.MOM(data['c'], timeperiod=10)
-    
+
     def calculate_plus_di(self, data):
         return "PLUS_DI", talib.PLUS_DI(data['h'], data['l'], data['c'], timeperiod=14)
-    
+
     def calculate_plus_dm(self, data):
         return "PLUS_DM", talib.PLUS_DM(data['h'], data['l'], timeperiod=14)
-    
+
     def calculate_indicators_in_parallel(self):
         indicators_functions = {
             'ATR': self.calculate_atr,
@@ -320,7 +327,7 @@ class Indicators:
             'PLUS_DI': self.calculate_plus_di,
             'PLUS_DM': self.calculate_plus_dm
         }
-    
+
         with concurrent.futures.ThreadPoolExecutor() as executor:
             futures = []
             for indicator_name in self._requested:
