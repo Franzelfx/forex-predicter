@@ -351,7 +351,8 @@ class Composer:
                 )
 
             # Calculate the indicators
-            data = indicator.calculate(save=save)
+            #data = indicator.calculate(save=save)
+            data = indicator.calculate_indicators_in_parallel(save=save)
             # Append the dataframes to the indicators list
             indicators.append(data)
         self._indicators = indicators

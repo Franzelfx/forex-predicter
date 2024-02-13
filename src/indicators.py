@@ -1,7 +1,9 @@
 """Module for the indicators class."""
 import pandas as pd
+import concurrent.futures
 from logging import warning
 import talib.abstract as talib
+
 # Logging
 from src.logger import logger as loguru
 
@@ -233,4 +235,104 @@ class Indicators:
             self._data.to_csv(path)
         # Substract the offset, if MA50 or MA200 are active
         self._data = self._data[self._data_offset :]
+        return self._data
+
+    def calculate_atr(self, data):
+        return "ATR", talib.ATR(data['h'], data['l'], data['c'], timeperiod=14)
+
+    def calculate_bollinger(self, data):
+        upper, middle, lower = talib.BBANDS(data['c'], timeperiod=20, nbdevup=2, nbdevdn=2, matype=0)
+        return {"BOLLINGER_UPPER": upper, "BOLLINGER_MIDDLE": middle, "BOLLINGER_LOWER": lower}
+
+    def calculate_ma(self, data, period):
+        return f"MA{period}", talib.MA(data['c'], timeperiod=period, matype=0)
+
+    def calculate_macd(self, data):
+        macd, macdsignal, macdhist = talib.MACD(data['c'], fastperiod=12, slowperiod=26, signalperiod=9)
+        return {"MACD": macd, "MACD_SIGNAL": macdsignal, "MACD_HIST": macdhist}
+
+    def calculate_obv(self, data):
+        return "OBV", talib.OBV(data['c'], data['v'])
+
+    def calculate_rsi(self, data):
+        return "RSI", talib.RSI(data['c'], timeperiod=14)
+
+    def calculate_stochastic(self, data):
+        k, d = talib.STOCH(data['h'], data['l'], data['c'], fastk_period=14, slowk_period=3, slowk_matype=0, slowd_period=3, slowd_matype=0)
+        return {"STOCHASTIC_K": k, "STOCHASTIC_D": d}
+
+    def calculate_vorsi(self, data):
+        return "VoRSI", talib.RSI(data['v'], timeperiod=14)
+    
+    def calculate_ht_trendline(self, data):
+        return "HT_TRENDLINE", talib.HT_TRENDLINE(data['c'])
+    
+    def calculate_ht_trendmode(self, data):
+        return "HT_TRENDMODE", talib.HT_TRENDMODE(data['c'])
+    
+    def calculate_ht_dcperiod(self, data):
+        return "HT_DCPERIOD", talib.HT_DCPERIOD(data['c'])
+    
+    def calculate_ht_dcphase(self, data):
+        return "HT_DCPHASE", talib.HT_DCPHASE(data['c'])
+    
+    def calculate_ht_phasor(self, data):
+        inphase, quadrature = talib.HT_PHASOR(data['c'])
+        return {"HT_PHASOR_INPHASE": inphase, "HT_PHASOR_QUADRATURE": quadrature}
+    
+    def calculate_ht_sine(self, data):
+        sine, leadsine = talib.HT_SINE(data['c'])
+        return {"HT_SINE_SINE": sine, "HT_SINE_LEADSINE": leadsine}
+    
+    def calculate_mfi(self, data):
+        return "MFI", talib.MFI(data['h'], data['l'], data['c'], data['v'], timeperiod=14)
+    
+    def calculate_mom(self, data):
+        return "MOM", talib.MOM(data['c'], timeperiod=10)
+    
+    def calculate_plus_di(self, data):
+        return "PLUS_DI", talib.PLUS_DI(data['h'], data['l'], data['c'], timeperiod=14)
+    
+    def calculate_plus_dm(self, data):
+        return "PLUS_DM", talib.PLUS_DM(data['h'], data['l'], timeperiod=14)
+    
+    def calculate_indicators_in_parallel(self):
+        indicators_functions = {
+            'ATR': self.calculate_atr,
+            'BOLLINGER': self.calculate_bollinger,
+            'MA5': lambda data: self.calculate_ma(data, 5),
+            'MA25': lambda data: self.calculate_ma(data, 25),
+            'MA50': lambda data: self.calculate_ma(data, 50),
+            'MA200': lambda data: self.calculate_ma(data, 200),
+            'MACD': self.calculate_macd,
+            'OBV': self.calculate_obv,
+            'RSI': self.calculate_rsi,
+            'STOCHASTIC': self.calculate_stochastic,
+            'VoRSI': self.calculate_vorsi,
+            'HT_TRENDLINE': self.calculate_ht_trendline,
+            'HT_TRENDMODE': self.calculate_ht_trendmode,
+            'HT_DCPERIOD': self.calculate_ht_dcperiod,
+            'HT_DCPHASE': self.calculate_ht_dcphase,
+            'HT_PHASOR': self.calculate_ht_phasor,
+            'HT_SINE': self.calculate_ht_sine,
+            'MFI': self.calculate_mfi,
+            'MOM': self.calculate_mom,
+            'PLUS_DI': self.calculate_plus_di,
+            'PLUS_DM': self.calculate_plus_dm
+        }
+    
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            futures = []
+            for indicator_name in self._requested:
+                func = indicators_functions.get(indicator_name)
+                if func:
+                    futures.append(executor.submit(func, self._data))
+
+            for future in concurrent.futures.as_completed(futures):
+                result = future.result()
+                if isinstance(result, dict):
+                    self._data.update(result)
+                else:
+                    self._data[result[0]] = result[1]
+
         return self._data
