@@ -48,7 +48,7 @@ class Data_Aquirer:
     def api_type(self) -> str:
         """Get the API type."""
         return self._api_type
-    
+
     @property
     def time_base(self) -> str:
         """Get the time base."""
@@ -109,7 +109,7 @@ class Data_Aquirer:
         pair: str,
         time_base: int = 1,
         start: str = "2009-01-01",
-        end: str = date.today().strftime("%Y-%m-%d"),
+        end: str = datetime.today().strftime("%Y-%m-%d"),
         save: bool = False,
         from_file=None,
         no_request=False,
@@ -117,59 +117,52 @@ class Data_Aquirer:
     ):
         self._time_base = time_base
 
-        if from_file is not None and from_file != "" and from_file != "false":
-            csv_pair_name = pair.split(":")[1] if ":" in pair else ""
-            try:
-                data = pd.read_csv(f"{self._path}/{csv_pair_name}_{time_base}.csv")
-                loguru.info(f"Got data from {self._path}/{csv_pair_name}_{time_base}.csv")
-                recent_date = data["t"].iloc[-1].split(" ")[0]
-                first_date = data["t"].iloc[0].split(" ")[0]
-                if recent_date == date.today().strftime("%Y-%m-%d"):
-                    recent_date = (date.today() - timedelta(days=1)).strftime("%Y-%m-%d")
-                if not no_request:
-                    if first_date != start and not ignore_start:
-                        loguru.info(
-                            f"First date is {first_date} instead of {start}, requesting all data from API..."
-                        )
-                        request = self._request(pair, time_base, start, end)
-                    else:
-                        request = self._request(pair, time_base, recent_date, end)
-                    data = pd.concat([data, request]).drop_duplicates(subset=["t"], keep='last')
-            except FileNotFoundError:
-                loguru.info(f"No data for {pair} with {time_base} minutes interval found.")
-                loguru.info("Getting data from API...")
-                data = self._request(pair, time_base, start, end)
+        # Determine the CSV file path
+        csv_file_path = f"{self._path}/{pair}_{time_base}.csv"
+
+        # Attempt to load existing data from the file
+        try:
+            existing_data = pd.read_csv(csv_file_path, parse_dates=["t"])
+            existing_data.sort_values(by="t", inplace=True)
+            last_date_in_file = existing_data["t"].max()
+            loguru.info(
+                f"Existing data loaded from {csv_file_path}. Last date: {last_date_in_file}"
+            )
+        except (FileNotFoundError, pd.errors.EmptyDataError):
+            loguru.info(f"No existing data found at {csv_file_path}. Starting fresh.")
+            existing_data = None
+            last_date_in_file = pd.Timestamp(start) - timedelta(
+                days=1
+            )  # Ensure data fetching starts from the 'start' parameter
+
+        # Adjust the start date for new data request based on existing data
+        new_data_start_date = last_date_in_file + timedelta(minutes=time_base)
+        new_data_start_str = new_data_start_date.strftime("%Y-%m-%d")
+
+        # Fetch new data only if necessary
+        if not no_request and new_data_start_date.strftime("%Y-%m-%d") < end:
+            new_data = self._request(pair, time_base, new_data_start_str, end)
+            if existing_data is not None:
+                updated_data = pd.concat([existing_data, new_data]).drop_duplicates(
+                    subset=["t"], keep="last"
+                )
+            else:
+                updated_data = new_data
         else:
-            data = self._request(pair, time_base, start, end)
+            loguru.info("No new data to request. The existing dataset is up-to-date.")
+            updated_data = existing_data
 
-        # Convert all data in the 't' column to Timestamps
-        data['t'] = pd.to_datetime(data['t'])
+        if save and updated_data is not None and not updated_data.empty:
+            # Save only new data by appending to the CSV file if it exists, otherwise create a new file
+            if existing_data is not None and not existing_data.empty:
+                new_data_only = updated_data[updated_data["t"] > last_date_in_file]
+                new_data_only.to_csv(csv_file_path, mode="a", header=False, index=False)
+                loguru.info(f"Appended new data to {csv_file_path}.")
+            else:
+                updated_data.to_csv(csv_file_path, index=False)
+                loguru.info(f"Saved new data to {csv_file_path}.")
 
-        # Remove duplicates
-        data.drop_duplicates(subset=["t"], inplace=True)
-        
-        # Filter out the weekends if pair has "C:" in it
-        if "C:" in pair:
-            loguru.info("Remove all weekends, len before: ", len(data), end=" ")
-            data = data[data['t'].dt.weekday < 5]
-
-        # Sort the data by time
-        data.sort_values(by="t", inplace=True)
-
-        loguru.info("len after: ", len(data))
-
-        # Remove all values which are over the end time
-        if end != datetime.today().strftime("%Y-%m-%d"):
-            loguru.info(f"Remove all values after {end}")
-            data = data[data["t"] < end]
-
-        if save:
-            pair = pair.split(":")[1] if ":" in pair else pair
-            loguru.info(f"Save data to {self._path}/{pair}_{time_base}.csv")
-            data.to_csv(f"{self._path}/{pair}_{time_base}.csv", index=False)
-            loguru.info(f"Dataset has {len(data.columns)} columns.")
-
-        return data
+        return updated_data
 
     def remove_rows_smaller_than(self, offset: int, data: pd.DataFrame, column: str) -> pd.DataFrame:
         """Remove rows where the value of a specific column is smaller than 5.
@@ -180,7 +173,7 @@ class Data_Aquirer:
         """
         filtered_data = data[data[column] >= offset].reset_index(drop=True)
         return filtered_data
-    
+
     def get_last_friday(self):
         now = date.now()
         closest_friday = now + timedelta(days=(4 - now.weekday()))
