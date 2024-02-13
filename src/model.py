@@ -508,69 +508,44 @@ class Model:
         # Return the predicted values, based on the given input
         return y_test, y_hat
 
-    def confidence(
-        self,
-        x_input,
-        num_samples=50,
-        from_saved_model=True,
-    ):
+
+    def confidence(x_input, model, num_samples=50):
         """
         Calculate prediction uncertainty using Monte Carlo Dropout and return confidence percentage.
 
         Parameters:
-        - model: The compiled Keras model with dropout layers.
         - x_input: The input data for predictions (numpy array).
+        - model: The compiled Keras model with dropout layers.
         - num_samples: Number of Monte Carlo samples to generate.
-        - from_saved_model: Whether to load the model from a saved file (True) or use the provided model (False).
-        - std_bound: The upper bound for standard deviation beyond which confidence is 0%.
 
         Returns:
         - mean_predictions: Mean predictions across Monte Carlo samples.
         - confidence_percent: Confidence in predictions as a percentage.
         """
-
-        path = f"{self._path}/checkpoints/{self._name}"
-
-        if from_saved_model:
-            # Load the model from a saved file
-            prediction_model = load_model(
-                path,
-                custom_objects={
-                    "LSTM": tf.keras.layers.LSTM,
-                    "TransformerBlock": layers.TransformerBlock,
-                    "TransformerLSTMBlock": layers.TransformerLSTMBlock,
-                    "Branch": layers.Branch,
-                    "Output": layers.Output,
-                },
-            )
-        else:
-            # Check if the model has been compiled
-            if self._model is None:
-                raise ValueError("The model must be compiled first.")
-
-            prediction_model = self._model
-
-        # Initialize arrays to store predictions from Monte Carlo samples
         predictions = []
 
         # Generate predictions using Monte Carlo Dropout
         for _ in range(num_samples):
-            predictions.append(prediction_model.predict(x_input))
+            pred = model.predict(x_input, training=True)
+            predictions.append(pred)
+        predictions = np.array(predictions)
 
         # Calculate mean and standard deviation of predictions
+        mean_predictions = np.mean(predictions, axis=0)
         std_predictions = np.std(predictions, axis=0)
 
-        # Dynamic scaling using median (or mean) of the std_predictions
-        median_std = np.median(std_predictions)
+        # Normalize the inverse of the standard deviation to a 0-100 scale as a measure of confidence
+        # Assuming std_predictions vary significantly and you want to scale the inverse proportionally
+        # Adjust the scale factor as needed based on your specific standard deviation range and desired sensitivity
+        scale_factor = 100 / np.max(std_predictions) if np.max(std_predictions) != 0 else 1
+        confidence_scores = (
+            1 / (std_predictions + 1e-6)
+        ) * scale_factor  # Adding a small constant to avoid division by zero
 
-        # Guard against division by zero
-        if median_std == 0:
-            median_std = 1e-10  # small constant to avoid division by zero
+        # Clip or adjust confidence scores to ensure they fall within the 0-100 range
+        confidence_scores = np.clip(confidence_scores, 0, 100)
 
-        confidence_percent = 100 - (np.clip(100 * (1 - (std_predictions / median_std)), 0, 100))
+        # Calculate mean confidence score across all predictions
+        confidence_percent = np.mean(confidence_scores)
 
-        # Calculate mean of confidence across all samples as 2 decimal percentage
-        confidence_percent = np.mean(confidence_percent)
-        confidence_percent = np.round(confidence_percent, 2)
-
-        return confidence_percent
+        return mean_predictions, np.round(confidence_percent, 2)
