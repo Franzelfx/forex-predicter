@@ -509,7 +509,7 @@ class Model:
     def confidence(
         self,
         x_input,
-        num_samples=10,
+        num_samples=50,
         from_saved_model=True,
     ):
         """
@@ -565,7 +565,7 @@ class Model:
         if median_std == 0:
             median_std = 1e-10  # small constant to avoid division by zero
 
-        confidence_percent = np.clip(100 * (1 - (std_predictions / median_std)), 0, 100)
+        confidence_percent = 100 - (np.clip(100 * (1 - (std_predictions / median_std)), 0, 100))
 
         # Calculate mean of confidence across all samples as 2 decimal percentage
         confidence_percent = np.mean(confidence_percent)
