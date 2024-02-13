@@ -362,7 +362,17 @@ class Model:
         if continue_training:
             try:
                 # Attempt to load the last saved weights
-                self._model.load_weights(f"{self._path}/checkpoints/{self._name}")
+                path = f"{self._path}/checkpoints/{self._name}"
+                self._model = tf.keras.models.load_model(
+                    path,
+                    custom_objects={
+                        "LSTM": tf.keras.layers.LSTM,
+                        "TransformerBlock": layers.TransformerBlock,
+                        "TransformerLSTMBlock": layers.TransformerLSTMBlock,
+                        "Branch": layers.Branch,
+                        "Output": layers.Output,
+                    },
+                )
                 loguru.info("Continuing training from the last checkpoint.")
             except Exception as e:
                 # Handle cases where loading the weights fails (e.g., no checkpoint exists)
@@ -478,7 +488,16 @@ class Model:
 
         # Get the model
         if from_saved_model:
-            prediction_model: tf.keras.Model = self.load_model(path)
+            prediction_model: tf.keras.Model = self.load_model(
+                path,
+                custom_objects={
+                    "LSTM": tf.keras.layers.LSTM,
+                    "TransformerBlock": layers.TransformerBlock,
+                    "TransformerLSTMBlock": layers.TransformerLSTMBlock,
+                    "Branch": layers.Branch,
+                    "Output": layers.Output,
+                },
+            )
             loguru.info(f"Loaded model from: {path}")
         else:
             # Check if the model has been fitted
