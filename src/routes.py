@@ -9,6 +9,21 @@ from typing import Optional
 
 router = APIRouter()
 
+def filter_predictions(predictions):
+    filtered_predictions = []
+    previous_confidence = None
+
+    for prediction in predictions:
+        current_confidence = prediction["confidence"]
+        if current_confidence != previous_confidence:
+            filtered_predictions.append({
+                "t": prediction["t"],
+                "y_hat": prediction["y_hat"],
+                "confidence": prediction["confidence"]
+            })
+        previous_confidence = current_confidence
+
+    return filtered_predictions
 
 @router.get("/recipes")
 async def get_recipe_names():
@@ -65,7 +80,7 @@ async def read_all_confidences(pair: str):
         data = json.load(file)
     try:
         # Extract all confidence scores from predictions
-        confidences = [prediction["confidence"] for prediction in data["predictions"]]
+        confidences = filter_predictions(data["predictions"])
         return confidences
     except KeyError:
         raise HTTPException(
