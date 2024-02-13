@@ -503,6 +503,8 @@ class Model:
             y_hat = self._inverse_transform(scaler, y_hat)
             if x_test is not None:
                 y_test = self._inverse_transform(scaler, y_test)
+        # Free allocated memory from the GPU
+        tf.keras.backend.clear_session()
         # Return the predicted values, based on the given input
         return y_test, y_hat
 
