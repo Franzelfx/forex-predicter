@@ -510,7 +510,6 @@ class Model:
         # Return the predicted values, based on the given input
         return y_test, y_hat
 
-
     def confidence(self, x_input, num_samples=50):
         """
         Calculate prediction uncertainty using Monte Carlo Dropout and return confidence percentage.
@@ -529,7 +528,7 @@ class Model:
 
         # Generate predictions using Monte Carlo Dropout
         for _ in range(num_samples):
-            pred = model.predict(x_input, training=True)
+            pred = model.predict(x_input, use_multiprocessing=True, workers=8)
             predictions.append(pred)
         predictions = np.array(predictions)
 
