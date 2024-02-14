@@ -505,11 +505,13 @@ class Model:
                 y_test = self._inverse_transform(scaler, y_test)
         # Free allocated memory from the GPU
         tf.keras.backend.clear_session()
+        # Assign prediction model
+        self._model = prediction_model
         # Return the predicted values, based on the given input
         return y_test, y_hat
 
 
-    def confidence(x_input, model, num_samples=50):
+    def confidence(self, x_input, num_samples=50):
         """
         Calculate prediction uncertainty using Monte Carlo Dropout and return confidence percentage.
 
@@ -523,6 +525,7 @@ class Model:
         - confidence_percent: Confidence in predictions as a percentage.
         """
         predictions = []
+        model = self._model
 
         # Generate predictions using Monte Carlo Dropout
         for _ in range(num_samples):
