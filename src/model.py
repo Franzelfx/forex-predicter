@@ -21,6 +21,7 @@ from tensorflow.keras.callbacks import (
 import src.layers as layers
 from tensorflow.keras.layers import Concatenate, LayerNormalization, Input
 import numpy as np
+
 # Logging
 from src.logger import logger as loguru
 
@@ -98,7 +99,9 @@ class CustomLRScheduler(tf.keras.callbacks.Callback):
         else:
             # Use a step decay for simplicity
             decay_step = self.no_improvement_epochs // self.patience_lr_schedule
-            lr = self.max_lr * (0.5 ** decay_step)  # Reduce by half every patience_lr_schedule epochs
+            lr = self.max_lr * (
+                0.5**decay_step
+            )  # Reduce by half every patience_lr_schedule epochs
 
         tf.keras.backend.set_value(self.model.optimizer.lr, lr)
 
@@ -131,7 +134,9 @@ class ModelCheckpoint(tf.keras.callbacks.Callback):
         # Check if the combined score is better than the best score seen so far
         if combined_score < self.best_score:
             self.best_score = combined_score
-            loguru.info(f" Combined score improved to {combined_score:.4f}. Save model.")
+            loguru.info(
+                f" Combined score improved to {combined_score:.4f}. Save model."
+            )
         if self.save_best_only:
             self.model.save(self.filepath)
         else:
@@ -367,7 +372,9 @@ class Model:
                 loguru.info("Continuing training from the last checkpoint.")
             except Exception as e:
                 # Handle cases where loading the weights fails (e.g., no checkpoint exists)
-                loguru.warning("Failed to load weights for continuous training. Starting from scratch.")
+                loguru.warning(
+                    "Failed to load weights for continuous training. Starting from scratch."
+                )
 
         if self._model is None:
             loguru.warning("Model is not compiled yet, please compile the model first.")
@@ -490,7 +497,9 @@ class Model:
             prediction_model = self._model
         # Predict the test values
         if x_test is not None:
-            y_test = prediction_model.predict(x_test, use_multiprocessing=True, workers=8)
+            y_test = prediction_model.predict(
+                x_test, use_multiprocessing=True, workers=8
+            )
             prediction_model.reset_states()
         else:
             y_test = None
@@ -505,59 +514,74 @@ class Model:
                 y_test = self._inverse_transform(scaler, y_test)
         # Free allocated memory from the GPU
         tf.keras.backend.clear_session()
-        # Assign prediction model
-        self._model = prediction_model
         # Return the predicted values, based on the given input
         return y_test, y_hat
 
-    def sigmoid_confidence_scores(self, std_predictions):
-        """
-        Calculate confidence scores using a sigmoid function based on standard deviations.
-
-        Parameters:
-        - std_predictions: Standard deviations of the predictions.
-
-        Returns:
-        - confidence_scores: Confidence scores calculated using a sigmoid function, scaled to 0-100.
-        """
-        # Adjust the sigmoid center using median or mean standard deviation as needed
-        sigmoid_center = np.median(std_predictions)
-
-        # Sigmoid function to map standard deviation to a confidence score
-        confidence_scores = 1 / (1 + np.exp(std_predictions - sigmoid_center))
-        confidence_scores *= 100  # Scale to 0-100 range
-
-        return np.clip(confidence_scores, 0, 100)  # Ensure scores are within 0-100
-
-
-    def confidence(self, x_input, num_samples=50):
+    def confidence(
+        self,
+        x_input,
+        num_samples=50,
+        from_saved_model=True,
+    ):
         """
         Calculate prediction uncertainty using Monte Carlo Dropout and return confidence percentage.
 
         Parameters:
+        - model: The compiled Keras model with dropout layers.
         - x_input: The input data for predictions (numpy array).
         - num_samples: Number of Monte Carlo samples to generate.
+        - from_saved_model: Whether to load the model from a saved file (True) or use the provided model (False).
+        - std_bound: The upper bound for standard deviation beyond which confidence is 0%.
 
         Returns:
         - mean_predictions: Mean predictions across Monte Carlo samples.
-        - confidence_percent: Confidence in predictions as a percentage, calculated using a sigmoid function for smoother scaling.
+        - confidence_percent: Confidence in predictions as a percentage.
         """
+
+        path = f"{self._path}/checkpoints/{self._name}"
+
+        if from_saved_model:
+            # Load the model from a saved file
+            prediction_model = load_model(
+                path,
+                custom_objects={
+                    "LSTM": tf.keras.layers.LSTM,
+                    "TransformerBlock": layers.TransformerBlock,
+                    "TransformerLSTMBlock": layers.TransformerLSTMBlock,
+                    "Branch": layers.Branch,
+                    "Output": layers.Output,
+                },
+            )
+        else:
+            # Check if the model has been compiled
+            if self._model is None:
+                raise ValueError("The model must be compiled first.")
+
+            prediction_model = self._model
+
+        # Initialize arrays to store predictions from Monte Carlo samples
         predictions = []
 
         # Generate predictions using Monte Carlo Dropout
         for _ in range(num_samples):
-            pred = self._model.predict(x_input, use_multiprocessing=True, workers=8)
-            predictions.append(pred)
-        predictions = np.array(predictions)
+            predictions.append(prediction_model.predict(x_input))
 
         # Calculate mean and standard deviation of predictions
-        mean_predictions = np.mean(predictions, axis=0)
         std_predictions = np.std(predictions, axis=0)
 
-        # Apply sigmoid function for confidence calculation
-        confidence_scores = self.sigmoid_confidence_scores(std_predictions)
+        # Dynamic scaling using median (or mean) of the std_predictions
+        median_std = np.median(std_predictions)
 
-        # Calculate mean confidence score across all predictions
-        confidence_percent = np.mean(confidence_scores)
+        # Guard against division by zero
+        if median_std == 0:
+            median_std = 1e-10  # small constant to avoid division by zero
 
-        return np.round(confidence_percent, 2)
+        confidence_percent = 100 - (
+            np.clip(100 * (1 - (std_predictions / median_std)), 0, 100)
+        )
+
+        # Calculate mean of confidence across all samples as 2 decimal percentage
+        confidence_percent = np.mean(confidence_percent)
+        confidence_percent = np.round(confidence_percent, 2)
+
+        return confidence_percent
