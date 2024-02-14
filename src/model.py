@@ -546,7 +546,7 @@ class Model:
 
         # Generate predictions using Monte Carlo Dropout
         for _ in range(num_samples):
-            pred = self._model.predict(x_input, training=True)
+            pred = self._model.predict(x_input, use_multiprocessing=True, workers=8)
             predictions.append(pred)
         predictions = np.array(predictions)
 
