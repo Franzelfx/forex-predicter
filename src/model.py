@@ -510,25 +510,43 @@ class Model:
         # Return the predicted values, based on the given input
         return y_test, y_hat
 
+    def sigmoid_confidence_scores(self, std_predictions):
+        """
+        Calculate confidence scores using a sigmoid function based on standard deviations.
+
+        Parameters:
+        - std_predictions: Standard deviations of the predictions.
+
+        Returns:
+        - confidence_scores: Confidence scores calculated using a sigmoid function, scaled to 0-100.
+        """
+        # Adjust the sigmoid center using median or mean standard deviation as needed
+        sigmoid_center = np.median(std_predictions)
+
+        # Sigmoid function to map standard deviation to a confidence score
+        confidence_scores = 1 / (1 + np.exp(std_predictions - sigmoid_center))
+        confidence_scores *= 100  # Scale to 0-100 range
+
+        return np.clip(confidence_scores, 0, 100)  # Ensure scores are within 0-100
+
+
     def confidence(self, x_input, num_samples=50):
         """
         Calculate prediction uncertainty using Monte Carlo Dropout and return confidence percentage.
 
         Parameters:
         - x_input: The input data for predictions (numpy array).
-        - model: The compiled Keras model with dropout layers.
         - num_samples: Number of Monte Carlo samples to generate.
 
         Returns:
         - mean_predictions: Mean predictions across Monte Carlo samples.
-        - confidence_percent: Confidence in predictions as a percentage.
+        - confidence_percent: Confidence in predictions as a percentage, calculated using a sigmoid function for smoother scaling.
         """
         predictions = []
-        model = self._model
 
         # Generate predictions using Monte Carlo Dropout
         for _ in range(num_samples):
-            pred = model.predict(x_input, use_multiprocessing=True, workers=8)
+            pred = self._model.predict(x_input, training=True)
             predictions.append(pred)
         predictions = np.array(predictions)
 
@@ -536,16 +554,8 @@ class Model:
         mean_predictions = np.mean(predictions, axis=0)
         std_predictions = np.std(predictions, axis=0)
 
-        # Normalize the inverse of the standard deviation to a 0-100 scale as a measure of confidence
-        # Assuming std_predictions vary significantly and you want to scale the inverse proportionally
-        # Adjust the scale factor as needed based on your specific standard deviation range and desired sensitivity
-        scale_factor = 100 / np.max(std_predictions) if np.max(std_predictions) != 0 else 1
-        confidence_scores = (
-            1 / (std_predictions + 1e-6)
-        ) * scale_factor  # Adding a small constant to avoid division by zero
-
-        # Clip or adjust confidence scores to ensure they fall within the 0-100 range
-        confidence_scores = np.clip(confidence_scores, 0, 100)
+        # Apply sigmoid function for confidence calculation
+        confidence_scores = self.sigmoid_confidence_scores(std_predictions)
 
         # Calculate mean confidence score across all predictions
         confidence_percent = np.mean(confidence_scores)
