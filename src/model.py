@@ -550,4 +550,4 @@ class Model:
         # Calculate mean confidence score across all predictions
         confidence_percent = np.mean(confidence_scores)
 
-        return mean_predictions, np.round(confidence_percent, 2)
+        return np.round(confidence_percent, 2)
