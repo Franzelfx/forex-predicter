@@ -58,17 +58,17 @@ def main(pair_name: str = None, gpu: int = None):
     # Iterate over all pairs
     for pair in pairs:
         try:
-            composer_inferenz(pair, from_file=from_file)
+            composer_inferenz(pair, from_file=from_file, interval=config["INTERVAL"])
         except Exception as e:
             loguru.error(f'Error while predicting {pair}: {e}')
             continue
 
 # Function to run the composer class for inferenz
-def composer_inferenz(pair_name: str, from_file=True):
+def composer_inferenz(pair_name: str, from_file=True, interval=15):
     # The composer class routine for inferenz
     composer = Composer(pair_name)
     composer.summary()
-    composer.aquire(from_file=from_file, ignore_start=True)
+    composer.aquire(from_file=from_file, ignore_start=True, interval=interval)
     composer.calculate()
     composer.preprocess()
     composer.compile()
