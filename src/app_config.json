@@ -3,9 +3,9 @@
     "AQUIRE_FROM_FILE": true,
     "DEFAULT_PREDICTION_DATETIMES": [
         "00:00:00",
-        "00:06:00",
-        "00:12:00",
-        "00:18:00"
+        "06:00:00",
+        "12:00:00",
+        "18:00:00"
     ],
     "PREDICT_CRYPTO": false,
     "CRYPTO_PAIRS": [
