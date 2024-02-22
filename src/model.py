@@ -584,4 +584,7 @@ class Model:
         confidence_percent = np.mean(confidence_percent)
         confidence_percent = np.round(confidence_percent, 2)
 
+        # Clear the session to free up memory
+        tf.keras.backend.clear_session()
+
         return confidence_percent
