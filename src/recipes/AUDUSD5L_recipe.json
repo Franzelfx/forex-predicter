@@ -1,7 +1,7 @@
 {
   "PROCESSING": {
-    "PAIR": "C:GBPUSD1L",
-    "INTERVAL": 1,
+    "PAIR": "C:AUDUSD5L",
+    "INTERVAL": 5,
     "START_DATE": "2010-01-01",
     "STEPS_IN": 192,
     "STEPS_OUT": 96,
@@ -16,7 +16,7 @@
     "TARGET_FEATURE": "c"
   },
   "BRANCHES": {
-    "C:GBPUSD": {
+    "C:AUDUSD": {
       "INDICATORS": [
         "ATR",
         "BOLLINGER",
@@ -45,7 +45,7 @@
         "LSTM": [96, 96],
         "DENSE": [192, 192],
         "ATTENTION_HEADS": [16, 16],
-        "DROPOUT": [0.2, 0.35]
+        "DROPOUT": [0.2, 0.2]
       }
     },
     "C:EURUSD": {
@@ -77,7 +77,39 @@
         "LSTM": [96, 96],
         "DENSE": [192, 192],
         "ATTENTION_HEADS": [16, 16],
-        "DROPOUT": [0.2, 0.35]
+        "DROPOUT": [0.2, 0.2]
+      }
+    },
+    "C:AUDCAD": {
+      "INDICATORS": [
+        "ATR",
+        "BOLLINGER",
+        "MA5",
+        "MA25",
+        "MA50",
+        "MA200",
+        "MACD",
+        "OBV",
+        "RSI",
+        "STOCHASTIC",
+        "VoRSI",
+        "HT_TRENDLINE",
+        "HT_TRENDMODE",
+        "HT_DCPERIOD",
+        "HT_DCPHASE",
+        "HT_PHASOR",
+        "HT_SINE",
+        "MFI",
+        "MOM",
+        "PLUS_DI",
+        "PLUS_DM"
+      ],
+      "NODES": {
+        "TRANSFORMER": [192, 96],
+        "LSTM": [96, 96],
+        "DENSE": [192, 192],
+        "ATTENTION_HEADS": [16, 16],
+        "DROPOUT": [0.2, 0.2]
       }
     }
   },
