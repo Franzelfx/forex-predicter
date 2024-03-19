@@ -1,7 +1,7 @@
 {
   "PROCESSING": {
     "PAIR": "C:AUDUSD1L",
-    "INTERVAL": 1,
+    "INTERVAL": 5,
     "START_DATE": "2010-01-01",
     "STEPS_IN": 192,
     "STEPS_OUT": 96,

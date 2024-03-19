@@ -45,7 +45,7 @@ class Visualizer:
             plt.style.use("default")
 
         # Set line width
-        plt.rcParams["lines.linewidth"] = 0.5
+        plt.rcParams["lines.linewidth"] = 0.1
 
         x_splits = (
             [x_test[i : i + n] for i in range(0, len(x_test), n)]
@@ -127,5 +127,5 @@ class Visualizer:
 
         # Save the plot
         path = os.path.join(path, f"{self.pair}.png")
-        plt.savefig(path, bbox_inches="tight")
+        plt.savefig(path, bbox_inches="tight", dpi=600)
         loguru.info(f"Saved plot to {path}")
