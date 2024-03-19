@@ -1,6 +1,6 @@
 {
   "PROCESSING": {
-    "PAIR": "C:AUDUSD1L",
+    "PAIR": "C:AUDUSD5L",
     "INTERVAL": 5,
     "START_DATE": "2010-01-01",
     "STEPS_IN": 192,
@@ -9,8 +9,8 @@
     "TEST_LENGTH": 1152,
     "EPOCHS": 1000,
     "BATCH_SIZE": 8,
-    "LEARNING_RATE": 0.0001,
-    "VALIDATION_SPLIT": 0.1,
+    "LEARNING_RATE": 0.0005,
+    "VALIDATION_SPLIT": 0.05,
     "PATIENCE": 250,
     "PATIENCE_LR_SCHEDULE": 25,
     "TARGET_FEATURE": "c"
