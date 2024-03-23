@@ -1,3 +1,4 @@
+import math
 from fastapi import APIRouter
 from os import listdir
 from os.path import isfile, join
@@ -8,6 +9,17 @@ from fastapi import Body
 from typing import Optional
 
 router = APIRouter()
+
+def sanitize_data(data):
+    if isinstance(data, dict):
+        for key, value in data.items():
+            data[key] = sanitize_data(value)
+    elif isinstance(data, list):
+        data = [sanitize_data(item) for item in data]
+    elif isinstance(data, float):
+        if math.isnan(data) or math.isinf(data):
+            return None  # Or a specific value your application can handle
+    return data
 
 def filter_predictions(predictions):
     filtered_predictions = []
@@ -81,7 +93,9 @@ async def read_all_confidences(pair: str):
     try:
         # Extract all confidence scores from predictions
         confidences = filter_predictions(data["predictions"])
-        return confidences
+        # Sanitize the data before returning it
+        sanitized_confidences = sanitize_data(confidences)
+        return sanitized_confidences
     except KeyError:
         raise HTTPException(
             status_code=404, detail="Confidence information not found in file"
