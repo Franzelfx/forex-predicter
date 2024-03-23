@@ -87,19 +87,21 @@ async def read_all_confidences(pair: str):
     file_path = f"src/model_predictions/composer/{pair}_dump.json"
     if not isfile(file_path):
         raise HTTPException(status_code=404, detail="File not found")
-
     with open(file_path, "r") as file:
         data = json.load(file)
     try:
         # Extract all confidence scores from predictions
         confidences = filter_predictions(data["predictions"])
-        # Sanitize the data before returning it
-        sanitized_confidences = sanitize_data(confidences)
+        # Sanitize the data and remove entries where confidence is None
+        sanitized_confidences = sanitize_data(confidences, key_to_filter='confidence', value_to_filter=None)
+        # Filter out any remaining None entries (if necessary)
+        sanitized_confidences = [conf for conf in sanitized_confidences if conf and conf.get('confidence') is not None]
         return sanitized_confidences
     except KeyError:
         raise HTTPException(
             status_code=404, detail="Confidence information not found in file"
         )
+
 
 
 @router.get("/confidence/{pair}")
