@@ -19,16 +19,16 @@
         "21:00:00",
         "22:30:00"
     ],
-    "PREDICT_CRYPTO": false,
+    "PREDICT_CRYPTO": true,
     "CRYPTO_PAIRS": [
-        "BTCUSD",
-        "ETHUSD"
+        "BTCUSD1L"
     ],
     "CRYPTO_PREFIX": "X:",
     "PREDICT_FOREX": true,
     "FOREX_PAIRS": [
-        "EURUSD1L"
+        "EURUSD1L",
+        "AUDUSD5L"
     ],
     "FOREX_PREFIX": "C:",
-    "DEFAULT_GPU": 0
+    "DEFAULT_GPU": 1
 }
