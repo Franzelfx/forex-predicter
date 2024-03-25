@@ -10,16 +10,21 @@ from typing import Optional
 
 router = APIRouter()
 
-def sanitize_data(data):
+def sanitize_data(data, key_to_filter=None, value_to_filter=None):
     if isinstance(data, dict):
-        for key, value in data.items():
-            data[key] = sanitize_data(value)
+        for key, value in list(data.items()):  # Use list to copy keys for safe deletion
+            if key == key_to_filter and value == value_to_filter:
+                del data[key]  # Remove the entry if key matches and value is None
+            else:
+                data[key] = sanitize_data(value, key_to_filter, value_to_filter)
     elif isinstance(data, list):
-        data = [sanitize_data(item) for item in data]
+        data = [sanitize_data(item, key_to_filter, value_to_filter) for item in data]
+        data = [item for item in data if item]  # Remove None values after sanitization
     elif isinstance(data, float):
         if math.isnan(data) or math.isinf(data):
-            return None  # Or a specific value your application can handle
+            return None  # Replace non-compliant floats with None
     return data
+
 
 def filter_predictions(predictions):
     filtered_predictions = []
