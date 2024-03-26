@@ -25,7 +25,6 @@ def sanitize_data(data, key_to_filter=None, value_to_filter=None):
             return None  # Replace non-compliant floats with None
     return data
 
-
 def filter_predictions(predictions):
     filtered_predictions = []
     previous_confidence = None
@@ -36,11 +35,25 @@ def filter_predictions(predictions):
             filtered_predictions.append({
                 "t": prediction["t"],
                 "y_hat": prediction["y_hat"],
-                "confidence": prediction["confidence"]
+                "value": prediction["confidence"]
             })
         previous_confidence = current_confidence
 
     return filtered_predictions
+
+def format_confidence(confidence_str):
+    # Extract the numeric part of the string
+    numeric_part = float(confidence_str.strip(" %"))
+    # Round to one decimal place
+    rounded_confidence = round(numeric_part, 1)
+    # Convert back to string with percentage sign if necessary
+    formatted_confidence = f"{rounded_confidence} %"
+    return formatted_confidence
+
+def get_today_timestamp():
+    today = datetime.now(timezone.utc)
+    start_of_today = today.replace(hour=0, minute=0, second=0, microsecond=0)  # Start of today
+    return start_of_today.timestamp()
 
 @router.get("/recipes")
 async def get_recipe_names():
@@ -95,19 +108,27 @@ async def read_all_confidences(pair: str):
     with open(file_path, "r") as file:
         data = json.load(file)
     try:
+        # Get last monday timestamp
+        last_monday_timestamp = get_today_timestamp()
         # Extract all confidence scores from predictions
         confidences = filter_predictions(data["predictions"])
+        # Filter out confidences older than last Monday
+        confidences = [confidence for confidence in confidences if datetime.strptime(confidence["t"], "%Y-%m-%d %H:%M:%S").replace(tzinfo=timezone.utc).timestamp() >= last_monday_timestamp]
+        # Convert timestamp strings to UTC timestamps
+        for confidence in confidences:
+            confidence["t"] = datetime.strptime(confidence["t"], "%Y-%m-%d %H:%M:%S").replace(tzinfo=timezone.utc).timestamp()
         # Sanitize the data and remove entries where confidence is None
         sanitized_confidences = sanitize_data(confidences, key_to_filter='confidence', value_to_filter=None)
         # Filter out any remaining None entries (if necessary)
-        sanitized_confidences = [conf for conf in sanitized_confidences if conf and conf.get('confidence') is not None]
+        sanitized_confidences = [conf for conf in sanitized_confidences if conf and conf.get('value') is not None]
+        # Format the confidence values
+        for confidence in sanitized_confidences:
+            confidence["value"] = format_confidence(confidence["value"])
         return sanitized_confidences
     except KeyError:
         raise HTTPException(
             status_code=404, detail="Confidence information not found in file"
         )
-
-
 
 @router.get("/confidence/{pair}")
 async def read_latest_confidence(pair: str):
@@ -127,7 +148,6 @@ async def read_latest_confidence(pair: str):
             status_code=404, detail=f"Confidence information not found in file"
         )
 
-
 @router.get("/bars/{pair}/{bars}")
 async def read_model_predictions(pair: str, bars: int = 100):
     file_path = f"src/model_predictions/composer/{pair}_dump.json"
@@ -144,9 +164,13 @@ async def read_model_predictions(pair: str, bars: int = 100):
         if len(pairs_data) < bars:
             raise HTTPException(status_code=400, detail="Not enough data available")
 
-        # Select last 'bars' data points
-        selected_data = pairs_data[-bars:]
+        last_monday_timestamp = get_today_timestamp()
 
+        # Filter based on timestamp
+        selected_data = [
+            entry for entry in pairs_data[-bars:] 
+            if datetime.strptime(entry["time"], "%Y-%m-%d %H:%M:%S").replace(tzinfo=timezone.utc).timestamp() >= last_monday_timestamp
+        ]
         # Initialize formatted_data
         formatted_data = []
 
@@ -176,23 +200,18 @@ async def read_prediction_close(pair: str):
     file_path = f"src/model_predictions/composer/{pair}_dump.json"
     if not isfile(file_path):
         raise HTTPException(status_code=404, detail="File not found")
-
     with open(file_path, "r") as file:
         data = json.load(file)
-
     try:
         predictions = data["predictions"]
-
-        # Process each prediction
+        last_monday_timestamp = get_today_timestamp()
         response_data = [
             {
-                "time": datetime.strptime(prediction["t"], "%Y-%m-%d %H:%M:%S")
-                .replace(tzinfo=timezone.utc).timestamp(),
+                "time": datetime.strptime(prediction["t"], "%Y-%m-%d %H:%M:%S").replace(tzinfo=timezone.utc).timestamp(),
                 "close": prediction["y_hat"],
             }
-            for prediction in predictions
+            for prediction in predictions if datetime.strptime(prediction["t"], "%Y-%m-%d %H:%M:%S").replace(tzinfo=timezone.utc).timestamp() >= last_monday_timestamp
         ]
-
         return response_data
     except KeyError as e:
         raise HTTPException(status_code=404, detail=f"{e.args[0]} not found in file")
