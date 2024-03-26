@@ -1,5 +1,5 @@
 {
-    "INTERVAL": 1,
+    "INTERVAL": 5,
     "AQUIRE_FROM_FILE": true,
     "DEFAULT_PREDICTION_DATETIMES": [
         "00:00:00",
