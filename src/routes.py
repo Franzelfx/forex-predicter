@@ -50,10 +50,11 @@ def format_confidence(confidence_str):
     formatted_confidence = f"{rounded_confidence} %"
     return formatted_confidence
 
-def get_today_timestamp():
+def get_timestamp_from_timedelta(days_delta):
     today = datetime.now(timezone.utc)
-    start_of_today = today.replace(hour=0, minute=0, second=0, microsecond=0)  # Start of today
-    return start_of_today.timestamp()
+    adjusted_date = today - timedelta(days=days_delta)  # Adjusting the date by the given timedelta in days
+    start_of_adjusted_date = adjusted_date.replace(hour=0, minute=0, second=0, microsecond=0)  # Start of the adjusted day
+    return start_of_adjusted_date.timestamp()
 
 @router.get("/recipes")
 async def get_recipe_names():
@@ -108,8 +109,9 @@ async def read_all_confidences(pair: str):
     with open(file_path, "r") as file:
         data = json.load(file)
     try:
-        # Get last monday timestamp
-        last_monday_timestamp = get_today_timestamp()
+        # Timedelta is "interval" devided by 5
+        interval = data["processing"]["interval"]
+        last_monday_timestamp = get_timestamp_from_timedelta(interval / 5)
         # Extract all confidence scores from predictions
         confidences = filter_predictions(data["predictions"])
         # Filter out confidences older than last Monday
@@ -164,7 +166,9 @@ async def read_model_predictions(pair: str, bars: int = 100):
         if len(pairs_data) < bars:
             raise HTTPException(status_code=400, detail="Not enough data available")
 
-        last_monday_timestamp = get_today_timestamp()
+        # Get timestamp based on interval
+        interval = data["processing"]["interval"]
+        last_monday_timestamp = get_timestamp_from_timedelta(interval / 5)
 
         # Filter based on timestamp
         selected_data = [
@@ -204,7 +208,9 @@ async def read_prediction_close(pair: str):
         data = json.load(file)
     try:
         predictions = data["predictions"]
-        last_monday_timestamp = get_today_timestamp()
+        # Get timestamp based on interval
+        interval = data["processing"]["interval"]
+        last_monday_timestamp = get_timestamp_from_timedelta(interval / 5)
         response_data = [
             {
                 "time": datetime.strptime(prediction["t"], "%Y-%m-%d %H:%M:%S").replace(tzinfo=timezone.utc).timestamp(),

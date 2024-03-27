@@ -3,21 +3,13 @@
     "AQUIRE_FROM_FILE": true,
     "DEFAULT_PREDICTION_DATETIMES": [
         "00:00:00",
-        "01:30:00",
         "03:00:00",
-        "04:30:00",
         "06:00:00",
-        "07:30:00",
         "09:00:00",
-        "10:30:00",
         "12:00:00",
-        "13:30:00",
         "15:00:00",
-        "16:30:00",
         "18:00:00",
-        "19:30:00",
-        "21:00:00",
-        "22:30:00"
+        "21:00:00"
     ],
     "PREDICT_CRYPTO": true,
     "CRYPTO_PAIRS": [
@@ -29,7 +21,9 @@
         "EURUSD5L",
         "AUDUSD5L",
         "USDCHF5L",
-        "USDJPY5L"
+        "USDJPY5L",
+        "EURUSD15M",
+        "AUDUSD15M"
     ],
     "FOREX_PREFIX": "C:",
     "DEFAULT_GPU": 1

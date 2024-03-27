@@ -507,6 +507,10 @@ class Composer:
         data = {
             "confidence": self._utilizer.confidence,
             "processing": {"interval": self._interval},
+            "timesteps": {
+                "in": self._processing.steps_in,
+                "out": self._processing.steps_out,
+            },
         }
 
         # Process pair data
