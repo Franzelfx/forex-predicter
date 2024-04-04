@@ -11,7 +11,7 @@
         "18:00:00",
         "21:00:00"
     ],
-    "PREDICT_CRYPTO": true,
+    "PREDICT_CRYPTO": false,
     "CRYPTO_PAIRS": [
         "BTCUSD1L"
     ],
@@ -22,8 +22,11 @@
         "AUDUSD5L",
         "USDCHF5L",
         "USDJPY5L",
+        "EURCHF5L",
         "EURUSD15M",
-        "AUDUSD15M"
+        "AUDUSD15M",
+        "USDCHF15M",
+        "USDJPY15M"
     ],
     "FOREX_PREFIX": "C:",
     "DEFAULT_GPU": 1

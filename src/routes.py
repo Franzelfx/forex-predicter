@@ -7,6 +7,8 @@ from fastapi import HTTPException
 from datetime import datetime, timedelta, timezone
 from fastapi import Body
 from typing import Optional
+from fastapi import BackgroundTasks
+from src.inference import main
 
 router = APIRouter()
 
@@ -55,6 +57,21 @@ def get_timestamp_from_timedelta(days_delta):
     adjusted_date = today - timedelta(days=days_delta)  # Adjusting the date by the given timedelta in days
     start_of_adjusted_date = adjusted_date.replace(hour=0, minute=0, second=0, microsecond=0)  # Start of the adjusted day
     return start_of_adjusted_date.timestamp()
+
+@router.post("/inference")
+async def manual_run(background_tasks: BackgroundTasks, pair: Optional[str] = None, gpu: Optional[int] = None):
+    """
+    Manually triggers the main task for predictions. 
+    Allows specifying a pair and GPU.
+    If no pair specified it will run for all pairs.
+    If no GPU specified it will run on GPU 0.
+    """
+    try:
+        # Schedule the main task to run in the background, passing the optional pair and gpu parameters.
+        background_tasks.add_task(main, pair_name=pair, gpu=gpu)
+        return {"message": "Manual run initiated successfully."}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error initiating manual run: {str(e)}")
 
 @router.get("/recipes")
 async def get_recipe_names():
@@ -258,15 +275,4 @@ async def update_prediction_times(new_times: list = Body(...)):
 
     except Exception as e:
         # Handle any exceptions (e.g., file not found, JSON errors)
-        raise HTTPException(status_code=500, detail=str(e))
-
-@router.post("/inferenz")
-async def inferenz(pair: Optional[str] = None, gpu: Optional[int] = None):
-    from src.main import main
-    try:
-        # Assuming 'main' is the function from your provided script
-        # This will execute the main task for the specified pair and GPU (if provided)
-        main(pair_name=pair, gpu=gpu)
-        return {"message": f"Inferenz done for pair: {pair}"}
-    except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

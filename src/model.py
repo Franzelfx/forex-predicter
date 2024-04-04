@@ -83,32 +83,10 @@ class CustomLRScheduler(tf.keras.callbacks.Callback):
         self.no_improvement_epochs = 0
 
     def on_epoch_end(self, epoch, logs=None):
-        current_score = logs.get(self.monitor)
-        if self.best_score is None or current_score < self.best_score:
-            self.best_score = current_score
-            self.no_improvement_epochs = 0
-        else:
-            self.no_improvement_epochs += 1
+        pass
 
     def on_epoch_begin(self, epoch, logs=None):
-        if epoch < self.warmup_epochs:
-            lr = (
-                self.initial_lr
-                + (self.max_lr - self.initial_lr) / self.warmup_epochs * epoch
-            )
-        else:
-            # Use a step decay for simplicity
-            decay_step = self.no_improvement_epochs // self.patience_lr_schedule
-            lr = self.max_lr * (
-                0.5**decay_step
-            )  # Reduce by half every patience_lr_schedule epochs
-
-        tf.keras.backend.set_value(self.model.optimizer.lr, lr)
-
-        # Log the learning rate
-        with self.lr_writer.as_default():
-            tf.summary.scalar("learning_rate", lr, step=epoch)
-            self.lr_writer.flush()
+        pass
 
 
 class ModelCheckpoint(tf.keras.callbacks.Callback):

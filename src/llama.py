@@ -4,7 +4,7 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 
 # Configuration
 HF_TOKEN = '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'
-model_name = 'meta-llama/Llama-2-70b-hf'
+model_name = 'meta-llama/Llama-2-7b-hf'
 model_directory = "llama/model"
 
 def check_and_load(model_directory, model_name, token):

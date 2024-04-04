@@ -11,3 +11,5 @@ venv/
 *_modules*/
 .VSCodeCounter
 *dump*
+*.lock
+*src/llama/model/*

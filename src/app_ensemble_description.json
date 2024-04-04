@@ -1,5 +1,5 @@
 {
     "AUDUSD": {
-        "models": ["AUDUSD15", "AUDUSD30", "AUDUSD60"]
+        "models": ["AUDUSD5", "AUDUSD15"]
     }
 }
