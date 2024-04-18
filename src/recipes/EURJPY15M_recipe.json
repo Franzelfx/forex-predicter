@@ -1,6 +1,6 @@
 {
   "PROCESSING": {
-    "PAIR": "C:EURCHF15M",
+    "PAIR": "C:EURJPY15M",
     "INTERVAL": 15,
     "START_DATE": "2010-01-01",
     "STEPS_IN": 64,
@@ -16,7 +16,7 @@
     "TARGET_FEATURE": "c"
   },
   "BRANCHES": {
-    "C:EURCHF": {
+    "C:EURJPY": {
       "INDICATORS": [
         "ATR",
         "BOLLINGER",
@@ -48,7 +48,7 @@
         "DROPOUT": [0.2, 0.2, 0.2]
       }
     },
-    "C:GBPCHF": {
+    "C:GBPJPY": {
       "INDICATORS": [
         "ATR",
         "BOLLINGER",
@@ -80,7 +80,7 @@
         "DROPOUT": [0.2, 0.2, 0.2]
       }
     },
-    "C:AUDCHF": {
+    "C:AUDJPY": {
       "INDICATORS": [
         "ATR",
         "BOLLINGER",
@@ -112,7 +112,7 @@
         "DROPOUT": [0.2, 0.2, 0.2]
       }
     },
-        "C:USDCHF": {
+    "C:USDJPY": {
       "INDICATORS": [
         "ATR",
         "BOLLINGER",

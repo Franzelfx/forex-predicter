@@ -1,14 +1,14 @@
 {
   "PROCESSING": {
-    "PAIR": "C:EURCHF15M",
-    "INTERVAL": 15,
+    "PAIR": "C:EURJPY5L",
+    "INTERVAL": 5,
     "START_DATE": "2010-01-01",
-    "STEPS_IN": 64,
-    "STEPS_OUT": 32,
-    "OVERLAP": 32,
+    "STEPS_IN": 192,
+    "STEPS_OUT": 96,
+    "OVERLAP": 96,
     "TEST_LENGTH": 1152,
     "EPOCHS": 1000,
-    "BATCH_SIZE": 16,
+    "BATCH_SIZE": 8,
     "LEARNING_RATE": 0.0001,
     "VALIDATION_SPLIT": 0.05,
     "PATIENCE": 250,
@@ -16,7 +16,7 @@
     "TARGET_FEATURE": "c"
   },
   "BRANCHES": {
-    "C:EURCHF": {
+    "C:EURJPY": {
       "INDICATORS": [
         "ATR",
         "BOLLINGER",
@@ -41,14 +41,14 @@
         "PLUS_DM"
       ],
       "NODES": {
-        "TRANSFORMER": [64, 32, 32],
-        "LSTM": [64, 32, 32],
-        "DENSE": [64, 32, 32],
+        "TRANSFORMER": [192, 96, 96],
+        "LSTM": [96, 96, 96],
+        "DENSE": [192, 192, 192],
         "ATTENTION_HEADS": [16, 16, 16],
         "DROPOUT": [0.2, 0.2, 0.2]
       }
     },
-    "C:GBPCHF": {
+    "C:GBPJPY": {
       "INDICATORS": [
         "ATR",
         "BOLLINGER",
@@ -73,14 +73,14 @@
         "PLUS_DM"
       ],
       "NODES": {
-        "TRANSFORMER": [64, 32, 32],
-        "LSTM": [64, 32, 32],
-        "DENSE": [64, 32, 32],
+        "TRANSFORMER": [192, 96, 96],
+        "LSTM": [96, 96, 96],
+        "DENSE": [192, 192, 192],
         "ATTENTION_HEADS": [16, 16, 16],
         "DROPOUT": [0.2, 0.2, 0.2]
       }
     },
-    "C:AUDCHF": {
+    "C:AUDJPY": {
       "INDICATORS": [
         "ATR",
         "BOLLINGER",
@@ -105,14 +105,14 @@
         "PLUS_DM"
       ],
       "NODES": {
-        "TRANSFORMER": [64, 32, 32],
-        "LSTM": [64, 32, 32],
-        "DENSE": [64, 32, 32],
+        "TRANSFORMER": [192, 96, 96],
+        "LSTM": [96, 96, 96],
+        "DENSE": [192, 192, 192],
         "ATTENTION_HEADS": [16, 16, 16],
         "DROPOUT": [0.2, 0.2, 0.2]
       }
     },
-        "C:USDCHF": {
+    "C:USDJPY": {
       "INDICATORS": [
         "ATR",
         "BOLLINGER",
@@ -137,9 +137,9 @@
         "PLUS_DM"
       ],
       "NODES": {
-        "TRANSFORMER": [64, 32, 32],
-        "LSTM": [64, 32, 32],
-        "DENSE": [64, 32, 32],
+        "TRANSFORMER": [192, 96, 96],
+        "LSTM": [96, 96, 96],
+        "DENSE": [192, 192, 192],
         "ATTENTION_HEADS": [16, 16, 16],
         "DROPOUT": [0.2, 0.2, 0.2]
       }
@@ -147,17 +147,17 @@
   },
   "MAIN_BRANCH": {
     "NODES": {
-      "TRANSFORMER": [64, 32, 32],
-      "LSTM": [0, 0, 0],
-      "DENSE": [64, 32, 32],
+      "TRANSFORMER": [192, 128, 96],
+      "LSTM": [0, 0],
+      "DENSE": [192, 128, 96],
       "ATTENTION_HEADS": [32, 32, 32],
       "DROPOUT": [0.35, 0.2, 0.0]
     }
   },
   "OUTPUT": {
     "NODES": {
-      "DENSE": [32, 32],
-      "DROPOUT": [0.0, 0.0]
+      "DENSE": [96],
+      "DROPOUT": [0.0]
     }
   }
 }

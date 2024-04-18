@@ -18,16 +18,15 @@
     "CRYPTO_PREFIX": "X:",
     "PREDICT_FOREX": true,
     "FOREX_PAIRS": [
-        "EURUSD5L",
-        "AUDUSD5L",
         "USDCHF5L",
+        "EURCHF15M",
+        "EURJPY5L",
+        "EURJPY15M",
         "USDJPY5L",
         "EURCHF5L",
-        "EURUSD15M",
-        "AUDUSD15M",
         "USDCHF15M",
         "USDJPY15M"
     ],
     "FOREX_PREFIX": "C:",
-    "DEFAULT_GPU": 1
+    "DEFAULT_GPU": 0
 }
