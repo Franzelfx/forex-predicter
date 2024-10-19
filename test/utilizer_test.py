@@ -8,7 +8,7 @@ from src.utilizer import Utilizer
 from src.visualizer import Visualizer
 from src.indicators import Indicators
 from src.preprocessor import Preprocessor
-from src.data_aquirer import Data_Aquirer
+from src.data_aquirer import DataAquirer
 
 
 class UtilizerIntegrationTest(unittest.TestCase):
@@ -30,7 +30,7 @@ class UtilizerIntegrationTest(unittest.TestCase):
                     else:
                         continue
                 # Get data
-                aquirer = Data_Aquirer(PATH_PAIRS, API_KEY, api_type="full")
+                aquirer = DataAquirer(PATH_PAIRS, API_KEY, api_type="full")
                 api_data = aquirer.get(
                     pair,
                     MINUTES_TEST,

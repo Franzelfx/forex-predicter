@@ -24,7 +24,7 @@ logging.basicConfig(
 # ---------------------------------- #
 # Data aquirer
 PATH_PAIRS = os.path.join(currentdir, "pairs")
-PAIR = "C:CADJPY"
+PAIR = "EURJPY_5"
 MINUTES_TRAIN = 5
 MINUTES_TEST = 5
 START = "2015-01-01"
@@ -41,58 +41,22 @@ INDICATORS_DATA_SOURCE = f"{PATH_PAIRS}/{pair_name}_{MINUTES_TRAIN}.csv"
 TEST_INDICATORS = [
     "ATR",
     "BOLLINGER",
+    "RSI",
+    "MACD",
+    "MOM",
     "MA5",
     "MA25",
-    "MACD",
+    "MA50",
+    "MA200",
+    "ADX",
+    "SAR",
     "OBV",
-    "RSI",
-    "STOCHASTIC",
-    "VoRSI",
-    "HT_TRENDLINE",
-    "HT_TRENDMODE",
-    "HT_DCPERIOD",
-    "HT_DCPHASE",
-    "HT_PHASOR",
-    "HT_SINE",
     "MFI",
-    "MOM",
-    "PLUS_DI",
-    "PLUS_DM",
+    "HT_TRENDMODE",
+    "HT_SINE"
 ]
 #TEST_INDICATORS = ["BOLLINGER",'MA5' , "MA25", "VoRSI"]
 EXPECTED_COLUMNS = [
-    "v",
-    "vw",
-    "o",
-    "c",
-    "h",
-    "l",
-    "ATR",
-    "BOLLINGER_UPPER",
-    "BOLLINGER_MIDDLE",
-    "BOLLINGER_LOWER",
-    "MA5",
-    "MA25",
-    "MACD",
-    "MACD_SIGNAL",
-    "MACD_HIST",
-    "OBV",
-    "RSI",
-    "STOCHASTIC_K",
-    "STOCHASTIC_D",
-    "VoRSI",
-    "HT_TRENDLINE",
-    "HT_TRENDMODE",
-    "HT_DCPERIOD",
-    "HT_DCPHASE",
-    "HT_PHASOR_INPHASE",
-    "HT_PHASOR_QUADRATURE",
-    "HT_SINE_SINE",
-    "HT_SINE_LEADSINE",
-    "MFI",
-    "MOM",
-    "PLUS_DI",
-    "PLUS_DM",
 ]
 TARGET = "c"
 

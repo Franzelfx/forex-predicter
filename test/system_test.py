@@ -9,7 +9,7 @@ from src.model import Model
 from src.utilizer import Utilizer
 from src.indicators import Indicators
 from src.visualizer import Visualizer
-from src.data_aquirer import Data_Aquirer
+from src.data_aquirer import DataAquirer
 from src.preprocessor import Preprocessor
 
 class SystemTest(unittest.TestCase):
@@ -30,7 +30,7 @@ class SystemTest(unittest.TestCase):
                     else:
                         continue
                 # Get data from the API
-                aquirer = Data_Aquirer(PATH_PAIRS, API_KEY, api_type="full")
+                aquirer = DataAquirer(PATH_PAIRS, API_KEY, api_type="full")
                 data = aquirer.get(
                     pair, MINUTES_TRAIN, start=START, save=True, end=END, from_file=from_saved_file
                 )

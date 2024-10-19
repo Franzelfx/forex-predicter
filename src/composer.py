@@ -12,7 +12,7 @@ from src.visualizer import Visualizer
 from src.indicators import Indicators
 from datetime import datetime, timedelta
 from src.preprocessor import Preprocessor
-from src.data_aquirer import Data_Aquirer
+from src.data_aquirer import DataAquirer
 from src.model import Branch as ModelBranch
 from src.model import Output as ModelOutput
 # Logger
@@ -233,9 +233,9 @@ class Composer:
 
     def summary(self):
         """loguru.info the summary of the attributes."""
-        loguru.info(self._model_branches)
-        loguru.info(self._model_main_branch)
-        loguru.info(self._model_output)
+        loguru.info("\n" + self._model_branches)
+        loguru.info("\n" + self._model_main_branch)
+        loguru.info("\n" + self._model_output)
 
     def _synchronize_dataframes(self, dataframes, column_to_sync="t"):
         # Create a list to hold all synchronized dataframes
@@ -305,7 +305,7 @@ class Composer:
             pair_names.append(branch)
         for pair in pair_names:
             # Create a data_aquirer object for each pair
-            aquirer = Data_Aquirer(PATH_PAIRS, api_key)
+            aquirer = DataAquirer(PATH_PAIRS, api_key)
             # Recalculate the end time, if today is a weekend day (only for pair with C: in name)
             if pair.startswith("C:") and end_time is None:
                 end_time = self.reconfigure_end_time(datetime.today())
@@ -351,7 +351,7 @@ class Composer:
                 )
 
             # Calculate the indicators
-            data = indicator.calculate(save=save)
+            data = indicator.calculate_indicators_in_parallel()
             #data = indicator.calculate_indicators_in_parallel()
             # Append the dataframes to the indicators list
             indicators.append(data)

@@ -8,36 +8,19 @@ import talib.abstract as talib
 from src.logger import logger as loguru
 
 class Indicators:
-    """Used to calculate indicators from the data and add them to the dataframe.
-
-    @remarks The indicators are calculated using the talib library.
-             Please refer to https://mrjbq7.github.io/ta-lib/ for more information.
-    """
-
     def __init__(self, path: str, pair: str, data: pd.DataFrame, requested: list):
         """Set the fundamental attributes."""
         self._path = path
         self._pair = pair
         if ":" in self._pair:
             self._pair = self._pair.split(":")[1]
+        
+        # Use the original column names
         self._data = data
         self._requested = requested
         self._available = [
-            "ATR",
-            "BOLLINGER",
-            "RSI",
-            "MACD",
-            "MOM",
-            "MA5",
-            "MA25",
-            "MA50",
-            "MA200",
-            "ADX",
-            "SAR",
-            "OBV",
-            "MFI",
-            "HT_TRENDMODE",
-            "HT_SINE"
+            "ATR", "BOLLINGER", "RSI", "MACD", "MOM", "MA5", "MA25", "MA50", "MA200",
+            "ADX", "SAR", "OBV", "MFI", "HT_TRENDMODE", "HT_SINE"
         ]
         self._data_offset = 0
 
@@ -51,9 +34,7 @@ class Indicators:
                         pass
             self._data_offset = max(ma)
         if not set(self._requested).issubset(self._available):
-            warning(
-                "One or more indicators are not valid. Please check the documentation."
-            )
+            warning("One or more indicators are not valid. Please check the documentation.")
 
     def summary(self):
         """loguru.info a summary of the indicators."""
@@ -79,96 +60,90 @@ class Indicators:
         """Get the data offset."""
         return self._data_offset
 
-    def calculate(
-        self,
-        save=False,
-        path=None,
-        ma_target="c",
-        keys=["o", "h", "l", "c", "v"],
-        macd_target="c",
-        bb_target="c",
-        rsi_target="c",
-        vo_rsi_target="v",
-        path_extra_info="",
-    ) -> pd.DataFrame:
-        """Calculate the indicators and add them to the dataframe."""
-        loguru.info(
-            f"calculate {len(self._requested)} Indicators with {self._data.memory_usage().sum() / 1024**2:.2f} MB of data, please wait..."
-        )
-        if "ATR" in self._requested:
-            self._data["ATR"] = talib.ATR(
-                self._data[keys[1]],
-                self._data[keys[2]],
-                self._data[keys[3]],
-                timeperiod=14,
-            )
-        if "BOLLINGER" in self._requested:
-            (
-                self._data["BOLLINGER_UPPER"],
-                self._data["BOLLINGER_MIDDLE"],
-                self._data["BOLLINGER_LOWER"],
-            ) = talib.BBANDS(
-                self._data[bb_target], timeperiod=20, nbdevup=2.5, nbdevdn=2.5, matype=0
-            )
-        if "RSI" in self._requested:
-            self._data["RSI"] = talib.RSI(self._data[rsi_target], timeperiod=14)
-        if "MACD" in self._requested:
-            (
-                self._data["MACD"],
-                self._data["MACD_SIGNAL"],
-                self._data["MACD_HIST"],
-            ) = talib.MACD(
-                self._data[macd_target], fastperiod=12, slowperiod=26, signalperiod=9
-            )
-        if "MOM" in self._requested:
-            self._data["MOM"] = talib.MOM(self._data[keys[3]], timeperiod=10)
-        if "MA5" in self._requested:
-            self._data["MA5"] = talib.MA(self._data[ma_target], timeperiod=5, matype=0)
-        if "MA25" in self._requested:
-            self._data["MA25"] = talib.MA(self._data[ma_target], timeperiod=25, matype=0)
-        if "MA50" in self._requested:
-            self._data["MA50"] = talib.MA(self._data[ma_target], timeperiod=50, matype=0)
-        if "MA200" in self._requested:
-            self._data["MA200"] = talib.MA(self._data[ma_target], timeperiod=200, matype=0)
-        if "ADX" in self._requested:
-            self._data["ADX"] = talib.ADX(self._data[keys[1]], self._data[keys[2]], self._data[keys[3]], timeperiod=14)
-        if "SAR" in self._requested:
-            self._data["SAR"] = talib.SAR(self._data[keys[1]], self._data[keys[2]], acceleration=0.02, maximum=0.2)
-        if "OBV" in self._requested:
-            self._data["OBV"] = talib.OBV(self._data[keys[3]], self._data[keys[4]])
-        if "MFI" in self._requested:
-            self._data["MFI"] = talib.MFI(
-                self._data[keys[1]],
-                self._data[keys[2]],
-                self._data[keys[3]],
-                self._data[keys[4]],
-                timeperiod=14,
-            )
-        if "HT_TRENDMODE" in self._requested:
-            self._data["HT_TRENDMODE"] = talib.HT_TRENDMODE(self._data[keys[3]])
-        if "HT_SINE" in self._requested:
-            self._data["HT_SINE_SINE"], self._data["HT_SINE_LEADSINE"] = talib.HT_SINE(
-                self._data[keys[3]]
-            )
+    def calculate_atr(self, data: pd.DataFrame, keys) -> dict:
+        """Calculate the ATR indicator."""
+        return {"ATR": talib.ATR(data[keys[1]], data[keys[2]], data[keys[3]], timeperiod=14)}
 
-        if save is True:
-            path = f"{self._path}/{self._pair}_{path_extra_info}_indicators.csv"
-            self._data.to_csv(path)
-        
-        self._data = self._data[self._data_offset :]
-        return self._data
+    def calculate_bollinger(self, data: pd.DataFrame, bb_target="c") -> dict:
+        """Calculate the Bollinger Bands."""
+        upper, middle, lower = talib.BBANDS(data[bb_target], timeperiod=20, nbdevup=2.5, nbdevdn=2.5, matype=0)
+        return {
+            "BOLLINGER_UPPER": upper,
+            "BOLLINGER_MIDDLE": middle,
+            "BOLLINGER_LOWER": lower
+        }
+
+    def calculate_rsi(self, data: pd.DataFrame, rsi_target) -> dict:
+        """Calculate the RSI indicator."""
+        return {"RSI": talib.RSI(data[rsi_target], timeperiod=14)}
+
+    def calculate_macd(self, data: pd.DataFrame, macd_target) -> dict:
+        """Calculate the MACD indicator."""
+        macd, macd_signal, macd_hist = talib.MACD(
+            data[macd_target], fastperiod=12, slowperiod=26, signalperiod=9
+        )
+        return {
+            "MACD": macd,
+            "MACD_SIGNAL": macd_signal,
+            "MACD_HIST": macd_hist
+        }
+
+    def calculate_mom(self, data: pd.DataFrame, keys) -> dict:
+        """Calculate the Momentum indicator."""
+        return {"MOM": talib.MOM(data[keys[3]], timeperiod=10)}
+
+    def calculate_ma(self, data: pd.DataFrame, ma_target: str, period: int) -> dict:
+        """Calculate the Moving Average for the given period."""
+        return {f"MA{period}": talib.MA(data[ma_target], timeperiod=period, matype=0)}
+
+    def calculate_adx(self, data: pd.DataFrame, keys) -> dict:
+        """Calculate the ADX indicator."""
+        return {"ADX": talib.ADX(data[keys[1]], data[keys[2]], data[keys[3]], timeperiod=14)}
+
+    def calculate_sar(self, data: pd.DataFrame, keys) -> dict:
+        """Calculate the SAR indicator."""
+        return {"SAR": talib.SAR(data[keys[1]], data[keys[2]], acceleration=0.02, maximum=0.2)}
+
+    def calculate_obv(self, data: pd.DataFrame, keys) -> dict:
+        """Calculate the OBV indicator."""
+        return {"OBV": talib.OBV(data[keys[3]], data[keys[4]])}
+
+    def calculate_mfi(self, data: pd.DataFrame, keys) -> dict:
+        """Calculate the MFI indicator."""
+        return {"MFI": talib.MFI(data[keys[1]], data[keys[2]], data[keys[3]], data[keys[4]], timeperiod=14)}
+
+    def calculate_ht_trendmode(self, data: pd.DataFrame, keys) -> dict:
+        """Calculate the HT Trend Mode indicator."""
+        return {"HT_TRENDMODE": talib.HT_TRENDMODE(data[keys[3]])}
+
+    def calculate_ht_sine(self, data: pd.DataFrame, keys) -> dict:
+        """Calculate the HT Sine indicator."""
+        sine, leadsine = talib.HT_SINE(data[keys[3]])
+        return {"HT_SINE_SINE": sine, "HT_SINE_LEADSINE": leadsine}
 
     def calculate_indicators_in_parallel(self):
+        # Map the short column names to the expected full column names for indicator calculation
+        column_mapping = {
+            'o': 'open',
+            'h': 'high',
+            'l': 'low',
+            'c': 'close',
+            'v': 'volume'
+        }
+        
+        # Rename columns to full names
+        self._data = self._data.rename(columns=column_mapping)
+        
         indicators_functions = {
             'ATR': self.calculate_atr,
             'BOLLINGER': self.calculate_bollinger,
             'RSI': self.calculate_rsi,
             'MACD': self.calculate_macd,
             'MOM': self.calculate_mom,
-            'MA5': lambda data: self.calculate_ma(data, 5),
-            'MA25': lambda data: self.calculate_ma(data, 25),
-            'MA50': lambda data: self.calculate_ma(data, 50),
-            'MA200': lambda data: self.calculate_ma(data, 200),
+            'MA5': lambda data, keys: self.calculate_ma(data, 'close', 5),
+            'MA25': lambda data, keys: self.calculate_ma(data, 'close', 25),
+            'MA50': lambda data, keys: self.calculate_ma(data, 'close', 50),
+            'MA200': lambda data, keys: self.calculate_ma(data, 'close', 200),
             'ADX': self.calculate_adx,
             'SAR': self.calculate_sar,
             'OBV': self.calculate_obv,
@@ -177,18 +152,33 @@ class Indicators:
             'HT_SINE': self.calculate_ht_sine
         }
 
-        with concurrent.futures.ThreadPoolExecutor() as executor:
-            futures = []
-            for indicator_name in self._requested:
-                func = indicators_functions.get(indicator_name)
-                if func:
-                    futures.append(executor.submit(func, self._data))
+        required_columns = ['open', 'high', 'low', 'close', 'volume']
+        missing_columns = [col for col in required_columns if col not in self._data.columns]
 
-            for future in concurrent.futures.as_completed(futures):
-                result = future.result()
-                if isinstance(result, dict):
-                    self._data.update(result)
-                else:
-                    self._data[result[0]] = result[1]
+        if missing_columns:
+            loguru.warning(f"Data is missing required columns: {missing_columns}")
+            return self._data  # Return early if required columns are missing
+
+        # Calculate indicators in parallel
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            futures = {
+                indicator: executor.submit(func, self._data, ['open', 'high', 'low', 'close', 'volume']) 
+                for indicator, func in indicators_functions.items() 
+                if indicator in self._requested
+            }
+
+            for indicator, future in futures.items():
+                try:
+                    result = future.result()
+                    if isinstance(result, dict):
+                        for key, value in result.items():
+                            self._data[key] = value
+                except Exception as exc:
+                    loguru.warning(f'{indicator} generated an exception: {exc}')
+
+        # After calculations, map columns back to the original short names
+        reverse_column_mapping = {v: k for k, v in column_mapping.items()}
+        self._data = self._data.rename(columns=reverse_column_mapping)
 
         return self._data
+

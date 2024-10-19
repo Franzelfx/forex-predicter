@@ -11,7 +11,7 @@ from src.utilizer import Utilizer
 from src.visualizer import Visualizer
 from src.indicators import Indicators
 from src.preprocessor import Preprocessor
-from src.data_aquirer import Data_Aquirer
+from src.data_aquirer import DataAquirer
 from src.model import Architecture, Branch, Output
 
 
@@ -58,7 +58,7 @@ class Test_Model(unittest.TestCase):
         CORR_PAIRS = ["C:USDCHF", "C:EURCAD", "C:GBPJPY", "C:GBPCAD", "C:USDJPY"]
         pairs = []
         # First get the target pair
-        aquirer = Data_Aquirer(PATH_PAIRS, API_KEY, api_type="full")
+        aquirer = DataAquirer(PATH_PAIRS, API_KEY, api_type="full")
         target_pair = aquirer.get(
             pair,
             MINUTES_TRAIN,

@@ -1,9 +1,9 @@
 """Testbench (unit test) for the Data_Aquirer class."""
 import unittest
 from config_tb import *
-from src.data_aquirer import Data_Aquirer
+from src.data_aquirer import DataAquirer
 
-class Test_Data_Aquirer(unittest.TestCase):
+class TestDataAquirer(unittest.TestCase):
     """Test the Data_Aquirer class.
     
     @remarks This is some unit test for the Data_Aquirer class.
@@ -13,7 +13,7 @@ class Test_Data_Aquirer(unittest.TestCase):
         """Initialize the testbench."""
         super().__init__(methodName)
         API_KEY = os.environ.get("API_KEY")
-        self.aquirer = Data_Aquirer(PATH_PAIRS, API_KEY, api_type='full')
+        self.aquirer = DataAquirer(PATH_PAIRS, API_KEY, api_type='full')
 
     def test_get_api(self):
         """Test the get method."""
