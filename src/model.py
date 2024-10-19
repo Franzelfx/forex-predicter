@@ -61,7 +61,10 @@ class Architecture:
 
 class ResetStatesCallback(tf.keras.callbacks.Callback):
     def on_epoch_end(self, epoch, logs=None):
-        self.model.reset_states()
+        for layer in self.model.layers:
+            # Check if the layer has the 'reset_states' method
+            if hasattr(layer, 'reset_states'):
+                layer.reset_states()
 
 
 class CustomLRScheduler(tf.keras.callbacks.Callback):
@@ -345,7 +348,7 @@ class Model:
         if continue_training:
             try:
                 # Attempt to load the last saved weights
-                path = f"{self._path}/checkpoints/{self._name}"
+                path = f"{self._path}/checkpoints/{self._name}.keras"
                 self._model: tf.keras.Model = self.load_model(path)
                 loguru.info("Continuing training from the last checkpoint.")
             except Exception as e:
@@ -359,7 +362,7 @@ class Model:
             return
         reset_states = ResetStatesCallback()
         model_checkpoint = ModelCheckpoint(
-            filepath=f"{self._path}/checkpoints/{self._name}"
+            filepath=f"{self._path}/checkpoints/{self._name}.keras"
         )
         early_stopping = EarlyStopping(
             monitor="val_loss", patience=patience, mode="min", verbose=1
@@ -421,7 +424,7 @@ class Model:
                     shuffle=False,
                 )
             # Load the best weights
-            self._model.load_weights(f"{self._path}/checkpoints/{self._name}")
+            self._model.load_weights(f"{self._path}/checkpoints/{self._name}.keras")
             self._model = self._model
             self._plot_fit_history(fit)
             # Convert the fit history to dataframe
@@ -460,12 +463,12 @@ class Model:
         :remarks:   • If from_saved_model is False, "compile_and_fit()" must be called first.
                     • The predicted values are scaled back to the original scale if a scaler is given.
         """
-        path = f"{self._path}/checkpoints/{self._name}"
+        path = f"{self._path}/checkpoints/{self._name}.keras"
 
         # Get the model
         if from_saved_model:
             prediction_model: tf.keras.Model = self.load_model(path)
-            loguru.info(f"Loaded model from: {path}")
+            loguru.info(f"Loaded model from: {path}.keras")
         else:
             # Check if the model has been fitted
             if self._model is None:
@@ -516,7 +519,7 @@ class Model:
         - confidence_percent: Confidence in predictions as a percentage.
         """
 
-        path = f"{self._path}/checkpoints/{self._name}"
+        path = f"{self._path}/checkpoints/{self._name}.keras"
 
         if from_saved_model:
             # Load the model from a saved file
