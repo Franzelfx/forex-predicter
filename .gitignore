@@ -13,3 +13,4 @@ venv/
 *dump*
 *.lock
 *src/llama/model/*
+.keras
