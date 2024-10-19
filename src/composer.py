@@ -1,8 +1,10 @@
 """This module composes data_aquirer, indicator, preprocessor and model into a single class."""
 import os
 import json
+import asyncio
 import numpy as np
 import pandas as pd
+import tensorflow as tf
 from src.model import Model
 from tabulate import tabulate
 from src.utilizer import Utilizer
@@ -15,6 +17,7 @@ from src.preprocessor import Preprocessor
 from src.data_aquirer import DataAquirer
 from src.model import Branch as ModelBranch
 from src.model import Output as ModelOutput
+from concurrent.futures import ThreadPoolExecutor, as_completed
 # Logger
 from src.logger import logger as loguru
 
@@ -99,7 +102,7 @@ class MainBranch:
 class Composer:
     """This class takes some recipe.json file and composes the data_aquirer, indicator, preprocessor and model into a single class."""
 
-    def __init__(self, pair_name: str):
+    def __init__(self, pair_name: str, max_concurrent_tasks: int = len(os.sched_getaffinity(0))):
         """Set the fundamental attributes.
 
         @param The name of the pairs recipe to be used.
@@ -145,6 +148,9 @@ class Composer:
             self._branches[name] = Branch(name, attributes)
         self._main_branch = MainBranch(recipe["MAIN_BRANCH"])
         self._output = Output(recipe)
+        
+        # Se,maphore for limiting the number of concurrent operations
+        self.semaphore = asyncio.Semaphore(max_concurrent_tasks)  # Limit concurrency
 
     @property
     def end_time(self):
@@ -233,6 +239,22 @@ class Composer:
 
     def summary(self):
         """loguru.info the summary of the attributes."""
+        # Log available GPU and CPU devices in a tabular format
+        cpus = os.sched_getaffinity(0)
+        gpus = tf.config.experimental.list_physical_devices("GPU")
+        loguru.info("\n" +
+            tabulate(
+                {
+                    "CPU": cpus,
+                    "GPU": gpus,
+                },
+                headers="keys",
+                tablefmt="pretty",
+            )
+        )
+        # Log information about resource usage
+        loguru.info(f"Use {cpus} CPU's for thread execution and {gpus} GPU's for model training.")
+        # Log the model tree of the attributes
         loguru.info("\n" + self._model_branches)
         loguru.info("\n" + self._model_main_branch)
         loguru.info("\n" + self._model_output)
@@ -278,39 +300,74 @@ class Composer:
             dataframes[i] = df
         return dataframes
 
-    def aquire(
+    async def aquire(
         self,
         api_key: str = None,
         api_type: str = None,
-        from_file=False,
-        save=True,
+        from_file: bool = False,
+        save: bool = True,
         interval: int = None,
-        no_request=False,
-        ignore_start=False,
-        end_time=None,
+        no_request: bool = False,
+        ignore_start: bool = False,
+        end_time: str = None,
     ):
-        """Aquire the data for al pairs."""
+        """Acquire data for all pairs asynchronously, with limited parallelism."""
         self._end_time = end_time
         self._interval = interval if interval is not None else self._processing.interval
-        if api_key is None:
-            api_key = self._base.api_key
-        if api_type is None:
-            api_type = self._base.api_type
-        # First get all pairs which are needed for the model
-        # (branch names are the same as the pair names) first pair is the main pair
-        pairs = []
-        pair_names = []
-        # pair_names.append(self._processing.pair)
-        for branch in self._branches:
-            pair_names.append(branch)
-        for pair in pair_names:
-            # Create a data_aquirer object for each pair
+        api_key = api_key or self._base.api_key
+        api_type = api_type or self._base.api_type
+
+        # Prepare pair names
+        pair_names = [branch for branch in self._branches]
+
+        # Precompute the end_time if necessary
+        if end_time is None:
+            today = datetime.today()
+            if any(pair.startswith("C:") for pair in pair_names):
+                end_time = self.reconfigure_end_time(today)
+
+        # Fetch data for all pairs with concurrency limits using Semaphore
+        tasks = [
+            self._limited_fetch_pair_data(
+                pair, api_key, interval, end_time, from_file, save, no_request, ignore_start
+            )
+            for pair in pair_names
+        ]
+
+        # Gather results asynchronously
+        pairs = await asyncio.gather(*tasks, return_exceptions=True)
+
+        # Handle any exceptions and collect valid pairs
+        valid_pairs = []
+        for idx, result in enumerate(pairs):
+            if isinstance(result, Exception):
+                loguru.warning(f"Pair {pair_names[idx]} generated an exception: {result}")
+            else:
+                valid_pairs.append(result)
+
+        # Sync the dataframes
+        valid_pairs = self._synchronize_dataframes(valid_pairs)
+        self._pairs = valid_pairs
+        self._pair_names = pair_names
+        return valid_pairs
+
+    async def _limited_fetch_pair_data(
+        self,
+        pair: str,
+        api_key: str,
+        interval: int,
+        end_time: str,
+        from_file: bool,
+        save: bool,
+        no_request: bool,
+        ignore_start: bool,
+    ):
+        """Helper method to fetch data for a single pair with limited concurrency."""
+        async with self.semaphore:  # Limit the number of concurrent operations
             aquirer = DataAquirer(PATH_PAIRS, api_key)
-            # Recalculate the end time, if today is a weekend day (only for pair with C: in name)
-            if pair.startswith("C:") and end_time is None:
-                end_time = self.reconfigure_end_time(datetime.today())
-            # Aquire the data
-            pair = aquirer.get(
+
+            # Acquire the data asynchronously
+            data = await aquirer.get(
                 pair,
                 time_base=self._processing.interval if interval is None else interval,
                 start=self._processing.start_date,
@@ -320,13 +377,7 @@ class Composer:
                 no_request=no_request,
                 ignore_start=ignore_start,
             )
-            # Append the dataframes to the pairs list
-            pairs.append(pair)
-        # Sync the dataframes
-        pairs = self._synchronize_dataframes(pairs)
-        self._pairs = pairs
-        self._pair_names = pair_names
-        return pairs
+        return data
 
     def calculate(self, save=False):
         """Calculate the indicators."""

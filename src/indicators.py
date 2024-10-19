@@ -1,4 +1,5 @@
 """Module for the indicators class."""
+import os
 import pandas as pd
 import concurrent.futures
 from logging import warning
@@ -158,9 +159,15 @@ class Indicators:
         if missing_columns:
             loguru.warning(f"Data is missing required columns: {missing_columns}")
             return self._data  # Return early if required columns are missing
+        
+        # Loguru.info the indicators that will be calculated
+        loguru.info(f"Calculating the following indicators: {self._requested}")
+        
+        # Limit the number of threads to avoid overloading the system
+        max_threads = len(os.sched_getaffinity(0))
 
         # Calculate indicators in parallel
-        with concurrent.futures.ThreadPoolExecutor() as executor:
+        with concurrent.futures.ThreadPoolExecutor(max_threads) as executor:
             futures = {
                 indicator: executor.submit(func, self._data, ['open', 'high', 'low', 'close', 'volume']) 
                 for indicator, func in indicators_functions.items() 
