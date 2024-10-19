@@ -14,12 +14,13 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins, replace with your domain(s)
-    allow_methods=["*"],  # Allow all HTTP methods
-    allow_headers=["*"],  # Allow all HTTP headers
-    allow_credentials=True,  # Allow sending cookies and credentials
-    expose_headers=["*"],  # Expose all response headers
+    allow_origins=["http://w7cauhlbal7amorf.myfritz.net:4200"],  # Allow the specific frontend domain
+    allow_methods=["*"],
+    allow_headers=["*"],
+    allow_credentials=True,
+    expose_headers=["*"],
 )
+
 app.include_router(router, prefix="/v1", tags=["routes"])
 
 inference.init_scheduler()

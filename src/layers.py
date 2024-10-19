@@ -36,12 +36,26 @@ class TransformerBlock(tf.keras.layers.Layer):
         
         super().build(input_shape)
 
+    def create_causal_mask(self, seq_len):
+        """
+        Create a causal mask to prevent attending to future positions.
+        """
+        mask = 1 - tf.linalg.band_part(tf.ones((seq_len, seq_len)), -1, 0)
+        return mask
+
     def call(self, input_tensor):
         input_matched_1 = self.dense_1(input_tensor)
         query = self.dense_2(input_matched_1)
         value = self.dense_3(input_matched_1)
 
-        attention_1 = self.multihead_attention(query, value)
+        # Get the sequence length
+        seq_len = tf.shape(input_tensor)[1]
+
+        # Create the causal mask
+        causal_mask = self.create_causal_mask(seq_len)
+
+        # Apply Multi-Head Attention with the causal mask
+        attention_1 = self.multihead_attention(query, value, attention_mask=causal_mask)
         dropout_attention = self.dropout_attention(attention_1)
         residual_attention = self.concat_attention([input_tensor, dropout_attention])
         norm_attention = self.layer_norm_1(residual_attention)
@@ -62,6 +76,10 @@ class TransformerBlock(tf.keras.layers.Layer):
             'dropout_rate': self.dropout_rate,
         })
         return config
+
+    @classmethod
+    def from_config(cls, config):
+        return cls(**config)
 
     @classmethod
     def from_config(cls, config):
