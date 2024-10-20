@@ -449,27 +449,35 @@ class Composer:
         return preprocessed
 
     def compile(self, strategy=None):
+        """
+        Compiles the Keras model based on the architecture defined by branches, main branch, and output.
+        """
+        # Initialize the model
         self.model = Model(
             MODEL_PATH,
             self._processing.pair,
             self.target_preprocessed.y_train,
         )
-        # Now we create our architecture
+        
+        # Create architecture for branches
         branches = []
         i = 0
-        for branch in self._branches:
+        for branch_name, branch_config in self._branches.items():
             if isinstance(self._preprocessed[i].x_train, np.ndarray):
-                branches.append(
-                    ModelBranch(
-                        self._preprocessed[i].x_train,
-                        self._branches[branch].nodes["TRANSFORMER"],
-                        self._branches[branch].nodes["LSTM"],
-                        self._branches[branch].nodes["DENSE"],
-                        self._branches[branch].nodes["ATTENTION_HEADS"],
-                        self._branches[branch].nodes["DROPOUT"],
-                    )
+                # Incorporate branch naming here for better clarity
+                branch_layer = ModelBranch(
+                    self._preprocessed[i].x_train,
+                    branch_config.nodes["TRANSFORMER"],  # Accessing nodes as dictionary
+                    branch_config.nodes["LSTM"],
+                    branch_config.nodes["DENSE"],
+                    branch_config.nodes["ATTENTION_HEADS"],
+                    branch_config.nodes["DROPOUT"],
+                    name=f"branch_{branch_name}"  # Naming each branch appropriately
                 )
-            i = i + 1
+                branches.append(branch_layer)
+            i += 1
+
+        # Main branch
         main_branch = ModelBranch(
             self.target_preprocessed.x_train,
             self._main_branch.nodes["TRANSFORMER"],
@@ -477,15 +485,28 @@ class Composer:
             self._main_branch.nodes["DENSE"],
             self._main_branch.nodes["ATTENTION_HEADS"],
             self._main_branch.nodes["DROPOUT"],
+            name="main_branch"
         )
-        output = ModelOutput(self._output.nodes["DENSE"], self._output.nodes["DROPOUT"])
+
+        # Output
+        output = ModelOutput(
+            self._output.nodes["DENSE"], 
+            self._output.nodes["DROPOUT"],
+            name="output_layer"
+        )
+
+        # Combine architecture
         architecture = Architecture(branches, main_branch, output)
+
+        # Compile model
         self.model.compile(
             architecture,
             learning_rate=self._processing.learning_rate,
             strategy=strategy,
         )
+
         return self.model
+
 
     def fit(self, strategy=None, continue_training=False):
         """Fit the model."""

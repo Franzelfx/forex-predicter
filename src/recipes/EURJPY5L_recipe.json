@@ -37,7 +37,7 @@
       "NODES": {
         "TRANSFORMER": [
           192,
-          96
+          192
         ],
         "LSTM": [
           96,
@@ -45,7 +45,7 @@
         ],
         "DENSE": [
           192,
-          96
+          192
         ],
         "ATTENTION_HEADS": [
           16,
@@ -78,7 +78,7 @@
       "NODES": {
         "TRANSFORMER": [
           192,
-          96
+          192
         ],
         "LSTM": [
           96,
@@ -119,7 +119,7 @@
       "NODES": {
         "TRANSFORMER": [
           192,
-          96
+          192
         ],
         "LSTM": [
           96,
@@ -160,7 +160,7 @@
       "NODES": {
         "TRANSFORMER": [
           192,
-          96
+          192
         ],
         "LSTM": [
           96,
@@ -185,7 +185,7 @@
     "NODES": {
       "TRANSFORMER": [
         192,
-        96,
+        192,
         96
       ],
       "LSTM": [

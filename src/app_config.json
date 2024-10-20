@@ -21,5 +21,6 @@
         "EURJPY5L"
     ],
     "FOREX_PREFIX": "C:",
-    "DEFAULT_GPU": 0
+    "DEFAULT_GPU": 0,
+    "RETURN_LAST_N_DAYS": 7
 }

@@ -7,12 +7,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from pytz import utc
 from src.composer import Composer
 from loguru import logger as loguru
-
-
-def get_config():
-    with open("src/app_config.json", "r") as file:
-        config = json.load(file)
-    return config
+from src.config import get_config
 
 def pairs_to_predict(config: dict):
     # Check if FOREX_PAIRS is *, then use all Pairs in the recipes folder

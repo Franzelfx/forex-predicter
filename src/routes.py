@@ -9,6 +9,7 @@ from fastapi import Body
 from typing import Optional
 from fastapi import BackgroundTasks
 from src.inference import main
+from src.config import get_config
 
 router = APIRouter()
 
@@ -167,6 +168,37 @@ async def read_latest_confidence(pair: str):
             status_code=404, detail=f"Confidence information not found in file"
         )
 
+@router.get("/prediction/{pair}")
+async def read_prediction_close(pair: str):
+    file_path = f"src/model_predictions/composer/{pair}_dump.json"
+    if not isfile(file_path):
+        raise HTTPException(status_code=404, detail="File not found")
+
+    with open(file_path, "r") as file:
+        data = json.load(file)
+
+    try:
+        predictions = data["predictions"]
+
+        # Load the configuration to get the number of days to return
+        config = get_config()
+        n_days = config.get("RETURN_LAST_N_DAYS", 7)  # Default to 7 days if not configured
+
+        # Filter the last n predictions
+        filtered_predictions = predictions[-n_days:]
+
+        response_data = [
+            {
+                "time": datetime.strptime(prediction["t"], "%Y-%m-%d %H:%M:%S").replace(tzinfo=timezone.utc).timestamp(),
+                "close": prediction["y_hat"],
+            }
+            for prediction in filtered_predictions
+        ]
+
+        return response_data
+    except KeyError as e:
+        raise HTTPException(status_code=404, detail=f"{e.args[0]} not found in file")
+
 @router.get("/bars/{pair}/{bars}")
 async def read_model_predictions(pair: str, bars: int = 100):
     file_path = f"src/model_predictions/composer/{pair}_dump.json"
@@ -183,19 +215,11 @@ async def read_model_predictions(pair: str, bars: int = 100):
         if len(pairs_data) < bars:
             raise HTTPException(status_code=400, detail="Not enough data available")
 
-        # Get timestamp based on interval
-        interval = data["processing"]["interval"]
-        last_monday_timestamp = get_timestamp_from_timedelta(interval / 5)
+        # Retrieve the last 'bars' number of data points
+        selected_data = pairs_data[-bars:]
 
-        # Filter based on timestamp
-        selected_data = [
-            entry for entry in pairs_data[-bars:] 
-            if datetime.strptime(entry["time"], "%Y-%m-%d %H:%M:%S").replace(tzinfo=timezone.utc).timestamp() >= last_monday_timestamp
-        ]
         # Initialize formatted_data
         formatted_data = []
-
-        # Append existing data to formatted_data
         for entry in selected_data:
             timestamp_str = entry["time"]
             timestamp = datetime.strptime(timestamp_str, "%Y-%m-%d %H:%M:%S")
@@ -209,35 +233,13 @@ async def read_model_predictions(pair: str, bars: int = 100):
                     "close": entry["close"],
                 }
             )
+
         return formatted_data
     except KeyError as e:
         raise HTTPException(status_code=404, detail=f"{e.args[0]} not found in file")
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-
-@router.get("/prediction/{pair}")
-async def read_prediction_close(pair: str):
-    file_path = f"src/model_predictions/composer/{pair}_dump.json"
-    if not isfile(file_path):
-        raise HTTPException(status_code=404, detail="File not found")
-    with open(file_path, "r") as file:
-        data = json.load(file)
-    try:
-        predictions = data["predictions"]
-        # Get timestamp based on interval
-        interval = data["processing"]["interval"]
-        last_monday_timestamp = get_timestamp_from_timedelta(interval / 5)
-        response_data = [
-            {
-                "time": datetime.strptime(prediction["t"], "%Y-%m-%d %H:%M:%S").replace(tzinfo=timezone.utc).timestamp(),
-                "close": prediction["y_hat"],
-            }
-            for prediction in predictions if datetime.strptime(prediction["t"], "%Y-%m-%d %H:%M:%S").replace(tzinfo=timezone.utc).timestamp() >= last_monday_timestamp
-        ]
-        return response_data
-    except KeyError as e:
-        raise HTTPException(status_code=404, detail=f"{e.args[0]} not found in file")
 
 @router.put("/update_prediction_times")
 async def update_prediction_times(new_times: list = Body(...)):

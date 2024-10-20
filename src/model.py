@@ -37,7 +37,9 @@ class Branch:
         dense_neurons,
         attention_heads,
         dropout_rate,
+        name=None,
     ):
+        self.name = name
         self.input = _input
         self.transformer_neurons = transformer_neurons
         self.lstm_neurons = lstm_neurons
@@ -47,9 +49,10 @@ class Branch:
 
 
 class Output:
-    def __init__(self, hidden_neurons, dropout_rate):
+    def __init__(self, hidden_neurons, dropout_rate, name=None):
         self.hidden_neurons = hidden_neurons
         self.dropout_rate = dropout_rate
+        self.name = name
 
 
 class Architecture:
